@@ -6,6 +6,14 @@ Command line interface for creating git commit templates provisioned with one or
 - [ ] pkg via fpm (unix + osx [+ win]) -> releases
 - [ ] CI
 
+## Build Dependencies
+This project makes use of [git2go](https://github.com/libgit2/git2go) which provides go bindings for [libgit2](http://libgit2.github.com/). You therefore need to install the later.
+
+For e.g. debian the required packages may be installed via:
+```bash
+apt-get install libgit2-24 libgit2-dev # or just make os_deps
+```
+
 ## Install
 ```bash
 go get github.com/hekmekk/git-team
