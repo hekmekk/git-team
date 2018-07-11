@@ -10,7 +10,7 @@ _git_team() {
 
 	local cur=${COMP_WORDS[COMP_CWORD]}
 	local prev=${COMP_WORDS[COMP_CWORD-1]}
-	local aliases="$(/usr/bin/env git config --name-only --get-regexp 'team.alias' | awk -v FS='.' '{ print $3 }')"
+	local aliases="$(/usr/bin/env git config --global --name-only --get-regexp 'team.alias' | awk -v FS='.' '{ print $3 }')"
 
 	if [[ $prev == \"* ]]; then
 		__git_team_coauthor_completion
