@@ -1,7 +1,9 @@
+VERSION:=v0.0.1-alpha1
+
 all: test fmt build man_page
 
 os_deps:
-	apt-get install libgit2-24 libgit2-dev
+	apt-get install libgit2-24 libgit2-dev docker-ce
 
 deps:
 	go get
@@ -46,3 +48,9 @@ purge: clean
 	rm -f $(GOPATH)/pkg/linux_amd64/gopkg.in/alecthomas/kingpin.v2.a
 	rm -rf $(GOPATH)/src/gopkg.in/alecthomas/kingpin.v2
 	rm -rf /tmp/.git-team
+
+docker_build:
+	 docker build -t git-team-docker:$(VERSION) .
+
+docker: docker_build
+	 docker run --rm -v /tmp/.git-team:/tmp/.git-team git-team-docker:$(VERSION) git team --help
