@@ -40,6 +40,7 @@ clean:
 	rm -f /tmp/.git-team/STATE
 	git config --global --unset commit.template || true
 	git config --global --remove-section team.alias || true
+	git config --remove-section team.alias || true
 
 purge: clean
 	rm -f /usr/bin/git-team

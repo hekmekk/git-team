@@ -4,19 +4,42 @@ import (
 	"errors"
 	"fmt"
 	"gopkg.in/libgit2/git2go.v24"
+	"os"
 	"strings"
 )
 
 const commitTemplate = "commit.template"
+const teamAlias = "team.alias"
 
 func ResolveAlias(alias string) (string, error) {
+	aliasFullPath := fmt.Sprintf("%s.%s", teamAlias, alias)
+	coauthor, err := resolveAliasFromGlobalConfig(aliasFullPath)
+	if err != nil {
+		return resolveAliasFromRepoLocalConfig(aliasFullPath)
+	}
+	return coauthor, nil
+}
+
+func resolveAliasFromGlobalConfig(aliasFullPath string) (string, error) {
 	globalConfig, err := getGlobalConfig()
 	if err != nil {
 		return "", err
 	}
-	coauthor, err := globalConfig.LookupString(fmt.Sprintf("team.alias.%s", alias))
+	coauthor, err := globalConfig.LookupString(aliasFullPath)
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("Failed to resolve alias %s", alias))
+		return "", errors.New(fmt.Sprintf("Failed to resolve alias %s", aliasFullPath))
+	}
+	return strings.TrimRight(coauthor, "\n"), nil
+}
+
+func resolveAliasFromRepoLocalConfig(aliasFullPath string) (string, error) {
+	repoLocalConfig, err := getRepoLocalConfig()
+	if err != nil {
+		return "", err
+	}
+	coauthor, err := repoLocalConfig.LookupString(aliasFullPath)
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("Failed to resolve alias %s", aliasFullPath))
 	}
 	return strings.TrimRight(coauthor, "\n"), nil
 }
@@ -54,4 +77,18 @@ func getGlobalConfig() (*git.Config, error) {
 	}
 
 	return git.OpenOndisk(nil, globalConfigPath)
+}
+
+func getRepoLocalConfig() (*git.Config, error) {
+	workDir, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+
+	repo, err := git.OpenRepository(workDir)
+	if err != nil {
+		return nil, errors.New("Not a git repository")
+	}
+
+	return repo.Config()
 }
