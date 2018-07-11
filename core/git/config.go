@@ -13,35 +13,11 @@ const teamAlias = "team.alias"
 
 func ResolveAlias(alias string) (string, error) {
 	aliasFullPath := fmt.Sprintf("%s.%s", teamAlias, alias)
-	coauthor, err := resolveAliasFromGlobalConfig(aliasFullPath)
+	coauthor, err := resolveAlias(getGlobalConfig)(aliasFullPath)
 	if err != nil {
-		return resolveAliasFromRepoLocalConfig(aliasFullPath)
+		return resolveAlias(getRepoLocalConfig)(aliasFullPath)
 	}
 	return coauthor, nil
-}
-
-func resolveAliasFromGlobalConfig(aliasFullPath string) (string, error) {
-	globalConfig, err := getGlobalConfig()
-	if err != nil {
-		return "", err
-	}
-	coauthor, err := globalConfig.LookupString(aliasFullPath)
-	if err != nil {
-		return "", errors.New(fmt.Sprintf("Failed to resolve alias %s", aliasFullPath))
-	}
-	return strings.TrimRight(coauthor, "\n"), nil
-}
-
-func resolveAliasFromRepoLocalConfig(aliasFullPath string) (string, error) {
-	repoLocalConfig, err := getRepoLocalConfig()
-	if err != nil {
-		return "", err
-	}
-	coauthor, err := repoLocalConfig.LookupString(aliasFullPath)
-	if err != nil {
-		return "", errors.New(fmt.Sprintf("Failed to resolve alias %s", aliasFullPath))
-	}
-	return strings.TrimRight(coauthor, "\n"), nil
 }
 
 func SetCommitTemplate(path string) error {
@@ -66,8 +42,18 @@ func UnsetCommitTemplate() error {
 	return globalConfig.Delete(commitTemplate)
 }
 
-func lookupEntry(config *git.Config, key string) (string, error) {
-	return config.LookupString(key)
+func resolveAlias(configProvider func() (*git.Config, error)) func(string) (string, error) {
+	return func(aliasFullPath string) (string, error) {
+		config, err := configProvider()
+		if err != nil {
+			return "", err
+		}
+		coauthor, err := config.LookupString(aliasFullPath)
+		if err != nil {
+			return "", errors.New(fmt.Sprintf("Failed to resolve alias %s", aliasFullPath))
+		}
+		return strings.TrimRight(coauthor, "\n"), nil
+	}
 }
 
 func getGlobalConfig() (*git.Config, error) {
