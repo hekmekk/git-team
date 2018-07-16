@@ -46,14 +46,18 @@ func resolveAlias(configProvider func() (*git.Config, error)) func(string) (stri
 	return func(aliasFullPath string) (string, error) {
 		config, err := configProvider()
 		if err != nil {
-			return "", err
+			return "", resolveErr(aliasFullPath)
 		}
 		coauthor, err := config.LookupString(aliasFullPath)
 		if err != nil {
-			return "", errors.New(fmt.Sprintf("Failed to resolve alias %s", aliasFullPath))
+			return "", resolveErr(aliasFullPath)
 		}
 		return strings.TrimRight(coauthor, "\n"), nil
 	}
+}
+
+func resolveErr(aliasFullPath string) error {
+	return errors.New(fmt.Sprintf("Failed to resolve alias %s", aliasFullPath))
 }
 
 func getGlobalConfig() (*git.Config, error) {
