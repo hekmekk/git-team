@@ -37,10 +37,12 @@ package_build:
 	cp git-team.go pkg/src/
 	cp -r core pkg/src/
 	cp -r bash_completion pkg/src/
-	docker build -t git-team-pkg:$(VERSION) pkg/
+	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-pkg:$(VERSION) pkg/
 
 package: package_build
-	docker run --rm -v `pwd`:/src -v `pwd`/pkg/target:/target git-team-pkg:$(VERSION) fpm \
+	mkdir -p pkg/target/
+	chown -R $(shell id -u):$(shell id -u) pkg/target/
+	docker run --rm -v `pwd`/pkg/target:/target git-team-pkg:$(VERSION) fpm \
 		-f \
 		-s dir \
 		-t deb \
@@ -49,6 +51,7 @@ package: package_build
 		--url "https://github.com/hekmekk/git-team" \
 		--license "MIT" \
 		--description "git-team - commit template provisioning with co-authors" \
+		--deb-no-default-config-files \
 		-p /target \
 		git-team=/usr/bin/git-team \
 		bash_completion/git-team.bash=/etc/bash_completion.d/git-team \
