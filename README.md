@@ -3,7 +3,7 @@
 Command line interface for creating git commit templates provisioned with one or more co-authors.
 
 ## TODOs
-- [ ] pkg via fpm (unix + osx [+ win]) -> releases
+- [ ] release(s) + tags (for versions)
 - [ ] CI
 
 ## Build Dependencies
