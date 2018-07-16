@@ -1,4 +1,4 @@
-package state
+package status
 
 import (
 	"bytes"
@@ -10,13 +10,25 @@ import (
 	"os"
 )
 
-func Save(status Status, coauthors ...string) error {
+type State uint
+
+const (
+	ENABLED State = iota
+	DISABLED
+)
+
+type Status struct {
+	State     State
+	CoAuthors []string
+}
+
+func Save(state State, coauthors ...string) error {
 	cfg, _ := config.Load()
 
-	state := State{Status: status, CoAuthors: coauthors}
+	status := Status{State: state, CoAuthors: coauthors}
 	buf := new(bytes.Buffer)
 
-	err := toml.NewEncoder(buf).Encode(state)
+	err := toml.NewEncoder(buf).Encode(status)
 	if err != nil {
 		return err
 	}
@@ -27,16 +39,16 @@ func Save(status Status, coauthors ...string) error {
 func Print() {
 	cfg, _ := config.Load()
 
-	var state State
-	if _, err := toml.DecodeFile(fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.StatusFileName), &state); err != nil {
+	var status Status
+	if _, err := toml.DecodeFile(fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.StatusFileName), &status); err != nil {
 		color.Red("Team mode disabled.")
 		os.Exit(0)
 	}
 
-	switch state.Status {
+	switch status.State {
 	case ENABLED:
 		color.Green("Team mode enabled.")
-		coauthors := state.CoAuthors
+		coauthors := status.CoAuthors
 		if len(coauthors) > 0 {
 			blackBold := color.New(color.FgBlack).Add(color.Bold)
 			fmt.Println()

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/hekmekk/git-team/core/config"
 	"github.com/hekmekk/git-team/core/git"
-	"github.com/hekmekk/git-team/core/state"
+	"github.com/hekmekk/git-team/core/status"
 	"io/ioutil"
 	"os"
 	"sync"
@@ -13,7 +13,7 @@ import (
 func EnableCommand(coauthors *[]string) {
 	cfg, _ := config.Load()
 
-	defer state.Print()
+	defer status.Print()
 
 	if len(*coauthors) == 0 {
 		return
@@ -46,8 +46,8 @@ func EnableCommand(coauthors *[]string) {
 
 	go func() {
 		defer wg.Done()
-		writeStateFileErr := state.Save(state.ENABLED, validCoAuthors...)
-		ToStderrAndExit(writeStateFileErr)
+		writestatusFileErr := status.Save(status.ENABLED, validCoAuthors...)
+		ToStderrAndExit(writestatusFileErr)
 	}()
 
 	wg.Wait()

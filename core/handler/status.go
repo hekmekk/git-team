@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"github.com/hekmekk/git-team/core/state"
+	"github.com/hekmekk/git-team/core/status"
 )
 
 func Status() {
-	state.Print()
+	status.Print()
 }
