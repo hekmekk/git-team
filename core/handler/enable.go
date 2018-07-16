@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"github.com/hekmekk/git-team/core/config"
 	"github.com/hekmekk/git-team/core/git"
 	"github.com/hekmekk/git-team/core/state"
 	"io/ioutil"
@@ -9,8 +10,10 @@ import (
 	"sync"
 )
 
-func EnableCommand(coauthors *[]string, baseDir, templateFile, stateFile string) {
-	defer state.Print(baseDir, stateFile)
+func EnableCommand(coauthors *[]string) {
+	cfg, _ := config.Load()
+
+	defer state.Print()
 
 	if len(*coauthors) == 0 {
 		return
@@ -21,10 +24,10 @@ func EnableCommand(coauthors *[]string, baseDir, templateFile, stateFile string)
 
 	coauthorsString := PrepareForCommitMessage(validCoAuthors)
 
-	mkdirErr := os.MkdirAll(baseDir, os.ModePerm)
+	mkdirErr := os.MkdirAll(cfg.BaseDir, os.ModePerm)
 	ToStderrAndExit(mkdirErr)
 
-	templatePath := fmt.Sprintf("%s/%s", baseDir, templateFile)
+	templatePath := fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.TemplateFileName)
 
 	var wg sync.WaitGroup
 	wg.Add(3)
@@ -43,7 +46,7 @@ func EnableCommand(coauthors *[]string, baseDir, templateFile, stateFile string)
 
 	go func() {
 		defer wg.Done()
-		writeStateFileErr := state.Save(baseDir, stateFile, state.ENABLED, validCoAuthors...)
+		writeStateFileErr := state.Save(state.ENABLED, validCoAuthors...)
 		ToStderrAndExit(writeStateFileErr)
 	}()
 

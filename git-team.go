@@ -2,17 +2,13 @@ package main
 
 import (
 	"github.com/hekmekk/git-team/core/handler"
-	"github.com/hekmekk/git-team/core/state"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"os"
 )
 
 const (
-	baseDir      = "/tmp/.git-team"
-	templateFile = "COMMIT_TEMPLATE"
-	stateFile    = "STATE"
-	version      = "v0.0.1-alpha1"
-	author       = "Rea Sand <hekmek@posteo.de>"
+	version = "v0.0.1-alpha1"
+	author  = "Rea Sand <hekmek@posteo.de>"
 )
 
 func main() {
@@ -30,10 +26,10 @@ func main() {
 
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case enable.FullCommand():
-		handler.EnableCommand(coauthors, baseDir, templateFile, stateFile)
+		handler.EnableCommand(coauthors)
 	case disable.FullCommand():
-		handler.DisableCommand(baseDir, templateFile, stateFile)
+		handler.DisableCommand()
 	case status.FullCommand():
-		state.Print(baseDir, stateFile)
+		handler.Status()
 	}
 }

@@ -2,21 +2,22 @@ package handler
 
 import (
 	"fmt"
+	"github.com/hekmekk/git-team/core/config"
 	"github.com/hekmekk/git-team/core/git"
 	"github.com/hekmekk/git-team/core/state"
 	"os"
 	"sync"
 )
 
-func DisableCommand(baseDir, templateFile, stateFile string) {
-	defer state.Print(baseDir, stateFile)
+func DisableCommand() {
+	defer state.Print()
 
 	var wg sync.WaitGroup
 	wg.Add(3)
 
 	go func() {
 		defer wg.Done()
-		if err := state.Save(baseDir, stateFile, state.DISABLED); err != nil {
+		if err := state.Save(state.DISABLED); err != nil {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", err))
 			os.Exit(-1)
 		}
@@ -29,7 +30,8 @@ func DisableCommand(baseDir, templateFile, stateFile string) {
 
 	go func() {
 		defer wg.Done()
-		os.Remove(fmt.Sprintf("%s/%s", baseDir, templateFile))
+		cfg, _ := config.Load()
+		os.Remove(fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.TemplateFileName))
 	}()
 
 	wg.Wait()

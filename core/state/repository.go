@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/fatih/color"
+	"github.com/hekmekk/git-team/core/config"
 	"io/ioutil"
 	"os"
 )
 
-func Save(baseDir, stateFile string, status Status, coauthors ...string) error {
+func Save(status Status, coauthors ...string) error {
+	cfg, _ := config.Load()
+
 	state := State{Status: status, CoAuthors: coauthors}
 	buf := new(bytes.Buffer)
 
@@ -18,13 +21,15 @@ func Save(baseDir, stateFile string, status Status, coauthors ...string) error {
 		return err
 	}
 
-	return ioutil.WriteFile(fmt.Sprintf("%s/%s", baseDir, stateFile), []byte(buf.String()), 0644)
+	return ioutil.WriteFile(fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.StatusFileName), []byte(buf.String()), 0644)
 }
 
-func Print(baseDir, stateFile string) {
+func Print() {
+	cfg, _ := config.Load()
+
 	var state State
-	if _, err := toml.DecodeFile(fmt.Sprintf("%s/%s", baseDir, stateFile), &state); err != nil {
-		color.Yellow("Unable to determine current state. Assuming disabled.")
+	if _, err := toml.DecodeFile(fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.StatusFileName), &state); err != nil {
+		color.Red("Team mode disabled.")
 		os.Exit(0)
 	}
 
