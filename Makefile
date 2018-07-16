@@ -37,12 +37,12 @@ package_build:
 	cp git-team.go pkg/src/
 	cp -r core pkg/src/
 	cp -r bash_completion pkg/src/
-	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-pkg:$(VERSION) pkg/
+	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-pkg:v$(VERSION) pkg/
 
 package: package_build
 	mkdir -p pkg/target/
 	chown -R $(shell id -u):$(shell id -u) pkg/target/
-	docker run --rm -v `pwd`/pkg/target:/target git-team-pkg:$(VERSION) fpm \
+	docker run --rm -v `pwd`/pkg/target:/target git-team-pkg:v$(VERSION) fpm \
 		-f \
 		-s dir \
 		-t deb \
