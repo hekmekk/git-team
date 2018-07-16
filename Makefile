@@ -1,4 +1,4 @@
-VERSION:=v0.0.1-alpha1
+VERSION:=0.0.1-alpha1
 
 all: test fmt build man_page
 
@@ -23,11 +23,11 @@ build: deps
 man_page:
 	mkdir -p man/
 	go run git-team.go --help-man > man/git-team.1
+	gzip -f man/git-team.1
 
 install:
 	install git-team /usr/bin/git-team
-	install --mode="0644" man/git-team.1 /usr/share/man/man1/git-team.1
-	gzip -f /usr/share/man/man1/git-team.1
+	install --mode="0644" man/git-team.1.gz /usr/share/man/man1/git-team.1.gz
 	install --mode="0644" bash_completion/git-team.bash /etc/bash_completion.d/git-team
 	@echo "[INFO] Don't forget to source /etc/bash_completion"
 
@@ -40,7 +40,19 @@ package_build:
 	docker build -t git-team-pkg:$(VERSION) pkg/
 
 package: package_build
-	docker run --rm -v `pwd`:/src -v `pwd`/pkg/target:/target git-team-pkg:$(VERSION) fpm -s dir -t deb -n "git-team" -v $(VERSION) -p /target git-team=/usr/bin
+	docker run --rm -v `pwd`:/src -v `pwd`/pkg/target:/target git-team-pkg:$(VERSION) fpm \
+		-f \
+		-s dir \
+		-t deb \
+		-n "git-team" \
+		-v $(VERSION) \
+		--url "https://github.com/hekmekk/git-team" \
+		--license "MIT" \
+		--description "git-team - commit template provisioning with co-authors" \
+		-p /target \
+		git-team=/usr/bin/git-team \
+		bash_completion/git-team.bash=/etc/bash_completion.d/git-team \
+		man/git-team.1.gz=/usr/share/man/man1/git-team.1.gz
 
 release:
 	@echo "nope... :D"
@@ -49,6 +61,7 @@ clean:
 	rm -f git-team
 	rm -rf man/
 	rm -rf pkg/src/
+	rm -rf pkg/target/
 
 purge: clean
 	rm -f /usr/bin/git-team
