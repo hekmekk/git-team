@@ -40,7 +40,7 @@ package_build:
 	docker build -t git-team-pkg:$(VERSION) pkg/
 
 package: package_build
-	docker run --rm -v `pwd`:/src -v `pwd`/target:/target git-team-pkg:$(VERSION) fpm -s dir -t deb -n "git-team" -v $(VERSION) -p /target git-team=/usr/bin
+	docker run --rm -v `pwd`:/src -v `pwd`/pkg/target:/target git-team-pkg:$(VERSION) fpm -s dir -t deb -n "git-team" -v $(VERSION) -p /target git-team=/usr/bin
 
 release:
 	@echo "nope... :D"
