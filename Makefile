@@ -3,7 +3,10 @@ VERSION:=v0.0.1-alpha1
 all: test fmt build man_page
 
 os_deps:
-	apt-get install libgit2-24 libgit2-dev docker-ce
+	apt-get -y install \
+		libgit2-24 \
+		libgit2-dev \
+		docker-ce
 
 deps:
 	go get
@@ -28,8 +31,15 @@ install:
 	install --mode="0644" bash_completion/git-team.bash /etc/bash_completion.d/git-team
 	@echo "[INFO] Don't forget to source /etc/bash_completion"
 
+package_build:
+	cp Makefile pkg/src/
+	cp git-team.go pkg/src/
+	cp -r core pkg/src/
+	cp -r bash_completion pkg/src/
+	docker build -t git-team-pkg:$(VERSION) pkg/
+
 package:
-	@echo "not yet :<"
+	docker run --rm -v `pwd`:/src -v `pwd`/target:/target git-team-pkg:$(VERSION) fpm -s dir -t deb -n "git-team" -v $(VERSION) -p /target git-team=/usr/bin
 
 release:
 	@echo "nope... :D"
@@ -37,6 +47,7 @@ release:
 clean:
 	rm -f git-team
 	rm -rf man/
+	rm -rf pkg/src/
 
 purge: clean
 	rm -f /usr/bin/git-team
