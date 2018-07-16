@@ -32,13 +32,14 @@ install:
 	@echo "[INFO] Don't forget to source /etc/bash_completion"
 
 package_build:
+	mkdir -p pkg/src/
 	cp Makefile pkg/src/
 	cp git-team.go pkg/src/
 	cp -r core pkg/src/
 	cp -r bash_completion pkg/src/
 	docker build -t git-team-pkg:$(VERSION) pkg/
 
-package:
+package: package_build
 	docker run --rm -v `pwd`:/src -v `pwd`/target:/target git-team-pkg:$(VERSION) fpm -s dir -t deb -n "git-team" -v $(VERSION) -p /target git-team=/usr/bin
 
 release:
@@ -53,9 +54,10 @@ purge: clean
 	rm -f /usr/bin/git-team
 	rm -f /etc/bash_completion.d/git-team
 	rm -f /usr/share/man/man1/git-team.1.gz
-	git config --global --unset commit.template || true
 	git config --global --remove-section team.alias || true
+	git config --global --remove-section commit || true
 	git config --remove-section team.alias || true
+	git config --remove-section commit || true
 
 docker_build:
 	 docker build -t git-team-docker:$(VERSION) .
