@@ -65,6 +65,7 @@ clean:
 	rm -rf man/
 	rm -rf pkg/src/
 	rm -rf pkg/target/
+	rm -rf /home/$(USER)/.config/git-team
 
 purge: clean
 	rm -f /usr/bin/git-team
@@ -76,7 +77,9 @@ purge: clean
 	git config --remove-section commit || true
 
 docker_build:
-	 docker build -t git-team-docker:$(VERSION) .
+	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-run:v$(VERSION) .
 
 docker: docker_build
-	 docker run --rm git-team-docker:$(VERSION) git team --help
+	mkdir -p /home/$(USER)/.config/git-team
+	chown -R $(shell id -u):$(shell id -u) /home/$(USER)/.config/git-team
+	docker run --rm -v /home/$(USER)/:/home/$(USER)/ git-team-run:v$(VERSION) git team --help
