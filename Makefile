@@ -37,21 +37,17 @@ release:
 clean:
 	rm -f git-team
 	rm -rf man/
-	rm -f /tmp/.git-team/STATE
-	git config --global --unset commit.template || true
-	git config --global --remove-section team.alias || true
-	git config --remove-section team.alias || true
 
 purge: clean
 	rm -f /usr/bin/git-team
 	rm -f /etc/bash_completion.d/git-team
 	rm -f /usr/share/man/man1/git-team.1.gz
-	rm -f $(GOPATH)/pkg/linux_amd64/gopkg.in/alecthomas/kingpin.v2.a
-	rm -rf $(GOPATH)/src/gopkg.in/alecthomas/kingpin.v2
-	rm -rf /tmp/.git-team
+	git config --global --unset commit.template || true
+	git config --global --remove-section team.alias || true
+	git config --remove-section team.alias || true
 
 docker_build:
 	 docker build -t git-team-docker:$(VERSION) .
 
 docker: docker_build
-	 docker run --rm -v /tmp/.git-team:/tmp/.git-team git-team-docker:$(VERSION) git team --help
+	 docker run --rm git-team-docker:$(VERSION) git team --help
