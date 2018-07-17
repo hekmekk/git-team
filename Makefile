@@ -41,7 +41,7 @@ package_build:
 
 package: package_build
 	mkdir -p pkg/target/
-	chown -R $(shell id -u):$(shell id -u) pkg/target/
+	chown -R $(shell id -u):$(shell id -g) pkg/target/
 	docker run --rm -v `pwd`/pkg/target:/target git-team-pkg:v$(VERSION) fpm \
 		-f \
 		-s dir \

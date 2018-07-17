@@ -23,8 +23,8 @@ RUN gem install --no-ri --no-rdoc fpm
 WORKDIR /go/src/github.com/hekmekk/git-team
 
 RUN mkdir -p /target
-RUN chown -R $USERNAME:$USERNAME /target
-RUN chown -R $USERNAME:$USERNAME /go
+RUN chown -R $UID:$GID /target
+RUN chown -R $UID:$GID /go
 
 USER $USERNAME
 
