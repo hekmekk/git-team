@@ -2,10 +2,6 @@
 
 Command line interface for creating git commit templates provisioned with one or more co-authors.
 
-## TODOs
-- [ ] release(s) + tags (for versions)
-- [ ] CI
-
 ## Build Dependencies
 This project makes use of [git2go](https://github.com/libgit2/git2go) which provides go bindings for [libgit2](http://libgit2.github.com/). You therefore need to install the later.
 
