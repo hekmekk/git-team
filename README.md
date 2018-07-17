@@ -10,7 +10,7 @@ For e.g. debian the required packages may be installed via:
 apt-get install libgit2-24 libgit2-dev # or just make os_deps
 ```
 
-## Install
+## Build from Source
 ```bash
 go get github.com/hekmekk/git-team
 cd $GOPATH/github.com/hekmekk/git-team
