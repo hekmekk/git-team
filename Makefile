@@ -3,10 +3,7 @@ VERSION:=0.0.1
 all: test fmt build man_page
 
 os_deps:
-	apt-get -y install \
-		libgit2-24 \
-		libgit2-dev \
-		docker-ce
+	apt-get -y install libgit2-24 docker-ce
 
 deps:
 	go get
@@ -46,6 +43,7 @@ package: package_build
 		-f \
 		-s dir \
 		-t deb \
+		-d libgit2-24 \
 		-n "git-team" \
 		-v $(VERSION) \
 		--url "https://github.com/hekmekk/git-team" \
