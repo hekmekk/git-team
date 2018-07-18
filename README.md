@@ -7,7 +7,7 @@ This project makes use of [git2go](https://github.com/libgit2/git2go) which prov
 
 For e.g. debian the required packages may be installed via:
 ```bash
-apt-get install libgit2-24 # or just make os_deps
+apt-get install libgit2-24 libgit2-dev
 ```
 
 ## Build from Source

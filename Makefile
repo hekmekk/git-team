@@ -3,7 +3,7 @@ VERSION:=0.0.1
 all: test fmt build man_page
 
 os_deps:
-	apt-get -y install libgit2-24 docker-ce
+	apt-get -y install libgit2-24 libgit2-dev docker-ce
 
 deps:
 	go get
