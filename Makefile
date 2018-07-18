@@ -9,7 +9,8 @@ deps:
 	go get
 
 test: deps
-	go test -short ./...
+	go test -short git-team.go
+	go test -short ./core/...
 
 fmt:
 	go fmt
