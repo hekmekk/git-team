@@ -47,6 +47,7 @@ package: package_build
 		-d libgit2-24 \
 		-n "git-team" \
 		-v $(VERSION) \
+		-m "Rea Sand <hekmek@posteo.de>" \
 		--url "https://github.com/hekmekk/git-team" \
 		--license "MIT" \
 		--description "git-team - commit template provisioning with co-authors" \
