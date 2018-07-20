@@ -62,7 +62,6 @@ clean:
 	rm -rf man/
 	rm -rf pkg/src/
 	rm -rf pkg/target/
-	rm -rf /home/$(USER)/.config/git-team
 
 purge: clean
 	rm -f /usr/bin/git-team
