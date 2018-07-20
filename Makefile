@@ -1,9 +1,6 @@
 VERSION:=0.0.1
 
-all: test fmt build man_page
-
-os_deps:
-	apt-get -y install libgit2-24 libgit2-dev docker-ce
+all: test fmt build man-page
 
 deps:
 	go get
@@ -18,7 +15,7 @@ fmt:
 build: deps
 	go build
 
-man_page:
+man-page:
 	mkdir -p man/
 	go run git-team.go --help-man > man/git-team.1
 	gzip -f man/git-team.1
@@ -29,7 +26,7 @@ install:
 	install --mode="0644" bash_completion/git-team.bash /etc/bash_completion.d/git-team
 	@echo "[INFO] Don't forget to source /etc/bash_completion"
 
-package_build:
+package-build:
 	mkdir -p pkg/src/
 	cp Makefile pkg/src/
 	cp git-team.go pkg/src/
@@ -37,7 +34,7 @@ package_build:
 	cp -r bash_completion pkg/src/
 	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-pkg:v$(VERSION) pkg/
 
-package: package_build
+package: package-build
 	mkdir -p pkg/target/
 	chown -R $(shell id -u):$(shell id -g) pkg/target/
 	docker run --rm -v `pwd`/pkg/target:/target git-team-pkg:v$(VERSION) fpm \
@@ -76,10 +73,10 @@ purge: clean
 	git config --remove-section team.alias || true
 	git config --remove-section commit || true
 
-docker_build:
+docker-build:
 	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-run:v$(VERSION) .
 
-docker: docker_build
+docker-run: docker-build
 	mkdir -p /home/$(USER)/.config/git-team
 	chown -R $(shell id -u):$(shell id -u) /home/$(USER)/.config/git-team
 	docker run --rm -v /home/$(USER)/:/home/$(USER)/ git-team-run:v$(VERSION) git team --help
