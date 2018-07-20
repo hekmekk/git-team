@@ -78,5 +78,5 @@ docker-build:
 
 docker-run: docker-build
 	mkdir -p /home/$(USER)/.config/git-team
-	chown -R $(shell id -u):$(shell id -u) /home/$(USER)/.config/git-team
+	chown -R $(shell id -u):$(shell id -g) /home/$(USER)/.config/git-team
 	docker run --rm -v /home/$(USER)/:/home/$(USER)/ git-team-run:v$(VERSION) git team --help
