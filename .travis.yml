@@ -1,8 +1,10 @@
 language: go
 go:
   - "1.10"
+sudo: required
+services:
+  - docker
 before_install:
-  - sudo apt-get -y install libgit2-24 libgit2-dev
-addons:
-  apt:
-    update: true
+  - make docker-build # includes test-suite
+script:
+  - true
