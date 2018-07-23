@@ -1,3 +1,8 @@
 language: go
 go:
   - "1.10"
+before_install:
+  - sudo apt-get -y install libgit2-24 libgit2-dev
+addons:
+  apt:
+    update: true
