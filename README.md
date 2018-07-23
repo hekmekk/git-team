@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/hekmekk/git-team.svg?branch=master)](https://travis-ci.org/hekmekk/git-team)
+
 # git-team
 
 Command line interface for creating git commit templates provisioned with one or more co-authors.
