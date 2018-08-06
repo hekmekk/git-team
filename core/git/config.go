@@ -1,11 +1,14 @@
 package git
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
-	"gopkg.in/libgit2/git2go.v24"
-	"os"
-	"strings"
+	"io/ioutil"
+	"os/exec"
+	"syscall"
+
+	"github.com/tcnksm/go-gitconfig"
 )
 
 const commitTemplate = "commit.template"
@@ -13,72 +16,47 @@ const teamAlias = "team.alias"
 
 func ResolveAlias(alias string) (string, error) {
 	aliasFullPath := fmt.Sprintf("%s.%s", teamAlias, alias)
-	coauthor, err := resolveAlias(getGlobalConfig)(aliasFullPath)
+	coauthor, err := gitconfig.Local(aliasFullPath)
 	if err != nil {
-		return resolveAlias(getRepoLocalConfig)(aliasFullPath)
+		coauthor, err = gitconfig.Global(aliasFullPath)
+		if err != nil {
+			return "", resolveErr(aliasFullPath)
+		}
 	}
 	return coauthor, nil
 }
 
 func SetCommitTemplate(path string) error {
-	globalConfig, err := getGlobalConfig()
-	if err != nil {
-		return err
-	}
-
-	return globalConfig.SetString(commitTemplate, path)
+	return execGitConfig(commitTemplate, path)
 }
 
 func UnsetCommitTemplate() error {
-	globalConfig, err := getGlobalConfig()
-	if err != nil {
-		return err
-	}
-	_, err = globalConfig.LookupString(commitTemplate)
-	if err != nil {
-		return nil
-	}
-
-	return globalConfig.Delete(commitTemplate)
+	return execGitConfig("--unset", commitTemplate)
 }
 
-func resolveAlias(configProvider func() (*git.Config, error)) func(string) (string, error) {
-	return func(aliasFullPath string) (string, error) {
-		config, err := configProvider()
-		if err != nil {
-			return "", resolveErr(aliasFullPath)
+func RemoveCommitSection() error {
+	return execGitConfig("--remove-section", "commit")
+}
+
+func execGitConfig(args ...string) error {
+	gitArgs := append([]string{"config", "--null", "--global"}, args...)
+	var stdout bytes.Buffer
+	cmd := exec.Command("git", gitArgs...)
+	cmd.Stdout = &stdout
+	cmd.Stderr = ioutil.Discard
+
+	err := cmd.Run()
+	if exitError, ok := err.(*exec.ExitError); ok {
+		if waitStatus, ok := exitError.Sys().(syscall.WaitStatus); ok {
+			if waitStatus.ExitStatus() == 1 {
+				return errors.New(fmt.Sprintf("Failed to exec git config command with args: %s", args))
+			}
 		}
-		coauthor, err := config.LookupString(aliasFullPath)
-		if err != nil {
-			return "", resolveErr(aliasFullPath)
-		}
-		return strings.TrimRight(coauthor, "\n"), nil
+		return err
 	}
+	return nil
 }
 
 func resolveErr(aliasFullPath string) error {
 	return errors.New(fmt.Sprintf("Failed to resolve alias %s", aliasFullPath))
-}
-
-func getGlobalConfig() (*git.Config, error) {
-	globalConfigPath, err := git.ConfigFindGlobal()
-	if err != nil {
-		return nil, err
-	}
-
-	return git.OpenOndisk(nil, globalConfigPath)
-}
-
-func getRepoLocalConfig() (*git.Config, error) {
-	workDir, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
-
-	repo, err := git.OpenRepository(workDir)
-	if err != nil {
-		return nil, errors.New("Not a git repository")
-	}
-
-	return repo.Config()
 }

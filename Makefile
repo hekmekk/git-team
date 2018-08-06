@@ -1,4 +1,4 @@
-VERSION:=0.0.1
+VERSION:=0.1.0
 
 all: test fmt build man-page
 
@@ -41,7 +41,6 @@ package: package-build
 		-f \
 		-s dir \
 		-t deb \
-		-d libgit2-24 \
 		-n "git-team" \
 		-v $(VERSION) \
 		-m "Rea Sand <hekmek@posteo.de>" \

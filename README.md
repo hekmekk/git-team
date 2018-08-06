@@ -4,14 +4,6 @@
 
 Command line interface for creating git commit templates provisioned with one or more co-authors.
 
-## Build Dependencies
-This project makes use of [git2go](https://github.com/libgit2/git2go) which provides go bindings for [libgit2](http://libgit2.github.com/). You therefore need to install the later.
-
-For e.g. debian the required packages may be installed via:
-```bash
-apt-get install libgit2-24 libgit2-dev
-```
-
 ## Build from Source
 ```bash
 go get github.com/hekmekk/git-team

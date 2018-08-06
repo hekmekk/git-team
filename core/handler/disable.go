@@ -13,7 +13,7 @@ func DisableCommand() {
 	defer status.Print()
 
 	var wg sync.WaitGroup
-	wg.Add(3)
+	wg.Add(4)
 
 	go func() {
 		defer wg.Done()
@@ -26,6 +26,11 @@ func DisableCommand() {
 	go func() {
 		defer wg.Done()
 		git.UnsetCommitTemplate()
+	}()
+
+	go func() {
+		defer wg.Done()
+		git.RemoveCommitSection()
 	}()
 
 	go func() {
