@@ -20,7 +20,7 @@ func ResolveAlias(alias string) (string, error) {
 	if err != nil {
 		coauthor, err = gitconfig.Global(aliasFullPath)
 		if err != nil {
-			return "", resolveErr(aliasFullPath)
+			return "", errors.New(fmt.Sprintf("Failed to resolve alias %s", aliasFullPath))
 		}
 	}
 	return coauthor, nil
@@ -55,8 +55,4 @@ func execGitConfig(args ...string) error {
 		return err
 	}
 	return nil
-}
-
-func resolveErr(aliasFullPath string) error {
-	return errors.New(fmt.Sprintf("Failed to resolve alias %s", aliasFullPath))
 }
