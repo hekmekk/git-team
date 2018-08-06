@@ -26,6 +26,11 @@ install:
 	install --mode="0644" bash_completion/git-team.bash /etc/bash_completion.d/git-team
 	@echo "[INFO] Don't forget to source /etc/bash_completion"
 
+uninstall:
+	rm -f /usr/bin/git-team
+	rm -f /etc/bash_completion.d/git-team
+	rm -f /usr/share/man/man1/git-team.1.gz
+
 package-build:
 	mkdir -p pkg/src/
 	cp Makefile pkg/src/
@@ -63,10 +68,7 @@ clean:
 	rm -rf pkg/src/
 	rm -rf pkg/target/
 
-purge: clean
-	rm -f /usr/bin/git-team
-	rm -f /etc/bash_completion.d/git-team
-	rm -f /usr/share/man/man1/git-team.1.gz
+purge: clean uninstall
 	git config --global --remove-section team.alias || true
 	git config --global --remove-section commit || true
 	git config --remove-section team.alias || true
