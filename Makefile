@@ -1,5 +1,11 @@
 VERSION:=0.1.0
 
+UNAME_S:= $(shell uname -s)
+BASH_COMPLETION_PREFIX:=
+ifeq ($(UNAME_S),Darwin)
+	BASH_COMPLETION_PREFIX:=/usr/local
+endif
+
 all: test fmt build man-page
 
 deps:
@@ -21,10 +27,10 @@ man-page:
 	gzip -f man/git-team.1
 
 install:
-	install git-team /usr/bin/git-team
-	install --mode="0644" man/git-team.1.gz /usr/share/man/man1/git-team.1.gz
-	install --mode="0644" bash_completion/git-team.bash /etc/bash_completion.d/git-team
-	@echo "[INFO] Don't forget to source /etc/bash_completion"
+	install git-team /usr/local/bin/git-team
+	install -m "0644" man/git-team.1.gz /usr/local/share/man/man1/git-team.1.gz
+	install -m "0644" bash_completion/git-team.bash $(BASH_COMPLETION_PREFIX)/etc/bash_completion.d/git-team
+	@echo "[INFO] Don't forget to source $(BASH_COMPLETION_PREFIX)/etc/bash_completion"
 
 uninstall:
 	rm -f /usr/bin/git-team
