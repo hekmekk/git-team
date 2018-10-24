@@ -28,6 +28,7 @@ man-page:
 
 install:
 	install git-team /usr/local/bin/git-team
+	mkdir -p /usr/local/share/man/man1
 	install -m "0644" man/git-team.1.gz /usr/local/share/man/man1/git-team.1.gz
 	install -m "0644" bash_completion/git-team.bash $(BASH_COMPLETION_PREFIX)/etc/bash_completion.d/git-team
 	@echo "[INFO] Don't forget to source $(BASH_COMPLETION_PREFIX)/etc/bash_completion"
