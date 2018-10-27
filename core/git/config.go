@@ -15,7 +15,7 @@ const commitTemplate = "commit.template"
 const teamAlias = "team.alias"
 
 func ResolveAlias(alias string) (string, error) {
-	aliasFullPath := fmt.Sprintf("%s.%s", teamAlias, alias)
+	aliasFullPath := getAliasFullPath(alias)
 	coauthor, err := gitconfig.Local(aliasFullPath)
 	if err != nil {
 		coauthor, err = gitconfig.Global(aliasFullPath)
@@ -38,6 +38,22 @@ func RemoveCommitSection() error {
 	return execGitConfig("--remove-section", "commit")
 }
 
+func AddAlias(alias, author string) error {
+	return execGitConfig("--add", getAliasFullPath(alias), author)
+}
+
+func RemoveAlias(alias string) error {
+	return execGitConfig("--unset-all", getAliasFullPath(alias))
+}
+
+func ListAlias() error {
+	return execGitConfig("--get-regexp", teamAlias)
+}
+
+func getAliasFullPath(alias string) string {
+	return fmt.Sprintf("%s.%s", teamAlias, alias)
+}
+
 func execGitConfig(args ...string) error {
 	gitArgs := append([]string{"config", "--null", "--global"}, args...)
 	var stdout bytes.Buffer
@@ -54,5 +70,14 @@ func execGitConfig(args ...string) error {
 		}
 		return err
 	}
+
+	line, _ := stdout.ReadString([]byte("\n"))
+
+	print(line)
+
+	// print(stdout.String())
+
+	// print(string(stdout.Bytes()))
+
 	return nil
 }
