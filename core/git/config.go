@@ -1,12 +1,10 @@
 package git
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os/exec"
-	"syscall"
+	"strings"
 
 	"github.com/tcnksm/go-gitconfig"
 )
@@ -27,26 +25,31 @@ func ResolveAlias(alias string) (string, error) {
 }
 
 func SetCommitTemplate(path string) error {
-	return execGitConfig(commitTemplate, path)
+	_, err := execGitConfig(commitTemplate, path)
+	return err
 }
 
 func UnsetCommitTemplate() error {
-	return execGitConfig("--unset", commitTemplate)
+	_, err := execGitConfig("--unset", commitTemplate)
+	return err
 }
 
 func RemoveCommitSection() error {
-	return execGitConfig("--remove-section", "commit")
+	_, err := execGitConfig("--remove-section", "commit")
+	return err
 }
 
 func AddAlias(alias, author string) error {
-	return execGitConfig("--add", getAliasFullPath(alias), author)
+	_, err := execGitConfig("--add", getAliasFullPath(alias), author)
+	return err
 }
 
 func RemoveAlias(alias string) error {
-	return execGitConfig("--unset-all", getAliasFullPath(alias))
+	_, err := execGitConfig("--unset-all", getAliasFullPath(alias))
+	return err
 }
 
-func ListAlias() error {
+func ListAlias() ([]string, error) {
 	return execGitConfig("--get-regexp", teamAlias)
 }
 
@@ -54,30 +57,21 @@ func getAliasFullPath(alias string) string {
 	return fmt.Sprintf("%s.%s", teamAlias, alias)
 }
 
-func execGitConfig(args ...string) error {
+func execGitConfig(args ...string) ([]string, error) {
 	gitArgs := append([]string{"config", "--null", "--global"}, args...)
-	var stdout bytes.Buffer
-	cmd := exec.Command("git", gitArgs...)
-	cmd.Stdout = &stdout
-	cmd.Stderr = ioutil.Discard
+	out, err := exec.Command("/usr/bin/env", append([]string{"git"}, gitArgs...)...).CombinedOutput()
 
-	err := cmd.Run()
-	if exitError, ok := err.(*exec.ExitError); ok {
-		if waitStatus, ok := exitError.Sys().(syscall.WaitStatus); ok {
-			if waitStatus.ExitStatus() == 1 {
-				return errors.New(fmt.Sprintf("Failed to exec git config command with args: %s", args))
-			}
-		}
-		return err
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("Failed to exec git config command with args: %s", args))
 	}
 
-	line, _ := stdout.ReadString([]byte("\n"))
+	stringOut := string(out)
 
-	print(line)
+	if stringOut == "" {
+		return []string{}, nil
+	}
 
-	// print(stdout.String())
+	lines := strings.Split(strings.TrimRight(stringOut, "\000"), "\000")
 
-	// print(string(stdout.Bytes()))
-
-	return nil
+	return lines, nil
 }
