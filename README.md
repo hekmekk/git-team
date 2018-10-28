@@ -17,11 +17,17 @@ source /etc/bash_completion
 
 #### Setup some aliases
 ```bash
-git config [--global] [--add] team.alias.noujz "Mr. Noujz <noujz@mr.se>"
+git team add noujz "Mr. Noujz <noujz@mr.se>"
 ```
+
 To review your current aliases use:
 ```bash
-git config [--global] --get-regexp "team.alias"
+git team list
+```
+
+To remove an alias use:
+```bash
+git team rm noujz
 ```
 
 #### Provision a commit template
