@@ -12,7 +12,7 @@ const (
 )
 
 func main() {
-	app := kingpin.New("git-team", "Command line interface for creating git commit templates provisioned with one or more co-authors.")
+	app := kingpin.New("git-team", "Command line interface for creating git commit templates provisioned with one or more co-authors. Please note that \"git commit -m\" is not affected by commit templates.")
 
 	app.HelpFlag.Short('h')
 	app.Version(version)
