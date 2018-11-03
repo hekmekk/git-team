@@ -4,13 +4,18 @@
 
 Command line interface for creating git commit templates provisioned with one or more co-authors.
 
-## Build from Source
+## Installation
+#### Build from Source
 ```bash
 go get github.com/hekmekk/git-team
 cd $GOPATH/github.com/hekmekk/git-team
 make
 sudo make install
 source /etc/bash_completion
+```
+#### With an [ansible playbook](../contrib/ansible/roles/git-team/tasks/main.yml))
+```
+ansible-playbook git-team.yml --ask-become-pass
 ```
 
 ## Usage
