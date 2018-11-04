@@ -1,0 +1,30 @@
+---
+- name: "Check if git-team is installed"
+  command: dpkg-query -W git-team
+  register: is_package_installed
+  failed_when: is_package_installed.rc > 1
+  changed_when: is_package_installed.rc == 1
+
+- name: "Save json_response from Github release url"
+  uri:
+    url: https://api.github.com/repos/hekmekk/git-team/releases/latest
+    return_content: true
+  register: json_response
+  when: is_package_installed.rc == 1
+
+- set_fact:
+    package_deb_url: "{{ json_response.json.body |regex_search('(https://github.com/hekmekk/git-team-releases/raw/master/git-team_.*.deb)') }}"
+  when: is_package_installed.rc == 1
+
+- name: "Extract *.deb file from html body"
+  get_url:
+    url: "{{ package_deb_url }}"
+    dest: /tmp/git-team.deb
+  when: is_package_installed.rc == 1
+
+- name: "Install git-team"
+  apt:
+    deb: "/tmp/git-team.deb"
+    state: present
+  when: is_package_installed.rc == 1
+
