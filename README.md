@@ -11,7 +11,6 @@ go get github.com/hekmekk/git-team
 cd $GOPATH/github.com/hekmekk/git-team
 make
 sudo make install
-source /etc/bash_completion
 ```
 #### With an [ansible playbook](../contrib/ansible/roles/git-team/tasks/main.yml)
 ```
