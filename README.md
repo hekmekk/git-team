@@ -13,7 +13,7 @@ make
 sudo make install
 source /etc/bash_completion
 ```
-#### With an [ansible playbook](../contrib/ansible/roles/git-team/tasks/main.yml))
+#### With an [ansible playbook](../contrib/ansible/roles/git-team/tasks/main.yml)
 ```
 ansible-playbook git-team.yml --ask-become-pass
 ```
