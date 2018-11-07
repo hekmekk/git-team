@@ -9,7 +9,7 @@ ARG GID=1000
 RUN groupadd -g $GID $USERNAME
 RUN useradd -m -u $UID -g $GID -s /bin/bash $USERNAME
 
-RUN apt-get update && apt-get -y install man-db
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install man-db
 
 WORKDIR /go/src/github.com/hekmekk/git-team
 
