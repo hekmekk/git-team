@@ -1,6 +1,6 @@
 FROM golang:1.9-stretch
 
-MAINTAINER Rea Sand <hekmek@posteo.de>
+LABEL maintainer Rea Sand <hekmek@posteo.de>
 
 ARG USERNAME=git-team-run
 ARG UID=1000
