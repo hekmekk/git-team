@@ -12,7 +12,7 @@ cd $GOPATH/github.com/hekmekk/git-team
 make
 sudo make install
 ```
-#### With an [ansible playbook](../contrib/ansible/roles/git-team/tasks/main.yml)
+#### With an [ansible playbook](../master/contrib/ansible/roles/git-team/tasks/main.yml)
 ```
 ansible-playbook git-team.yml --ask-become-pass
 ```
