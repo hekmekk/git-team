@@ -1,4 +1,4 @@
-FROM golang:1.9-stretch
+FROM golang:1.12-stretch
 
 LABEL maintainer Rea Sand <hekmek@posteo.de>
 
@@ -11,11 +11,11 @@ RUN useradd -m -u $UID -g $GID -s /bin/bash $USERNAME
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install man-db
 
-WORKDIR /go/src/github.com/hekmekk/git-team
-
-ENV GOPATH=/go
+WORKDIR /src
 
 COPY . .
+
+ENV GOPATH=/go
 
 RUN make
 
