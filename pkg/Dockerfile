@@ -1,4 +1,4 @@
-FROM golang:1.9-stretch
+FROM golang:1.12-stretch
 
 LABEL maintainer Rea Sand <hekmek@posteo.de>
 
@@ -18,17 +18,18 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
 
 RUN gem install --no-ri --no-rdoc fpm
 
-WORKDIR /go/src/github.com/hekmekk/git-team
+WORKDIR /src
+COPY src/ .
+RUN chown -R $UID:$GID .
 
-RUN mkdir -p /target
-RUN chown -R $UID:$GID /target
-RUN chown -R $UID:$GID /go
+RUN mkdir -p /go && chown -R $UID:$GID /go
+RUN mkdir -p /deb-target && chown -R $UID:$GID /deb-target
 
 USER $USERNAME
 
 ENV GOPATH=/go
 
-COPY src/ .
+RUN ls -la
 
 RUN make
 

@@ -6,9 +6,8 @@ Command line interface for creating git commit templates provisioned with one or
 
 ## Installation
 #### Build from Source
+The latest version of git-team has been built against go version 1.12.
 ```bash
-go get github.com/hekmekk/git-team
-cd $GOPATH/github.com/hekmekk/git-team
 make
 sudo make install
 ```

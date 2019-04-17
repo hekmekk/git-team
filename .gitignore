@@ -1,4 +1,4 @@
-git-team
-man/
+./git-team
+go.sum
 pkg/src/
 pkg/target/
