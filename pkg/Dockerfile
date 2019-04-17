@@ -29,8 +29,6 @@ USER $USERNAME
 
 ENV GOPATH=/go
 
-RUN ls -la
-
 RUN make
 
 CMD ["fpm", "--version"]
