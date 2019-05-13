@@ -49,7 +49,7 @@ package-build:
 package: package-build
 	mkdir -p pkg/target/deb
 	chown -R $(shell id -u):$(shell id -g) pkg/target/deb
-	docker run --rm -v $(shell pwd)/pkg/target/deb:/deb-target git-team-pkg:v$(VERSION) fpm \
+	docker run --rm -h git-team-pkg -v $(shell pwd)/pkg/target/deb:/deb-target git-team-pkg:v$(VERSION) fpm \
 		-f \
 		-s dir \
 		-t deb \
@@ -85,4 +85,4 @@ docker-build:
 docker-run: docker-build
 	mkdir -p /home/$(USER)/.config/git-team
 	chown -R $(shell id -u):$(shell id -g) /home/$(USER)/.config/git-team
-	docker run --rm -v /home/$(USER)/:/home/$(USER)/ git-team-run:v$(VERSION) git team --help
+	docker run --rm -h git-team-run -v /home/$(USER)/:/home/$(USER)/ git-team-run:v$(VERSION) git team --help
