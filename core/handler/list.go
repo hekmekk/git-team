@@ -11,7 +11,7 @@ import (
 func ListCommand() {
 	lines, err := git.ListAlias()
 	if err != nil {
-		ToStderrAndExit(err)
+		lines = make([]string, 0)
 	}
 
 	blackBold := color.New(color.FgBlack).Add(color.Bold)
