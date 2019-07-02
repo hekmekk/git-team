@@ -1,27 +1,27 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
-	"os"
 
 	"github.com/fatih/color"
 	"github.com/hekmekk/git-team/core/git"
 )
 
-func AddCommand(alias, coauthor *string) {
-	_, resolveErr := git.ResolveAlias(*alias)
+type AliasAdded struct {
+	Alias    string
+	CoAuthor string
+}
+
+func AddCommand(alias, coauthor string) (AliasAdded, error, int) {
+	_, resolveErr := git.ResolveAlias(alias)
 	if resolveErr == nil {
-		color.Yellow(fmt.Sprintf("Alias '%s' has already been added.", *alias))
-		os.Exit(0)
+		return AliasAdded{}, errors.New(color.YellowString(fmt.Sprintf("Alias '%s' has already been added.", alias))), 0
 	}
 
-	checkErr := git.SanityCheckCoauthor(*coauthor)
-	if checkErr != nil {
-		ToStderrAndExit(checkErr)
-	}
-	addErr := git.AddAlias(*alias, *coauthor)
+	addErr := git.AddAlias(alias, coauthor)
 	if addErr != nil {
-		ToStderrAndExit(addErr)
+		return AliasAdded{}, addErr, -1
 	}
-	color.Green(fmt.Sprintf("Alias '%s' -> '%s' has been added.", *alias, *coauthor))
+	return AliasAdded{Alias: alias, CoAuthor: coauthor}, nil, 0
 }

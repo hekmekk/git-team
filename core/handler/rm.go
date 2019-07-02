@@ -17,7 +17,8 @@ func RemoveCommand(alias *string) {
 
 	err := git.RemoveAlias(*alias)
 	if err != nil {
-		ToStderrAndExit(err)
+		os.Stderr.WriteString(fmt.Sprintf("error: %s\n", err.Error()))
+		os.Exit(-1)
 	}
 	color.Red(fmt.Sprintf("Alias '%s' has been removed.", *alias))
 }

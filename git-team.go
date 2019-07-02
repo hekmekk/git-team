@@ -1,9 +1,17 @@
 package main
 
 import (
+	"bytes"
+	"errors"
+	"fmt"
+	"os"
+	"os/signal"
+	"strings"
+
+	"github.com/fatih/color"
+	"github.com/hekmekk/git-team/core/git"
 	"github.com/hekmekk/git-team/core/handler"
 	"gopkg.in/alecthomas/kingpin.v2"
-	"os"
 )
 
 const (
@@ -33,18 +41,189 @@ func main() {
 
 	list := app.Command("list", "List currently available aliases")
 
+	done := make(chan bool, 1)
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, os.Kill)
+	userFeedback := make(chan string)
+
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case enable.FullCommand():
-		handler.EnableCommand(coauthors)
+		validCoAuthors, err := validateUserInput(coauthors)
+		if len(err) > 0 && err[0] != nil {
+			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", foldErrors(err)))
+			os.Exit(-1)
+		}
+		handler.EnableCommand(validCoAuthors)
 	case disable.FullCommand():
 		handler.DisableCommand()
 	case status.FullCommand():
 		handler.Status()
 	case add.FullCommand():
-		handler.AddCommand(addAlias, addCoauthor)
+		checkErr := sanityCheckCoauthor(*addCoauthor)
+		if checkErr != nil {
+			fmt.Println(checkErr)
+			os.Exit(-1)
+		}
+		aliasAdded, err, exitCode := handler.AddCommand(*addAlias, *addCoauthor)
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(exitCode)
+		}
+		fmt.Println(color.GreenString(fmt.Sprintf("Alias '%s' -> '%s' has been added.", aliasAdded.Alias, aliasAdded.CoAuthor)))
+		os.Exit(0)
 	case rm.FullCommand():
 		handler.RemoveCommand(rmAlias)
 	case list.FullCommand():
 		handler.ListCommand()
 	}
+
+	done <- true
+
+	for {
+		select {
+		case msg := <-userFeedback:
+			fmt.Println(msg)
+		case <-signals:
+			done <- true
+		case <-done:
+			close(signals)
+			close(done)
+			os.Exit(0)
+		}
+	}
 }
+
+func foldErrors(validationErrors []error) error {
+	var buffer bytes.Buffer
+	for _, err := range validationErrors {
+		buffer.WriteString(err.Error())
+		buffer.WriteString("; ")
+	}
+	return errors.New(strings.TrimRight(buffer.String(), "; "))
+}
+
+func validateUserInput(coauthors *[]string) ([]string, []error) {
+	var userInputErrors []error
+
+	normalizedCoAuthors, resolveErrors := normalize(*coauthors)
+
+	if resolveErrors != nil {
+		userInputErrors = append(userInputErrors, resolveErrors...)
+	}
+
+	validCoauthors, validationErrors := coAuthorValidation(normalizedCoAuthors)
+
+	if validationErrors != nil {
+		userInputErrors = append(userInputErrors, validationErrors...)
+	}
+
+	if len(userInputErrors) > 0 {
+		return nil, userInputErrors
+	}
+
+	return validCoauthors, nil
+}
+
+func normalize(coauthors []string) ([]string, []error) {
+	var normalizedCoAuthors []string
+	var resolveErrors []error
+
+	for _, maybeAlias := range coauthors {
+		if strings.ContainsRune(maybeAlias, ' ') {
+			normalizedCoAuthors = append(normalizedCoAuthors, maybeAlias)
+		} else {
+			var resolvedCoauthor, err = git.ResolveAlias(maybeAlias)
+			if err != nil {
+				resolveErrors = append(resolveErrors, err)
+			} else {
+				normalizedCoAuthors = append(normalizedCoAuthors, resolvedCoauthor)
+			}
+		}
+	}
+
+	if len(resolveErrors) > 0 {
+		return normalizedCoAuthors, resolveErrors
+	}
+
+	return normalizedCoAuthors, nil
+}
+
+func coAuthorValidation(coauthors []string) ([]string, []error) {
+	var validCoauthors []string
+	var validationErrors []error
+
+	for _, coauthor := range coauthors {
+		if err := sanityCheckCoauthor(coauthor); err != nil {
+			validationErrors = append(validationErrors, err)
+		} else {
+			validCoauthors = append(validCoauthors, coauthor)
+		}
+	}
+
+	if len(validationErrors) > 0 {
+		return coauthors, validationErrors
+	}
+
+	return coauthors, nil
+}
+
+func sanityCheckCoauthor(candidateCoauthor string) error {
+	var hasArrowBrackets = strings.Contains(candidateCoauthor, " <") && strings.HasSuffix(candidateCoauthor, ">")
+	var containsAtSign = strings.ContainsRune(candidateCoauthor, '@')
+
+	if hasArrowBrackets && containsAtSign {
+		return nil
+	}
+	return fmt.Errorf(fmt.Sprintf("Not a valid coauthor: %s", candidateCoauthor))
+}
+
+/*
+var (
+	validCoauthors   = []string{"Mr. Noujz <noujz@mr.se>", "Foo <foo@bar.baz>"}            // TODO: Make this more exhaustive...
+	invalidCoauthors = []string{"Foo Bar", "A B <a@b.com", "= <>", "foo", "<bar@baz.foo>"} // TODO: Make this more exhaustive...
+)
+
+func TestSanityCheckCoAuthorsValidAuthors(t *testing.T) {
+	for _, validCoauthor := range validCoauthors {
+		if validationErr := SanityCheckCoauthor(validCoauthor); validationErr != nil {
+			t.Errorf("Failed for %s", validCoauthor)
+			t.Fail()
+		}
+	}
+}
+
+func TestSanityCheckCoAuthorsInValidAuthors(t *testing.T) {
+	for _, invalidCoauthor := range invalidCoauthors {
+		if validationErr := SanityCheckCoauthor(invalidCoauthor); validationErr == nil {
+			t.Errorf("Failed for %s", invalidCoauthor)
+			t.Fail()
+		}
+	}
+}
+*/
+
+/*
+func TestFoldErrors(t *testing.T) {
+	err_prefix := errors.New("_prefix_")
+	err_suffix := errors.New("_suffix_")
+
+	// Note: It is more than twice as slow with this predicate approach... Maybe revert to direct inline calls
+	isNotNil := func(err error) bool { return err != nil }
+	hasProperPrefix := func(err error) bool { return strings.HasPrefix(err.Error(), err_prefix.Error()) }
+	hasProperSuffix := func(err error) bool { return strings.HasSuffix(err.Error(), err_suffix.Error()) }
+
+	errorsGen := func(msg string) bool {
+		generated_err := errors.New(msg)
+		errs := []error{err_prefix, generated_err, err_suffix}
+
+		if folded_err := FoldErrors(errs); isNotNil(folded_err) && hasProperPrefix(folded_err) && hasProperSuffix(folded_err) {
+			return true
+		}
+		return false
+	}
+
+	if err := quick.Check(errorsGen, nil); err != nil {
+		t.Error(err)
+	}
+}
+*/
