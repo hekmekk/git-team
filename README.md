@@ -1,6 +1,8 @@
 [![Build Status](https://travis-ci.org/hekmekk/git-team.svg?branch=master)](https://travis-ci.org/hekmekk/git-team)
 
 ## re-design
+- make it possible to rm multiple aliases
+- when adding an existing alias, ask for override
 - events
 	- alias
 		- AliasAdded
