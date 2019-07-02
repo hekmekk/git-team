@@ -3,6 +3,7 @@
 ## re-design
 - make it possible to rm multiple aliases
 - when adding an existing alias, ask for override
+- `git team ls`
 - events
 	- alias
 		- AliasAdded
