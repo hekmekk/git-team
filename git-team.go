@@ -19,7 +19,7 @@ const (
 )
 
 var (
-	handleAdd = handler.RunAddCommand(git.ResolveAlias, git.AddAlias)
+	handleAdd = handler.RunAddCommand(git.AddAlias)
 )
 
 func main() {
@@ -62,10 +62,10 @@ func main() {
 			fmt.Println(checkErr)
 			os.Exit(-1)
 		}
-		aliasAdded, err, exitCode := handleAdd(*addAlias, *addCoauthor)
+		aliasAdded, err := handleAdd(*addAlias, *addCoauthor)
 		if err != nil {
 			fmt.Println(err.Error())
-			os.Exit(exitCode)
+			os.Exit(-1)
 		}
 		fmt.Println(color.GreenString(fmt.Sprintf("Alias '%s' -> '%s' has been added.", aliasAdded.Alias, aliasAdded.CoAuthor)))
 		os.Exit(0)
