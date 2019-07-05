@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/signal"
 	"strings"
 
 	"github.com/fatih/color"
@@ -17,6 +16,10 @@ import (
 const (
 	version = "v1.0.1"
 	author  = "Rea Sand <hekmek@posteo.de>"
+)
+
+var (
+	handleAdd = handler.RunAddCommand(git.ResolveAlias, git.AddAlias)
 )
 
 func main() {
@@ -41,11 +44,6 @@ func main() {
 
 	list := app.Command("list", "List currently available aliases")
 
-	done := make(chan bool, 1)
-	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, os.Interrupt, os.Kill)
-	userFeedback := make(chan string)
-
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case enable.FullCommand():
 		validCoAuthors, err := validateUserInput(coauthors)
@@ -64,7 +62,7 @@ func main() {
 			fmt.Println(checkErr)
 			os.Exit(-1)
 		}
-		aliasAdded, err, exitCode := handler.AddCommand(*addAlias, *addCoauthor)
+		aliasAdded, err, exitCode := handleAdd(*addAlias, *addCoauthor)
 		if err != nil {
 			fmt.Println(err.Error())
 			os.Exit(exitCode)
@@ -75,21 +73,6 @@ func main() {
 		handler.RemoveCommand(rmAlias)
 	case list.FullCommand():
 		handler.ListCommand()
-	}
-
-	done <- true
-
-	for {
-		select {
-		case msg := <-userFeedback:
-			fmt.Println(msg)
-		case <-signals:
-			done <- true
-		case <-done:
-			close(signals)
-			close(done)
-			os.Exit(0)
-		}
 	}
 }
 
