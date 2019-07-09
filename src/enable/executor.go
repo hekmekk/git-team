@@ -41,37 +41,24 @@ func ExecutorFactory(effect EnableEffect) func(cmd EnableCommand) []error {
 		var wg sync.WaitGroup
 		wg.Add(3)
 
-		go func() {
-			defer wg.Done()
-			writeTemplateFileErr := effect.WriteFile(templatePath, []byte(coauthorsString), 0644)
-			if writeTemplateFileErr != nil {
-				mutex.Lock()
-				errs = append(errs, writeTemplateFileErr)
-				mutex.Unlock()
-			}
-		}()
+		runTask := runTaskFactory(&wg, mutex, errs)
 
-		go func() {
-			defer wg.Done()
-			gitConfigErr := effect.SetCommitTemplate(templatePath)
-			if gitConfigErr != nil {
-				mutex.Lock()
-				errs = append(errs, gitConfigErr)
-				mutex.Unlock()
-			}
-		}()
-
-		go func() {
-			defer wg.Done()
-			writeStatusFileErr := effect.SaveStatus(status.ENABLED, cmd.Coauthors...)
-			if writeStatusFileErr != nil {
-				mutex.Lock()
-				errs = append(errs, writeStatusFileErr)
-				mutex.Unlock()
-			}
-		}()
+		go runTask(func() error { return effect.WriteFile(templatePath, []byte(coauthorsString), 0644) })
+		go runTask(func() error { return effect.SetCommitTemplate(templatePath) })
+		go runTask(func() error { return effect.SaveStatus(status.ENABLED, cmd.Coauthors...) })
 
 		wg.Wait()
 		return errs
+	}
+}
+
+func runTaskFactory(wg *sync.WaitGroup, mutex *sync.Mutex, errs []error) func(effect func() error) {
+	return func(effect func() error) {
+		defer wg.Done()
+		if err := effect(); err != nil {
+			mutex.Lock()
+			errs = append(errs, err)
+			mutex.Unlock()
+		}
 	}
 }
