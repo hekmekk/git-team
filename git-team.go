@@ -13,6 +13,7 @@ import (
 	"github.com/hekmekk/git-team/core/git"
 	"github.com/hekmekk/git-team/core/handler"
 	statusRepository "github.com/hekmekk/git-team/core/status"
+	addExecutor "github.com/hekmekk/git-team/src/add"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -23,7 +24,7 @@ const (
 )
 
 var (
-	handleAdd    = handler.RunAddCommand(git.AddAlias)
+	execAdd      = addExecutor.RunAddCommand(git.AddAlias)
 	enableEffect = enableExecutor.EnableEffect{
 		CreateDir:         os.MkdirAll,
 		WriteFile:         ioutil.WriteFile,
@@ -84,7 +85,7 @@ func main() {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", checkErr))
 			os.Exit(-1)
 		}
-		aliasAdded, err := handleAdd(*addAlias, *addCoauthor)
+		aliasAdded, err := execAdd(*addAlias, *addCoauthor)
 		if err != nil {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", err))
 			os.Exit(-1)
