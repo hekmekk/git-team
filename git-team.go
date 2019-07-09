@@ -63,7 +63,13 @@ func main() {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", foldErrors(validationErrs)))
 			os.Exit(-1)
 		}
-		cfg, _ := config.Load()
+
+		cfg, configErr := config.Load()
+		if configErr != nil {
+			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", configErr))
+			os.Exit(-1)
+		}
+
 		cmd := enableExecutor.EnableCommand{
 			Coauthors:        validCoAuthors,
 			BaseDir:          cfg.BaseDir,
