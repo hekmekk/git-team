@@ -13,6 +13,7 @@ import (
 	"github.com/hekmekk/git-team/core/git"
 	"github.com/hekmekk/git-team/core/handler"
 	statusRepository "github.com/hekmekk/git-team/core/status"
+	enableExecutor "github.com/hekmekk/git-team/src/enable"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -23,13 +24,13 @@ const (
 
 var (
 	handleAdd    = handler.RunAddCommand(git.AddAlias)
-	enableEffect = handler.EnableEffect{
+	enableEffect = enableExecutor.EnableEffect{
 		CreateDir:         os.MkdirAll,
 		WriteFile:         ioutil.WriteFile,
 		SetCommitTemplate: git.SetCommitTemplate,
 		SaveStatus:        statusRepository.Save,
 	}
-	handleEnable = handler.EnableFactory(enableEffect)
+	execEnable = enableExecutor.ExecutorFactory(enableEffect)
 )
 
 func main() {
@@ -62,12 +63,12 @@ func main() {
 			os.Exit(-1)
 		}
 		cfg, _ := config.Load()
-		cmd := handler.EnableCommand{
+		cmd := enableExecutor.EnableCommand{
 			Coauthors:        validCoAuthors,
 			BaseDir:          cfg.BaseDir,
 			TemplateFileName: cfg.TemplateFileName,
 		}
-		enableErrs := handleEnable(cmd)
+		enableErrs := execEnable(cmd)
 		if len(enableErrs) > 0 && enableErrs[0] != nil {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", foldErrors(enableErrs)))
 			os.Exit(-1)
