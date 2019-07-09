@@ -10,6 +10,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/hekmekk/git-team/core/git"
 	"github.com/hekmekk/git-team/core/handler"
+	statusRepository "github.com/hekmekk/git-team/core/status"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -55,7 +56,7 @@ func main() {
 	case disable.FullCommand():
 		handler.DisableCommand()
 	case status.FullCommand():
-		handler.Status()
+		statusRepository.Print()
 	case add.FullCommand():
 		checkErr := sanityCheckCoauthor(*addCoauthor)
 		if checkErr != nil {
