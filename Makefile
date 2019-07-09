@@ -13,6 +13,7 @@ deps:
 
 test: deps
 	go test ./core/...
+	go test ./src/...
 
 fmt:
 	go fmt
