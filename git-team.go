@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -21,7 +22,14 @@ const (
 )
 
 var (
-	handleAdd = handler.RunAddCommand(git.AddAlias)
+	handleAdd    = handler.RunAddCommand(git.AddAlias)
+	enableEffect = handler.EnableEffect{
+		CreateDir:         os.MkdirAll,
+		WriteFile:         ioutil.WriteFile,
+		SetCommitTemplate: git.SetCommitTemplate,
+		SaveStatus:        statusRepository.Save,
+	}
+	handleEnable = handler.EnableFactory(enableEffect)
 )
 
 func main() {
@@ -54,7 +62,12 @@ func main() {
 			os.Exit(-1)
 		}
 		cfg, _ := config.Load()
-		enableErrs := handler.Enable(validCoAuthors, cfg)
+		cmd := handler.EnableCommand{
+			Coauthors:        validCoAuthors,
+			BaseDir:          cfg.BaseDir,
+			TemplateFileName: cfg.TemplateFileName,
+		}
+		enableErrs := handleEnable(cmd)
 		if len(enableErrs) > 0 && enableErrs[0] != nil {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", foldErrors(enableErrs)))
 			os.Exit(-1)
