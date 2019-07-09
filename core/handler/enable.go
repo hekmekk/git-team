@@ -13,25 +13,43 @@ import (
 	"github.com/hekmekk/git-team/core/status"
 )
 
-func EnableCommand(coauthors []string) {
-	cfg, _ := config.Load()
+// should config loading happen here?! or just cut entirely different?!
+// config -> load, io -> createDir, io -> writeFile, git -> setCommitTemplate, status -> Save, status -> Print
 
-	defer status.Print()
+// Command Pattern
+// TODO: functions are not serializable... is this a problem here?
+type EnableCommand struct {
+	coauthors        []string
+	baseDir          string
+	templateFileName string
+}
 
+type EnableEffects struct {
+	createDir         func(path string, perm os.FileMode) error
+	writeFile         func(path string, data []byte, mode int) error
+	setCommitTemplate func(path string) error
+	saveStatus        func(state status.State, coauthors ...string) error
+}
+
+// func X(effects EnableEffects) func(cmd EnableCommand) []error {
+// }
+
+func Enable(coauthors []string, cfg config.Config) []error {
+	errs := make([]error, 0)
 	if len(coauthors) == 0 {
-		return
+		return errs
 	}
 
 	coauthorsString := PrepareForCommitMessage(coauthors)
 
 	mkdirErr := os.MkdirAll(cfg.BaseDir, os.ModePerm)
 	if mkdirErr != nil {
-		os.Stderr.WriteString(fmt.Sprintf("error: %s\n", mkdirErr.Error()))
-		os.Exit(-1)
+		return append(errs, mkdirErr)
 	}
 
 	templatePath := fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.TemplateFileName)
 
+	mutex := &sync.Mutex{}
 	var wg sync.WaitGroup
 	wg.Add(3)
 
@@ -39,8 +57,9 @@ func EnableCommand(coauthors []string) {
 		defer wg.Done()
 		writeTemplateFileErr := ioutil.WriteFile(templatePath, []byte(coauthorsString), 0644)
 		if writeTemplateFileErr != nil {
-			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", writeTemplateFileErr.Error()))
-			os.Exit(-1)
+			mutex.Lock()
+			errs = append(errs, writeTemplateFileErr)
+			mutex.Unlock()
 		}
 	}()
 
@@ -48,8 +67,9 @@ func EnableCommand(coauthors []string) {
 		defer wg.Done()
 		gitConfigErr := git.SetCommitTemplate(templatePath)
 		if gitConfigErr != nil {
-			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", gitConfigErr.Error()))
-			os.Exit(-1)
+			mutex.Lock()
+			errs = append(errs, gitConfigErr)
+			mutex.Unlock()
 		}
 	}()
 
@@ -57,12 +77,14 @@ func EnableCommand(coauthors []string) {
 		defer wg.Done()
 		writeStatusFileErr := status.Save(status.ENABLED, coauthors...)
 		if writeStatusFileErr != nil {
-			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", writeStatusFileErr.Error()))
-			os.Exit(-1)
+			mutex.Lock()
+			errs = append(errs, writeStatusFileErr)
+			mutex.Unlock()
 		}
 	}()
 
 	wg.Wait()
+	return errs
 }
 
 func ToLine(coauthor string) string {
