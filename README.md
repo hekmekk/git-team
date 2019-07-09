@@ -4,6 +4,7 @@
 - make it possible to rm multiple aliases
 - when adding an existing alias, ask for override
 - `git team ls`
+- always sort aliases
 - events
 	- alias
 		- AliasAdded
