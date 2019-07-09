@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
+	"github.com/hekmekk/git-team/core/config"
 	"github.com/hekmekk/git-team/core/git"
 	"github.com/hekmekk/git-team/core/handler"
 	statusRepository "github.com/hekmekk/git-team/core/status"
@@ -47,12 +48,18 @@ func main() {
 
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case enable.FullCommand():
-		validCoAuthors, err := validateUserInput(coauthors)
-		if len(err) > 0 && err[0] != nil {
-			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", foldErrors(err)))
+		validCoAuthors, validationErrs := validateUserInput(coauthors)
+		if len(validationErrs) > 0 && validationErrs[0] != nil {
+			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", foldErrors(validationErrs)))
 			os.Exit(-1)
 		}
-		handler.EnableCommand(validCoAuthors)
+		cfg, _ := config.Load()
+		enableErrs := handler.Enable(validCoAuthors, cfg)
+		if len(enableErrs) > 0 && enableErrs[0] != nil {
+			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", foldErrors(enableErrs)))
+			os.Exit(-1)
+		}
+		statusRepository.Print()
 	case disable.FullCommand():
 		handler.DisableCommand()
 	case status.FullCommand():
@@ -60,12 +67,12 @@ func main() {
 	case add.FullCommand():
 		checkErr := sanityCheckCoauthor(*addCoauthor)
 		if checkErr != nil {
-			fmt.Println(checkErr)
+			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", checkErr))
 			os.Exit(-1)
 		}
 		aliasAdded, err := handleAdd(*addAlias, *addCoauthor)
 		if err != nil {
-			fmt.Println(err.Error())
+			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", err))
 			os.Exit(-1)
 		}
 		fmt.Println(color.GreenString(fmt.Sprintf("Alias '%s' -> '%s' has been added.", aliasAdded.Alias, aliasAdded.CoAuthor)))
