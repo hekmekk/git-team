@@ -3,88 +3,81 @@ package handler
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"sync"
 
-	"github.com/hekmekk/git-team/core/config"
 	"github.com/hekmekk/git-team/core/git"
 	"github.com/hekmekk/git-team/core/status"
 )
 
-// should config loading happen here?! or just cut entirely different?!
-// config -> load, io -> createDir, io -> writeFile, git -> setCommitTemplate, status -> Save, status -> Print
-
-// Command Pattern
-// TODO: functions are not serializable... is this a problem here?
 type EnableCommand struct {
-	coauthors        []string
-	baseDir          string
-	templateFileName string
+	Coauthors        []string
+	BaseDir          string
+	TemplateFileName string
 }
 
-type EnableEffects struct {
-	createDir         func(path string, perm os.FileMode) error
-	writeFile         func(path string, data []byte, mode int) error
-	setCommitTemplate func(path string) error
-	saveStatus        func(state status.State, coauthors ...string) error
+type EnableEffect struct {
+	CreateDir         func(path string, perm os.FileMode) error
+	WriteFile         func(path string, data []byte, mode os.FileMode) error
+	SetCommitTemplate func(path string) error
+	SaveStatus        func(state status.State, coauthors ...string) error
 }
 
-// func X(effects EnableEffects) func(cmd EnableCommand) []error {
-// }
+// -> ExecutorFactory -> execEnable(cmd)
+func EnableFactory(effect EnableEffect) func(cmd EnableCommand) []error {
+	return func(cmd EnableCommand) []error {
+		errs := make([]error, 0)
+		if len(cmd.Coauthors) == 0 {
+			return errs
+		}
 
-func Enable(coauthors []string, cfg config.Config) []error {
-	errs := make([]error, 0)
-	if len(coauthors) == 0 {
+		coauthorsString := PrepareForCommitMessage(cmd.Coauthors)
+
+		mkdirErr := effect.CreateDir(cmd.BaseDir, os.ModePerm)
+		if mkdirErr != nil {
+			return append(errs, mkdirErr)
+		}
+
+		templatePath := fmt.Sprintf("%s/%s", cmd.BaseDir, cmd.TemplateFileName)
+
+		mutex := &sync.Mutex{}
+		var wg sync.WaitGroup
+		wg.Add(3)
+
+		go func() {
+			defer wg.Done()
+			writeTemplateFileErr := effect.WriteFile(templatePath, []byte(coauthorsString), 0644)
+			if writeTemplateFileErr != nil {
+				mutex.Lock()
+				errs = append(errs, writeTemplateFileErr)
+				mutex.Unlock()
+			}
+		}()
+
+		go func() {
+			defer wg.Done()
+			gitConfigErr := git.SetCommitTemplate(templatePath)
+			if gitConfigErr != nil {
+				mutex.Lock()
+				errs = append(errs, gitConfigErr)
+				mutex.Unlock()
+			}
+		}()
+
+		go func() {
+			defer wg.Done()
+			writeStatusFileErr := status.Save(status.ENABLED, cmd.Coauthors...)
+			if writeStatusFileErr != nil {
+				mutex.Lock()
+				errs = append(errs, writeStatusFileErr)
+				mutex.Unlock()
+			}
+		}()
+
+		wg.Wait()
 		return errs
 	}
-
-	coauthorsString := PrepareForCommitMessage(coauthors)
-
-	mkdirErr := os.MkdirAll(cfg.BaseDir, os.ModePerm)
-	if mkdirErr != nil {
-		return append(errs, mkdirErr)
-	}
-
-	templatePath := fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.TemplateFileName)
-
-	mutex := &sync.Mutex{}
-	var wg sync.WaitGroup
-	wg.Add(3)
-
-	go func() {
-		defer wg.Done()
-		writeTemplateFileErr := ioutil.WriteFile(templatePath, []byte(coauthorsString), 0644)
-		if writeTemplateFileErr != nil {
-			mutex.Lock()
-			errs = append(errs, writeTemplateFileErr)
-			mutex.Unlock()
-		}
-	}()
-
-	go func() {
-		defer wg.Done()
-		gitConfigErr := git.SetCommitTemplate(templatePath)
-		if gitConfigErr != nil {
-			mutex.Lock()
-			errs = append(errs, gitConfigErr)
-			mutex.Unlock()
-		}
-	}()
-
-	go func() {
-		defer wg.Done()
-		writeStatusFileErr := status.Save(status.ENABLED, coauthors...)
-		if writeStatusFileErr != nil {
-			mutex.Lock()
-			errs = append(errs, writeStatusFileErr)
-			mutex.Unlock()
-		}
-	}()
-
-	wg.Wait()
-	return errs
 }
 
 func ToLine(coauthor string) string {
