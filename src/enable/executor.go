@@ -5,7 +5,6 @@ import (
 	"os"
 	"sync"
 
-	"github.com/hekmekk/git-team/core/git"
 	"github.com/hekmekk/git-team/core/status"
 )
 
@@ -54,7 +53,7 @@ func ExecutorFactory(effect EnableEffect) func(cmd EnableCommand) []error {
 
 		go func() {
 			defer wg.Done()
-			gitConfigErr := git.SetCommitTemplate(templatePath)
+			gitConfigErr := effect.SetCommitTemplate(templatePath)
 			if gitConfigErr != nil {
 				mutex.Lock()
 				errs = append(errs, gitConfigErr)
@@ -64,7 +63,7 @@ func ExecutorFactory(effect EnableEffect) func(cmd EnableCommand) []error {
 
 		go func() {
 			defer wg.Done()
-			writeStatusFileErr := status.Save(status.ENABLED, cmd.Coauthors...)
+			writeStatusFileErr := effect.SaveStatus(status.ENABLED, cmd.Coauthors...)
 			if writeStatusFileErr != nil {
 				mutex.Lock()
 				errs = append(errs, writeStatusFileErr)
