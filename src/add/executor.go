@@ -1,17 +1,20 @@
 package handler
 
-type AliasAdded struct {
+type AddCommand struct {
 	Alias    string
-	CoAuthor string
+	Coauthor string
 }
 
-// TODO: Refactor to match enable command pattern (don't use effects type tho, we have only one...)
-func RunAddCommand(add func(string, string) error) func(string, string) (AliasAdded, error) {
-	return func(alias string, coauthor string) (AliasAdded, error) {
-		addErr := add(alias, coauthor)
+type AddEffect struct {
+	AddGitAlias func(string, string) error
+}
+
+func ExecutorFactory(effect AddEffect) func(AddCommand) error {
+	return func(cmd AddCommand) error {
+		addErr := effect.AddGitAlias(cmd.Alias, cmd.Coauthor)
 		if addErr != nil {
-			return AliasAdded{}, addErr
+			return addErr
 		}
-		return AliasAdded{Alias: alias, CoAuthor: coauthor}, nil
+		return nil
 	}
 }
