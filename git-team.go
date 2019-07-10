@@ -24,7 +24,8 @@ const (
 )
 
 var (
-	execAdd      = addExecutor.RunAddCommand(git.AddAlias)
+	addEffect    = addExecutor.AddEffect{AddGitAlias: git.AddAlias}
+	execAdd      = addExecutor.ExecutorFactory(addEffect)
 	enableEffect = enableExecutor.EnableEffect{
 		CreateDir:         os.MkdirAll,
 		WriteFile:         ioutil.WriteFile,
@@ -91,12 +92,16 @@ func main() {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", checkErr))
 			os.Exit(-1)
 		}
-		aliasAdded, err := execAdd(*addAlias, *addCoauthor)
-		if err != nil {
-			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", err))
+		cmd := addExecutor.AddCommand{
+			Alias:    *addAlias,
+			Coauthor: *addCoauthor,
+		}
+		addErr := execAdd(cmd)
+		if addErr != nil {
+			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", addErr))
 			os.Exit(-1)
 		}
-		fmt.Println(color.GreenString(fmt.Sprintf("Alias '%s' -> '%s' has been added.", aliasAdded.Alias, aliasAdded.CoAuthor)))
+		fmt.Println(color.GreenString(fmt.Sprintf("Alias '%s' -> '%s' has been added.", *addAlias, *addCoauthor)))
 		os.Exit(0)
 	case rm.FullCommand():
 		handler.RemoveCommand(rmAlias)
