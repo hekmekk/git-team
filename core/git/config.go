@@ -49,8 +49,24 @@ func RemoveAlias(alias string) error {
 	return err
 }
 
-func ListAlias() ([]string, error) {
-	return execGitConfig("--get-regexp", teamAlias)
+func GetAliasMap() map[string]string {
+	return getAliasMap(execGitConfig)
+}
+
+func getAliasMap(exec func(...string) ([]string, error)) map[string]string {
+	mapping := make(map[string]string)
+
+	lines, err := exec("--get-regexp", teamAlias)
+	if err != nil {
+		lines = make([]string, 0)
+	}
+
+	for _, v := range lines {
+		aliasAndCoauthor := strings.Split(strings.TrimRight(v, "\n"), "\n")
+		mapping[strings.TrimPrefix(aliasAndCoauthor[0], fmt.Sprintf("%s.", teamAlias))] = aliasAndCoauthor[1]
+	}
+
+	return mapping
 }
 
 func getAliasFullPath(alias string) string {
