@@ -76,9 +76,9 @@ func main() {
 			BaseDir:          cfg.BaseDir,
 			TemplateFileName: cfg.TemplateFileName,
 		}
-		enableErrs := execEnable(cmd)
-		if len(enableErrs) > 0 && enableErrs[0] != nil {
-			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", foldErrors(enableErrs)))
+		enableErr := execEnable(cmd)
+		if enableErr != nil {
+			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", enableErr))
 			os.Exit(-1)
 		}
 		statusRepository.Print()
