@@ -59,6 +59,13 @@ func main() {
 
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case enable.FullCommand():
+		// -> ValidateUserInput
+		// -> LoadConfig
+		// -> CreateTemplateDir
+		// -> WriteTemplateFile
+		// -> SetGitTemplate
+		// -> SaveStatus
+		// -> PrintStatus
 		validCoAuthors, validationErrs := validateUserInput(coauthors)
 		if len(validationErrs) > 0 && validationErrs[0] != nil {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", foldErrors(validationErrs)))
@@ -83,10 +90,19 @@ func main() {
 		}
 		statusRepository.Print()
 	case disable.FullCommand():
+		// -> UnsetCommitTemplate
+		// -> RemoveCommitSection
+		// -> RemoveTemplateFile
+		// -> SaveStatus
+		// -> PrintStatus
 		handler.DisableCommand()
 	case status.FullCommand():
+		// -> PrintStatus
 		statusRepository.Print()
 	case add.FullCommand():
+		// -> SanityCheckCoAuthor
+		// -> AddGitAlias
+		// -> PrintAliasAdded
 		checkErr := sanityCheckCoauthor(*addCoauthor)
 		if checkErr != nil {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", checkErr))
@@ -104,8 +120,13 @@ func main() {
 		fmt.Println(color.GreenString(fmt.Sprintf("Alias '%s' -> '%s' has been added.", *addAlias, *addCoauthor)))
 		os.Exit(0)
 	case rm.FullCommand():
+		// -> ResolveAlias
+		// -> RemoveAlias
+		// -> PrintAliasRemoved
 		handler.RemoveCommand(rmAlias)
 	case list.FullCommand():
+		// -> GetAliasCoAuthorMapping
+		// -> PrintAliasCoAuthorMapping
 		mapping := git.GetAliasMap()
 
 		blackBold := color.New(color.FgBlack).Add(color.Bold)
