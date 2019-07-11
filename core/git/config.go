@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
-
-	"github.com/tcnksm/go-gitconfig"
 )
 
 const commitTemplate = "commit.template"
@@ -14,14 +12,12 @@ const teamAlias = "team.alias"
 
 func ResolveAlias(alias string) (string, error) {
 	aliasFullPath := getAliasFullPath(alias)
-	coauthor, err := gitconfig.Local(aliasFullPath)
-	if err != nil {
-		coauthor, err = gitconfig.Global(aliasFullPath)
-		if err != nil {
-			return "", errors.New(fmt.Sprintf("Failed to resolve alias %s", aliasFullPath))
-		}
+	lines, err := ExecGitConfig("--get", getAliasFullPath(alias))
+	if err != nil || len(lines) == 0 {
+		return "", errors.New(fmt.Sprintf("Failed to resolve alias %s", aliasFullPath))
 	}
-	return coauthor, nil
+
+	return lines[0], nil
 }
 
 func SetCommitTemplate(path string) error {
