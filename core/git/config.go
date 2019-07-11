@@ -25,32 +25,32 @@ func ResolveAlias(alias string) (string, error) {
 }
 
 func SetCommitTemplate(path string) error {
-	_, err := execGitConfig(commitTemplate, path)
+	_, err := ExecGitConfig(commitTemplate, path)
 	return err
 }
 
 func UnsetCommitTemplate() error {
-	_, err := execGitConfig("--unset", commitTemplate)
+	_, err := ExecGitConfig("--unset", commitTemplate)
 	return err
 }
 
 func RemoveCommitSection() error {
-	_, err := execGitConfig("--remove-section", "commit")
+	_, err := ExecGitConfig("--remove-section", "commit")
 	return err
 }
 
 func AddAlias(alias, author string) error {
-	_, err := execGitConfig("--add", getAliasFullPath(alias), author)
+	_, err := ExecGitConfig("--add", getAliasFullPath(alias), author)
 	return err
 }
 
 func RemoveAlias(alias string) error {
-	_, err := execGitConfig("--unset-all", getAliasFullPath(alias))
+	_, err := ExecGitConfig("--unset-all", getAliasFullPath(alias))
 	return err
 }
 
 func GetAliasMap() map[string]string {
-	return getAliasMap(execGitConfig)
+	return getAliasMap(ExecGitConfig)
 }
 
 func getAliasMap(exec func(...string) ([]string, error)) map[string]string {
@@ -73,21 +73,32 @@ func getAliasFullPath(alias string) string {
 	return fmt.Sprintf("%s.%s", teamAlias, alias)
 }
 
-func execGitConfig(args ...string) ([]string, error) {
-	gitArgs := append([]string{"config", "--null", "--global"}, args...)
-	out, err := exec.Command("/usr/bin/env", append([]string{"git"}, gitArgs...)...).CombinedOutput()
-
-	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Failed to exec git config command with args: %s", args))
+func ExecGitConfig(args ...string) ([]string, error) {
+	exec := func(theArgs ...string) ([]byte, error) {
+		return exec.Command("/usr/bin/env", append([]string{"git"}, theArgs...)...).CombinedOutput()
 	}
 
-	stringOut := string(out)
+	return execGitConfig(exec)(args...)
+}
 
-	if stringOut == "" {
-		return []string{}, nil
+func execGitConfig(cmd func(...string) ([]byte, error)) func(...string) ([]string, error) {
+	return func(args ...string) ([]string, error) {
+		gitArgs := append([]string{"config", "--null", "--global"}, args...)
+
+		out, err := cmd(gitArgs...)
+
+		if err != nil {
+			return nil, errors.New(fmt.Sprintf("Failed to exec git config command with args: %s", args))
+		}
+
+		stringOut := string(out)
+
+		if stringOut == "" {
+			return []string{}, nil
+		}
+
+		lines := strings.Split(strings.TrimRight(stringOut, "\000"), "\000")
+
+		return lines, nil
 	}
-
-	lines := strings.Split(strings.TrimRight(stringOut, "\000"), "\000")
-
-	return lines, nil
 }
