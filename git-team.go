@@ -106,7 +106,15 @@ func main() {
 	case rm.FullCommand():
 		handler.RemoveCommand(rmAlias)
 	case list.FullCommand():
-		handler.ListCommand()
+		mapping := git.GetAliasMap()
+
+		blackBold := color.New(color.FgBlack).Add(color.Bold)
+		blackBold.Println("Aliases:")
+		blackBold.Println("--------")
+
+		for alias, coauthor := range mapping {
+			color.Magenta(fmt.Sprintf("'%s' -> '%s'", alias, coauthor))
+		}
 	}
 }
 
