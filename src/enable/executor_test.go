@@ -31,10 +31,10 @@ func TestEnableSucceeds(t *testing.T) {
 		TemplateFileName: templateFileName,
 	}
 
-	errs := execEnable(cmd)
+	err := execEnable(cmd)
 
-	if len(errs) > 0 && errs[0] != nil {
-		t.Error(errs)
+	if err != nil {
+		t.Error(err)
 		t.Fail()
 	}
 }
