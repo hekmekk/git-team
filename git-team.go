@@ -126,13 +126,13 @@ func main() {
 		color.Red(fmt.Sprintf("Alias '%s' has been removed.", cmd.Alias))
 		os.Exit(0)
 	case list.FullCommand():
-		mapping := git.GetAliasMap()
+		assignments := git.GetAddedAliases()
 
 		blackBold := color.New(color.FgBlack).Add(color.Bold)
 		blackBold.Println("Aliases:")
 		blackBold.Println("--------")
 
-		for alias, coauthor := range mapping {
+		for alias, coauthor := range assignments {
 			color.Magenta(fmt.Sprintf("'%s' -> '%s'", alias, coauthor))
 		}
 		os.Exit(0)
