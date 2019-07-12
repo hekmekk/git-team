@@ -15,7 +15,7 @@ import (
 	statusRepository "github.com/hekmekk/git-team/core/status"
 	addExecutor "github.com/hekmekk/git-team/src/add"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
-	removeExecutor "github.com/hekmekk/git-team/src/rm"
+	removeExecutor "github.com/hekmekk/git-team/src/remove"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
