@@ -5,27 +5,7 @@
 - when adding an existing alias, ask for override
 - `git team ls`
 - [always sort aliases](https://stackoverflow.com/questions/23330781/sort-go-map-values-by-keys)
-- events
-	- alias
-		- AliasAdded
-		- AliasRemoved
-		- AliasesListed
-	- collaboration
-		- CollaborationModeEnabled
-		- CollaborationModeDisabled
-	- status
-		- StatusShown
-
-- commands
-	- alias
-		- AddAlias
-		- RemoveAlias
-		- ListAvailableAliases
-	- collaboration
-		- EnableCollaborationMode
-		- DisableCollaborationMode
-	- status
-		- ShowStatus
+- use current COMMIT TEMPLATE if one exists
 
 # git-team
 
