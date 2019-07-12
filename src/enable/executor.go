@@ -29,25 +29,19 @@ func ExecutorFactory(deps Dependencies) func(cmd Command) error {
 			return nil
 		}
 
-		coauthorsString := PrepareForCommitMessage(cmd.Coauthors)
-
-		err := deps.CreateDir(cmd.BaseDir, os.ModePerm)
-		if err != nil {
+		if err := deps.CreateDir(cmd.BaseDir, os.ModePerm); err != nil {
 			return err
 		}
 
 		templatePath := fmt.Sprintf("%s/%s", cmd.BaseDir, cmd.TemplateFileName)
 
-		err = deps.WriteFile(templatePath, []byte(coauthorsString), 0644)
-		if err != nil {
+		if err := deps.WriteFile(templatePath, []byte(PrepareForCommitMessage(cmd.Coauthors)), 0644); err != nil {
 			return err
 		}
-		err = deps.SetCommitTemplate(templatePath)
-		if err != nil {
+		if err := deps.SetCommitTemplate(templatePath); err != nil {
 			return err
 		}
-		err = deps.SaveStatus(status.ENABLED, cmd.Coauthors...)
-		if err != nil {
+		if err := deps.SaveStatus(status.ENABLED, cmd.Coauthors...); err != nil {
 			return err
 		}
 		return nil
