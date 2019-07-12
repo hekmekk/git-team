@@ -14,7 +14,6 @@ type Command struct {
 	TemplateFileName string
 }
 
-// TODO: load config should be a dependency
 // Dependencies the real-world dependencies of the ExecutorFactory
 type Dependencies struct {
 	CreateDir         func(path string, perm os.FileMode) error
