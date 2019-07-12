@@ -1,17 +1,20 @@
-package handler
+package add
 
-type AddCommand struct {
+// Command add a <Coauthor> under "team.alias.<Alias>"
+type Command struct {
 	Alias    string
 	Coauthor string
 }
 
-type AddEffect struct {
+// Dependencies the real-world dependencies of the ExecutorFactory
+type Dependencies struct {
 	AddGitAlias func(string, string) error
 }
 
-func ExecutorFactory(effect AddEffect) func(AddCommand) error {
-	return func(cmd AddCommand) error {
-		addErr := effect.AddGitAlias(cmd.Alias, cmd.Coauthor)
+// ExecutorFactory provisions a Command Processor
+func ExecutorFactory(deps Dependencies) func(Command) error {
+	return func(cmd Command) error {
+		addErr := deps.AddGitAlias(cmd.Alias, cmd.Coauthor)
 		if addErr != nil {
 			return addErr
 		}

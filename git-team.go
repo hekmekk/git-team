@@ -15,7 +15,7 @@ import (
 	statusRepository "github.com/hekmekk/git-team/core/status"
 	addExecutor "github.com/hekmekk/git-team/src/add"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
-	rmExecutor "github.com/hekmekk/git-team/src/rm"
+	removeExecutor "github.com/hekmekk/git-team/src/rm"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -25,22 +25,22 @@ const (
 )
 
 var (
-	addEffect = addExecutor.AddEffect{
+	addDeps = addExecutor.Dependencies{
 		AddGitAlias: git.AddAlias,
 	}
-	enableEffect = enableExecutor.EnableEffect{
+	enableDeps = enableExecutor.Dependencies{
 		CreateDir:         os.MkdirAll,
 		WriteFile:         ioutil.WriteFile,
 		SetCommitTemplate: git.SetCommitTemplate,
 		SaveStatus:        statusRepository.Save,
 	}
-	rmDeps = rmExecutor.RemoveDependencies{
+	rmDeps = removeExecutor.Dependencies{
 		GitResolveAlias: git.ResolveAlias,
 		GitRemoveAlias:  git.RemoveAlias,
 	}
-	execAdd    = addExecutor.ExecutorFactory(addEffect)
-	execEnable = enableExecutor.ExecutorFactory(enableEffect)
-	execRm     = rmExecutor.ExecutorFactory(rmDeps)
+	execAdd    = addExecutor.ExecutorFactory(addDeps)
+	execEnable = enableExecutor.ExecutorFactory(enableDeps)
+	execRemove = removeExecutor.ExecutorFactory(rmDeps)
 )
 
 func main() {
@@ -79,7 +79,7 @@ func main() {
 			os.Exit(-1)
 		}
 
-		cmd := enableExecutor.EnableCommand{
+		cmd := enableExecutor.Command{
 			Coauthors:        validCoAuthors,
 			BaseDir:          cfg.BaseDir,
 			TemplateFileName: cfg.TemplateFileName,
@@ -102,7 +102,7 @@ func main() {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", checkErr))
 			os.Exit(-1)
 		}
-		cmd := addExecutor.AddCommand{
+		cmd := addExecutor.Command{
 			Alias:    *addAlias,
 			Coauthor: *addCoauthor,
 		}
@@ -114,11 +114,11 @@ func main() {
 		color.Green(fmt.Sprintf("Alias '%s' -> '%s' has been added.", *addAlias, *addCoauthor))
 		os.Exit(0)
 	case rm.FullCommand():
-		cmd := rmExecutor.RemoveCommand{
+		cmd := removeExecutor.Command{
 			Alias: *rmAlias,
 		}
 
-		rmErr := execRm(cmd)
+		rmErr := execRemove(cmd)
 		if rmErr != nil {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", rmErr))
 			os.Exit(-1)

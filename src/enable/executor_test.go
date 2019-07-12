@@ -18,15 +18,15 @@ func TestEnableSucceeds(t *testing.T) {
 	setCommitTemplate := func(string) error { return nil }
 	saveStatus := func(status.State, ...string) error { return nil }
 
-	effect := EnableEffect{
+	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
 		SetCommitTemplate: setCommitTemplate,
 		SaveStatus:        saveStatus,
 	}
-	execEnable := ExecutorFactory(effect)
+	execEnable := ExecutorFactory(deps)
 
-	cmd := EnableCommand{
+	cmd := Command{
 		Coauthors:        coAuthors,
 		BaseDir:          baseDir,
 		TemplateFileName: templateFileName,
@@ -52,15 +52,15 @@ func TestEnableFailsDueToCreateDirErr(t *testing.T) {
 	setCommitTemplate := func(string) error { return nil }
 	saveStatus := func(status.State, ...string) error { return nil }
 
-	effect := EnableEffect{
+	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
 		SetCommitTemplate: setCommitTemplate,
 		SaveStatus:        saveStatus,
 	}
-	execEnable := ExecutorFactory(effect)
+	execEnable := ExecutorFactory(deps)
 
-	cmd := EnableCommand{
+	cmd := Command{
 		Coauthors:        coAuthors,
 		BaseDir:          baseDir,
 		TemplateFileName: templateFileName,
@@ -86,15 +86,15 @@ func TestEnableFailsDueToWriteFileErr(t *testing.T) {
 	setCommitTemplate := func(string) error { return nil }
 	saveStatus := func(status.State, ...string) error { return nil }
 
-	effect := EnableEffect{
+	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
 		SetCommitTemplate: setCommitTemplate,
 		SaveStatus:        saveStatus,
 	}
-	execEnable := ExecutorFactory(effect)
+	execEnable := ExecutorFactory(deps)
 
-	cmd := EnableCommand{
+	cmd := Command{
 		Coauthors:        coAuthors,
 		BaseDir:          baseDir,
 		TemplateFileName: templateFileName,
@@ -120,15 +120,15 @@ func TestEnableFailsDueToSetCommitTemplateErr(t *testing.T) {
 	setCommitTemplate := func(string) error { return expectedErr }
 	saveStatus := func(status.State, ...string) error { return nil }
 
-	effect := EnableEffect{
+	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
 		SetCommitTemplate: setCommitTemplate,
 		SaveStatus:        saveStatus,
 	}
-	execEnable := ExecutorFactory(effect)
+	execEnable := ExecutorFactory(deps)
 
-	cmd := EnableCommand{
+	cmd := Command{
 		Coauthors:        coAuthors,
 		BaseDir:          baseDir,
 		TemplateFileName: templateFileName,
@@ -154,15 +154,15 @@ func TestEnableFailsDueToSaveStatusErr(t *testing.T) {
 	setCommitTemplate := func(string) error { return nil }
 	saveStatus := func(status.State, ...string) error { return expectedErr }
 
-	effect := EnableEffect{
+	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
 		SetCommitTemplate: setCommitTemplate,
 		SaveStatus:        saveStatus,
 	}
-	execEnable := ExecutorFactory(effect)
+	execEnable := ExecutorFactory(deps)
 
-	cmd := EnableCommand{
+	cmd := Command{
 		Coauthors:        coAuthors,
 		BaseDir:          baseDir,
 		TemplateFileName: templateFileName,

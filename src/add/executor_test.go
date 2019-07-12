@@ -1,4 +1,4 @@
-package handler
+package add
 
 import (
 	"errors"
@@ -13,8 +13,8 @@ func TestAddSucceeds(t *testing.T) {
 		return nil
 	}
 
-	execAdd := ExecutorFactory(AddEffect{AddGitAlias: add})
-	err := execAdd(AddCommand{Alias: alias, Coauthor: coAuthor})
+	execAdd := ExecutorFactory(Dependencies{AddGitAlias: add})
+	err := execAdd(Command{Alias: alias, Coauthor: coAuthor})
 
 	if err != nil {
 		t.Error(err)
@@ -30,8 +30,8 @@ func TestAddFailsBecauseUnderlyingGitAddFails(t *testing.T) {
 		return errors.New("git add failed")
 	}
 
-	execAdd := ExecutorFactory(AddEffect{AddGitAlias: add})
-	err := execAdd(AddCommand{Alias: alias, Coauthor: coAuthor})
+	execAdd := ExecutorFactory(Dependencies{AddGitAlias: add})
+	err := execAdd(Command{Alias: alias, Coauthor: coAuthor})
 
 	if err == nil {
 		t.Fail()

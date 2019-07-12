@@ -1,4 +1,4 @@
-package rm
+package remove
 
 import (
 	"errors"
@@ -17,8 +17,8 @@ func TestRmSucceeds(t *testing.T) {
 		return nil
 	}
 
-	execAdd := ExecutorFactory(RemoveDependencies{GitResolveAlias: resolve, GitRemoveAlias: remove})
-	err := execAdd(RemoveCommand{Alias: alias})
+	execAdd := ExecutorFactory(Dependencies{GitResolveAlias: resolve, GitRemoveAlias: remove})
+	err := execAdd(Command{Alias: alias})
 
 	if err != nil {
 		t.Error(err)
@@ -37,8 +37,8 @@ func TestRmSucceedsRegardlessOfResolveError(t *testing.T) {
 		return nil
 	}
 
-	execAdd := ExecutorFactory(RemoveDependencies{GitResolveAlias: resolve, GitRemoveAlias: remove})
-	err := execAdd(RemoveCommand{Alias: alias})
+	execAdd := ExecutorFactory(Dependencies{GitResolveAlias: resolve, GitRemoveAlias: remove})
+	err := execAdd(Command{Alias: alias})
 
 	if err != nil {
 		t.Error(err)
@@ -58,8 +58,8 @@ func TestRmFailsBecauseUnderlyingGitRemoveFails(t *testing.T) {
 		return errors.New("git remove command failed")
 	}
 
-	execAdd := ExecutorFactory(RemoveDependencies{GitResolveAlias: resolve, GitRemoveAlias: remove})
-	err := execAdd(RemoveCommand{Alias: alias})
+	execAdd := ExecutorFactory(Dependencies{GitResolveAlias: resolve, GitRemoveAlias: remove})
+	err := execAdd(Command{Alias: alias})
 
 	if err == nil {
 		t.Error("Expected remove to fail")

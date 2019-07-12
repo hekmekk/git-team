@@ -1,16 +1,19 @@
-package rm
+package remove
 
-type RemoveCommand struct {
+// Command add a <Coauthor> under "team.alias.<Alias>"
+type Command struct {
 	Alias string
 }
 
-type RemoveDependencies struct {
+// Dependencies the real-world dependencies of the ExecutorFactory
+type Dependencies struct {
 	GitResolveAlias func(string) (string, error)
 	GitRemoveAlias  func(string) error
 }
 
-func ExecutorFactory(deps RemoveDependencies) func(RemoveCommand) error {
-	return func(cmd RemoveCommand) error {
+// ExecutorFactory provisions a Command Processor
+func ExecutorFactory(deps Dependencies) func(Command) error {
+	return func(cmd Command) error {
 
 		_, resolveErr := deps.GitResolveAlias(cmd.Alias)
 		if resolveErr != nil {
