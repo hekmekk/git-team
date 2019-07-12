@@ -9,6 +9,7 @@ import (
 const commitTemplate = "commit.template"
 const teamAlias = "team.alias"
 
+// ResolveAlias lookup "team.alias.<alias>" globally
 func ResolveAlias(alias string) (string, error) {
 	aliasFullPath := getAliasFullPath(alias)
 	lines, err := ExecGitConfig("--get", getAliasFullPath(alias))
@@ -19,31 +20,37 @@ func ResolveAlias(alias string) (string, error) {
 	return lines[0], nil
 }
 
+// SetCommitTemplate set "commit.template" globally
 func SetCommitTemplate(path string) error {
 	_, err := ExecGitConfig(commitTemplate, path)
 	return err
 }
 
+// UnsetCommitTemplate unset your global "commit.template"
 func UnsetCommitTemplate() error {
 	_, err := ExecGitConfig("--unset", commitTemplate)
 	return err
 }
 
+// RemoveCommitSection remove your global config section "commit"
 func RemoveCommitSection() error {
 	_, err := ExecGitConfig("--remove-section", "commit")
 	return err
 }
 
+// AddAlias add a co-author for "team.alias.<alias>"
 func AddAlias(alias, author string) error {
 	_, err := ExecGitConfig("--add", getAliasFullPath(alias), author)
 	return err
 }
 
+// RemoveAlias remove "team.alias.<alias>"
 func RemoveAlias(alias string) error {
 	_, err := ExecGitConfig("--unset-all", getAliasFullPath(alias))
 	return err
 }
 
+// GetAliasMap get all alias -> co-author mappings
 func GetAliasMap() map[string]string {
 	return getAliasMap(ExecGitConfig)
 }
@@ -68,6 +75,7 @@ func getAliasFullPath(alias string) string {
 	return fmt.Sprintf("%s.%s", teamAlias, alias)
 }
 
+// ExecGitConfig execute /usr/bin/env git config --null --global <args>
 func ExecGitConfig(args ...string) ([]string, error) {
 	exec := func(theArgs ...string) ([]byte, error) {
 		return exec.Command("/usr/bin/env", append([]string{"git"}, theArgs...)...).CombinedOutput()
