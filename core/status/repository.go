@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/fatih/color"
-	"github.com/hekmekk/git-team/core/config"
+	"github.com/hekmekk/git-team/src/config"
 	"io/ioutil"
 	"os"
 )

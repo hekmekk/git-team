@@ -9,11 +9,11 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/hekmekk/git-team/core/config"
 	"github.com/hekmekk/git-team/core/git"
 	"github.com/hekmekk/git-team/core/handler"
 	statusRepository "github.com/hekmekk/git-team/core/status"
 	addExecutor "github.com/hekmekk/git-team/src/add"
+	"github.com/hekmekk/git-team/src/config"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
 	removeExecutor "github.com/hekmekk/git-team/src/remove"
 	"gopkg.in/alecthomas/kingpin.v2"
