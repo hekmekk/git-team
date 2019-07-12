@@ -9,17 +9,6 @@ import (
 const commitTemplate = "commit.template"
 const teamAlias = "team.alias"
 
-// ResolveAlias lookup "team.alias.<alias>" globally
-func ResolveAlias(alias string) (string, error) {
-	aliasFullPath := getAliasFullPath(alias)
-	lines, err := execGitConfig("--get", getAliasFullPath(alias))
-	if err != nil || len(lines) == 0 {
-		return "", fmt.Errorf("Failed to resolve alias %s", aliasFullPath)
-	}
-
-	return lines[0], nil
-}
-
 // SetCommitTemplate set "commit.template" globally
 func SetCommitTemplate(path string) error {
 	_, err := execGitConfig(commitTemplate, path)
@@ -69,6 +58,23 @@ func getAliasMap(exec func(...string) ([]string, error)) map[string]string {
 	}
 
 	return mapping
+}
+
+// ResolveAlias lookup "team.alias.<alias>" globally
+func ResolveAlias(alias string) (string, error) {
+	return resolveAlias(execGitConfig)(alias)
+}
+
+func resolveAlias(exec func(...string) ([]string, error)) func(string) (string, error) {
+	return func(alias string) (string, error) {
+		aliasFullPath := getAliasFullPath(alias)
+		lines, err := exec("--get", aliasFullPath)
+		if err != nil || len(lines) == 0 {
+			return "", fmt.Errorf("Failed to resolve alias %s", aliasFullPath)
+		}
+
+		return lines[0], nil
+	}
 }
 
 func getAliasFullPath(alias string) string {
