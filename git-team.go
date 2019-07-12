@@ -15,6 +15,7 @@ import (
 	statusRepository "github.com/hekmekk/git-team/core/status"
 	addExecutor "github.com/hekmekk/git-team/src/add"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
+	rmExecutor "github.com/hekmekk/git-team/src/rm"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -24,15 +25,22 @@ const (
 )
 
 var (
-	addEffect    = addExecutor.AddEffect{AddGitAlias: git.AddAlias}
-	execAdd      = addExecutor.ExecutorFactory(addEffect)
+	addEffect = addExecutor.AddEffect{
+		AddGitAlias: git.AddAlias,
+	}
 	enableEffect = enableExecutor.EnableEffect{
 		CreateDir:         os.MkdirAll,
 		WriteFile:         ioutil.WriteFile,
 		SetCommitTemplate: git.SetCommitTemplate,
 		SaveStatus:        statusRepository.Save,
 	}
+	rmDeps = rmExecutor.RemoveDependencies{
+		GitResolveAlias: git.ResolveAlias,
+		GitRemoveAlias:  git.RemoveAlias,
+	}
+	execAdd    = addExecutor.ExecutorFactory(addEffect)
 	execEnable = enableExecutor.ExecutorFactory(enableEffect)
+	execRm     = rmExecutor.ExecutorFactory(rmDeps)
 )
 
 func main() {
@@ -59,13 +67,6 @@ func main() {
 
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case enable.FullCommand():
-		// -> ValidateUserInput
-		// -> LoadConfig
-		// -> CreateTemplateDir
-		// -> WriteTemplateFile
-		// -> SetGitTemplate
-		// -> SaveStatus
-		// -> PrintStatus
 		validCoAuthors, validationErrs := validateUserInput(coauthors)
 		if len(validationErrs) > 0 && validationErrs[0] != nil {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", foldErrors(validationErrs)))
@@ -89,20 +90,13 @@ func main() {
 			os.Exit(-1)
 		}
 		statusRepository.Print()
+		os.Exit(0)
 	case disable.FullCommand():
-		// -> UnsetCommitTemplate
-		// -> RemoveCommitSection
-		// -> RemoveTemplateFile
-		// -> SaveStatus
-		// -> PrintStatus
 		handler.DisableCommand()
 	case status.FullCommand():
-		// -> PrintStatus
 		statusRepository.Print()
+		os.Exit(0)
 	case add.FullCommand():
-		// -> SanityCheckCoAuthor
-		// -> AddGitAlias
-		// -> PrintAliasAdded
 		checkErr := sanityCheckCoauthor(*addCoauthor)
 		if checkErr != nil {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", checkErr))
@@ -117,16 +111,21 @@ func main() {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", addErr))
 			os.Exit(-1)
 		}
-		fmt.Println(color.GreenString(fmt.Sprintf("Alias '%s' -> '%s' has been added.", *addAlias, *addCoauthor)))
+		color.Green(fmt.Sprintf("Alias '%s' -> '%s' has been added.", *addAlias, *addCoauthor))
 		os.Exit(0)
 	case rm.FullCommand():
-		// -> ResolveAlias
-		// -> RemoveAlias
-		// -> PrintAliasRemoved
-		handler.RemoveCommand(rmAlias)
+		cmd := rmExecutor.RemoveCommand{
+			Alias: *rmAlias,
+		}
+
+		rmErr := execRm(cmd)
+		if rmErr != nil {
+			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", rmErr))
+			os.Exit(-1)
+		}
+		color.Red(fmt.Sprintf("Alias '%s' has been removed.", cmd.Alias))
+		os.Exit(0)
 	case list.FullCommand():
-		// -> GetAliasCoAuthorMapping
-		// -> PrintAliasCoAuthorMapping
 		mapping := git.GetAliasMap()
 
 		blackBold := color.New(color.FgBlack).Add(color.Bold)
@@ -136,6 +135,7 @@ func main() {
 		for alias, coauthor := range mapping {
 			color.Magenta(fmt.Sprintf("'%s' -> '%s'", alias, coauthor))
 		}
+		os.Exit(0)
 	}
 }
 
