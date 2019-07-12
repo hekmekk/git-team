@@ -39,12 +39,12 @@ func RemoveAlias(alias string) error {
 	return err
 }
 
-// GetAliasMap get all alias -> co-author mappings
-func GetAliasMap() map[string]string {
-	return getAliasMap(execGitConfig)
+// GetAddedAliases get all alias -> co-author mappings
+func GetAddedAliases() map[string]string {
+	return getAddedAliases(execGitConfig)
 }
 
-func getAliasMap(exec func(...string) ([]string, error)) map[string]string {
+func getAddedAliases(exec func(...string) ([]string, error)) map[string]string {
 	mapping := make(map[string]string)
 
 	lines, err := exec("--get-regexp", teamAlias)

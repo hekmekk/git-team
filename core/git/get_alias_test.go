@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestGetAliasSucceeds(t *testing.T) {
+func TestShouldReturnAliasAssignments(t *testing.T) {
 
 	mr := "mr"
 	mrs := "mrs"
@@ -24,7 +24,7 @@ func TestGetAliasSucceeds(t *testing.T) {
 
 	execSucceeds := func(args ...string) ([]string, error) { return lines, nil }
 
-	aliasMap := getAliasMap(execSucceeds)
+	aliasMap := getAddedAliases(execSucceeds)
 
 	if reflect.DeepEqual(aliasMap, expectedMap) != true {
 		t.Errorf("expected: %s, received %s", expectedMap, aliasMap)
@@ -32,13 +32,13 @@ func TestGetAliasSucceeds(t *testing.T) {
 	}
 }
 
-func TestGetAliasFailsDueToEmptyReturnFromGitConfigCommand(t *testing.T) {
+func TestShouldReturnEmptyMapIfEmptyReturnFromGitConfigCommand(t *testing.T) {
 
 	expectedMap := make(map[string]string)
 
 	execFails := func(args ...string) ([]string, error) { return nil, nil }
 
-	aliasMap := getAliasMap(execFails)
+	aliasMap := getAddedAliases(execFails)
 
 	if reflect.DeepEqual(aliasMap, expectedMap) != true {
 		t.Errorf("expected: %s, received %s", expectedMap, aliasMap)
@@ -52,7 +52,7 @@ func TestShouldReturnEmptyMapIfGitConfigCommandFails(t *testing.T) {
 
 	execFails := func(args ...string) ([]string, error) { return nil, errors.New("failed to exec git config command") }
 
-	aliasMap := getAliasMap(execFails)
+	aliasMap := getAddedAliases(execFails)
 
 	if reflect.DeepEqual(aliasMap, expectedMap) != true {
 		t.Errorf("expected: %s, received %s", expectedMap, aliasMap)
