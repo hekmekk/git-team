@@ -8,7 +8,10 @@ endif
 
 all: test fmt build man-page
 
-deps:
+tidy:
+	go mod tidy
+
+deps: tidy
 	go get
 
 test: deps
