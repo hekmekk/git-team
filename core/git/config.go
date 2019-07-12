@@ -1,7 +1,6 @@
 package git
 
 import (
-	"errors"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -14,7 +13,7 @@ func ResolveAlias(alias string) (string, error) {
 	aliasFullPath := getAliasFullPath(alias)
 	lines, err := ExecGitConfig("--get", getAliasFullPath(alias))
 	if err != nil || len(lines) == 0 {
-		return "", errors.New(fmt.Sprintf("Failed to resolve alias %s", aliasFullPath))
+		return "", fmt.Errorf("Failed to resolve alias %s", aliasFullPath)
 	}
 
 	return lines[0], nil
@@ -84,7 +83,7 @@ func execGitConfig(cmd func(...string) ([]byte, error)) func(...string) ([]strin
 		out, err := cmd(gitArgs...)
 
 		if err != nil {
-			return nil, errors.New(fmt.Sprintf("Failed to exec git config command with args: %s", args))
+			return nil, fmt.Errorf("Failed to exec git config command with args: %s", args)
 		}
 
 		stringOut := string(out)
