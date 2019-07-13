@@ -32,6 +32,7 @@ func main() {
 	rmAlias := rm.Arg("alias", "The alias to be removed").Required().String()
 
 	list := app.Command("list", "List currently available aliases")
+	list.Alias("ls")
 
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case enable.FullCommand():
