@@ -48,7 +48,7 @@ _git_team() {
 			__git_team_coauthor_completion
 			return 0
 			;;
-		list)
+		list | ls)
 			COMPREPLY=()
 			return 0
 			;;
@@ -65,7 +65,7 @@ _git_team() {
 				fi
 			done
 			if [[ $show_flags == true ]]; then
-				local flags="add enable disable list rm status --help --version"
+				local flags="add enable disable list ls rm status --help --version"
 				COMPREPLY+=( $(compgen -W "$flags" -- $cur) )
 			fi
 			return 0
