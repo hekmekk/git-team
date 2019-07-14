@@ -93,7 +93,13 @@ func main() {
 		statusRepository.Print()
 		os.Exit(0)
 	case disable.FullCommand():
-		handler.DisableCommand()
+		err := handler.Disable()
+		if err != nil {
+			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", err))
+			os.Exit(-1)
+		}
+		statusRepository.Print()
+		os.Exit(0)
 	case status.FullCommand():
 		statusRepository.Print()
 		os.Exit(0)
