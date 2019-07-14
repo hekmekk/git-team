@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/hekmekk/git-team/core/handler"
 	statusRepository "github.com/hekmekk/git-team/core/status"
 	addExecutor "github.com/hekmekk/git-team/src/add"
 	"github.com/hekmekk/git-team/src/config"
+	execDisable "github.com/hekmekk/git-team/src/disable"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
 	git "github.com/hekmekk/git-team/src/gitconfig"
 	removeExecutor "github.com/hekmekk/git-team/src/remove"
@@ -93,7 +93,7 @@ func main() {
 		statusRepository.Print()
 		os.Exit(0)
 	case disable.FullCommand():
-		err := handler.Disable()
+		err := execDisable.Exec()
 		if err != nil {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", err))
 			os.Exit(-1)
