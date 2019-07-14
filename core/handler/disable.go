@@ -2,9 +2,9 @@ package handler
 
 import (
 	"fmt"
-	"github.com/hekmekk/git-team/core/git"
 	"github.com/hekmekk/git-team/core/status"
 	"github.com/hekmekk/git-team/src/config"
+	git "github.com/hekmekk/git-team/src/gitconfig"
 	"os"
 	"sync"
 )
