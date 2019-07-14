@@ -1,11 +1,5 @@
 [![Build Status](https://travis-ci.org/hekmekk/git-team.svg?branch=master)](https://travis-ci.org/hekmekk/git-team)
 
-## re-design
-- make it possible to rm multiple aliases
-- when adding an existing alias, ask for override
-- [always sort aliases](https://stackoverflow.com/questions/23330781/sort-go-map-values-by-keys)
-- use current COMMIT TEMPLATE if one exists
-
 # git-team
 
 Command line interface for creating git commit templates provisioned with one or more co-authors.
@@ -64,3 +58,10 @@ sudo make purge
 
 ## Similar projects
 - [git mob](https://www.npmjs.com/package/git-mob)
+
+## TODOs
+- make it possible to rm multiple aliases
+- when adding an existing alias, ask for override
+- [always sort aliases](https://stackoverflow.com/questions/23330781/sort-go-map-values-by-keys)
+- use current COMMIT TEMPLATE if one exists
+
