@@ -22,6 +22,8 @@ type Status struct {
 	CoAuthors []string
 }
 
+// TODO: Add Enable and Disable functions
+
 func Save(state State, coauthors ...string) error {
 	cfg, _ := config.Load()
 
