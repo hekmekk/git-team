@@ -3,7 +3,6 @@
 ## re-design
 - make it possible to rm multiple aliases
 - when adding an existing alias, ask for override
-- `git team ls`
 - [always sort aliases](https://stackoverflow.com/questions/23330781/sort-go-map-values-by-keys)
 - use current COMMIT TEMPLATE if one exists
 
