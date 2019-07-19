@@ -60,9 +60,9 @@ sudo make purge
 - [git mob](https://www.npmjs.com/package/git-mob)
 
 ## TODOs
-- make it possible to rm multiple aliases
-- when adding an existing alias, ask for override
-- [always sort aliases](https://stackoverflow.com/questions/23330781/sort-go-map-values-by-keys)
-- use current COMMIT TEMPLATE if one exists
-- disallow setting an alias more than once for the enable command (`aliases | uniq | further_processing`)
+- feat: make it possible to rm multiple aliases
+- feat: when adding an existing alias, ask for override
+- feat: [always sort aliases](https://stackoverflow.com/questions/23330781/sort-go-map-values-by-keys)
+- feat: use current COMMIT TEMPLATE if one exists
+- fix: disallow setting an alias more than once for the enable command (`aliases | uniq | further_processing`)
 
