@@ -64,4 +64,5 @@ sudo make purge
 - when adding an existing alias, ask for override
 - [always sort aliases](https://stackoverflow.com/questions/23330781/sort-go-map-values-by-keys)
 - use current COMMIT TEMPLATE if one exists
+- disallow setting an alias more than once for the enable command (`aliases | uniq | further_processing`)
 
