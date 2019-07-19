@@ -33,7 +33,7 @@ type dependencies struct {
 func executorFactory(deps dependencies) func() error {
 	return func() error {
 		if err := deps.GitUnsetCommitTemplate(); err != nil {
-			return err
+			return nil
 		}
 
 		if err := deps.GitRemoveCommitSection(); err != nil {
