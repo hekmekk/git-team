@@ -33,7 +33,7 @@ func TestDisableSucceeds(t *testing.T) {
 	}
 }
 
-func TestDisableShouldFailWhenUnsetCommitTemplateFails(t *testing.T) {
+func TestDisableShouldSucceedWhenUnsetCommitTemplateFails(t *testing.T) {
 	expectedErr := errors.New("failed to unset commit template")
 	deps := dependencies{
 		GitUnsetCommitTemplate: func() error { return expectedErr },
@@ -41,8 +41,8 @@ func TestDisableShouldFailWhenUnsetCommitTemplateFails(t *testing.T) {
 
 	err := executorFactory(deps)()
 
-	if err == nil || expectedErr != err {
-		t.Errorf("expected: %s, received: %s", expectedErr, err)
+	if err != nil {
+		t.Error(err)
 		t.Fail()
 	}
 }
