@@ -7,7 +7,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/hekmekk/git-team/src/config"
 	"io/ioutil"
-	"os"
+	// "os"
 )
 
 type State uint
@@ -38,14 +38,17 @@ func Save(state State, coauthors ...string) error {
 	return ioutil.WriteFile(fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.StatusFileName), []byte(buf.String()), 0644)
 }
 
-func Print() {
-	cfg, _ := config.Load()
+type saveDependencies struct {
+	loadConfig func() (config.Config, error)
+	writeFile  func(string)
+}
 
-	var status Status
-	if _, err := toml.DecodeFile(fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.StatusFileName), &status); err != nil {
-		color.Red("Team mode disabled.")
-		os.Exit(0)
-	}
+func saveFactory() {}
+
+func Print() {
+	// cfg, _ := config.Load()
+
+	status := loadStatusFromFile()
 
 	switch status.State {
 	case ENABLED:
@@ -63,4 +66,20 @@ func Print() {
 	default:
 		color.Red("Team mode disabled.")
 	}
+}
+
+type loadDependencies struct {
+	loadConfig     func() (config.Config, error)
+	tomlDecodeFile func(string) (string, error)
+}
+
+func loadStatusFromFile() Status {
+	cfg, _ := config.Load()
+
+	var status Status
+	if _, err := toml.DecodeFile(fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.StatusFileName), &status); err != nil {
+		return Status{State: DISABLED, CoAuthors: []string{}}
+	}
+
+	return status
 }
