@@ -92,7 +92,12 @@ func main() {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", enableErr))
 			os.Exit(-1)
 		}
-		statusApi.Print()
+		status, err := statusApi.Fetch()
+		if err != nil {
+			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", err))
+			os.Exit(-1)
+		}
+		fmt.Println(status.ToString())
 		os.Exit(0)
 	case disable.FullCommand():
 		err := execDisable.Exec()
@@ -100,11 +105,21 @@ func main() {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", err))
 			os.Exit(-1)
 		}
-		statusApi.Print()
+		status, err := statusApi.Fetch()
+		if err != nil {
+			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", err))
+			os.Exit(-1)
+		}
+		fmt.Println(status.ToString())
 		os.Exit(0)
 	case status.FullCommand():
 		// TODO: should we return the "effect" PrintStatus?
-		statusApi.Print()
+		status, err := statusApi.Fetch()
+		if err != nil {
+			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", err))
+			os.Exit(-1)
+		}
+		fmt.Println(status.ToString())
 		os.Exit(0)
 	case add.FullCommand():
 		checkErr := sanityCheckCoauthor(*addCoauthor)
