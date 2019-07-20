@@ -2,9 +2,9 @@ package disable
 
 import (
 	"fmt"
-	statusRepository "github.com/hekmekk/git-team/core/status"
 	"github.com/hekmekk/git-team/src/config"
 	git "github.com/hekmekk/git-team/src/gitconfig"
+	statusApi "github.com/hekmekk/git-team/src/status"
 	"os"
 )
 
@@ -17,7 +17,7 @@ func Exec() error {
 		GitRemoveCommitSection: git.RemoveCommitSection,
 		LoadConfig:             config.Load,
 		RemoveFile:             os.Remove,
-		PersistDisabled:        statusRepository.PersistDisabled,
+		PersistDisabled:        statusApi.PersistDisabled,
 	}
 	return executorFactory(deps)()
 }
