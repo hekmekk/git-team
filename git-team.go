@@ -29,10 +29,10 @@ var (
 		AddGitAlias: git.AddAlias,
 	}
 	enableDeps = enableExecutor.Dependencies{
-		CreateDir:         os.MkdirAll,
-		WriteFile:         ioutil.WriteFile,
+		CreateDir:         os.MkdirAll,      // TODO: CreateTemplateDir
+		WriteFile:         ioutil.WriteFile, // TODO: WriteTemplateFile
 		SetCommitTemplate: git.SetCommitTemplate,
-		SaveStatus:        statusRepository.Save,
+		PersistEnabled:    statusRepository.PersistEnabled,
 	}
 	rmDeps = removeExecutor.Dependencies{
 		GitResolveAlias: git.ResolveAlias,
@@ -68,12 +68,14 @@ func main() {
 
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case enable.FullCommand():
+		// TODO: should be in some validation package
 		validCoAuthors, validationErrs := validateUserInput(coauthors)
 		if len(validationErrs) > 0 && validationErrs[0] != nil {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", foldErrors(validationErrs)))
 			os.Exit(-1)
 		}
 
+		// TODO: resolve inconsitencies (where to load config?)
 		cfg, configErr := config.Load()
 		if configErr != nil {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", configErr))
@@ -101,6 +103,7 @@ func main() {
 		statusRepository.Print()
 		os.Exit(0)
 	case status.FullCommand():
+		// TODO: should we return the "effect" PrintStatus?
 		statusRepository.Print()
 		os.Exit(0)
 	case add.FullCommand():

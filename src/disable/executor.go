@@ -17,7 +17,7 @@ func Exec() error {
 		GitRemoveCommitSection: git.RemoveCommitSection,
 		LoadConfig:             config.Load,
 		RemoveFile:             os.Remove,
-		SaveStatus:             statusRepository.Save,
+		PersistDisabled:        statusRepository.PersistDisabled,
 	}
 	return executorFactory(deps)()
 }
@@ -27,7 +27,7 @@ type dependencies struct {
 	GitRemoveCommitSection func() error
 	LoadConfig             func() (config.Config, error)
 	RemoveFile             func(string) error
-	SaveStatus             func(state statusRepository.State, coauthors ...string) error
+	PersistDisabled        func() error
 }
 
 func executorFactory(deps dependencies) func() error {
@@ -49,7 +49,7 @@ func executorFactory(deps dependencies) func() error {
 			return err
 		}
 
-		if err := deps.SaveStatus(statusRepository.DISABLED); err != nil {
+		if err := deps.PersistDisabled(); err != nil {
 			return err
 		}
 
