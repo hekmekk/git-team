@@ -8,8 +8,6 @@ import (
 	"github.com/hekmekk/git-team/src/config"
 )
 
-// TODO: define an interface ?!
-
 func PersistEnabled(coauthors []string) error {
 	return persist(state{Status: enabled, Coauthors: coauthors})
 }
