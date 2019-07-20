@@ -15,7 +15,6 @@ deps: tidy
 	go get
 
 test: deps
-	go test -cover ./core/...
 	go test -cover ./src/...
 
 fmt:

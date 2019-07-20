@@ -9,13 +9,13 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	statusRepository "github.com/hekmekk/git-team/core/status"
 	addExecutor "github.com/hekmekk/git-team/src/add"
 	"github.com/hekmekk/git-team/src/config"
 	execDisable "github.com/hekmekk/git-team/src/disable"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
 	git "github.com/hekmekk/git-team/src/gitconfig"
 	removeExecutor "github.com/hekmekk/git-team/src/remove"
+	statusApi "github.com/hekmekk/git-team/src/status"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -32,7 +32,7 @@ var (
 		CreateDir:         os.MkdirAll,      // TODO: CreateTemplateDir
 		WriteFile:         ioutil.WriteFile, // TODO: WriteTemplateFile
 		SetCommitTemplate: git.SetCommitTemplate,
-		PersistEnabled:    statusRepository.PersistEnabled,
+		PersistEnabled:    statusApi.PersistEnabled,
 	}
 	rmDeps = removeExecutor.Dependencies{
 		GitResolveAlias: git.ResolveAlias,
@@ -92,7 +92,7 @@ func main() {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", enableErr))
 			os.Exit(-1)
 		}
-		statusRepository.Print()
+		statusApi.Print()
 		os.Exit(0)
 	case disable.FullCommand():
 		err := execDisable.Exec()
@@ -100,11 +100,11 @@ func main() {
 			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", err))
 			os.Exit(-1)
 		}
-		statusRepository.Print()
+		statusApi.Print()
 		os.Exit(0)
 	case status.FullCommand():
 		// TODO: should we return the "effect" PrintStatus?
-		statusRepository.Print()
+		statusApi.Print()
 		os.Exit(0)
 	case add.FullCommand():
 		checkErr := sanityCheckCoauthor(*addCoauthor)
