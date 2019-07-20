@@ -20,8 +20,7 @@ func PersistDisabled() error {
 
 func Print() {
 	status := fetch()
-	statusStr := toString(status)
-	fmt.Println(statusStr)
+	fmt.Println(status.toString())
 }
 
 func persist(state state) error {
