@@ -18,7 +18,7 @@ type state struct {
 	Coauthors []string   `toml:"co-authors"`
 }
 
-func (state state) toString() string {
+func (state state) ToString() string {
 	var buffer bytes.Buffer
 	switch state.Status {
 	case enabled:

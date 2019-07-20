@@ -15,16 +15,23 @@ type fetchDependencies struct {
 	tomlDecodeFile func(string, interface{}) (toml.MetaData, error)
 }
 
-func fetchFromFileFactory(deps fetchDependencies) func() state {
-	return func() state {
-		cfg, _ := deps.loadConfig()
-
-		var status state
-		if _, err := deps.tomlDecodeFile(fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.StatusFileName), &status); err != nil {
-			return state{Status: disabled, Coauthors: []string{}}
+func fetchFromFileFactory(deps fetchDependencies) func() (state, error) {
+	return func() (state, error) {
+		cfg, err := deps.loadConfig()
+		if err != nil {
+			return state{}, err
 		}
 
-		return status
+		// if _, err := os.Stat("/path/to/whatever"); os.IsNotExist(err) {
+		// return state{Status: disabled, Coauthors: []string{}}, nil
+		// }
+
+		var decodedState state
+		if _, err := deps.tomlDecodeFile(fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.StatusFileName), &decodedState); err != nil {
+			return state{}, err
+		}
+
+		return decodedState, nil
 	}
 }
 
