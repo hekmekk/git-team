@@ -3,8 +3,6 @@ package enable
 import (
 	"fmt"
 	"os"
-
-	"github.com/hekmekk/git-team/core/status"
 )
 
 // Command add a <Coauthor> under "team.alias.<Alias>"
@@ -19,7 +17,7 @@ type Dependencies struct {
 	CreateDir         func(path string, perm os.FileMode) error
 	WriteFile         func(path string, data []byte, mode os.FileMode) error
 	SetCommitTemplate func(path string) error
-	SaveStatus        func(state status.State, coauthors ...string) error
+	PersistEnabled    func(coauthors []string) error
 }
 
 // ExecutorFactory provisions a Command Processor
@@ -41,7 +39,7 @@ func ExecutorFactory(deps Dependencies) func(cmd Command) error {
 		if err := deps.SetCommitTemplate(templatePath); err != nil {
 			return err
 		}
-		if err := deps.SaveStatus(status.ENABLED, cmd.Coauthors...); err != nil {
+		if err := deps.PersistEnabled(cmd.Coauthors); err != nil {
 			return err
 		}
 		return nil

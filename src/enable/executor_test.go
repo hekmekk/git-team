@@ -4,8 +4,6 @@ import (
 	"errors"
 	"os"
 	"testing"
-
-	"github.com/hekmekk/git-team/core/status"
 )
 
 func TestEnableSucceeds(t *testing.T) {
@@ -16,13 +14,13 @@ func TestEnableSucceeds(t *testing.T) {
 	createDir := func(string, os.FileMode) error { return nil }
 	writeFile := func(string, []byte, os.FileMode) error { return nil }
 	setCommitTemplate := func(string) error { return nil }
-	saveStatus := func(status.State, ...string) error { return nil }
+	persistEnabled := func([]string) error { return nil }
 
 	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
 		SetCommitTemplate: setCommitTemplate,
-		SaveStatus:        saveStatus,
+		PersistEnabled:    persistEnabled,
 	}
 	execEnable := ExecutorFactory(deps)
 
@@ -50,13 +48,13 @@ func TestEnableFailsDueToCreateDirErr(t *testing.T) {
 	createDir := func(string, os.FileMode) error { return expectedErr }
 	writeFile := func(string, []byte, os.FileMode) error { return nil }
 	setCommitTemplate := func(string) error { return nil }
-	saveStatus := func(status.State, ...string) error { return nil }
+	persistEnabled := func([]string) error { return nil }
 
 	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
 		SetCommitTemplate: setCommitTemplate,
-		SaveStatus:        saveStatus,
+		PersistEnabled:    persistEnabled,
 	}
 	execEnable := ExecutorFactory(deps)
 
@@ -84,13 +82,13 @@ func TestEnableFailsDueToWriteFileErr(t *testing.T) {
 	createDir := func(string, os.FileMode) error { return nil }
 	writeFile := func(string, []byte, os.FileMode) error { return expectedErr }
 	setCommitTemplate := func(string) error { return nil }
-	saveStatus := func(status.State, ...string) error { return nil }
+	persistEnabled := func([]string) error { return nil }
 
 	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
 		SetCommitTemplate: setCommitTemplate,
-		SaveStatus:        saveStatus,
+		PersistEnabled:    persistEnabled,
 	}
 	execEnable := ExecutorFactory(deps)
 
@@ -118,13 +116,13 @@ func TestEnableFailsDueToSetCommitTemplateErr(t *testing.T) {
 	createDir := func(string, os.FileMode) error { return nil }
 	writeFile := func(string, []byte, os.FileMode) error { return nil }
 	setCommitTemplate := func(string) error { return expectedErr }
-	saveStatus := func(status.State, ...string) error { return nil }
+	persistEnabled := func([]string) error { return nil }
 
 	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
 		SetCommitTemplate: setCommitTemplate,
-		SaveStatus:        saveStatus,
+		PersistEnabled:    persistEnabled,
 	}
 	execEnable := ExecutorFactory(deps)
 
@@ -152,13 +150,13 @@ func TestEnableFailsDueToSaveStatusErr(t *testing.T) {
 	createDir := func(string, os.FileMode) error { return nil }
 	writeFile := func(string, []byte, os.FileMode) error { return nil }
 	setCommitTemplate := func(string) error { return nil }
-	saveStatus := func(status.State, ...string) error { return expectedErr }
+	persistEnabled := func([]string) error { return expectedErr }
 
 	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
 		SetCommitTemplate: setCommitTemplate,
-		SaveStatus:        saveStatus,
+		PersistEnabled:    persistEnabled,
 	}
 	execEnable := ExecutorFactory(deps)
 

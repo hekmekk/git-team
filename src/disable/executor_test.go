@@ -4,7 +4,6 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/hekmekk/git-team/core/status"
 	"github.com/hekmekk/git-team/src/config"
 )
 
@@ -14,7 +13,7 @@ var (
 	cfg                 = config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
 	loadConfig          = func() (config.Config, error) { return cfg, nil }
 	removeFile          = func(string) error { return nil }
-	saveStatus          = func(status.State, ...string) error { return nil }
+	persistDisabled     = func() error { return nil }
 )
 
 func TestDisableSucceeds(t *testing.T) {
@@ -23,7 +22,7 @@ func TestDisableSucceeds(t *testing.T) {
 		GitRemoveCommitSection: removeCommitSection,
 		LoadConfig:             loadConfig,
 		RemoveFile:             removeFile,
-		SaveStatus:             saveStatus,
+		PersistDisabled:        persistDisabled,
 	}
 	err := executorFactory(deps)()
 
@@ -95,14 +94,14 @@ func TestDisableShouldFailWhenRemoveFileFails(t *testing.T) {
 	}
 }
 
-func TestDisableShouldFailWhenSaveStatusFails(t *testing.T) {
+func TestDisableShouldFailWhenpersistDisabledFails(t *testing.T) {
 	expectedErr := errors.New("failed to save status")
 	deps := dependencies{
 		GitUnsetCommitTemplate: unsetCommitTemplate,
 		GitRemoveCommitSection: removeCommitSection,
 		LoadConfig:             loadConfig,
 		RemoveFile:             removeFile,
-		SaveStatus:             func(status.State, ...string) error { return expectedErr },
+		PersistDisabled:        func() error { return expectedErr },
 	}
 
 	err := executorFactory(deps)()
