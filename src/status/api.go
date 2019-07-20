@@ -29,13 +29,13 @@ func persist(state state) error {
 		loadConfig: config.Load,
 		writeFile:  ioutil.WriteFile,
 	}
-	return persistFactory(deps)(state)
+	return persistToFileFactory(deps)(state)
 }
 
 func fetch() state {
-	deps := loadDependencies{
+	deps := fetchDependencies{
 		loadConfig:     config.Load,
 		tomlDecodeFile: toml.DecodeFile,
 	}
-	return loadStatusFromFileFactory(deps)()
+	return fetchFromFileFactory(deps)()
 }

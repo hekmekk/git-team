@@ -10,12 +10,12 @@ import (
 	"github.com/hekmekk/git-team/src/config"
 )
 
-type loadDependencies struct {
+type fetchDependencies struct {
 	loadConfig     func() (config.Config, error)
 	tomlDecodeFile func(string, interface{}) (toml.MetaData, error)
 }
 
-func loadStatusFromFileFactory(deps loadDependencies) func() state {
+func fetchFromFileFactory(deps fetchDependencies) func() state {
 	return func() state {
 		cfg, _ := deps.loadConfig()
 
@@ -33,7 +33,7 @@ type persistDependencies struct {
 	writeFile  func(string, []byte, os.FileMode) error
 }
 
-func persistFactory(deps persistDependencies) func(state state) error {
+func persistToFileFactory(deps persistDependencies) func(state state) error {
 	return func(state state) error {
 		cfg, _ := config.Load()
 
