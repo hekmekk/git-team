@@ -2,7 +2,7 @@ package status
 
 import (
 	"errors"
-	// "os"
+	"os"
 	"reflect"
 	"testing"
 
@@ -12,14 +12,19 @@ import (
 
 var (
 	cfg            = config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
+	fileInfo       os.FileInfo
 	loadConfig     = func() (config.Config, error) { return cfg, nil }
 	tomlDecodeFile = func(string, interface{}) (toml.MetaData, error) { return toml.MetaData{}, nil }
+	statFile       = func(string) (os.FileInfo, error) { return fileInfo, nil }
+	isFileNotExist = func(error) bool { return false }
 )
 
 func TestFetchSucceeds(t *testing.T) {
 	deps := fetchDependencies{
 		loadConfig:     loadConfig,
 		tomlDecodeFile: tomlDecodeFile,
+		statFile:       statFile,
+		isFileNotExist: isFileNotExist,
 	}
 
 	_, err := fetchFromFileFactory(deps)()
@@ -31,9 +36,13 @@ func TestFetchSucceeds(t *testing.T) {
 }
 
 func TestFetchSucceedsWithDefaultIfFileNotPresent(t *testing.T) {
+	statFile := func(string) (os.FileInfo, error) { return fileInfo, errors.New("failed to stat path") }
+	isFileNotExist := func(error) bool { return true }
 	deps := fetchDependencies{
 		loadConfig:     loadConfig,
 		tomlDecodeFile: tomlDecodeFile,
+		statFile:       statFile,
+		isFileNotExist: isFileNotExist,
 	}
 
 	expectedState := state{Status: disabled, Coauthors: []string{}}
@@ -55,6 +64,8 @@ func TestFetchFailsDueToConfigLoadError(t *testing.T) {
 	deps := fetchDependencies{
 		loadConfig:     loadConfig,
 		tomlDecodeFile: tomlDecodeFile,
+		statFile:       statFile,
+		isFileNotExist: isFileNotExist,
 	}
 
 	_, err := fetchFromFileFactory(deps)()
@@ -72,6 +83,8 @@ func TestFetchFailsDueToDecodeError(t *testing.T) {
 	deps := fetchDependencies{
 		loadConfig:     loadConfig,
 		tomlDecodeFile: tomlDecodeFile,
+		statFile:       statFile,
+		isFileNotExist: isFileNotExist,
 	}
 
 	_, err := fetchFromFileFactory(deps)()
