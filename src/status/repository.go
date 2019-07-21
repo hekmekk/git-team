@@ -13,6 +13,8 @@ import (
 type fetchDependencies struct {
 	loadConfig     func() (config.Config, error)
 	tomlDecodeFile func(string, interface{}) (toml.MetaData, error)
+	statFile       func(string) (os.FileInfo, error)
+	isFileNotExist func(error) bool
 }
 
 func fetchFromFileFactory(deps fetchDependencies) func() (state, error) {
@@ -22,12 +24,14 @@ func fetchFromFileFactory(deps fetchDependencies) func() (state, error) {
 			return state{}, err
 		}
 
-		// if _, err := os.Stat("/path/to/whatever"); os.IsNotExist(err) {
-		// return state{Status: disabled, Coauthors: []string{}}, nil
-		// }
+		stateFilePath := fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.StatusFileName)
+
+		if _, err := deps.statFile(stateFilePath); deps.isFileNotExist(err) {
+			return state{Status: disabled, Coauthors: []string{}}, nil
+		}
 
 		var decodedState state
-		if _, err := deps.tomlDecodeFile(fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.StatusFileName), &decodedState); err != nil {
+		if _, err := deps.tomlDecodeFile(stateFilePath, &decodedState); err != nil {
 			return state{}, err
 		}
 
