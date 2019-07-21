@@ -11,7 +11,6 @@ import (
 	"github.com/hekmekk/git-team/src/config"
 )
 
-// TODO: rename to repository_test.go
 // TODO: add assertions on arguments to mocked functions
 var (
 	cfg            = config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
