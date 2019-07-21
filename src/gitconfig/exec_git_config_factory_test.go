@@ -13,7 +13,7 @@ func TestShouldExecuteGitConfigWithTheExpectedCommandLineArguments(t *testing.T)
 	expectedArgs := append(staticArgs, providedArgs...)
 
 	executor := func(args ...string) ([]byte, error) {
-		if reflect.DeepEqual(expectedArgs, args) != true {
+		if !reflect.DeepEqual(expectedArgs, args) {
 			t.Errorf("expected: %s, received: %s", expectedArgs, args)
 			t.Fail()
 		}
@@ -38,7 +38,7 @@ func TestShouldReturnTheTwoLines(t *testing.T) {
 		t.Fail()
 	}
 
-	if reflect.DeepEqual(expectedLines, lines) != true {
+	if !reflect.DeepEqual(expectedLines, lines) {
 		t.Errorf("expected %s, received: %s", expectedLines, lines)
 		t.Fail()
 	}
@@ -57,7 +57,7 @@ func TestShouldReturnNoLines(t *testing.T) {
 		t.Fail()
 	}
 
-	if reflect.DeepEqual(expectedLines, lines) != true {
+	if !reflect.DeepEqual(expectedLines, lines) {
 		t.Errorf("expected %s, received: %s", expectedLines, lines)
 		t.Fail()
 	}
