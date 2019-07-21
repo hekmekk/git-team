@@ -2,6 +2,7 @@ package status
 
 import (
 	"io/ioutil"
+	"os"
 
 	"github.com/BurntSushi/toml"
 	"github.com/hekmekk/git-team/src/config"
@@ -12,6 +13,8 @@ func Fetch() (state, error) {
 	deps := fetchDependencies{
 		loadConfig:     config.Load,
 		tomlDecodeFile: toml.DecodeFile,
+		statFile:       os.Stat,
+		isFileNotExist: os.IsNotExist,
 	}
 	return fetchFromFileFactory(deps)()
 }
