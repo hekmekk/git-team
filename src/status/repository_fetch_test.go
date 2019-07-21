@@ -12,6 +12,7 @@ import (
 )
 
 // TODO: rename to repository_test.go
+// TODO: add assertions on arguments to mocked functions
 var (
 	cfg            = config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
 	loadConfig     = func() (config.Config, error) { return cfg, nil }
@@ -108,12 +109,64 @@ func TestPersistSucceeds(t *testing.T) {
 		tomlEncode:     tomlEncode,
 	}
 
+	// TODO: assert that this is passed to tomlEncode
 	state := state{Status: enabled, Coauthors: []string{"CO-AUTHOR"}}
 
 	err := persistToFileFactory(deps)(state)
 
 	if err != nil {
 		t.Error(err)
+		t.Fail()
+	}
+}
+
+func TestPersistFailsDueToConfigLoadError(t *testing.T) {
+	loadConfig := func() (config.Config, error) { return config.Config{}, errors.New("failed to load config") }
+	deps := persistDependencies{
+		loadConfig:     loadConfig,
+		writeFile:      writeFile,
+		tomlNewEncoder: tomlNewEncoder,
+		tomlEncode:     tomlEncode,
+	}
+
+	err := persistToFileFactory(deps)(state{})
+
+	if err == nil {
+		t.Error("expected failure")
+		t.Fail()
+	}
+}
+
+func TestPersistFailsDueToTomlEncodeError(t *testing.T) {
+	tomlEncode := func(*toml.Encoder, interface{}) error { return errors.New("failed to encode struct with toml encoder") }
+	deps := persistDependencies{
+		loadConfig:     loadConfig,
+		writeFile:      writeFile,
+		tomlNewEncoder: tomlNewEncoder,
+		tomlEncode:     tomlEncode,
+	}
+
+	err := persistToFileFactory(deps)(state{})
+
+	if err == nil {
+		t.Error("expected failure")
+		t.Fail()
+	}
+}
+
+func TestPersistFailsDueToWriteFileError(t *testing.T) {
+	writeFile := func(string, []byte, os.FileMode) error { return errors.New("failed to write file") }
+	deps := persistDependencies{
+		loadConfig:     loadConfig,
+		writeFile:      writeFile,
+		tomlNewEncoder: tomlNewEncoder,
+		tomlEncode:     tomlEncode,
+	}
+
+	err := persistToFileFactory(deps)(state{})
+
+	if err == nil {
+		t.Error("expected failure")
 		t.Fail()
 	}
 }

@@ -46,13 +46,21 @@ type persistDependencies struct {
 	tomlEncode     func(*toml.Encoder, interface{}) error
 }
 
+// TODO: to make forgetting dependencies impossible, maybe keep api on this level and move everything else one below (so only this method will be visibile to api), might be a bad idea tho... :/
+func NewPersistDependencies(loadConfig func() (config.Config, error)) persistDependencies {
+	return persistDependencies{loadConfig: loadConfig}
+}
+
 func persistToFileFactory(deps persistDependencies) func(state state) error {
 	return func(state state) error {
-		cfg, _ := deps.loadConfig()
+		cfg, err := deps.loadConfig()
+		if err != nil {
+			return err
+		}
 
 		buf := new(bytes.Buffer)
 
-		err := deps.tomlEncode(deps.tomlNewEncoder(buf), state)
+		err = deps.tomlEncode(deps.tomlNewEncoder(buf), state)
 		if err != nil {
 			return err
 		}
