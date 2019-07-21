@@ -20,7 +20,7 @@ func TestLoadSucceeds(t *testing.T) {
 		t.Fail()
 	}
 
-	if reflect.DeepEqual(expectedCfg, cfg) != true {
+	if !reflect.DeepEqual(expectedCfg, cfg) {
 		t.Errorf("expected: %s, received %s", expectedCfg, cfg)
 		t.Fail()
 	}
@@ -38,7 +38,7 @@ func TestLoadFailsBecauseHomeDirExpansionFails(t *testing.T) {
 		t.Fail()
 	}
 
-	if reflect.DeepEqual(expectedCfg, cfg) != true {
+	if !reflect.DeepEqual(expectedCfg, cfg) {
 		t.Errorf("expected: %s, received %s", expectedCfg, cfg)
 		t.Fail()
 	}
