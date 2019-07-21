@@ -31,8 +31,10 @@ func PersistDisabled() error {
 
 func persist(state state) error {
 	deps := persistDependencies{
-		loadConfig: config.Load,
-		writeFile:  ioutil.WriteFile,
+		loadConfig:     config.Load,
+		writeFile:      ioutil.WriteFile,
+		tomlNewEncoder: toml.NewEncoder,
+		tomlEncode:     func(encoder *toml.Encoder, state interface{}) error { return encoder.Encode(state) },
 	}
 	return persistToFileFactory(deps)(state)
 }

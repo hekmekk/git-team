@@ -2,6 +2,7 @@ package status
 
 import (
 	"errors"
+	"io"
 	"os"
 	"reflect"
 	"testing"
@@ -10,13 +11,17 @@ import (
 	"github.com/hekmekk/git-team/src/config"
 )
 
+// TODO: rename to repository_test.go
 var (
 	cfg            = config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
-	fileInfo       os.FileInfo
 	loadConfig     = func() (config.Config, error) { return cfg, nil }
 	tomlDecodeFile = func(string, interface{}) (toml.MetaData, error) { return toml.MetaData{}, nil }
+	fileInfo       os.FileInfo
+	writeFile      = func(string, []byte, os.FileMode) error { return nil }
 	statFile       = func(string) (os.FileInfo, error) { return fileInfo, nil }
 	isFileNotExist = func(error) bool { return false }
+	tomlNewEncoder = func(io.Writer) *toml.Encoder { return nil }
+	tomlEncode     = func(*toml.Encoder, interface{}) error { return nil }
 )
 
 func TestFetchSucceeds(t *testing.T) {
@@ -91,6 +96,24 @@ func TestFetchFailsDueToDecodeError(t *testing.T) {
 
 	if err == nil {
 		t.Error("expected failure")
+		t.Fail()
+	}
+}
+
+func TestPersistSucceeds(t *testing.T) {
+	deps := persistDependencies{
+		loadConfig:     loadConfig,
+		writeFile:      writeFile,
+		tomlNewEncoder: tomlNewEncoder,
+		tomlEncode:     tomlEncode,
+	}
+
+	state := state{Status: enabled, Coauthors: []string{"CO-AUTHOR"}}
+
+	err := persistToFileFactory(deps)(state)
+
+	if err != nil {
+		t.Error(err)
 		t.Fail()
 	}
 }
