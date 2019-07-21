@@ -70,17 +70,11 @@ func main() {
 	case enable.FullCommand():
 		// TODO: should be in some validation package
 		validCoAuthors, validationErrs := validateUserInput(coauthors)
-		if len(validationErrs) > 0 && validationErrs[0] != nil {
-			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", foldErrors(validationErrs)))
-			os.Exit(-1)
-		}
+		printErrAndExit(validationErrs...)
 
 		// TODO: resolve inconsitencies (where to load config?)
 		cfg, configErr := config.Load()
-		if configErr != nil {
-			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", configErr))
-			os.Exit(-1)
-		}
+		printErrAndExit(configErr)
 
 		cmd := enableExecutor.Command{
 			Coauthors:        validCoAuthors,
@@ -88,54 +82,40 @@ func main() {
 			TemplateFileName: cfg.TemplateFileName,
 		}
 		enableErr := execEnable(cmd)
-		if enableErr != nil {
-			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", enableErr))
-			os.Exit(-1)
-		}
+		printErrAndExit(enableErr)
+
 		status, err := statusApi.Fetch()
-		if err != nil {
-			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", err))
-			os.Exit(-1)
-		}
+		printErrAndExit(err)
+
 		fmt.Println(status.ToString())
 		os.Exit(0)
 	case disable.FullCommand():
 		err := execDisable.Exec()
-		if err != nil {
-			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", err))
-			os.Exit(-1)
-		}
+		printErrAndExit(err)
+
 		status, err := statusApi.Fetch()
-		if err != nil {
-			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", err))
-			os.Exit(-1)
-		}
+		printErrAndExit(err)
+
 		fmt.Println(status.ToString())
 		os.Exit(0)
 	case status.FullCommand():
 		// TODO: should we return the "effect" PrintStatus?
 		status, err := statusApi.Fetch()
-		if err != nil {
-			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", err))
-			os.Exit(-1)
-		}
+		printErrAndExit(err)
+
 		fmt.Println(status.ToString())
 		os.Exit(0)
 	case add.FullCommand():
 		checkErr := sanityCheckCoauthor(*addCoauthor)
-		if checkErr != nil {
-			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", checkErr))
-			os.Exit(-1)
-		}
+		printErrAndExit(checkErr)
+
 		cmd := addExecutor.Command{
 			Alias:    *addAlias,
 			Coauthor: *addCoauthor,
 		}
 		addErr := execAdd(cmd)
-		if addErr != nil {
-			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", addErr))
-			os.Exit(-1)
-		}
+		printErrAndExit(addErr)
+
 		color.Green(fmt.Sprintf("Alias '%s' -> '%s' has been added.", *addAlias, *addCoauthor))
 		os.Exit(0)
 	case rm.FullCommand():
@@ -144,10 +124,8 @@ func main() {
 		}
 
 		rmErr := execRemove(cmd)
-		if rmErr != nil {
-			os.Stderr.WriteString(fmt.Sprintf("error: %s\n", rmErr))
-			os.Exit(-1)
-		}
+		printErrAndExit(rmErr)
+
 		color.Red(fmt.Sprintf("Alias '%s' has been removed.", cmd.Alias))
 		os.Exit(0)
 	case list.FullCommand():
@@ -161,6 +139,13 @@ func main() {
 			color.Magenta(fmt.Sprintf("'%s' -> '%s'", alias, coauthor))
 		}
 		os.Exit(0)
+	}
+}
+
+func printErrAndExit(validationErrs ...error) {
+	if len(validationErrs) > 0 && validationErrs[0] != nil {
+		os.Stderr.WriteString(fmt.Sprintf("error: %s\n", foldErrors(validationErrs)))
+		os.Exit(-1)
 	}
 }
 
