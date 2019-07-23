@@ -70,11 +70,11 @@ func main() {
 	case enable.FullCommand():
 		// TODO: should be in some validation package
 		validCoAuthors, validationErrs := validateUserInput(coauthors)
-		printErrAndExit(validationErrs...)
+		exitIfErr(validationErrs...)
 
 		// TODO: resolve inconsitencies (where to load config?)
 		cfg, configErr := config.Load()
-		printErrAndExit(configErr)
+		exitIfErr(configErr)
 
 		cmd := enableExecutor.Command{
 			Coauthors:        validCoAuthors,
@@ -82,39 +82,39 @@ func main() {
 			TemplateFileName: cfg.TemplateFileName,
 		}
 		enableErr := execEnable(cmd)
-		printErrAndExit(enableErr)
+		exitIfErr(enableErr)
 
 		status, err := statusApi.Fetch()
-		printErrAndExit(err)
+		exitIfErr(err)
 
 		fmt.Println(status.ToString())
 		os.Exit(0)
 	case disable.FullCommand():
 		err := execDisable.Exec()
-		printErrAndExit(err)
+		exitIfErr(err)
 
 		status, err := statusApi.Fetch()
-		printErrAndExit(err)
+		exitIfErr(err)
 
 		fmt.Println(status.ToString())
 		os.Exit(0)
 	case status.FullCommand():
 		// TODO: should we return the "effect" PrintStatus?
 		status, err := statusApi.Fetch()
-		printErrAndExit(err)
+		exitIfErr(err)
 
 		fmt.Println(status.ToString())
 		os.Exit(0)
 	case add.FullCommand():
 		checkErr := sanityCheckCoauthor(*addCoauthor)
-		printErrAndExit(checkErr)
+		exitIfErr(checkErr)
 
 		cmd := addExecutor.Command{
 			Alias:    *addAlias,
 			Coauthor: *addCoauthor,
 		}
 		addErr := execAdd(cmd)
-		printErrAndExit(addErr)
+		exitIfErr(addErr)
 
 		color.Green(fmt.Sprintf("Alias '%s' -> '%s' has been added.", *addAlias, *addCoauthor))
 		os.Exit(0)
@@ -124,7 +124,7 @@ func main() {
 		}
 
 		rmErr := execRemove(cmd)
-		printErrAndExit(rmErr)
+		exitIfErr(rmErr)
 
 		color.Red(fmt.Sprintf("Alias '%s' has been removed.", cmd.Alias))
 		os.Exit(0)
@@ -142,7 +142,7 @@ func main() {
 	}
 }
 
-func printErrAndExit(validationErrs ...error) {
+func exitIfErr(validationErrs ...error) {
 	if len(validationErrs) > 0 && validationErrs[0] != nil {
 		os.Stderr.WriteString(fmt.Sprintf("error: %s\n", foldErrors(validationErrs)))
 		os.Exit(-1)
