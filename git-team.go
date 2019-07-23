@@ -68,6 +68,16 @@ func main() {
 
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case enable.FullCommand():
+
+		var sanityCheckErrs []error
+		for _, coauthorCandidate := range *coauthors {
+			err := sanityCheckCoauthor(coauthorCandidate)
+			if err != nil {
+				sanityCheckErrs = append(sanityCheckErrs, err)
+			}
+		}
+		exitIfErr(sanityCheckErrs...)
+
 		// TODO: should be in some validation package
 		validCoAuthors, validationErrs := validateUserInput(coauthors)
 		exitIfErr(validationErrs...)
@@ -180,6 +190,22 @@ func validateUserInput(coauthors *[]string) ([]string, []error) {
 	return validCoauthors, nil
 }
 
+func partition(coauthorsAndAliases []string) ([]string, []string) {
+	var coauthors []string
+	var aliases []string
+
+	for _, maybeAlias := range coauthorsAndAliases {
+		if strings.ContainsRune(maybeAlias, ' ') {
+			coauthors = append(coauthors, maybeAlias)
+		} else {
+			aliases = append(aliases, maybeAlias)
+		}
+	}
+
+	return coauthors, aliases
+}
+
+// TODO: get rid of this, use the partitioned data to just resolve what we know are aliases
 func normalize(coauthors []string) ([]string, []error) {
 	var normalizedCoAuthors []string
 	var resolveErrors []error
