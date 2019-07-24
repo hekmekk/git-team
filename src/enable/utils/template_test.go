@@ -1,4 +1,4 @@
-package enable
+package enableutils
 
 import (
 	"strings"
@@ -9,7 +9,7 @@ import (
 func TestToLine(t *testing.T) {
 	t.SkipNow()
 	toLineGen := func(coauthor string) bool {
-		if coAuthorLine := ToLine(coauthor); strings.HasPrefix(coAuthorLine, "Co-authored-by: ") && strings.HasSuffix(coAuthorLine, "\n") {
+		if coAuthorLine := toLine(coauthor); strings.HasPrefix(coAuthorLine, "Co-authored-by: ") && strings.HasSuffix(coAuthorLine, "\n") {
 			return true
 		}
 		return false
