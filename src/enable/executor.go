@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/hekmekk/git-team/src/config"
+	utils "github.com/hekmekk/git-team/src/enable/utils"
 )
 
 // Command add a <Coauthor> under "team.alias.<Alias>"
@@ -40,7 +41,7 @@ func ExecutorFactory(deps Dependencies) func(cmd Command) error {
 
 		templatePath := fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.TemplateFileName)
 
-		if err := deps.WriteFile(templatePath, []byte(PrepareForCommitMessage(cmd.Coauthors)), 0644); err != nil {
+		if err := deps.WriteFile(templatePath, []byte(utils.PrepareForCommitMessage(cmd.Coauthors)), 0644); err != nil {
 			return err
 		}
 		if err := deps.SetCommitTemplate(templatePath); err != nil {

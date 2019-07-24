@@ -1,4 +1,4 @@
-package enable
+package enableutils
 
 import (
 	"bytes"
@@ -6,10 +6,7 @@ import (
 	"strings"
 )
 
-func ToLine(coauthor string) string {
-	return fmt.Sprintf("Co-authored-by: %s\n", coauthor)
-}
-
+// PrepareForCommitMessage create string from coauthors to write to a commit template
 func PrepareForCommitMessage(coauthors []string) string {
 	if len(coauthors) == 0 {
 		return ""
@@ -18,7 +15,11 @@ func PrepareForCommitMessage(coauthors []string) string {
 	var buffer bytes.Buffer
 	buffer.WriteString("\n\n")
 	for _, coauthor := range coauthors {
-		buffer.WriteString(ToLine(coauthor))
+		buffer.WriteString(toLine(coauthor))
 	}
 	return strings.TrimRight(buffer.String(), "\n")
+}
+
+func toLine(coauthor string) string {
+	return fmt.Sprintf("Co-authored-by: %s\n", coauthor)
 }
