@@ -99,7 +99,6 @@ func main() {
 		fmt.Println(status.ToString())
 		os.Exit(0)
 	case status.FullCommand():
-		// TODO: should we return the "effect" PrintStatus?
 		status, err := statusApi.Fetch()
 		exitIfErr(err)
 
@@ -160,18 +159,18 @@ func foldErrors(validationErrors []error) error {
 
 // TODO: enable
 func partition(coauthorsAndAliases []string) ([]string, []string) {
-	var coauthors []string
+	var coauthorCandidates []string
 	var aliases []string
 
-	for _, maybeAlias := range coauthorsAndAliases {
-		if strings.ContainsRune(maybeAlias, ' ') {
-			coauthors = append(coauthors, maybeAlias)
+	for _, candidate := range coauthorsAndAliases {
+		if strings.ContainsRune(candidate, ' ') {
+			coauthorCandidates = append(coauthorCandidates, candidate)
 		} else {
-			aliases = append(aliases, maybeAlias)
+			aliases = append(aliases, candidate)
 		}
 	}
 
-	return coauthors, aliases
+	return coauthorCandidates, aliases
 }
 
 // TODO: enable
