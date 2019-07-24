@@ -34,6 +34,7 @@ var (
 		WriteFile:         ioutil.WriteFile, // TODO: WriteTemplateFile
 		SetCommitTemplate: git.SetCommitTemplate,
 		PersistEnabled:    statusApi.PersistEnabled,
+		LoadConfig:        config.Load,
 	}
 	rmDeps = removeExecutor.Dependencies{
 		GitResolveAlias: git.ResolveAlias,
@@ -78,14 +79,8 @@ func main() {
 		resolvedCoauthors, resolveErrs := resolveCoauthors(aliases)
 		exitIfErr(resolveErrs...)
 
-		// TODO: resolve inconsitencies (where to load config?)
-		cfg, configErr := config.Load()
-		exitIfErr(configErr)
-
 		cmd := enableExecutor.Command{
-			Coauthors:        append(rawCoauthors, resolvedCoauthors...),
-			BaseDir:          cfg.BaseDir,
-			TemplateFileName: cfg.TemplateFileName,
+			Coauthors: append(rawCoauthors, resolvedCoauthors...),
 		}
 		enableErr := execEnable(cmd)
 		exitIfErr(enableErr)
