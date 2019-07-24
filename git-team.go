@@ -16,6 +16,7 @@ import (
 	git "github.com/hekmekk/git-team/src/gitconfig"
 	removeExecutor "github.com/hekmekk/git-team/src/remove"
 	statusApi "github.com/hekmekk/git-team/src/status"
+	"github.com/hekmekk/git-team/src/validation"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -51,7 +52,7 @@ func main() {
 	app.Author(author)
 
 	enable := app.Command("enable", "Provisions a git-commit template with the provided co-authors. A co-author must either be an alias or of the shape \"Name <email>\"").Default()
-	coauthors := enable.Arg("coauthors", "Git co-authors").Strings()
+	enableCoauthors := enable.Arg("coauthors", "Git co-authors").Strings()
 
 	disable := app.Command("disable", "Use default template")
 	status := app.Command("status", "Print the current status")
@@ -69,25 +70,20 @@ func main() {
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case enable.FullCommand():
 
-		var sanityCheckErrs []error
-		for _, coauthorCandidate := range *coauthors {
-			err := sanityCheckCoauthor(coauthorCandidate)
-			if err != nil {
-				sanityCheckErrs = append(sanityCheckErrs, err)
-			}
-		}
+		rawCoauthors, aliases := partition(*enableCoauthors)
+
+		sanityCheckErrs := validation.SanityCheckCoauthors(rawCoauthors)
 		exitIfErr(sanityCheckErrs...)
 
-		// TODO: should be in some validation package
-		validCoAuthors, validationErrs := validateUserInput(coauthors)
-		exitIfErr(validationErrs...)
+		resolvedCoauthors, resolveErrs := resolveCoauthors(aliases)
+		exitIfErr(resolveErrs...)
 
 		// TODO: resolve inconsitencies (where to load config?)
 		cfg, configErr := config.Load()
 		exitIfErr(configErr)
 
 		cmd := enableExecutor.Command{
-			Coauthors:        validCoAuthors,
+			Coauthors:        append(rawCoauthors, resolvedCoauthors...),
 			BaseDir:          cfg.BaseDir,
 			TemplateFileName: cfg.TemplateFileName,
 		}
@@ -116,7 +112,7 @@ func main() {
 		fmt.Println(status.ToString())
 		os.Exit(0)
 	case add.FullCommand():
-		checkErr := sanityCheckCoauthor(*addCoauthor)
+		checkErr := validation.SanityCheckCoauthor(*addCoauthor)
 		exitIfErr(checkErr)
 
 		cmd := addExecutor.Command{
@@ -168,28 +164,7 @@ func foldErrors(validationErrors []error) error {
 	return errors.New(strings.TrimRight(buffer.String(), "; "))
 }
 
-func validateUserInput(coauthors *[]string) ([]string, []error) {
-	var userInputErrors []error
-
-	normalizedCoAuthors, resolveErrors := normalize(*coauthors)
-
-	if resolveErrors != nil {
-		userInputErrors = append(userInputErrors, resolveErrors...)
-	}
-
-	validCoauthors, validationErrors := coAuthorValidation(normalizedCoAuthors)
-
-	if validationErrors != nil {
-		userInputErrors = append(userInputErrors, validationErrors...)
-	}
-
-	if len(userInputErrors) > 0 {
-		return nil, userInputErrors
-	}
-
-	return validCoauthors, nil
-}
-
+// TODO: enable
 func partition(coauthorsAndAliases []string) ([]string, []string) {
 	var coauthors []string
 	var aliases []string
@@ -205,84 +180,22 @@ func partition(coauthorsAndAliases []string) ([]string, []string) {
 	return coauthors, aliases
 }
 
-// TODO: get rid of this, use the partitioned data to just resolve what we know are aliases
-func normalize(coauthors []string) ([]string, []error) {
-	var normalizedCoAuthors []string
+// TODO: enable
+func resolveCoauthors(aliases []string) ([]string, []error) {
+	var resolvedCoauthors []string
 	var resolveErrors []error
 
-	for _, maybeAlias := range coauthors {
-		if strings.ContainsRune(maybeAlias, ' ') {
-			normalizedCoAuthors = append(normalizedCoAuthors, maybeAlias)
+	for _, alias := range aliases {
+		var resolvedCoauthor, err = git.ResolveAlias(alias)
+		if err != nil {
+			resolveErrors = append(resolveErrors, err)
 		} else {
-			var resolvedCoauthor, err = git.ResolveAlias(maybeAlias)
-			if err != nil {
-				resolveErrors = append(resolveErrors, err)
-			} else {
-				normalizedCoAuthors = append(normalizedCoAuthors, resolvedCoauthor)
-			}
+			resolvedCoauthors = append(resolvedCoauthors, resolvedCoauthor)
 		}
 	}
 
-	if len(resolveErrors) > 0 {
-		return normalizedCoAuthors, resolveErrors
-	}
-
-	return normalizedCoAuthors, nil
+	return resolvedCoauthors, resolveErrors
 }
-
-func coAuthorValidation(coauthors []string) ([]string, []error) {
-	var validCoauthors []string
-	var validationErrors []error
-
-	for _, coauthor := range coauthors {
-		if err := sanityCheckCoauthor(coauthor); err != nil {
-			validationErrors = append(validationErrors, err)
-		} else {
-			validCoauthors = append(validCoauthors, coauthor)
-		}
-	}
-
-	if len(validationErrors) > 0 {
-		return coauthors, validationErrors
-	}
-
-	return coauthors, nil
-}
-
-func sanityCheckCoauthor(candidateCoauthor string) error {
-	var hasArrowBrackets = strings.Contains(candidateCoauthor, " <") && strings.HasSuffix(candidateCoauthor, ">")
-	var containsAtSign = strings.ContainsRune(candidateCoauthor, '@')
-
-	if hasArrowBrackets && containsAtSign {
-		return nil
-	}
-	return fmt.Errorf(fmt.Sprintf("Not a valid coauthor: %s", candidateCoauthor))
-}
-
-/*
-var (
-	validCoauthors   = []string{"Mr. Noujz <noujz@mr.se>", "Foo <foo@bar.baz>"}            // TODO: Make this more exhaustive...
-	invalidCoauthors = []string{"Foo Bar", "A B <a@b.com", "= <>", "foo", "<bar@baz.foo>"} // TODO: Make this more exhaustive...
-)
-
-func TestSanityCheckCoAuthorsValidAuthors(t *testing.T) {
-	for _, validCoauthor := range validCoauthors {
-		if validationErr := SanityCheckCoauthor(validCoauthor); validationErr != nil {
-			t.Errorf("Failed for %s", validCoauthor)
-			t.Fail()
-		}
-	}
-}
-
-func TestSanityCheckCoAuthorsInValidAuthors(t *testing.T) {
-	for _, invalidCoauthor := range invalidCoauthors {
-		if validationErr := SanityCheckCoauthor(invalidCoauthor); validationErr == nil {
-			t.Errorf("Failed for %s", invalidCoauthor)
-			t.Fail()
-		}
-	}
-}
-*/
 
 /*
 func TestFoldErrors(t *testing.T) {
