@@ -3,17 +3,19 @@ package enable
 import (
 	"fmt"
 	"os"
+
+	"github.com/hekmekk/git-team/src/config"
 )
 
 // Command add a <Coauthor> under "team.alias.<Alias>"
 type Command struct {
-	Coauthors        []string
-	BaseDir          string
-	TemplateFileName string
+	Coauthors []string
 }
 
+// TODO: make interface?!
 // Dependencies the real-world dependencies of the ExecutorFactory
 type Dependencies struct {
+	LoadConfig        func() (config.Config, error)
 	CreateDir         func(path string, perm os.FileMode) error
 	WriteFile         func(path string, data []byte, mode os.FileMode) error
 	SetCommitTemplate func(path string) error
@@ -27,11 +29,16 @@ func ExecutorFactory(deps Dependencies) func(cmd Command) error {
 			return nil
 		}
 
-		if err := deps.CreateDir(cmd.BaseDir, os.ModePerm); err != nil {
+		cfg, err := deps.LoadConfig()
+		if err != nil {
 			return err
 		}
 
-		templatePath := fmt.Sprintf("%s/%s", cmd.BaseDir, cmd.TemplateFileName)
+		if err := deps.CreateDir(cfg.BaseDir, os.ModePerm); err != nil {
+			return err
+		}
+
+		templatePath := fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.TemplateFileName)
 
 		if err := deps.WriteFile(templatePath, []byte(PrepareForCommitMessage(cmd.Coauthors)), 0644); err != nil {
 			return err
