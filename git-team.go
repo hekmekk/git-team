@@ -70,17 +70,16 @@ func main() {
 
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case enable.FullCommand():
+		coauthorCandidates, aliases := partition(*enableCoauthors)
 
-		rawCoauthors, aliases := partition(*enableCoauthors)
-
-		sanityCheckErrs := validation.SanityCheckCoauthors(rawCoauthors)
+		sanityCheckErrs := validation.SanityCheckCoauthors(coauthorCandidates)
 		exitIfErr(sanityCheckErrs...)
 
 		resolvedCoauthors, resolveErrs := resolveCoauthors(aliases)
 		exitIfErr(resolveErrs...)
 
 		cmd := enableExecutor.Command{
-			Coauthors: append(rawCoauthors, resolvedCoauthors...),
+			Coauthors: append(coauthorCandidates, resolvedCoauthors...),
 		}
 		enableErr := execEnable(cmd)
 		exitIfErr(enableErr)
