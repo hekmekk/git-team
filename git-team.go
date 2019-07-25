@@ -75,7 +75,7 @@ func main() {
 		sanityCheckErrs := validation.SanityCheckCoauthors(coauthorCandidates)
 		exitIfErr(sanityCheckErrs...)
 
-		resolvedCoauthors, resolveErrs := resolveCoauthors(aliases)
+		resolvedCoauthors, resolveErrs := resolveAliases(aliases)
 		exitIfErr(resolveErrs...)
 
 		cmd := enableExecutor.Command{
@@ -174,8 +174,8 @@ func partition(coauthorsAndAliases []string) ([]string, []string) {
 }
 
 // TODO: enable
-func resolveCoauthors(aliases []string) ([]string, []error) {
-	var resolvedCoauthors []string
+func resolveAliases(aliases []string) ([]string, []error) {
+	var resolvedAliases []string
 	var resolveErrors []error
 
 	for _, alias := range aliases {
@@ -183,11 +183,11 @@ func resolveCoauthors(aliases []string) ([]string, []error) {
 		if err != nil {
 			resolveErrors = append(resolveErrors, err)
 		} else {
-			resolvedCoauthors = append(resolvedCoauthors, resolvedCoauthor)
+			resolvedAliases = append(resolvedAliases, resolvedCoauthor)
 		}
 	}
 
-	return resolvedCoauthors, resolveErrors
+	return resolvedAliases, resolveErrors
 }
 
 /*
