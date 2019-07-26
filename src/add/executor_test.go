@@ -24,7 +24,7 @@ func TestAddSucceeds(t *testing.T) {
 
 func TestAddFailsDueToProvidedCoauthorNotPassingSanityCheck(t *testing.T) {
 	alias := "mr"
-	coAuthor := "INVALID"
+	coAuthor := "INVALID COAUTHOR"
 
 	add := func(alias, coAuthor string) error {
 		return nil
