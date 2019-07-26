@@ -3,6 +3,7 @@ package enable
 import (
 	"errors"
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/hekmekk/git-team/src/config"
@@ -10,12 +11,26 @@ import (
 
 func TestEnableSucceeds(t *testing.T) {
 	coAuthors := []string{"Mr. Noujz <noujz@mr.se>", "mrs"}
+	expectedPersistEnabledCoauthors := []string{"Mr. Noujz <noujz@mr.se>", "Mrs. Noujz <noujz@mrs.se>"}
+	expectedCommitTemplateCoauthors := "\n\nCo-authored-by: Mr. Noujz <noujz@mr.se>\nCo-authored-by: Mrs. Noujz <noujz@mrs.se>"
 
 	createDir := func(string, os.FileMode) error { return nil }
-	writeFile := func(string, []byte, os.FileMode) error { return nil }
+	writeFile := func(_ string, data []byte, _ os.FileMode) error {
+		if expectedCommitTemplateCoauthors != string(data) {
+			t.Errorf("expected: %s, got: %s", expectedCommitTemplateCoauthors, string(data))
+			t.Fail()
+		}
+		return nil
+	}
 	setCommitTemplate := func(string) error { return nil }
 	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
-	persistEnabled := func([]string) error { return nil }
+	persistEnabled := func(coauthors []string) error {
+		if !reflect.DeepEqual(expectedPersistEnabledCoauthors, coauthors) {
+			t.Errorf("expected: %s, got: %s", expectedPersistEnabledCoauthors, coauthors)
+			t.Fail()
+		}
+		return nil
+	}
 	cfg := config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
 	loadConfig := func() (config.Config, error) { return cfg, nil }
 
@@ -195,7 +210,7 @@ func TestEnableFailsDueToWriteFileErr(t *testing.T) {
 }
 
 func TestEnableFailsDueToSetCommitTemplateErr(t *testing.T) {
-	coAuthors := []string{"Mr. Noujz <noujz@mr.se>"}
+	coAuthorsAndAliases := []string{"Mr. Noujz <noujz@mr.se>"}
 
 	expectedErr := errors.New("Failed to set commit template")
 
@@ -218,7 +233,7 @@ func TestEnableFailsDueToSetCommitTemplateErr(t *testing.T) {
 	execEnable := ExecutorFactory(deps)
 
 	cmd := Command{
-		Coauthors: coAuthors,
+		Coauthors: coAuthorsAndAliases,
 	}
 
 	errs := execEnable(cmd)
