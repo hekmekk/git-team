@@ -60,6 +60,24 @@ func getAddedAliases(exec func(...string) ([]string, error)) map[string]string {
 	return mapping
 }
 
+// TODO: add test
+// ResolveAliases convenience function to resolve multiple aliases and accumulate errors
+func ResolveAliases(aliases []string) ([]string, []error) {
+	var resolvedAliases []string
+	var resolveErrors []error
+
+	for _, alias := range aliases {
+		var resolvedCoauthor, err = ResolveAlias(alias)
+		if err != nil {
+			resolveErrors = append(resolveErrors, err)
+		} else {
+			resolvedAliases = append(resolvedAliases, resolvedCoauthor)
+		}
+	}
+
+	return resolvedAliases, resolveErrors
+}
+
 // ResolveAlias lookup "team.alias.<alias>" globally
 func ResolveAlias(alias string) (string, error) {
 	return resolveAlias(execGitConfig)(alias)

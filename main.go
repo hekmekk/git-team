@@ -16,7 +16,6 @@ import (
 	git "github.com/hekmekk/git-team/src/gitconfig"
 	removeExecutor "github.com/hekmekk/git-team/src/remove"
 	statusApi "github.com/hekmekk/git-team/src/status"
-	"github.com/hekmekk/git-team/src/validation"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -30,9 +29,10 @@ var (
 		AddGitAlias: git.AddAlias,
 	}
 	enableDeps = enableExecutor.Dependencies{
-		CreateDir:         os.MkdirAll,      // TODO: CreateTemplateDir
-		WriteFile:         ioutil.WriteFile, // TODO: WriteTemplateFile
-		SetCommitTemplate: git.SetCommitTemplate,
+		CreateDir:         os.MkdirAll,           // TODO: CreateTemplateDir
+		WriteFile:         ioutil.WriteFile,      // TODO: WriteTemplateFile
+		SetCommitTemplate: git.SetCommitTemplate, // TODO: GitSetCommitTemplate
+		GitResolveAliases: git.ResolveAliases,
 		PersistEnabled:    statusApi.PersistEnabled,
 		LoadConfig:        config.Load,
 	}
@@ -70,19 +70,11 @@ func main() {
 
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case enable.FullCommand():
-		coauthorCandidates, aliases := partition(*enableCoauthors)
-
-		sanityCheckErrs := validation.SanityCheckCoauthors(coauthorCandidates)
-		exitIfErr(sanityCheckErrs...)
-
-		resolvedCoauthors, resolveErrs := resolveAliases(aliases)
-		exitIfErr(resolveErrs...)
-
 		cmd := enableExecutor.Command{
-			Coauthors: append(coauthorCandidates, resolvedCoauthors...),
+			Coauthors: append(*enableCoauthors),
 		}
-		enableErr := execEnable(cmd)
-		exitIfErr(enableErr)
+		enableErrs := execEnable(cmd)
+		exitIfErr(enableErrs...)
 
 		status, err := statusApi.Fetch()
 		exitIfErr(err)
@@ -152,35 +144,4 @@ func foldErrors(validationErrors []error) error {
 		buffer.WriteString("; ")
 	}
 	return errors.New(strings.TrimRight(buffer.String(), "; "))
-}
-
-func partition(coauthorsAndAliases []string) ([]string, []string) {
-	var coauthorCandidates []string
-	var aliases []string
-
-	for _, candidate := range coauthorsAndAliases {
-		if strings.ContainsRune(candidate, ' ') {
-			coauthorCandidates = append(coauthorCandidates, candidate)
-		} else {
-			aliases = append(aliases, candidate)
-		}
-	}
-
-	return coauthorCandidates, aliases
-}
-
-func resolveAliases(aliases []string) ([]string, []error) {
-	var resolvedAliases []string
-	var resolveErrors []error
-
-	for _, alias := range aliases {
-		var resolvedCoauthor, err = git.ResolveAlias(alias)
-		if err != nil {
-			resolveErrors = append(resolveErrors, err)
-		} else {
-			resolvedAliases = append(resolvedAliases, resolvedCoauthor)
-		}
-	}
-
-	return resolvedAliases, resolveErrors
 }
