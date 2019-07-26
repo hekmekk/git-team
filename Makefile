@@ -15,6 +15,7 @@ deps: tidy
 	go get
 
 test: deps
+	go test -cover .
 	go test -cover ./src/...
 
 fmt:
