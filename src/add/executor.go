@@ -1,5 +1,9 @@
 package add
 
+import (
+	"github.com/hekmekk/git-team/src/validation"
+)
+
 // Command add a <Coauthor> under "team.alias.<Alias>"
 type Command struct {
 	Alias    string
@@ -14,6 +18,11 @@ type Dependencies struct {
 // ExecutorFactory provisions a Command Processor
 func ExecutorFactory(deps Dependencies) func(Command) error {
 	return func(cmd Command) error {
+		checkErr := validation.SanityCheckCoauthor(cmd.Coauthor)
+		if checkErr != nil {
+			return checkErr
+		}
+
 		addErr := deps.AddGitAlias(cmd.Alias, cmd.Coauthor)
 		if addErr != nil {
 			return addErr
