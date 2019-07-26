@@ -157,7 +157,6 @@ func foldErrors(validationErrors []error) error {
 	return errors.New(strings.TrimRight(buffer.String(), "; "))
 }
 
-// TODO: enable
 func partition(coauthorsAndAliases []string) ([]string, []string) {
 	var coauthorCandidates []string
 	var aliases []string
@@ -173,7 +172,6 @@ func partition(coauthorsAndAliases []string) ([]string, []string) {
 	return coauthorCandidates, aliases
 }
 
-// TODO: enable
 func resolveAliases(aliases []string) ([]string, []error) {
 	var resolvedAliases []string
 	var resolveErrors []error
