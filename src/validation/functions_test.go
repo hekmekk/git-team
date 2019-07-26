@@ -6,8 +6,8 @@ import (
 
 var (
 	validCoauthors      = []string{"Mr. Noujz <noujz@mr.se>", "Foo <foo@bar.baz>"}
-	invalidCoauthors    = []string{"Foo Bar", "A B <a@b.com", "= <>", "foo", "<bar@baz.foo>"} // TODO: Make this more exhaustive...
-	bothValidAndInvalid = []string{"Mrs. Noujz <foo@mrs.se>", "foo", "bar"}
+	invalidCoauthors    = []string{"INVALID", "Foo Bar", "A B <a@b.com", "= <>", "foo", "<bar@baz.foo>"} // TODO: Make this more exhaustive...
+	bothValidAndInvalid = []string{"Mrs. Noujz <foo@mrs.se>", "foo", "bar", "INVALID"}
 )
 
 func TestSanityCheckCoAuthorsValidAuthors(t *testing.T) {
@@ -31,7 +31,7 @@ func TestSanityCheckCoAuthorsInValidAuthors(t *testing.T) {
 func TestSanityCheckCoAuthorsShouldReportAllErrors(t *testing.T) {
 	errs := SanityCheckCoauthors(bothValidAndInvalid)
 
-	if len(errs) != 2 {
+	if len(errs) != 3 {
 		t.Errorf("expected 2 errors, got: %s", errs)
 		t.Fail()
 	}
