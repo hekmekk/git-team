@@ -25,7 +25,7 @@ build: deps
 
 man-page:
 	mkdir -p pkg/target/man/
-	go run git-team.go --help-man > pkg/target/man/git-team.1
+	go run main.go --help-man > pkg/target/man/git-team.1
 	gzip -f pkg/target/man/git-team.1
 
 install:
@@ -40,10 +40,10 @@ uninstall:
 	rm -f /etc/bash_completion.d/git-team
 	rm -f /usr/share/man/man1/git-team.1.gz
 
-package-build:
+package-build: clean
 	mkdir -p pkg/src/
 	cp Makefile pkg/src/
-	cp git-team.go pkg/src/
+	cp main.go pkg/src/
 	cp go.mod pkg/src/
 	cp -r src pkg/src/
 	cp -r bash_completion pkg/src/
@@ -82,7 +82,7 @@ purge: clean uninstall
 	git config --remove-section team.alias || true
 	git config --remove-section commit || true
 
-docker-build:
+docker-build: clean
 	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-run:v$(VERSION) .
 
 docker-run: docker-build
