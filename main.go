@@ -105,9 +105,6 @@ func main() {
 		fmt.Println(status.ToString())
 		os.Exit(0)
 	case add.FullCommand():
-		checkErr := validation.SanityCheckCoauthor(*addCoauthor)
-		exitIfErr(checkErr)
-
 		cmd := addExecutor.Command{
 			Alias:    *addAlias,
 			Coauthor: *addCoauthor,

@@ -22,6 +22,22 @@ func TestAddSucceeds(t *testing.T) {
 	}
 }
 
+func TestAddFailsDueToProvidedCoauthorNotPassingSanityCheck(t *testing.T) {
+	alias := "mr"
+	coAuthor := "INVALID"
+
+	add := func(alias, coAuthor string) error {
+		return nil
+	}
+
+	execAdd := ExecutorFactory(Dependencies{AddGitAlias: add})
+	err := execAdd(Command{Alias: alias, Coauthor: coAuthor})
+
+	if err == nil {
+		t.Fail()
+	}
+}
+
 func TestAddFailsBecauseUnderlyingGitAddFails(t *testing.T) {
 	alias := "mr"
 	coAuthor := "Mr. Noujz <noujz@mr.se>"
