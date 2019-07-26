@@ -1,4 +1,4 @@
-VERSION:=1.1.0
+VERSION:=1.1.1
 
 UNAME_S:= $(shell uname -s)
 BASH_COMPLETION_PREFIX:=
