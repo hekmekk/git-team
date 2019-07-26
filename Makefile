@@ -45,7 +45,7 @@ package-build:
 	cp Makefile pkg/src/
 	cp git-team.go pkg/src/
 	cp go.mod pkg/src/
-	cp -r core pkg/src/
+	cp -r src pkg/src/
 	cp -r bash_completion pkg/src/
 	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-pkg:v$(VERSION) pkg/
 
