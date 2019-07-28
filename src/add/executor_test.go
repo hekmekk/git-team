@@ -2,7 +2,11 @@ package add
 
 import (
 	"errors"
+	"fmt"
+	"reflect"
 	"testing"
+
+	"github.com/hekmekk/git-team/src/effects"
 )
 
 func TestAddSucceeds(t *testing.T) {
@@ -13,11 +17,14 @@ func TestAddSucceeds(t *testing.T) {
 		return nil
 	}
 
-	execAdd := ExecutorFactory(Dependencies{AddGitAlias: add})
-	err := execAdd(Args{Alias: &alias, Coauthor: &coAuthor})
+	msg := fmt.Sprintf("Alias '%s' -> '%s' has been added.", alias, coAuthor)
 
-	if err != nil {
-		t.Error(err)
+	expectedEffects := []effects.Effect{effects.NewPrintMessage(msg), effects.NewExitOk()}
+
+	effects := Run(Dependencies{AddGitAlias: add}, Args{Alias: &alias, Coauthor: &coAuthor})
+
+	if !reflect.DeepEqual(expectedEffects, effects) {
+		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
 		t.Fail()
 	}
 }
@@ -30,10 +37,12 @@ func TestAddFailsDueToProvidedCoauthorNotPassingSanityCheck(t *testing.T) {
 		return nil
 	}
 
-	execAdd := ExecutorFactory(Dependencies{AddGitAlias: add})
-	err := execAdd(Args{Alias: &alias, Coauthor: &coAuthor})
+	expectedEffects := []effects.Effect{effects.NewPrintErr(errors.New("Not a valid coauthor: INVALID COAUTHOR")), effects.NewExitErr()}
 
-	if err == nil {
+	effects := Run(Dependencies{AddGitAlias: add}, Args{Alias: &alias, Coauthor: &coAuthor})
+
+	if !reflect.DeepEqual(expectedEffects, effects) {
+		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
 		t.Fail()
 	}
 }
@@ -42,14 +51,18 @@ func TestAddFailsBecauseUnderlyingGitAddFails(t *testing.T) {
 	alias := "mr"
 	coAuthor := "Mr. Noujz <noujz@mr.se>"
 
+	expectedErr := errors.New("git add failed")
+
 	add := func(alias, coAuthor string) error {
-		return errors.New("git add failed")
+		return expectedErr
 	}
 
-	execAdd := ExecutorFactory(Dependencies{AddGitAlias: add})
-	err := execAdd(Args{Alias: &alias, Coauthor: &coAuthor})
+	expectedEffects := []effects.Effect{effects.NewPrintErr(expectedErr), effects.NewExitErr()}
 
-	if err == nil {
+	effects := Run(Dependencies{AddGitAlias: add}, Args{Alias: &alias, Coauthor: &coAuthor})
+
+	if !reflect.DeepEqual(expectedEffects, effects) {
+		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
 		t.Fail()
 	}
 }
