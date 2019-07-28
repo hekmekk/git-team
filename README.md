@@ -60,6 +60,7 @@ sudo make purge
 - [git mob](https://www.npmjs.com/package/git-mob)
 
 ## TODOs
+- refactor: consolidate "persistence backends" `git config` and git-team status file
 - feat: make it possible to rm multiple aliases
 - feat: when adding an existing alias, ask for override
 - feat: [always sort aliases](https://stackoverflow.com/questions/23330781/sort-go-map-values-by-keys)
