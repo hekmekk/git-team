@@ -125,7 +125,7 @@ func newApplication() application {
 	}
 }
 
-func runEnable(application application) {
+func runEnable(enable enable) {
 	enableDeps := enableExecutor.Dependencies{
 		CreateDir:         os.MkdirAll,           // TODO: CreateTemplateDir
 		WriteFile:         ioutil.WriteFile,      // TODO: WriteTemplateFile
@@ -136,7 +136,7 @@ func runEnable(application application) {
 	}
 	execEnable := enableExecutor.ExecutorFactory(enableDeps)
 	cmd := enableExecutor.Command{
-		Coauthors: append(*application.enable.aliasesAndCoauthors),
+		Coauthors: append(*enable.aliasesAndCoauthors),
 	}
 	enableErrs := execEnable(cmd)
 	exitIfErr(enableErrs...)
@@ -148,7 +148,7 @@ func runEnable(application application) {
 	os.Exit(0)
 }
 
-func runDisable(application application) {
+func runDisable() {
 	err := execDisable.Exec()
 	exitIfErr(err)
 
@@ -159,7 +159,7 @@ func runDisable(application application) {
 	os.Exit(0)
 }
 
-func runStatus(application application) {
+func runStatus() {
 	status, err := statusApi.Fetch()
 	exitIfErr(err)
 
@@ -167,14 +167,14 @@ func runStatus(application application) {
 	os.Exit(0)
 }
 
-func runAdd(application application) {
+func runAdd(add add) {
 	addDeps := addExecutor.Dependencies{
 		AddGitAlias: git.AddAlias,
 	}
 	execAdd := addExecutor.ExecutorFactory(addDeps)
 
-	addAlias := *application.add.alias
-	addCoauthor := *application.add.coauthor
+	addAlias := *add.alias
+	addCoauthor := *add.coauthor
 
 	cmd := addExecutor.Command{
 		Alias:    addAlias,
@@ -187,14 +187,14 @@ func runAdd(application application) {
 	os.Exit(0)
 }
 
-func runRemove(application application) {
+func runRemove(remove remove) {
 	rmDeps := removeExecutor.Dependencies{
 		GitResolveAlias: git.ResolveAlias,
 		GitRemoveAlias:  git.RemoveAlias,
 	}
 	execRemove := removeExecutor.ExecutorFactory(rmDeps)
 
-	removeAlias := *application.remove.alias
+	removeAlias := *remove.alias
 
 	cmd := removeExecutor.Command{
 		Alias: removeAlias,
@@ -207,7 +207,7 @@ func runRemove(application application) {
 	os.Exit(0)
 }
 
-func runList(application application) {
+func runList() {
 	assignments := git.GetAssignments()
 
 	blackBold := color.New(color.FgBlack).Add(color.Bold)
@@ -225,17 +225,17 @@ func main() {
 
 	switch kingpin.MustParse(application.app.Parse(os.Args[1:])) {
 	case application.add.command.FullCommand():
-		runAdd(application)
+		runAdd(application.add)
 	case application.remove.command.FullCommand():
-		runRemove(application)
+		runRemove(application.remove)
 	case application.enable.command.FullCommand():
-		runEnable(application)
+		runEnable(application.enable)
 	case application.disable.command.FullCommand():
-		runDisable(application)
+		runDisable()
 	case application.status.command.FullCommand():
-		runStatus(application)
+		runStatus()
 	case application.list.command.FullCommand():
-		runList(application)
+		runList()
 	}
 }
 
