@@ -38,7 +38,7 @@ install:
 	@echo "[INFO] Don't forget to source $(BASH_COMPLETION_PREFIX)/etc/bash_completion"
 
 uninstall:
-	rm -f /usr/bin/git-team
+	rm -f /usr/local/bin/git-team
 	rm -f /etc/bash_completion.d/git-team
 	rm -f /usr/share/man/man1/git-team.1.gz
 
