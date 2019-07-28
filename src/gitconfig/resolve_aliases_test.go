@@ -3,6 +3,7 @@ package gitconfig
 import (
 	"errors"
 	"reflect"
+	"sort"
 	"testing"
 )
 
@@ -23,6 +24,9 @@ func TestShouldReturnNoErrors(t *testing.T) {
 		t.Errorf("unexpected errors: %s", errs)
 		t.Fail()
 	}
+
+	sort.Strings(coauthors)
+	sort.Strings(expectedCoauthors)
 
 	if !reflect.DeepEqual(expectedCoauthors, coauthors) {
 		t.Errorf("expected: %s, got: %s", expectedCoauthors, coauthors)
