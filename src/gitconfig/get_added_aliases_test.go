@@ -24,7 +24,7 @@ func TestShouldReturnAliasAssignments(t *testing.T) {
 
 	execSucceeds := func(args ...string) ([]string, error) { return lines, nil }
 
-	aliasMap := getAddedAliases(execSucceeds)
+	aliasMap := getAssignments(execSucceeds)
 
 	if !reflect.DeepEqual(aliasMap, expectedMap) {
 		t.Errorf("expected: %s, received %s", expectedMap, aliasMap)
@@ -38,7 +38,7 @@ func TestShouldReturnEmptyMapIfEmptyReturnFromGitConfigCommand(t *testing.T) {
 
 	execFails := func(args ...string) ([]string, error) { return nil, nil }
 
-	aliasMap := getAddedAliases(execFails)
+	aliasMap := getAssignments(execFails)
 
 	if !reflect.DeepEqual(aliasMap, expectedMap) {
 		t.Errorf("expected: %s, received %s", expectedMap, aliasMap)
@@ -52,7 +52,7 @@ func TestShouldReturnEmptyMapIfGitConfigCommandFails(t *testing.T) {
 
 	execFails := func(args ...string) ([]string, error) { return nil, errors.New("failed to exec git config command") }
 
-	aliasMap := getAddedAliases(execFails)
+	aliasMap := getAssignments(execFails)
 
 	if !reflect.DeepEqual(aliasMap, expectedMap) {
 		t.Errorf("expected: %s, received %s", expectedMap, aliasMap)

@@ -208,7 +208,7 @@ func runRemove(application application) {
 }
 
 func runList(application application) {
-	assignments := git.GetAddedAliases() // TODO: git.GetAssignments()
+	assignments := git.GetAssignments()
 
 	blackBold := color.New(color.FgBlack).Add(color.Bold)
 	blackBold.Println("Aliases:")
