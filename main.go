@@ -44,6 +44,7 @@ func main() {
 	case application.list.command.FullCommand():
 		runList()
 	}
+
 	os.Exit(0)
 }
 
@@ -215,6 +216,7 @@ func exitIfErr(validationErrs ...error) {
 	}
 }
 
+// TODO: is this required for anything else than "enable"?
 func foldErrors(validationErrors []error) error {
 	var buffer bytes.Buffer
 	for _, err := range validationErrors {
