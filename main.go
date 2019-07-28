@@ -125,6 +125,46 @@ func newApplication() application {
 	}
 }
 
+func runAdd(add add) {
+	addDeps := addExecutor.Dependencies{
+		AddGitAlias: git.AddAlias,
+	}
+	execAdd := addExecutor.ExecutorFactory(addDeps)
+
+	addAlias := *add.alias
+	addCoauthor := *add.coauthor
+
+	cmd := addExecutor.Command{
+		Alias:    addAlias,
+		Coauthor: addCoauthor,
+	}
+	addErr := execAdd(cmd)
+	exitIfErr(addErr)
+
+	color.Green(fmt.Sprintf("Alias '%s' -> '%s' has been added.", addAlias, addCoauthor))
+	os.Exit(0)
+}
+
+func runRemove(remove remove) {
+	rmDeps := removeExecutor.Dependencies{
+		GitResolveAlias: git.ResolveAlias,
+		GitRemoveAlias:  git.RemoveAlias,
+	}
+	execRemove := removeExecutor.ExecutorFactory(rmDeps)
+
+	removeAlias := *remove.alias
+
+	cmd := removeExecutor.Command{
+		Alias: removeAlias,
+	}
+
+	rmErr := execRemove(cmd)
+	exitIfErr(rmErr)
+
+	color.Red(fmt.Sprintf("Alias '%s' has been removed.", removeAlias))
+	os.Exit(0)
+}
+
 func runEnable(enable enable) {
 	enableDeps := enableExecutor.Dependencies{
 		CreateDir:         os.MkdirAll,           // TODO: CreateTemplateDir
@@ -164,46 +204,6 @@ func runStatus() {
 	exitIfErr(err)
 
 	fmt.Println(status.ToString())
-	os.Exit(0)
-}
-
-func runAdd(add add) {
-	addDeps := addExecutor.Dependencies{
-		AddGitAlias: git.AddAlias,
-	}
-	execAdd := addExecutor.ExecutorFactory(addDeps)
-
-	addAlias := *add.alias
-	addCoauthor := *add.coauthor
-
-	cmd := addExecutor.Command{
-		Alias:    addAlias,
-		Coauthor: addCoauthor,
-	}
-	addErr := execAdd(cmd)
-	exitIfErr(addErr)
-
-	color.Green(fmt.Sprintf("Alias '%s' -> '%s' has been added.", addAlias, addCoauthor))
-	os.Exit(0)
-}
-
-func runRemove(remove remove) {
-	rmDeps := removeExecutor.Dependencies{
-		GitResolveAlias: git.ResolveAlias,
-		GitRemoveAlias:  git.RemoveAlias,
-	}
-	execRemove := removeExecutor.ExecutorFactory(rmDeps)
-
-	removeAlias := *remove.alias
-
-	cmd := removeExecutor.Command{
-		Alias: removeAlias,
-	}
-
-	rmErr := execRemove(cmd)
-	exitIfErr(rmErr)
-
-	color.Red(fmt.Sprintf("Alias '%s' has been removed.", removeAlias))
 	os.Exit(0)
 }
 
