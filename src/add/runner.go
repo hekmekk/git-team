@@ -37,8 +37,14 @@ func Run(args Args) []effects.Effect {
 
 	err := execAdd(args)
 	if err != nil {
-		return []effects.Effect{effects.NewPrintErr(err), effects.NewExitErr()}
+		return []effects.Effect{
+			effects.NewPrintErr(err),
+			effects.NewExitErr(),
+		}
 	}
 
-	return []effects.Effect{effects.NewPrintMessage(color.GreenString(fmt.Sprintf("Alias '%s' -> '%s' has been added.", *args.Alias, *args.Coauthor))), effects.NewExitOk()}
+	return []effects.Effect{
+		effects.NewPrintMessage(color.GreenString(fmt.Sprintf("Alias '%s' -> '%s' has been added.", *args.Alias, *args.Coauthor))),
+		effects.NewExitOk(),
+	}
 }
