@@ -29,9 +29,7 @@ func main() {
 
 	switch kingpin.MustParse(application.app.Parse(os.Args[1:])) {
 	case application.add.Command.FullCommand():
-		args := application.add.Args
-
-		effects := add.Run(args)
+		effects := add.Run(application.add.Args)
 		for _, effect := range effects {
 			effect.Run()
 		}
