@@ -3,17 +3,16 @@ package gitconfig
 import (
 	"errors"
 	"reflect"
-	"sort"
 	"testing"
 )
 
 func TestShouldReturnNoErrors(t *testing.T) {
 	aliases := []string{"mrs", "mr"}
-	coauthorMapping := map[string]string{"mrs": "Mrs. Noujz <noujz@mrs.se>", "mr": "Mr. Noujz <noujz@mr.se>"}
+	expectedCoauthors := []string{"Mrs. Noujz <noujz@mrs.se>", "Mr. Noujz <noujz@mr.se>"}
 
-	var expectedCoauthors []string
-	for _, coauthor := range coauthorMapping {
-		expectedCoauthors = append(expectedCoauthors, coauthor)
+	coauthorMapping := make(map[string]string)
+	for index, alias := range aliases {
+		coauthorMapping[alias] = expectedCoauthors[index]
 	}
 
 	resolveAlias := func(alias string) (string, error) { return coauthorMapping[alias], nil }
@@ -24,9 +23,6 @@ func TestShouldReturnNoErrors(t *testing.T) {
 		t.Errorf("unexpected errors: %s", errs)
 		t.Fail()
 	}
-
-	sort.Strings(coauthors)
-	sort.Strings(expectedCoauthors)
 
 	if !reflect.DeepEqual(expectedCoauthors, coauthors) {
 		t.Errorf("expected: %s, got: %s", expectedCoauthors, coauthors)
