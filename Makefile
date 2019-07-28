@@ -13,6 +13,7 @@ tidy:
 
 deps: tidy
 	go get
+	rm $(GOPATH)/bin/git-team
 
 test: deps
 	go test -cover .
