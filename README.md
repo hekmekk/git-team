@@ -60,6 +60,7 @@ sudo make purge
 - [git mob](https://www.npmjs.com/package/git-mob)
 
 ## TODOs
+- rename: `add` -> `assign` (the word 'add' is confusing here; Note: breaking change)
 - refactor: consolidate "persistence backends" `git config` and git-team status file
 - feat: make it possible to rm multiple aliases
 - feat: when adding an existing alias, ask for override
