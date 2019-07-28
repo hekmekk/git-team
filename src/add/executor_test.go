@@ -14,7 +14,7 @@ func TestAddSucceeds(t *testing.T) {
 	}
 
 	execAdd := ExecutorFactory(Dependencies{AddGitAlias: add})
-	err := execAdd(Command{Alias: alias, Coauthor: coAuthor})
+	err := execAdd(Args{Alias: &alias, Coauthor: &coAuthor})
 
 	if err != nil {
 		t.Error(err)
@@ -31,7 +31,7 @@ func TestAddFailsDueToProvidedCoauthorNotPassingSanityCheck(t *testing.T) {
 	}
 
 	execAdd := ExecutorFactory(Dependencies{AddGitAlias: add})
-	err := execAdd(Command{Alias: alias, Coauthor: coAuthor})
+	err := execAdd(Args{Alias: &alias, Coauthor: &coAuthor})
 
 	if err == nil {
 		t.Fail()
@@ -47,7 +47,7 @@ func TestAddFailsBecauseUnderlyingGitAddFails(t *testing.T) {
 	}
 
 	execAdd := ExecutorFactory(Dependencies{AddGitAlias: add})
-	err := execAdd(Command{Alias: alias, Coauthor: coAuthor})
+	err := execAdd(Args{Alias: &alias, Coauthor: &coAuthor})
 
 	if err == nil {
 		t.Fail()
