@@ -24,54 +24,123 @@ const (
 	author  = "Rea Sand <hekmek@posteo.de>"
 )
 
-var (
-	addDeps = addExecutor.Dependencies{
-		AddGitAlias: git.AddAlias,
-	}
-	enableDeps = enableExecutor.Dependencies{
-		CreateDir:         os.MkdirAll,           // TODO: CreateTemplateDir
-		WriteFile:         ioutil.WriteFile,      // TODO: WriteTemplateFile
-		SetCommitTemplate: git.SetCommitTemplate, // TODO: GitSetCommitTemplate
-		GitResolveAliases: git.ResolveAliases,
-		PersistEnabled:    statusApi.PersistEnabled,
-		LoadConfig:        config.Load,
-	}
-	rmDeps = removeExecutor.Dependencies{
-		GitResolveAlias: git.ResolveAlias,
-		GitRemoveAlias:  git.RemoveAlias,
-	}
-	execAdd    = addExecutor.ExecutorFactory(addDeps)
-	execEnable = enableExecutor.ExecutorFactory(enableDeps)
-	execRemove = removeExecutor.ExecutorFactory(rmDeps)
-)
+type add struct {
+	command  *kingpin.CmdClause
+	alias    *string
+	coauthor *string
+}
 
-func main() {
+func newAdd(app *kingpin.Application) add {
+	command := app.Command("add", "Add an alias")
+	return add{
+		command:  command,
+		alias:    command.Arg("alias", "The alias to be added").Required().String(),
+		coauthor: command.Arg("coauthor", "The co-author").Required().String(),
+	}
+}
+
+type remove struct {
+	command *kingpin.CmdClause
+	alias   *string
+}
+
+func newRemove(app *kingpin.Application) remove {
+	command := app.Command("rm", "Remove an alias")
+	return remove{
+		command: command,
+		alias:   command.Arg("alias", "The alias to be removed").Required().String(),
+	}
+}
+
+type enable struct {
+	command             *kingpin.CmdClause
+	aliasesAndCoauthors *[]string // can contain both aliases and coauthors
+}
+
+func newEnable(app *kingpin.Application) enable {
+	command := app.Command("enable", "Provisions a git-commit template with the provided co-authors. A co-author must either be an alias or of the shape \"Name <email>\"").Default()
+	return enable{
+		command:             command,
+		aliasesAndCoauthors: command.Arg("coauthors", "Git co-authors").Strings(),
+	}
+}
+
+type disable struct {
+	command *kingpin.CmdClause
+}
+
+func newDisable(app *kingpin.Application) disable {
+	return disable{
+		command: app.Command("disable", "Use default template"),
+	}
+}
+
+type status struct {
+	command *kingpin.CmdClause
+}
+
+func newStatus(app *kingpin.Application) status {
+	return status{
+		command: app.Command("status", "Print the current status"),
+	}
+}
+
+type list struct {
+	command *kingpin.CmdClause
+}
+
+func newList(app *kingpin.Application) list {
+	command := app.Command("list", "List currently available aliases")
+	command.Alias("ls")
+	return list{
+		command: command,
+	}
+}
+
+type application struct {
+	app     *kingpin.Application
+	add     add
+	remove  remove
+	enable  enable
+	disable disable
+	status  status
+	list    list
+}
+
+func newApplication() application {
 	app := kingpin.New("git-team", "Command line interface for creating git commit templates provisioned with one or more co-authors. Please note that \"git commit -m\" is not affected by commit templates.")
 
 	app.HelpFlag.Short('h')
 	app.Version(version)
 	app.Author(author)
 
-	enable := app.Command("enable", "Provisions a git-commit template with the provided co-authors. A co-author must either be an alias or of the shape \"Name <email>\"").Default()
-	enableCoauthors := enable.Arg("coauthors", "Git co-authors").Strings()
+	return application{
+		app:     app,
+		add:     newAdd(app),
+		remove:  newRemove(app),
+		enable:  newEnable(app),
+		disable: newDisable(app),
+		status:  newStatus(app),
+		list:    newList(app),
+	}
+}
 
-	disable := app.Command("disable", "Use default template")
-	status := app.Command("status", "Print the current status")
+func main() {
+	application := newApplication()
 
-	add := app.Command("add", "Add an alias")
-	addAlias := add.Arg("alias", "The alias to be added").Required().String()
-	addCoauthor := add.Arg("coauthor", "The co-author").Required().String()
-
-	rm := app.Command("rm", "Remove an alias")
-	rmAlias := rm.Arg("alias", "The alias to be removed").Required().String()
-
-	list := app.Command("list", "List currently available aliases")
-	list.Alias("ls")
-
-	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
-	case enable.FullCommand():
+	switch kingpin.MustParse(application.app.Parse(os.Args[1:])) {
+	case application.enable.command.FullCommand():
+		enableDeps := enableExecutor.Dependencies{
+			CreateDir:         os.MkdirAll,           // TODO: CreateTemplateDir
+			WriteFile:         ioutil.WriteFile,      // TODO: WriteTemplateFile
+			SetCommitTemplate: git.SetCommitTemplate, // TODO: GitSetCommitTemplate
+			GitResolveAliases: git.ResolveAliases,
+			PersistEnabled:    statusApi.PersistEnabled,
+			LoadConfig:        config.Load,
+		}
+		execEnable := enableExecutor.ExecutorFactory(enableDeps)
 		cmd := enableExecutor.Command{
-			Coauthors: append(*enableCoauthors),
+			Coauthors: append(*application.enable.aliasesAndCoauthors),
 		}
 		enableErrs := execEnable(cmd)
 		exitIfErr(enableErrs...)
@@ -81,7 +150,7 @@ func main() {
 
 		fmt.Println(status.ToString())
 		os.Exit(0)
-	case disable.FullCommand():
+	case application.disable.command.FullCommand():
 		err := execDisable.Exec()
 		exitIfErr(err)
 
@@ -90,33 +159,49 @@ func main() {
 
 		fmt.Println(status.ToString())
 		os.Exit(0)
-	case status.FullCommand():
+	case application.status.command.FullCommand():
 		status, err := statusApi.Fetch()
 		exitIfErr(err)
 
 		fmt.Println(status.ToString())
 		os.Exit(0)
-	case add.FullCommand():
+	case application.add.command.FullCommand():
+		addDeps := addExecutor.Dependencies{
+			AddGitAlias: git.AddAlias,
+		}
+		execAdd := addExecutor.ExecutorFactory(addDeps)
+
+		addAlias := *application.add.alias
+		addCoauthor := *application.add.coauthor
+
 		cmd := addExecutor.Command{
-			Alias:    *addAlias,
-			Coauthor: *addCoauthor,
+			Alias:    addAlias,
+			Coauthor: addCoauthor,
 		}
 		addErr := execAdd(cmd)
 		exitIfErr(addErr)
 
-		color.Green(fmt.Sprintf("Alias '%s' -> '%s' has been added.", *addAlias, *addCoauthor))
+		color.Green(fmt.Sprintf("Alias '%s' -> '%s' has been added.", addAlias, addCoauthor))
 		os.Exit(0)
-	case rm.FullCommand():
+	case application.remove.command.FullCommand():
+		rmDeps := removeExecutor.Dependencies{
+			GitResolveAlias: git.ResolveAlias,
+			GitRemoveAlias:  git.RemoveAlias,
+		}
+		execRemove := removeExecutor.ExecutorFactory(rmDeps)
+
+		removeAlias := *application.remove.alias
+
 		cmd := removeExecutor.Command{
-			Alias: *rmAlias,
+			Alias: removeAlias,
 		}
 
 		rmErr := execRemove(cmd)
 		exitIfErr(rmErr)
 
-		color.Red(fmt.Sprintf("Alias '%s' has been removed.", cmd.Alias))
+		color.Red(fmt.Sprintf("Alias '%s' has been removed.", removeAlias))
 		os.Exit(0)
-	case list.FullCommand():
+	case application.list.command.FullCommand():
 		assignments := git.GetAddedAliases()
 
 		blackBold := color.New(color.FgBlack).Add(color.Bold)
