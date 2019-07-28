@@ -125,93 +125,117 @@ func newApplication() application {
 	}
 }
 
+func runEnable(application application) {
+	enableDeps := enableExecutor.Dependencies{
+		CreateDir:         os.MkdirAll,           // TODO: CreateTemplateDir
+		WriteFile:         ioutil.WriteFile,      // TODO: WriteTemplateFile
+		SetCommitTemplate: git.SetCommitTemplate, // TODO: GitSetCommitTemplate
+		GitResolveAliases: git.ResolveAliases,
+		PersistEnabled:    statusApi.PersistEnabled,
+		LoadConfig:        config.Load,
+	}
+	execEnable := enableExecutor.ExecutorFactory(enableDeps)
+	cmd := enableExecutor.Command{
+		Coauthors: append(*application.enable.aliasesAndCoauthors),
+	}
+	enableErrs := execEnable(cmd)
+	exitIfErr(enableErrs...)
+
+	status, err := statusApi.Fetch()
+	exitIfErr(err)
+
+	fmt.Println(status.ToString())
+	os.Exit(0)
+}
+
+func runDisable(application application) {
+	err := execDisable.Exec()
+	exitIfErr(err)
+
+	status, err := statusApi.Fetch()
+	exitIfErr(err)
+
+	fmt.Println(status.ToString())
+	os.Exit(0)
+}
+
+func runStatus(application application) {
+	status, err := statusApi.Fetch()
+	exitIfErr(err)
+
+	fmt.Println(status.ToString())
+	os.Exit(0)
+}
+
+func runAdd(application application) {
+	addDeps := addExecutor.Dependencies{
+		AddGitAlias: git.AddAlias,
+	}
+	execAdd := addExecutor.ExecutorFactory(addDeps)
+
+	addAlias := *application.add.alias
+	addCoauthor := *application.add.coauthor
+
+	cmd := addExecutor.Command{
+		Alias:    addAlias,
+		Coauthor: addCoauthor,
+	}
+	addErr := execAdd(cmd)
+	exitIfErr(addErr)
+
+	color.Green(fmt.Sprintf("Alias '%s' -> '%s' has been added.", addAlias, addCoauthor))
+	os.Exit(0)
+}
+
+func runRemove(application application) {
+	rmDeps := removeExecutor.Dependencies{
+		GitResolveAlias: git.ResolveAlias,
+		GitRemoveAlias:  git.RemoveAlias,
+	}
+	execRemove := removeExecutor.ExecutorFactory(rmDeps)
+
+	removeAlias := *application.remove.alias
+
+	cmd := removeExecutor.Command{
+		Alias: removeAlias,
+	}
+
+	rmErr := execRemove(cmd)
+	exitIfErr(rmErr)
+
+	color.Red(fmt.Sprintf("Alias '%s' has been removed.", removeAlias))
+	os.Exit(0)
+}
+
+func runList(application application) {
+	assignments := git.GetAddedAliases() // TODO: git.GetAssignments()
+
+	blackBold := color.New(color.FgBlack).Add(color.Bold)
+	blackBold.Println("Aliases:")
+	blackBold.Println("--------")
+
+	for alias, coauthor := range assignments {
+		color.Magenta(fmt.Sprintf("'%s' -> '%s'", alias, coauthor))
+	}
+	os.Exit(0)
+}
+
 func main() {
 	application := newApplication()
 
 	switch kingpin.MustParse(application.app.Parse(os.Args[1:])) {
 	case application.enable.command.FullCommand():
-		enableDeps := enableExecutor.Dependencies{
-			CreateDir:         os.MkdirAll,           // TODO: CreateTemplateDir
-			WriteFile:         ioutil.WriteFile,      // TODO: WriteTemplateFile
-			SetCommitTemplate: git.SetCommitTemplate, // TODO: GitSetCommitTemplate
-			GitResolveAliases: git.ResolveAliases,
-			PersistEnabled:    statusApi.PersistEnabled,
-			LoadConfig:        config.Load,
-		}
-		execEnable := enableExecutor.ExecutorFactory(enableDeps)
-		cmd := enableExecutor.Command{
-			Coauthors: append(*application.enable.aliasesAndCoauthors),
-		}
-		enableErrs := execEnable(cmd)
-		exitIfErr(enableErrs...)
-
-		status, err := statusApi.Fetch()
-		exitIfErr(err)
-
-		fmt.Println(status.ToString())
-		os.Exit(0)
+		runEnable(application)
 	case application.disable.command.FullCommand():
-		err := execDisable.Exec()
-		exitIfErr(err)
-
-		status, err := statusApi.Fetch()
-		exitIfErr(err)
-
-		fmt.Println(status.ToString())
-		os.Exit(0)
+		runDisable(application)
 	case application.status.command.FullCommand():
-		status, err := statusApi.Fetch()
-		exitIfErr(err)
-
-		fmt.Println(status.ToString())
-		os.Exit(0)
+		runStatus(application)
 	case application.add.command.FullCommand():
-		addDeps := addExecutor.Dependencies{
-			AddGitAlias: git.AddAlias,
-		}
-		execAdd := addExecutor.ExecutorFactory(addDeps)
-
-		addAlias := *application.add.alias
-		addCoauthor := *application.add.coauthor
-
-		cmd := addExecutor.Command{
-			Alias:    addAlias,
-			Coauthor: addCoauthor,
-		}
-		addErr := execAdd(cmd)
-		exitIfErr(addErr)
-
-		color.Green(fmt.Sprintf("Alias '%s' -> '%s' has been added.", addAlias, addCoauthor))
-		os.Exit(0)
+		runAdd(application)
 	case application.remove.command.FullCommand():
-		rmDeps := removeExecutor.Dependencies{
-			GitResolveAlias: git.ResolveAlias,
-			GitRemoveAlias:  git.RemoveAlias,
-		}
-		execRemove := removeExecutor.ExecutorFactory(rmDeps)
-
-		removeAlias := *application.remove.alias
-
-		cmd := removeExecutor.Command{
-			Alias: removeAlias,
-		}
-
-		rmErr := execRemove(cmd)
-		exitIfErr(rmErr)
-
-		color.Red(fmt.Sprintf("Alias '%s' has been removed.", removeAlias))
-		os.Exit(0)
+		runRemove(application)
 	case application.list.command.FullCommand():
-		assignments := git.GetAddedAliases()
-
-		blackBold := color.New(color.FgBlack).Add(color.Bold)
-		blackBold.Println("Aliases:")
-		blackBold.Println("--------")
-
-		for alias, coauthor := range assignments {
-			color.Magenta(fmt.Sprintf("'%s' -> '%s'", alias, coauthor))
-		}
-		os.Exit(0)
+		runList(application)
 	}
 }
 
