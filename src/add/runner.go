@@ -2,8 +2,9 @@ package add
 
 import (
 	"fmt"
+
+	"github.com/hekmekk/git-team/src/effects"
 	"github.com/hekmekk/git-team/src/gitconfig"
-	"os"
 
 	"github.com/fatih/color"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -27,34 +28,8 @@ func New(app *kingpin.Application) Definition {
 	}
 }
 
-type Effect interface {
-	Run()
-}
-
-type PrintMessage struct {
-	message string
-}
-
-func (printMsg PrintMessage) Run() {
-	color.Green(printMsg.message)
-}
-
-type PrintErr struct {
-	err error
-}
-
-func (printErr PrintErr) Run() {
-	os.Stderr.WriteString(fmt.Sprintf("error: %s\n", printErr.err))
-}
-
-type ExitErr struct{}
-
-func (_ ExitErr) Run() {
-	os.Exit(-1)
-}
-
 // Run run the add functionality
-func Run(args Args) []Effect {
+func Run(args Args) []effects.Effect {
 	addDeps := Dependencies{
 		AddGitAlias: gitconfig.AddAlias,
 	}
@@ -62,8 +37,8 @@ func Run(args Args) []Effect {
 
 	err := execAdd(args)
 	if err != nil {
-		return []Effect{PrintErr{err: err}, ExitErr{}}
+		return []effects.Effect{effects.NewPrintErr(err), effects.NewExitErr()}
 	}
 
-	return []Effect{PrintMessage{message: fmt.Sprintf("Alias '%s' -> '%s' has been added.", *args.Alias, *args.Coauthor)}}
+	return []effects.Effect{effects.NewPrintMessage(color.GreenString(fmt.Sprintf("Alias '%s' -> '%s' has been added.", *args.Alias, *args.Coauthor))), effects.NewExitOk()}
 }
