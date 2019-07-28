@@ -24,6 +24,25 @@ const (
 	author  = "Rea Sand <hekmek@posteo.de>"
 )
 
+func main() {
+	application := newApplication(author, version)
+
+	switch kingpin.MustParse(application.app.Parse(os.Args[1:])) {
+	case application.add.command.FullCommand():
+		runAdd(application.add)
+	case application.remove.command.FullCommand():
+		runRemove(application.remove)
+	case application.enable.command.FullCommand():
+		runEnable(application.enable)
+	case application.disable.command.FullCommand():
+		runDisable()
+	case application.status.command.FullCommand():
+		runStatus()
+	case application.list.command.FullCommand():
+		runList()
+	}
+}
+
 type add struct {
 	command  *kingpin.CmdClause
 	alias    *string
@@ -107,7 +126,7 @@ type application struct {
 	list    list
 }
 
-func newApplication() application {
+func newApplication(author string, version string) application {
 	app := kingpin.New("git-team", "Command line interface for creating git commit templates provisioned with one or more co-authors. Please note that \"git commit -m\" is not affected by commit templates.")
 
 	app.HelpFlag.Short('h')
@@ -218,25 +237,6 @@ func runList() {
 		color.Magenta(fmt.Sprintf("'%s' -> '%s'", alias, coauthor))
 	}
 	os.Exit(0)
-}
-
-func main() {
-	application := newApplication()
-
-	switch kingpin.MustParse(application.app.Parse(os.Args[1:])) {
-	case application.add.command.FullCommand():
-		runAdd(application.add)
-	case application.remove.command.FullCommand():
-		runRemove(application.remove)
-	case application.enable.command.FullCommand():
-		runEnable(application.enable)
-	case application.disable.command.FullCommand():
-		runDisable()
-	case application.status.command.FullCommand():
-		runStatus()
-	case application.list.command.FullCommand():
-		runList()
-	}
 }
 
 func exitIfErr(validationErrs ...error) {
