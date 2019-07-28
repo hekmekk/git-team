@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	addExecutor "github.com/hekmekk/git-team/src/add"
+	"github.com/hekmekk/git-team/src/add"
 	"github.com/hekmekk/git-team/src/config"
 	execDisable "github.com/hekmekk/git-team/src/disable"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
@@ -28,8 +28,13 @@ func main() {
 	application := newApplication(author, version)
 
 	switch kingpin.MustParse(application.app.Parse(os.Args[1:])) {
-	case application.add.command.FullCommand():
-		runAdd(application.add)
+	case application.add.Command.FullCommand():
+		args := application.add.Args
+
+		effects := add.Run(args)
+		for _, effect := range effects {
+			effect.Run()
+		}
 	case application.remove.command.FullCommand():
 		runRemove(application.remove)
 	case application.enable.command.FullCommand():
@@ -41,21 +46,7 @@ func main() {
 	case application.list.command.FullCommand():
 		runList()
 	}
-}
-
-type add struct {
-	command  *kingpin.CmdClause
-	alias    *string
-	coauthor *string
-}
-
-func newAdd(app *kingpin.Application) add {
-	command := app.Command("add", "Add an alias")
-	return add{
-		command:  command,
-		alias:    command.Arg("alias", "The alias to be added").Required().String(),
-		coauthor: command.Arg("coauthor", "The co-author").Required().String(),
-	}
+	os.Exit(0)
 }
 
 type remove struct {
@@ -118,7 +109,7 @@ func newList(app *kingpin.Application) list {
 
 type application struct {
 	app     *kingpin.Application
-	add     add
+	add     add.Definition
 	remove  remove
 	enable  enable
 	disable disable
@@ -135,33 +126,13 @@ func newApplication(author string, version string) application {
 
 	return application{
 		app:     app,
-		add:     newAdd(app),
+		add:     add.New(app),
 		remove:  newRemove(app),
 		enable:  newEnable(app),
 		disable: newDisable(app),
 		status:  newStatus(app),
 		list:    newList(app),
 	}
-}
-
-func runAdd(add add) {
-	addDeps := addExecutor.Dependencies{
-		AddGitAlias: git.AddAlias,
-	}
-	execAdd := addExecutor.ExecutorFactory(addDeps)
-
-	addAlias := *add.alias
-	addCoauthor := *add.coauthor
-
-	cmd := addExecutor.Command{
-		Alias:    addAlias,
-		Coauthor: addCoauthor,
-	}
-	addErr := execAdd(cmd)
-	exitIfErr(addErr)
-
-	color.Green(fmt.Sprintf("Alias '%s' -> '%s' has been added.", addAlias, addCoauthor))
-	os.Exit(0)
 }
 
 func runRemove(remove remove) {
