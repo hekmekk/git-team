@@ -1,4 +1,4 @@
-VERSION:=1.1.2
+VERSION:=$(shell grep "version =" main.go | awk -F '"' '{print $$2}' | cut -c2-)
 
 UNAME_S:= $(shell uname -s)
 BASH_COMPLETION_PREFIX:=
@@ -23,6 +23,7 @@ fmt:
 
 build: deps
 	go build -o pkg/target/bin/git-team
+	@echo "[INFO] Successfully built git-team version v$(VERSION)"
 
 man-page:
 	mkdir -p pkg/target/man/
