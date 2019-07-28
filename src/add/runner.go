@@ -11,18 +11,18 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-// Args the arguments for the Executor returned by the ExecutorFactory
+// Args the arguments of the Runner
 type Args struct {
 	Alias    *string
 	Coauthor *string
 }
 
-// Dependencies the real-world dependencies of the ExecutorFactory
+// Dependencies the dependencies of the Runner
 type Dependencies struct {
 	AddGitAlias func(string, string) error
 }
 
-// Definition the command and its arguments
+// Definition the command, arguments, and dependencies
 type Definition struct {
 	Command *kingpin.CmdClause
 	Args    Args
@@ -44,8 +44,7 @@ func New(app *kingpin.Application) Definition {
 	}
 }
 
-// Run run the add functionality
-// TODO: instead of returning Effects, one might want to return Events which get mapped to Effects
+// Run assign a co-author to an alias
 func Run(deps Dependencies, args Args) []effects.Effect {
 	err := assignCoauthorToAlias(deps, args)
 	if err != nil {
