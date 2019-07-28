@@ -224,16 +224,16 @@ func main() {
 	application := newApplication()
 
 	switch kingpin.MustParse(application.app.Parse(os.Args[1:])) {
+	case application.add.command.FullCommand():
+		runAdd(application)
+	case application.remove.command.FullCommand():
+		runRemove(application)
 	case application.enable.command.FullCommand():
 		runEnable(application)
 	case application.disable.command.FullCommand():
 		runDisable(application)
 	case application.status.command.FullCommand():
 		runStatus(application)
-	case application.add.command.FullCommand():
-		runAdd(application)
-	case application.remove.command.FullCommand():
-		runRemove(application)
 	case application.list.command.FullCommand():
 		runList(application)
 	}
