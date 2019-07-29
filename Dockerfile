@@ -28,4 +28,4 @@ RUN make install
 
 USER $USERNAME
 
-CMD ["/usr/bin/git-team", "--help"]
+ENTRYPOINT ["/usr/local/bin/git-team"]

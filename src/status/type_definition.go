@@ -9,8 +9,9 @@ import (
 type teamStatus string
 
 const (
-	enabled  teamStatus = "enabled"
-	disabled teamStatus = "disabled"
+	enabled     teamStatus = "enabled"
+	disabled    teamStatus = "disabled"
+	msgTemplate string     = "git-team %s."
 )
 
 type state struct {
@@ -22,7 +23,7 @@ func (state state) ToString() string {
 	var buffer bytes.Buffer
 	switch state.Status {
 	case enabled:
-		buffer.WriteString(color.GreenString("git-team %s.", enabled))
+		buffer.WriteString(color.GreenString(msgTemplate, enabled))
 		coauthors := state.Coauthors
 		if len(coauthors) > 0 {
 			buffer.WriteString("\n\n")
@@ -34,7 +35,7 @@ func (state state) ToString() string {
 			}
 		}
 	default:
-		buffer.WriteString(color.RedString("git-team %s", disabled))
+		buffer.WriteString(color.RedString(msgTemplate, disabled))
 	}
 
 	return buffer.String()

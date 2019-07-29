@@ -5,6 +5,6 @@ sudo: required
 services:
   - docker
 before_install:
-  - make docker-build # includes test-suite
+  - make docker-build # includes unit tests
 script:
-  - true
+  - make acceptance-tests
