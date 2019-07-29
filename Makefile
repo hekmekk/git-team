@@ -87,8 +87,14 @@ purge: clean uninstall
 
 docker-build: clean
 	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-run:v$(VERSION) .
+	docker tag git-team-run:v$(VERSION) git-team-run:latest
 
 docker-run: docker-build
 	mkdir -p /home/$(USER)/.config/git-team
 	chown -R $(shell id -u):$(shell id -g) /home/$(USER)/.config/git-team
-	docker run --rm -h git-team-run -v /home/$(USER)/:/home/$(USER)/ git-team-run:v$(VERSION) git team --help
+	docker run --rm -h git-team-run -v /home/$(USER)/:/home/$(USER)/ git-team-run:latest --help
+
+acceptance-tests: docker-build
+	docker build -t git-team-it $(shell pwd)/integration-tests
+	docker run --rm -v $(shell pwd)/integration-tests/cases:/it-cases git-team-it --tap /it-cases
+
