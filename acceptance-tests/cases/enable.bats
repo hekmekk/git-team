@@ -7,13 +7,13 @@ setup() {
 }
 
 @test "enable success" {
-  run /usr/local/bin/git-team enable a b c 'Ad-hoc <adhoc@tmp.se>'
+  run /usr/local/bin/git-team enable b a c 'Ad-hoc <adhoc@tmp.se>'
   [ "$status" -eq 0 ]
   [ "${lines[0]}" = "git-team enabled." ]
   [ "${lines[1]}" = "Co-authors:" ]
   [ "${lines[2]}" = "-----------" ]
-  [ "${lines[3]}" = "Ad-hoc <adhoc@tmp.se>" ]
-  [ "${lines[4]}" = "A <a@x.y>" ]
+  [ "${lines[3]}" = "A <a@x.y>" ]
+  [ "${lines[4]}" = "Ad-hoc <adhoc@tmp.se>" ]
   [ "${lines[5]}" = "B <b@x.y>" ]
   [ "${lines[6]}" = "C <c@x.y>" ]
 }

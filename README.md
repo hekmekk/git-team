@@ -64,7 +64,6 @@ sudo make purge
 - refactor: consolidate "persistence backends" `git config` and git-team status file
 - feat: make it possible to rm multiple aliases
 - feat: when adding an existing alias, ask for override
-- feat: sort co-authors in commit template
 - feat: use current COMMIT TEMPLATE if one exists
 - fix: disallow setting an alias more than once for the enable command (`aliases | uniq | further_processing`)
 - test: Add integration test target to `Makefile` to work with the docker build (also integrate with CI)

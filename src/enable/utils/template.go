@@ -3,6 +3,7 @@ package enableutils
 import (
 	"bytes"
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -11,6 +12,8 @@ func PrepareForCommitMessage(coauthors []string) string {
 	if len(coauthors) == 0 {
 		return ""
 	}
+
+	sort.Strings(coauthors)
 
 	var buffer bytes.Buffer
 	buffer.WriteString("\n\n")
