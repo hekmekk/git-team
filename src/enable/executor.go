@@ -45,6 +45,16 @@ func ExecutorFactory(deps Dependencies) func(cmd Command) []error {
 
 		coauthors := append(coauthorCandidates, resolvedAliases...)
 
+		var uniqueCoauthors []string
+		temp := make(map[string]bool)
+		for _, coauthor := range coauthors {
+			temp[coauthor] = true
+		}
+
+		for coauthor := range temp {
+			uniqueCoauthors = append(uniqueCoauthors, coauthor)
+		}
+
 		cfg, err := deps.LoadConfig()
 		if err != nil {
 			return []error{err}
@@ -56,13 +66,13 @@ func ExecutorFactory(deps Dependencies) func(cmd Command) []error {
 
 		templatePath := fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.TemplateFileName)
 
-		if err := deps.WriteFile(templatePath, []byte(utils.PrepareForCommitMessage(coauthors)), 0644); err != nil {
+		if err := deps.WriteFile(templatePath, []byte(utils.PrepareForCommitMessage(uniqueCoauthors)), 0644); err != nil {
 			return []error{err}
 		}
 		if err := deps.SetCommitTemplate(templatePath); err != nil {
 			return []error{err}
 		}
-		if err := deps.PersistEnabled(coauthors); err != nil {
+		if err := deps.PersistEnabled(uniqueCoauthors); err != nil {
 			return []error{err}
 		}
 		return []error{}

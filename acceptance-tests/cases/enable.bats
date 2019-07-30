@@ -30,6 +30,16 @@ setup() {
   [ "${lines[6]}" = "C <c@x.y>" ]
 }
 
+@test "enable ignore duplicates" {
+  run /usr/local/bin/git-team enable a a 'A <a@x.y>'
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "git-team enabled." ]
+  [ "${lines[1]}" = "Co-authors:" ]
+  [ "${lines[2]}" = "-----------" ]
+  [ "${lines[3]}" = "A <a@x.y>" ]
+  [ "${lines[4]}" = "" ]
+}
+
 @test "enable failure" {
   run /usr/local/bin/git-team enable non-existing-alias
   [ "$status" -eq 255 ]
