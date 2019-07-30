@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/fatih/color"
@@ -203,7 +204,16 @@ func runList() {
 	blackBold.Println("Aliases:")
 	blackBold.Println("--------")
 
-	for alias, coauthor := range assignments {
+	var aliases []string
+
+	for alias := range assignments {
+		aliases = append(aliases, alias)
+	}
+
+	sort.Strings(aliases)
+
+	for _, alias := range aliases {
+		coauthor := assignments[alias]
 		color.Magenta(fmt.Sprintf("'%s' -> '%s'", alias, coauthor))
 	}
 	os.Exit(0)
