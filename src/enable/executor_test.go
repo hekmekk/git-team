@@ -56,6 +56,53 @@ func TestEnableSucceeds(t *testing.T) {
 	}
 }
 
+func TestEnableDropsDuplicateEntries(t *testing.T) {
+	coAuthors := []string{"Mr. Noujz <noujz@mr.se>", "mrs", "Mr. Noujz <noujz@mr.se>", "mrs", "Mrs. Noujz <noujz@mrs.se>"}
+	expectedPersistEnabledCoauthors := []string{"Mr. Noujz <noujz@mr.se>", "Mrs. Noujz <noujz@mrs.se>"}
+	expectedCommitTemplateCoauthors := "\n\nCo-authored-by: Mr. Noujz <noujz@mr.se>\nCo-authored-by: Mrs. Noujz <noujz@mrs.se>"
+
+	createDir := func(string, os.FileMode) error { return nil }
+	writeFile := func(_ string, data []byte, _ os.FileMode) error {
+		if expectedCommitTemplateCoauthors != string(data) {
+			t.Errorf("expected: %s, got: %s", expectedCommitTemplateCoauthors, string(data))
+			t.Fail()
+		}
+		return nil
+	}
+	setCommitTemplate := func(string) error { return nil }
+	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
+	persistEnabled := func(coauthors []string) error {
+		if !reflect.DeepEqual(expectedPersistEnabledCoauthors, coauthors) {
+			t.Errorf("expected: %s, got: %s", expectedPersistEnabledCoauthors, coauthors)
+			t.Fail()
+		}
+		return nil
+	}
+	cfg := config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
+	loadConfig := func() (config.Config, error) { return cfg, nil }
+
+	deps := Dependencies{
+		CreateDir:         createDir,
+		WriteFile:         writeFile,
+		SetCommitTemplate: setCommitTemplate,
+		GitResolveAliases: resolveAliases,
+		PersistEnabled:    persistEnabled,
+		LoadConfig:        loadConfig,
+	}
+	execEnable := ExecutorFactory(deps)
+
+	cmd := Command{
+		Coauthors: coAuthors,
+	}
+
+	errs := execEnable(cmd)
+
+	if len(errs) > 0 {
+		t.Error(errs[0])
+		t.Fail()
+	}
+}
+
 func TestEnableFailsDueToSanityCheckErr(t *testing.T) {
 	coAuthors := []string{"INVALID COAUTHOR"}
 
