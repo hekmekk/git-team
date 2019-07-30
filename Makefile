@@ -95,6 +95,6 @@ docker-run: docker-build
 	docker run --rm -h git-team-run -v /home/$(USER)/:/home/$(USER)/ git-team-run:latest --help
 
 acceptance-tests: docker-build
-	docker build -t git-team-it $(shell pwd)/integration-tests
-	docker run --rm -v $(shell pwd)/integration-tests/cases:/it-cases git-team-it --tap /it-cases
+	docker build -t git-team-it $(shell pwd)/acceptance-tests
+	docker run --rm -v $(shell pwd)/acceptance-tests/cases:/acceptance-tests git-team-it --tap /acceptance-tests
 
