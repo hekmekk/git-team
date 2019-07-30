@@ -19,7 +19,10 @@ func TestAddSucceeds(t *testing.T) {
 
 	msg := fmt.Sprintf("Alias '%s' -> '%s' has been added.", alias, coAuthor)
 
-	expectedEffects := []effects.Effect{effects.NewPrintMessage(msg), effects.NewExitOk()}
+	expectedEffects := []effects.Effect{
+		effects.NewPrintMessage(msg),
+		effects.NewExitOk(),
+	}
 
 	effects := Run(Dependencies{AddGitAlias: add}, Args{Alias: &alias, Coauthor: &coAuthor})
 
@@ -37,7 +40,10 @@ func TestAddFailsDueToProvidedCoauthorNotPassingSanityCheck(t *testing.T) {
 		return nil
 	}
 
-	expectedEffects := []effects.Effect{effects.NewPrintErr(errors.New("Not a valid coauthor: INVALID COAUTHOR")), effects.NewExitErr()}
+	expectedEffects := []effects.Effect{
+		effects.NewPrintErr(errors.New("Not a valid coauthor: INVALID COAUTHOR")),
+		effects.NewExitErr(),
+	}
 
 	effects := Run(Dependencies{AddGitAlias: add}, Args{Alias: &alias, Coauthor: &coAuthor})
 
@@ -57,7 +63,10 @@ func TestAddFailsBecauseUnderlyingGitAddFails(t *testing.T) {
 		return expectedErr
 	}
 
-	expectedEffects := []effects.Effect{effects.NewPrintErr(expectedErr), effects.NewExitErr()}
+	expectedEffects := []effects.Effect{
+		effects.NewPrintErr(expectedErr),
+		effects.NewExitErr(),
+	}
 
 	effects := Run(Dependencies{AddGitAlias: add}, Args{Alias: &alias, Coauthor: &coAuthor})
 
