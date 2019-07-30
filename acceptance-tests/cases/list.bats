@@ -16,6 +16,16 @@ setup() {
   [ "${lines[4]}" = "'c' -> 'C <c@x.y>'" ]
 }
 
+@test "ls" {
+  run /usr/local/bin/git-team ls
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "Aliases:" ]
+  [ "${lines[1]}" = "--------" ]
+  [ "${lines[2]}" = "'a' -> 'A <a@x.y>'" ]
+  [ "${lines[3]}" = "'b' -> 'B <b@x.y>'" ]
+  [ "${lines[4]}" = "'c' -> 'C <c@x.y>'" ]
+}
+
 teardown() {
 	/usr/local/bin/git-team rm a
 	/usr/local/bin/git-team rm b

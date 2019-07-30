@@ -32,19 +32,25 @@ func TestPrepareForCommitMessageNoAuthors(t *testing.T) {
 func TestPrepareForCommitMessageOneAuthor(t *testing.T) {
 	coAuthors := []string{"Mr. Noujz <noujz@mr.se>"}
 
+	expectedCoauthorsString := "\n\nCo-authored-by: Mr. Noujz <noujz@mr.se>"
+
 	coauthorsString := PrepareForCommitMessage(coAuthors)
 
-	if !strings.HasPrefix(coauthorsString, "\n\n") || strings.HasSuffix(coauthorsString, "\n") {
+	if expectedCoauthorsString != coauthorsString {
+		t.Errorf("expected: [%s], got: [%s]", expectedCoauthorsString, coauthorsString)
 		t.Fail()
 	}
 }
 
 func TestPrepareForCommitMessageMultipleAuthors(t *testing.T) {
-	coAuthors := []string{"Mr. Noujz <noujz@mr.se>", "Mr. Noujz <noujz@mr.se>", "Mr. Noujz <noujz@mr.se>"}
+	coAuthors := []string{"B <b@x.y>", "A <a@x.y>", "C <c@x.y>"}
+
+	expectedCoauthorsString := "\n\nCo-authored-by: A <a@x.y>\nCo-authored-by: B <b@x.y>\nCo-authored-by: C <c@x.y>"
 
 	coauthorsString := PrepareForCommitMessage(coAuthors)
 
-	if !strings.HasPrefix(coauthorsString, "\n\n") || strings.HasSuffix(coauthorsString, "\n") {
+	if expectedCoauthorsString != coauthorsString {
+		t.Errorf("expected: [%s], got: [%s]", expectedCoauthorsString, coauthorsString)
 		t.Fail()
 	}
 }

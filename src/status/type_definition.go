@@ -2,6 +2,7 @@ package status
 
 import (
 	"bytes"
+	"sort"
 
 	"github.com/fatih/color"
 )
@@ -25,6 +26,7 @@ func (state state) ToString() string {
 	case enabled:
 		buffer.WriteString(color.GreenString(msgTemplate, enabled))
 		coauthors := state.Coauthors
+		sort.Strings(coauthors)
 		if len(coauthors) > 0 {
 			buffer.WriteString("\n\n")
 			blackBold := color.New(color.FgBlack).Add(color.Bold)
