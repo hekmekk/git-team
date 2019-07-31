@@ -11,9 +11,9 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/hekmekk/git-team/src/add"
+	addInterfaceAdapter "github.com/hekmekk/git-team/src/add/interfaceadapter"
 	"github.com/hekmekk/git-team/src/config"
 	execDisable "github.com/hekmekk/git-team/src/disable"
-	"github.com/hekmekk/git-team/src/effects"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
 	git "github.com/hekmekk/git-team/src/gitconfig"
 	removeExecutor "github.com/hekmekk/git-team/src/remove"
@@ -31,7 +31,7 @@ func main() {
 
 	switch kingpin.MustParse(application.app.Parse(os.Args[1:])) {
 	case application.add.CommandName:
-		effects := mapEventToEffects(add.Run(application.add.Deps, application.add.Args))
+		effects := addInterfaceAdapter.MapAddEventToEffects(add.Run(application.add.Deps, application.add.Args))
 		for _, effect := range effects {
 			effect.Run()
 		}
@@ -48,26 +48,6 @@ func main() {
 	}
 
 	os.Exit(0)
-}
-
-func mapEventToEffects(event interface{}) []effects.Effect {
-	switch x := event.(type) {
-	case add.AssignmentSucceeded:
-		alias := x.Alias
-		coauthor := x.Coauthor
-		return []effects.Effect{
-			effects.NewPrintMessage(color.GreenString(fmt.Sprintf("Alias '%s' -> '%s' has been added.", alias, coauthor))),
-			effects.NewExitOk(),
-		}
-
-	case add.AssignmentFailed:
-		return []effects.Effect{
-			effects.NewPrintErr(x.Reason),
-			effects.NewExitErr(),
-		}
-	default:
-		return []effects.Effect{}
-	}
 }
 
 type remove struct {
