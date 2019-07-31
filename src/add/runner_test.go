@@ -2,76 +2,64 @@ package add
 
 import (
 	"errors"
-	"fmt"
 	"reflect"
 	"testing"
-
-	"github.com/hekmekk/git-team/src/effects"
 )
 
 func TestAddSucceeds(t *testing.T) {
 	alias := "mr"
-	coAuthor := "Mr. Noujz <noujz@mr.se>"
+	coauthor := "Mr. Noujz <noujz@mr.se>"
 
-	add := func(alias, coAuthor string) error {
+	add := func(alias, coauthor string) error {
 		return nil
 	}
 
-	msg := fmt.Sprintf("Alias '%s' -> '%s' has been added.", alias, coAuthor)
+	expectedEvent := AssignmentSucceeded{Alias: alias, Coauthor: coauthor}
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintMessage(msg),
-		effects.NewExitOk(),
-	}
+	event := Run(Dependencies{AddGitAlias: add}, Args{Alias: &alias, Coauthor: &coauthor})
 
-	effects := Run(Dependencies{AddGitAlias: add}, Args{Alias: &alias, Coauthor: &coAuthor})
-
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
 		t.Fail()
 	}
 }
 
 func TestAddFailsDueToProvidedCoauthorNotPassingSanityCheck(t *testing.T) {
 	alias := "mr"
-	coAuthor := "INVALID COAUTHOR"
+	coauthor := "INVALID COAUTHOR"
+
+	err := errors.New("Not a valid coauthor: INVALID COAUTHOR")
 
 	add := func(alias, coAuthor string) error {
 		return nil
 	}
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintErr(errors.New("Not a valid coauthor: INVALID COAUTHOR")),
-		effects.NewExitErr(),
-	}
+	expectedEvent := AssignmentFailed{Reason: err}
 
-	effects := Run(Dependencies{AddGitAlias: add}, Args{Alias: &alias, Coauthor: &coAuthor})
+	event := Run(Dependencies{AddGitAlias: add}, Args{Alias: &alias, Coauthor: &coauthor})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
 		t.Fail()
 	}
 }
 
 func TestAddFailsBecauseUnderlyingGitAddFails(t *testing.T) {
 	alias := "mr"
-	coAuthor := "Mr. Noujz <noujz@mr.se>"
+	coauthor := "Mr. Noujz <noujz@mr.se>"
 
-	expectedErr := errors.New("git add failed")
+	err := errors.New("git add failed")
 
-	add := func(alias, coAuthor string) error {
-		return expectedErr
+	add := func(alias, coauthor string) error {
+		return err
 	}
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintErr(expectedErr),
-		effects.NewExitErr(),
-	}
+	expectedEvent := AssignmentFailed{Reason: err}
 
-	effects := Run(Dependencies{AddGitAlias: add}, Args{Alias: &alias, Coauthor: &coAuthor})
+	event := Run(Dependencies{AddGitAlias: add}, Args{Alias: &alias, Coauthor: &coauthor})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
 		t.Fail()
 	}
 }

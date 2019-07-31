@@ -1,13 +1,8 @@
 package add
 
 import (
-	"fmt"
-
-	"github.com/hekmekk/git-team/src/effects"
 	"github.com/hekmekk/git-team/src/gitconfig"
 	"github.com/hekmekk/git-team/src/validation"
-
-	"github.com/fatih/color"
 )
 
 // Args the arguments of the Runner
@@ -42,23 +37,27 @@ func New(name string, alias, coauthor *string) Definition {
 	}
 }
 
+// AssignmentFailed assignment of coauthor to alias failed with Reason
+type AssignmentFailed struct {
+	Reason error
+}
+
+// AssignmentSucceeded assignment of coauthor to alias succeeded
+type AssignmentSucceeded struct {
+	Alias    string
+	Coauthor string
+}
+
 // Run assign a co-author to an alias
-// TODO: add should not know stuff like PrintMessage or ExitOk -> return Events which get mapped to Effects?!
-func Run(deps Dependencies, args Args) []effects.Effect {
+func Run(deps Dependencies, args Args) interface{} {
 	alias := *args.Alias
 	coauthor := *args.Coauthor
 	err := assignCoauthorToAlias(deps, alias, coauthor)
 	if err != nil {
-		return []effects.Effect{
-			effects.NewPrintErr(err),
-			effects.NewExitErr(),
-		}
+		return AssignmentFailed{Reason: err}
 	}
 
-	return []effects.Effect{
-		effects.NewPrintMessage(color.GreenString(fmt.Sprintf("Alias '%s' -> '%s' has been added.", alias, coauthor))),
-		effects.NewExitOk(),
-	}
+	return AssignmentSucceeded{Alias: alias, Coauthor: coauthor}
 }
 
 func assignCoauthorToAlias(deps Dependencies, alias string, coauthor string) error {
