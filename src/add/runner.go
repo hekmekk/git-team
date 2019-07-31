@@ -8,7 +8,6 @@ import (
 	"github.com/hekmekk/git-team/src/validation"
 
 	"github.com/fatih/color"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 // Args the arguments of the Runner
@@ -24,19 +23,18 @@ type Dependencies struct {
 
 // Definition the command, arguments, and dependencies
 type Definition struct {
-	Command *kingpin.CmdClause
-	Args    Args
-	Deps    Dependencies
+	CommandName string
+	Args        Args
+	Deps        Dependencies
 }
 
 // New the constructor for Definition
-func New(app *kingpin.Application) Definition {
-	command := app.Command("add", "Add an alias")
+func New(name string, alias, coauthor *string) Definition {
 	return Definition{
-		Command: command,
+		CommandName: name,
 		Args: Args{
-			Alias:    command.Arg("alias", "The alias to be added").Required().String(),
-			Coauthor: command.Arg("coauthor", "The co-author").Required().String(),
+			Alias:    alias,
+			Coauthor: coauthor,
 		},
 		Deps: Dependencies{
 			AddGitAlias: gitconfig.AddAlias,
@@ -45,8 +43,11 @@ func New(app *kingpin.Application) Definition {
 }
 
 // Run assign a co-author to an alias
+// TODO: add should not know stuff like PrintMessage or ExitOk -> return Events which get mapped to Effects?!
 func Run(deps Dependencies, args Args) []effects.Effect {
-	err := assignCoauthorToAlias(deps, args)
+	alias := *args.Alias
+	coauthor := *args.Coauthor
+	err := assignCoauthorToAlias(deps, alias, coauthor)
 	if err != nil {
 		return []effects.Effect{
 			effects.NewPrintErr(err),
@@ -55,18 +56,18 @@ func Run(deps Dependencies, args Args) []effects.Effect {
 	}
 
 	return []effects.Effect{
-		effects.NewPrintMessage(color.GreenString(fmt.Sprintf("Alias '%s' -> '%s' has been added.", *args.Alias, *args.Coauthor))),
+		effects.NewPrintMessage(color.GreenString(fmt.Sprintf("Alias '%s' -> '%s' has been added.", alias, coauthor))),
 		effects.NewExitOk(),
 	}
 }
 
-func assignCoauthorToAlias(deps Dependencies, args Args) error {
-	checkErr := validation.SanityCheckCoauthor(*args.Coauthor) // TODO: Add as dependency. Has no side effects but doesn't need to be tested here.
+func assignCoauthorToAlias(deps Dependencies, alias string, coauthor string) error {
+	checkErr := validation.SanityCheckCoauthor(coauthor) // TODO: Add as dependency. Has no side effects but doesn't need to be tested here.
 	if checkErr != nil {
 		return checkErr
 	}
 
-	addErr := deps.AddGitAlias(*args.Alias, *args.Coauthor)
+	addErr := deps.AddGitAlias(alias, coauthor)
 	if addErr != nil {
 		return addErr
 	}

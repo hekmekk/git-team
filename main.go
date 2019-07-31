@@ -29,7 +29,7 @@ func main() {
 	application := newApplication(author, version)
 
 	switch kingpin.MustParse(application.app.Parse(os.Args[1:])) {
-	case application.add.Command.FullCommand():
+	case application.add.CommandName:
 		effects := add.Run(application.add.Deps, application.add.Args)
 		for _, effect := range effects {
 			effect.Run()
@@ -117,6 +117,14 @@ type application struct {
 	list    list
 }
 
+func defineAdd(app *kingpin.Application) (string, *string, *string) {
+	command := app.Command("add", "Add an alias")
+	alias := command.Arg("alias", "The alias to be added").Required().String()
+	coauthor := command.Arg("coauthor", "The co-author").Required().String()
+
+	return command.FullCommand(), alias, coauthor
+}
+
 func newApplication(author string, version string) application {
 	app := kingpin.New("git-team", "Command line interface for creating git commit templates provisioned with one or more co-authors. Please note that \"git commit -m\" is not affected by commit templates.")
 
@@ -126,7 +134,7 @@ func newApplication(author string, version string) application {
 
 	return application{
 		app:     app,
-		add:     add.New(app),
+		add:     add.New(defineAdd(app)),
 		remove:  newRemove(app),
 		enable:  newEnable(app),
 		disable: newDisable(app),
