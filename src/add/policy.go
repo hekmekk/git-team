@@ -48,8 +48,8 @@ type AssignmentSucceeded struct {
 	Coauthor string
 }
 
-// Run assign a co-author to an alias
-func Run(deps Dependencies, args Args) interface{} {
+// Apply assign a co-author to an alias
+func Apply(deps Dependencies, args Args) interface{} {
 	alias := *args.Alias
 	coauthor := *args.Coauthor
 	err := assignCoauthorToAlias(deps, alias, coauthor)

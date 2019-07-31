@@ -16,7 +16,7 @@ func TestAddSucceeds(t *testing.T) {
 
 	expectedEvent := AssignmentSucceeded{Alias: alias, Coauthor: coauthor}
 
-	event := Run(Dependencies{AddGitAlias: add}, Args{Alias: &alias, Coauthor: &coauthor})
+	event := Apply(Dependencies{AddGitAlias: add}, Args{Alias: &alias, Coauthor: &coauthor})
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
@@ -36,7 +36,7 @@ func TestAddFailsDueToProvidedCoauthorNotPassingSanityCheck(t *testing.T) {
 
 	expectedEvent := AssignmentFailed{Reason: err}
 
-	event := Run(Dependencies{AddGitAlias: add}, Args{Alias: &alias, Coauthor: &coauthor})
+	event := Apply(Dependencies{AddGitAlias: add}, Args{Alias: &alias, Coauthor: &coauthor})
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
@@ -56,7 +56,7 @@ func TestAddFailsBecauseUnderlyingGitAddFails(t *testing.T) {
 
 	expectedEvent := AssignmentFailed{Reason: err}
 
-	event := Run(Dependencies{AddGitAlias: add}, Args{Alias: &alias, Coauthor: &coauthor})
+	event := Apply(Dependencies{AddGitAlias: add}, Args{Alias: &alias, Coauthor: &coauthor})
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
