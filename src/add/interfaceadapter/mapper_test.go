@@ -43,3 +43,14 @@ func TestMapEventToEffectsAssignmentFailed(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestMapEventToEffectsUnknownEvent(t *testing.T) {
+	expectedEffects := []effects.Effect{}
+
+	effects := MapAddEventToEffects("UNKNOWN_EVENT")
+
+	if !reflect.DeepEqual(expectedEffects, effects) {
+		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+		t.Fail()
+	}
+}
