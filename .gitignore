@@ -2,3 +2,4 @@
 go.sum
 pkg/src/
 pkg/target/
+acceptance-tests/src/

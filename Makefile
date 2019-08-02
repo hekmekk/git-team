@@ -47,6 +47,7 @@ package-build: clean
 	mkdir -p pkg/src/
 	cp Makefile pkg/src/
 	cp main.go pkg/src/
+	cp main_test.go pkg/src/
 	cp go.mod pkg/src/
 	cp -r src pkg/src/
 	cp -r bash_completion pkg/src/
@@ -78,6 +79,7 @@ clean:
 	rm -f git-team
 	rm -rf pkg/src/
 	rm -rf pkg/target/
+	rm -rf acceptance-tests/src
 
 purge: clean uninstall
 	git config --global --remove-section team.alias || true
@@ -89,7 +91,12 @@ docker-build: clean
 	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-run:v$(VERSION) .
 	docker tag git-team-run:v$(VERSION) git-team-run:latest
 
-acceptance-tests: docker-build
-	docker build -t git-team-it $(shell pwd)/acceptance-tests
-	docker run --rm -v $(shell pwd)/acceptance-tests/cases:/acceptance-tests git-team-it --tap /acceptance-tests
+acceptance-tests: clean
+	mkdir -p acceptance-tests/src/
+	cp main.go acceptance-tests/src/
+	cp main_test.go acceptance-tests/src/
+	cp go.mod acceptance-tests/src/
+	cp -r src acceptance-tests/src/
+	docker build -t git-team-acceptance-tests $(shell pwd)/acceptance-tests
+	docker run --rm -v $(shell pwd)/acceptance-tests/cases:/acceptance-tests git-team-acceptance-tests --tap /acceptance-tests
 
