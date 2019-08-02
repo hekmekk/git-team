@@ -1,8 +1,8 @@
-FROM git-team-run:latest
+FROM golang:1.12-stretch
 
 LABEL maintainer Rea Sand <hekmek@posteo.de>
 
-USER root
+ENV GOPATH=/go
 
 RUN mkdir /bats-source
 
@@ -12,9 +12,21 @@ WORKDIR /bats-source
 
 RUN ./install.sh /usr/local
 
-RUN ls -la /usr/local/bin/bats
+WORKDIR /
+RUN mkdir /source
+COPY src/go.mod /source
+COPY src/src /source/src
+COPY src/main.go /source
+COPY src/main_test.go /source
+
+WORKDIR /source
+
+RUN mkdir /target
+
+RUN go build -o /target/git-team
+
+RUN install /target/git-team /usr/local/bin/git-team
 
 WORKDIR /
 
 ENTRYPOINT ["bash", "/usr/local/bin/bats"]
-
