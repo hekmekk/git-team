@@ -1,8 +1,6 @@
-FROM golang:1.12-stretch
+FROM golang:1.12-stretch as bats
 
 LABEL maintainer Rea Sand <hekmek@posteo.de>
-
-ENV GOPATH=/go
 
 RUN mkdir /bats-source
 
@@ -12,20 +10,28 @@ WORKDIR /bats-source
 
 RUN ./install.sh /usr/local
 
-WORKDIR /
-RUN mkdir /source
-COPY src/go.mod /source
-COPY src/src /source/src
-COPY src/main.go /source
-COPY src/main_test.go /source
+# ----------------------------------------------------------------- #
 
-WORKDIR /source
+FROM golang:1.12-stretch as git-team
 
-RUN mkdir /target
+RUN mkdir /git-team-source
+WORKDIR /git-team-source
 
-RUN go build -o /target/git-team
+ENV GOPATH=/go
 
-RUN install /target/git-team /usr/local/bin/git-team
+COPY src/go.mod src/go.sum ./
+RUN go mod download
+
+COPY src/src src/main.go src/main_test.go ./
+COPY src/ ./
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /usr/local/bin/git-team
+
+# ----------------------------------------------------------------- #
+
+FROM golang:1.12-stretch
+COPY --from=bats /usr/local/bin/bats /usr/local/bin/bats
+COPY --from=bats /usr/local/libexec/bats-core /usr/local/libexec/bats-core
+COPY --from=git-team /usr/local/bin/git-team /usr/local/bin/git-team
 
 WORKDIR /
 
