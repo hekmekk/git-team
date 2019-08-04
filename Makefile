@@ -93,8 +93,7 @@ docker-build: clean
 
 acceptance-tests: clean
 	mkdir -p acceptance-tests/src/
-	cp go.mod acceptance-tests/src/
-	cp go.sum acceptance-tests/src/
+	cp go.* acceptance-tests/src/
 	cp main.go acceptance-tests/src/
 	cp main_test.go acceptance-tests/src/
 	cp -r src acceptance-tests/src/

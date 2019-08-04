@@ -19,7 +19,7 @@ WORKDIR /git-team-source
 
 ENV GOPATH=/go
 
-COPY src/go.mod src/go.sum ./
+COPY src/go.* ./
 RUN go mod download
 
 COPY src/src src/main.go src/main_test.go ./
