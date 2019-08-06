@@ -127,7 +127,7 @@ func execGitConfigFactory(cmd func(...string) ([]byte, error)) func(...string) (
 		out, err := cmd(gitArgs...)
 
 		if err != nil {
-			return nil, fmt.Errorf("Failed to exec git config command with args: %s", args)
+			return nil, err
 		}
 
 		stringOut := string(out)
