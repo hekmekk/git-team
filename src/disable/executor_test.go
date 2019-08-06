@@ -21,7 +21,6 @@ func TestDisableSucceeds(t *testing.T) {
 	deps := dependencies{
 		GitUnsetHooksPath:      unsetHooksPath,
 		GitUnsetCommitTemplate: unsetCommitTemplate,
-		GitRemoveCommitSection: removeCommitSection,
 		LoadConfig:             loadConfig,
 		RemoveFile:             removeFile,
 		PersistDisabled:        persistDisabled,
@@ -63,28 +62,11 @@ func TestDisableShouldSucceedWhenUnsetCommitTemplateFails(t *testing.T) {
 	}
 }
 
-func TestDisableShouldFailWhenRemoveCommitSectionFails(t *testing.T) {
-	expectedErr := errors.New("failed to remove commit section")
-	deps := dependencies{
-		GitUnsetHooksPath:      unsetHooksPath,
-		GitUnsetCommitTemplate: unsetCommitTemplate,
-		GitRemoveCommitSection: func() error { return expectedErr },
-	}
-
-	err := executorFactory(deps)()
-
-	if err == nil || expectedErr != err {
-		t.Errorf("expected: %s, received: %s", expectedErr, err)
-		t.Fail()
-	}
-}
-
 func TestDisableShouldFailWhenLoadConfigFails(t *testing.T) {
 	expectedErr := errors.New("failed to load config")
 	deps := dependencies{
 		GitUnsetHooksPath:      unsetHooksPath,
 		GitUnsetCommitTemplate: unsetCommitTemplate,
-		GitRemoveCommitSection: removeCommitSection,
 		LoadConfig:             func() (config.Config, error) { return config.Config{}, expectedErr },
 	}
 
@@ -101,7 +83,6 @@ func TestDisableShouldFailWhenRemoveFileFails(t *testing.T) {
 	deps := dependencies{
 		GitUnsetHooksPath:      unsetHooksPath,
 		GitUnsetCommitTemplate: unsetCommitTemplate,
-		GitRemoveCommitSection: removeCommitSection,
 		LoadConfig:             loadConfig,
 		RemoveFile:             func(string) error { return expectedErr },
 	}
@@ -119,7 +100,6 @@ func TestDisableShouldFailWhenpersistDisabledFails(t *testing.T) {
 	deps := dependencies{
 		GitUnsetHooksPath:      unsetHooksPath,
 		GitUnsetCommitTemplate: unsetCommitTemplate,
-		GitRemoveCommitSection: removeCommitSection,
 		LoadConfig:             loadConfig,
 		RemoveFile:             removeFile,
 		PersistDisabled:        func() error { return expectedErr },

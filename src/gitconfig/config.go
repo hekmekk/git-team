@@ -34,12 +34,6 @@ func UnsetCommitTemplate() error {
 	return err
 }
 
-// RemoveCommitSection remove your global config section "commit"
-func RemoveCommitSection() error {
-	_, err := execGitConfig("--remove-section", "commit")
-	return err
-}
-
 // AddAlias add a co-author for "team.alias.<alias>"
 func AddAlias(alias, author string) error {
 	_, err := execGitConfig("--add", getAliasFullPath(alias), author)

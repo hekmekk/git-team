@@ -15,7 +15,6 @@ func Exec() error {
 	deps := dependencies{
 		GitUnsetCommitTemplate: git.UnsetCommitTemplate,
 		GitUnsetHooksPath:      git.UnsetHooksPath,
-		GitRemoveCommitSection: git.RemoveCommitSection,
 		LoadConfig:             config.Load,
 		RemoveFile:             os.Remove,
 		PersistDisabled:        statusApi.PersistDisabled,
@@ -26,7 +25,6 @@ func Exec() error {
 type dependencies struct {
 	GitUnsetCommitTemplate func() error
 	GitUnsetHooksPath      func() error
-	GitRemoveCommitSection func() error
 	LoadConfig             func() (config.Config, error)
 	RemoveFile             func(string) error
 	PersistDisabled        func() error
@@ -40,10 +38,6 @@ func executorFactory(deps dependencies) func() error {
 
 		if err := deps.GitUnsetCommitTemplate(); err != nil {
 			return nil
-		}
-
-		if err := deps.GitRemoveCommitSection(); err != nil {
-			return err
 		}
 
 		cfg, err := deps.LoadConfig()
