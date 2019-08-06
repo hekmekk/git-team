@@ -27,12 +27,14 @@ ISSUE/THINGS TO CONSIDER:
 - be careful not to install prepare-commit-msg if it's present
 */
 
+type commitMsgSourceT string
+
 const (
-	message  = "message"
-	template = "template"
-	merge    = "merge"
-	commit   = "commit"
-	none     = "none"
+	message  commitMsgSourceT = "message"
+	template commitMsgSourceT = "template"
+	merge    commitMsgSourceT = "merge"
+	commit   commitMsgSourceT = "commit"
+	none     commitMsgSourceT = "none"
 )
 
 func main() {
@@ -45,31 +47,45 @@ func main() {
 		os.Exit(0)
 	}
 
+	commitMsgSource, commitTemplate := parseArgs()
+
+	switch commitMsgSource {
+	case message:
+		err := appendCoauthorsToCommitTemplate(commitTemplate, status.Coauthors)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	os.Exit(0)
+}
+
+func parseArgs() (commitMsgSourceT, string) {
 	flag.Parse()
 	args := flag.Args()
 
 	commitTemplate := args[0]
 	commitMsgSource := none
 	if len(args) >= 2 {
-		commitMsgSource = args[1]
+		commitMsgSource = commitMsgSourceT(args[1])
 	}
 
-	switch commitMsgSource {
-	case message:
-		f, err := os.OpenFile(commitTemplate, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
-		if err != nil {
-			panic(err)
-		}
+	return commitMsgSource, commitTemplate
+}
 
-		if _, err := f.WriteString(enableutils.PrepareForCommitMessage(status.Coauthors)); err != nil {
-			panic(err)
-		}
-
-		if err := f.Close(); err != nil {
-			panic(err)
-		}
-
-	default:
-		os.Exit(0)
+func appendCoauthorsToCommitTemplate(commitTemplate string, coauthors []string) error {
+	f, err := os.OpenFile(commitTemplate, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
+	if err != nil {
+		return err
 	}
+
+	if _, err := f.WriteString(enableutils.PrepareForCommitMessage(coauthors)); err != nil {
+		return err
+	}
+
+	if err := f.Close(); err != nil {
+		return err
+	}
+
+	return nil
 }
