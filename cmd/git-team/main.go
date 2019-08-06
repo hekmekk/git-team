@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	version = "v1.3.0-alpha1"
+	version = "v1.3.0-rc1"
 	author  = "Rea Sand <hekmek@posteo.de>"
 )
 
@@ -169,6 +169,7 @@ func runEnable(enable enable) {
 		CreateDir:         os.MkdirAll,           // TODO: CreateTemplateDir
 		WriteFile:         ioutil.WriteFile,      // TODO: WriteTemplateFile
 		SetCommitTemplate: git.SetCommitTemplate, // TODO: GitSetCommitTemplate
+		GitSetHooksPath:   git.SetHooksPath,
 		GitResolveAliases: git.ResolveAliases,
 		PersistEnabled:    statusApi.PersistEnabled,
 		LoadConfig:        config.Load,
