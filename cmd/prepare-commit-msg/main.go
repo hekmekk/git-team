@@ -8,13 +8,6 @@ import (
 	"github.com/hekmekk/git-team/src/status"
 )
 
-/*
-TODO:
------
-- be careful not to overwrite core.hooksPath if it's set already
-- be careful not to install prepare-commit-msg if it's present
-*/
-
 type commitMsgSourceT string
 
 const (
