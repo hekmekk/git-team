@@ -2,7 +2,7 @@
 
 # git-team
 
-Command line interface for creating git commit templates provisioned with one or more co-authors.
+Command line interface for injecting one or more co-authors into a git commit message template.
 
 ## Installation
 #### Build from Source
@@ -33,7 +33,7 @@ To remove an alias use:
 git team rm noujz
 ```
 
-#### Provision a commit template
+#### Set active co-authors
 This alias (along with others) can then be used as an argument to the `enable` command and will be resolved while parsing the command line.
 ```bash
 git team [enable] noujz
@@ -44,7 +44,7 @@ git team [enable] noujz <alias1> ... <aliasN> "Mr. Green <green@mr.se>"
 ```
 
 #### Commit some
-Just use `git commit`. Please note that templates don't affect `-m`.
+Just use `git commit` or `git commit -m"msg"`. Please note that `git commit --amend` is not affected.
 
 #### Back to being a loner
 ```bash
@@ -65,5 +65,4 @@ sudo make purge
 - refactor: consolidate "persistence backends" `git config` and git-team status file
 - feat: make it possible to rm multiple aliases
 - feat: when adding an existing alias, ask for override
-- feat: use current COMMIT TEMPLATE if one exists
 

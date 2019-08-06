@@ -127,7 +127,7 @@ func defineAdd(app *kingpin.Application) (string, *string, *string) {
 }
 
 func newApplication(author string, version string) application {
-	app := kingpin.New("git-team", "Command line interface for creating git commit templates provisioned with one or more co-authors. Please note that \"git commit -m\" is not affected by commit templates.")
+	app := kingpin.New("git-team", "Command line interface for injecting one or more co-authors into a git commit message template.")
 
 	app.HelpFlag.Short('h')
 	app.Version(version)
