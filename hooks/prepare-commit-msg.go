@@ -59,11 +59,10 @@ func main() {
 	commitMsgSource := NONE
 	if len(args) >= 2 {
 		commitMsgSource = args[1]
-
 	}
 
 	switch commitMsgSource {
-	case NONE, MESSAGE, TEMPLATE:
+	case MESSAGE:
 		f, err := os.OpenFile(commitTemplate, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 		if err != nil {
 			panic(err)
