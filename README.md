@@ -60,6 +60,7 @@ sudo make purge
 - [git mob](https://www.npmjs.com/package/git-mob)
 
 ## TODOs
+- **test:** add acceptance-tests for `prepare-commit-msg`
 - **tech:** apply pattern as exemplified by `add`
 - **tech:** refactor `Dockerfile`s and `Makefile`
 - refactor: add `assign` and `unassign` but keep `add` and `rm` as aliases for backwards compatibility
