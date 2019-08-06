@@ -18,7 +18,7 @@ func SetHooksPath(path string) error {
 
 // UnsetHooksPath unset your global "core.hooksPath"
 func UnsetHooksPath() error {
-	_, err := execGitConfig("--unset", hooksPath)
+	_, err := execGitConfig("--unset-all", hooksPath)
 	return err
 }
 
@@ -30,7 +30,7 @@ func SetCommitTemplate(path string) error {
 
 // UnsetCommitTemplate unset your global "commit.template"
 func UnsetCommitTemplate() error {
-	_, err := execGitConfig("--unset", commitTemplate)
+	_, err := execGitConfig("--unset-all", commitTemplate)
 	return err
 }
 

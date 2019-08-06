@@ -16,7 +16,7 @@ import (
 	execDisable "github.com/hekmekk/git-team/src/disable"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
 	git "github.com/hekmekk/git-team/src/gitconfig"
-	removeExecutor "github.com/hekmekk/git-team/src/remove"
+	rm "github.com/hekmekk/git-team/src/remove"
 	statusApi "github.com/hekmekk/git-team/src/status"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -145,19 +145,13 @@ func newApplication(author string, version string) application {
 }
 
 func runRemove(remove remove) {
-	rmDeps := removeExecutor.Dependencies{
-		GitResolveAlias: git.ResolveAlias,
-		GitRemoveAlias:  git.RemoveAlias,
-	}
-	execRemove := removeExecutor.ExecutorFactory(rmDeps)
-
 	removeAlias := *remove.alias
 
-	cmd := removeExecutor.Command{
+	cmd := rm.Command{
 		Alias: removeAlias,
 	}
 
-	rmErr := execRemove(cmd)
+	rmErr := rm.Exec(cmd)
 	exitIfErr(rmErr)
 
 	color.Red(fmt.Sprintf("Alias '%s' has been removed.", removeAlias))

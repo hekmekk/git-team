@@ -89,8 +89,8 @@ clean:
 
 purge: clean uninstall
 	git config --global --remove-section team.alias || true
-	git config --global --unset commit.template
-	git config --global --unset core.hooksPath
+	git config --global --unset-all commit.template
+	git config --global --unset-all core.hooksPath
 
 docker-build: clean
 	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-run:v$(VERSION) .
