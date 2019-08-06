@@ -22,7 +22,7 @@ WORKDIR /src
 COPY src/ .
 RUN chown -R $UID:$GID .
 
-RUN mkdir -p /go && chown -R $UID:$GID /go
+RUN mkdir -p /go && chown -R $UID:$GID /go && chmod -R 2750 /go
 RUN mkdir -p /deb-target && chown -R $UID:$GID /deb-target
 
 USER $USERNAME
