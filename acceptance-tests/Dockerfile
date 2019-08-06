@@ -33,7 +33,7 @@ FROM golang:1.12-stretch
 COPY --from=bats /usr/local/bin/bats /usr/local/bin/bats
 COPY --from=bats /usr/local/libexec/bats-core /usr/local/libexec/bats-core
 COPY --from=git-team /go/bin/git-team /usr/local/bin/git-team
-COPY --from=git-team /go/bin/git-team /usr/local/bin/prepare-commit-msg
+COPY --from=git-team /go/bin/prepare-commit-msg /usr/local/bin/prepare-commit-msg
 
 WORKDIR /
 
