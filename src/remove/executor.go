@@ -1,27 +1,31 @@
 package remove
 
-// Command add a <Coauthor> under "team.alias.<Alias>"
+import (
+	git "github.com/hekmekk/git-team/src/gitconfig"
+	giterror "github.com/hekmekk/git-team/src/gitconfig/error"
+)
+
+// Command remove an alias -> coauthor assignment
 type Command struct {
 	Alias string
 }
 
-// Dependencies the real-world dependencies of the ExecutorFactory
-type Dependencies struct {
-	GitResolveAlias func(string) (string, error)
-	GitRemoveAlias  func(string) error
+type dependencies struct {
+	GitRemoveAlias func(string) error
 }
 
-// ExecutorFactory provisions a Command Processor
-func ExecutorFactory(deps Dependencies) func(Command) error {
+// Exec remove an alias -> coauthor assignment
+func Exec(cmd Command) error {
+	deps := dependencies{
+		GitRemoveAlias: git.RemoveAlias,
+	}
+	return executorFactory(deps)(cmd)
+}
+
+func executorFactory(deps dependencies) func(Command) error {
 	return func(cmd Command) error {
-
-		_, resolveErr := deps.GitResolveAlias(cmd.Alias)
-		if resolveErr != nil {
-			return nil
-		}
-
 		err := deps.GitRemoveAlias(cmd.Alias)
-		if err != nil {
+		if err != nil && err.Error() != giterror.UnsetOptionWhichDoesNotExist {
 			return err
 		}
 

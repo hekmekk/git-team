@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/hekmekk/git-team/src/config"
 	git "github.com/hekmekk/git-team/src/gitconfig"
+	giterror "github.com/hekmekk/git-team/src/gitconfig/error"
 	statusApi "github.com/hekmekk/git-team/src/status"
 	"os"
 )
@@ -16,6 +17,7 @@ func Exec() error {
 		GitUnsetCommitTemplate: git.UnsetCommitTemplate,
 		GitUnsetHooksPath:      git.UnsetHooksPath,
 		LoadConfig:             config.Load,
+		StatFile:               os.Stat,
 		RemoveFile:             os.Remove,
 		PersistDisabled:        statusApi.PersistDisabled,
 	}
@@ -26,18 +28,20 @@ type dependencies struct {
 	GitUnsetCommitTemplate func() error
 	GitUnsetHooksPath      func() error
 	LoadConfig             func() (config.Config, error)
+	StatFile               func(string) (os.FileInfo, error)
 	RemoveFile             func(string) error
 	PersistDisabled        func() error
 }
 
 func executorFactory(deps dependencies) func() error {
 	return func() error {
-		if err := deps.GitUnsetHooksPath(); err != nil {
+
+		if err := deps.GitUnsetHooksPath(); err != nil && err.Error() != giterror.UnsetOptionWhichDoesNotExist {
 			return err
 		}
 
-		if err := deps.GitUnsetCommitTemplate(); err != nil {
-			return nil
+		if err := deps.GitUnsetCommitTemplate(); err != nil && err.Error() != giterror.UnsetOptionWhichDoesNotExist {
+			return err
 		}
 
 		cfg, err := deps.LoadConfig()
@@ -45,8 +49,12 @@ func executorFactory(deps dependencies) func() error {
 			return err
 		}
 
-		if err := deps.RemoveFile(fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.TemplateFileName)); err != nil {
-			return err
+		templateFilePath := fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.TemplateFileName)
+
+		if _, err := deps.StatFile(templateFilePath); err == nil {
+			if err := deps.RemoveFile(templateFilePath); err != nil {
+				return err
+			}
 		}
 
 		if err := deps.PersistDisabled(); err != nil {
