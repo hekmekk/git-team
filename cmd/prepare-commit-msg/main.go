@@ -9,20 +9,8 @@ import (
 )
 
 /*
-FRICKELAGE:
------------
-git config --global core.hooksPath ~/.config/git-team/hooks
-mkdir ~/.config/git-team/hooks
-go build -o ~/.config/git-team/hooks/prepare-commit-msg
-
-git config --global --unset core.hooksPath
-
-HOOK Docs:
-----------
-https://git-scm.com/docs/githooks#_prepare_commit_msg
-
-ISSUE/THINGS TO CONSIDER:
--------------------------
+TODO:
+-----
 - be careful not to overwrite core.hooksPath if it's set already
 - be careful not to install prepare-commit-msg if it's present
 */

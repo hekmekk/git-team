@@ -14,6 +14,7 @@ import (
 func Exec() error {
 	deps := dependencies{
 		GitUnsetCommitTemplate: git.UnsetCommitTemplate,
+		GitUnsetHooksPath:      git.UnsetHooksPath,
 		GitRemoveCommitSection: git.RemoveCommitSection,
 		LoadConfig:             config.Load,
 		RemoveFile:             os.Remove,
@@ -24,6 +25,7 @@ func Exec() error {
 
 type dependencies struct {
 	GitUnsetCommitTemplate func() error
+	GitUnsetHooksPath      func() error
 	GitRemoveCommitSection func() error
 	LoadConfig             func() (config.Config, error)
 	RemoveFile             func(string) error
@@ -32,6 +34,10 @@ type dependencies struct {
 
 func executorFactory(deps dependencies) func() error {
 	return func() error {
+		if err := deps.GitUnsetHooksPath(); err != nil {
+			return err
+		}
+
 		if err := deps.GitUnsetCommitTemplate(); err != nil {
 			return nil
 		}
