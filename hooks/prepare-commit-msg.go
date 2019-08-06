@@ -2,12 +2,13 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"os"
+
+	"github.com/hekmekk/git-team/src/enable/utils"
+	"github.com/hekmekk/git-team/src/status"
 )
 
 /*
-
 FRICKELAGE:
 -----------
 git config --global core.hooksPath ~/.config/git-team/hooks
@@ -24,51 +25,43 @@ ISSUE/THINGS TO CONSIDER:
 -------------------------
 - be careful not to overwrite core.hooksPath if it's set already
 - be careful not to install prepare-commit-msg if it's present
-- due to the appending, the message will always be edited... No way to abort the commit...
-
-Some samples:
--------------
-git commit --amend: [DEBUG] args[0]=.git/COMMIT_EDITMSG
-                    [DEBUG] args[1]=commit
-                    [DEBUG] args[2]=HEAD[master 71dcf63] foo
-git commit -m"foo": [DEBUG] args[0]=.git/COMMIT_EDITMSG
-                    [DEBUG] args[1]=message[master 37985fe] foo
-git commit -a     : [DEBUG] args[0]=.git/COMMIT_EDITMSG
-git commit        : [DEBUG] args[0]=.git/COMMIT_EDITMSG
-
 */
 
 const (
-	MESSAGE  = "message"
-	TEMPLATE = "template"
-	MERGE    = "merge"
-	COMMIT   = "commit"
-	NONE     = "none"
+	message  = "message"
+	template = "template"
+	merge    = "merge"
+	commit   = "commit"
+	none     = "none"
 )
 
 func main() {
+	status, err := status.Fetch()
+	if err != nil {
+		panic(err)
+	}
+
+	if !status.IsEnabled() {
+		os.Exit(0)
+	}
 
 	flag.Parse()
 	args := flag.Args()
 
-	for index, arg := range flag.Args() {
-		fmt.Printf("[DEBUG] args[%d]=%s\n", index, arg)
-	}
-
 	commitTemplate := args[0]
-	commitMsgSource := NONE
+	commitMsgSource := none
 	if len(args) >= 2 {
 		commitMsgSource = args[1]
 	}
 
 	switch commitMsgSource {
-	case MESSAGE:
+	case message:
 		f, err := os.OpenFile(commitTemplate, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 		if err != nil {
 			panic(err)
 		}
 
-		if _, err := f.WriteString("\n\nCo-authored-by: No-one <no-one@foo.bar>"); err != nil {
+		if _, err := f.WriteString(enableutils.PrepareForCommitMessage(status.Coauthors)); err != nil {
 			panic(err)
 		}
 
