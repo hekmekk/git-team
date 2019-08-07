@@ -102,7 +102,6 @@ acceptance-tests: clean
 	cp go.* acceptance-tests/src/
 	cp -r cmd acceptance-tests/src/
 	cp -r src acceptance-tests/src/
-	cp -r hooks acceptance-tests/src/hooks
 	docker build -t git-team-acceptance-tests $(shell pwd)/acceptance-tests
 	docker run --rm -v $(shell pwd)/acceptance-tests/cases:/acceptance-tests git-team-acceptance-tests --tap /acceptance-tests
 
