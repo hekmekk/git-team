@@ -5,9 +5,7 @@
 Command line interface for creating git commit templates provisioned with one or more co-authors.
 
 ## Installation
-#### via apt-sourc.es
-See [the projects homepage](https://apt-sourc.es) for the details of how *apt-sourc.es* works.
-
+#### via [apt-sourc.es](https://apt-sourc.es)
 1. Add *apt-sourc.es* GPG Key
 ```bash
 curl https://apt-sourc.es/admin/gpg.asc | sudo apt-key add -
@@ -23,16 +21,16 @@ echo "deb [arch=amd64] https://apt-sourc.es/deb/hekmekk/git-team stable main" | 
 sudo apt update && sudo apt install git-team
 ```
 
+#### via an [ansible playbook](../master/contrib/ansible/roles/git-team/tasks/main.yml)
+```
+ansible-playbook git-team.yml --ask-become-pass
+```
+
 #### Build from Source
 The latest version of git-team has been built against go version 1.12.
 ```bash
 make
 sudo make install
-```
-
-#### With an [ansible playbook](../master/contrib/ansible/roles/git-team/tasks/main.yml)
-```
-ansible-playbook git-team.yml --ask-become-pass
 ```
 
 ## Usage
