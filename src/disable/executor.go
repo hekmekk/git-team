@@ -14,8 +14,8 @@ import (
 func Exec() error {
 	deps := dependencies{
 		GitUnsetCommitTemplate: git.UnsetCommitTemplate,
-		GitRemoveCommitSection: git.RemoveCommitSection,
 		LoadConfig:             config.Load,
+		StatFile:               os.Stat,
 		RemoveFile:             os.Remove,
 		PersistDisabled:        statusApi.PersistDisabled,
 	}
@@ -24,19 +24,15 @@ func Exec() error {
 
 type dependencies struct {
 	GitUnsetCommitTemplate func() error
-	GitRemoveCommitSection func() error
 	LoadConfig             func() (config.Config, error)
+	StatFile               func(string) (os.FileInfo, error)
 	RemoveFile             func(string) error
 	PersistDisabled        func() error
 }
 
 func executorFactory(deps dependencies) func() error {
 	return func() error {
-		if err := deps.GitUnsetCommitTemplate(); err != nil {
-			return nil
-		}
-
-		if err := deps.GitRemoveCommitSection(); err != nil {
+		if err := deps.GitUnsetCommitTemplate(); err != nil && err.Error() != "exit status 5" {
 			return err
 		}
 
@@ -45,8 +41,12 @@ func executorFactory(deps dependencies) func() error {
 			return err
 		}
 
-		if err := deps.RemoveFile(fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.TemplateFileName)); err != nil {
-			return err
+		templateFilePath := fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.TemplateFileName)
+
+		if _, err := deps.StatFile(templateFilePath); err == nil {
+			if err := deps.RemoveFile(templateFilePath); err != nil {
+				return err
+			}
 		}
 
 		if err := deps.PersistDisabled(); err != nil {
