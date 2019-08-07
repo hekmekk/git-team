@@ -11,11 +11,12 @@ import (
 type commitMsgSourceT string
 
 const (
-	message  commitMsgSourceT = "message"
-	template commitMsgSourceT = "template"
-	merge    commitMsgSourceT = "merge"
 	commit   commitMsgSourceT = "commit"
+	merge    commitMsgSourceT = "merge"
+	message  commitMsgSourceT = "message"
 	none     commitMsgSourceT = "none"
+	squash   commitMsgSourceT = "squash"
+	template commitMsgSourceT = "template"
 )
 
 func main() {
@@ -47,6 +48,7 @@ func parseArgs() (commitMsgSourceT, string) {
 
 	commitTemplate := args[0]
 	commitMsgSource := none
+
 	if len(args) >= 2 {
 		commitMsgSource = commitMsgSourceT(args[1])
 	}

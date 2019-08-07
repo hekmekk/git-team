@@ -88,7 +88,6 @@ clean:
 	rm -rf acceptance-tests/src
 
 purge: clean uninstall
-	git config --global --remove-section team.alias || true
 	git config --global --unset-all commit.template
 	git config --global --unset-all core.hooksPath
 
