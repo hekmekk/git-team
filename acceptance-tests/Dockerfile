@@ -41,7 +41,4 @@ RUN mkdir -p /bats-libs
 RUN git clone https://github.com/ztombol/bats-support /bats-libs/bats-support
 RUN git clone https://github.com/ztombol/bats-assert /bats-libs/bats-assert
 
-RUN ls -la /bats-libs/bats-support
-RUN ls -la /bats-libs/bats-assert
-
 ENTRYPOINT ["bash", "/usr/local/bin/bats"]
