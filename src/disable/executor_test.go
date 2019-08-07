@@ -2,6 +2,7 @@ package disable
 
 import (
 	"errors"
+	"os"
 	"testing"
 
 	"github.com/hekmekk/git-team/src/config"
@@ -9,9 +10,10 @@ import (
 
 var (
 	unsetCommitTemplate = func() error { return nil }
-	removeCommitSection = func() error { return nil }
 	cfg                 = config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
 	loadConfig          = func() (config.Config, error) { return cfg, nil }
+	fileInfo            os.FileInfo
+	statFile            = func(string) (os.FileInfo, error) { return fileInfo, nil }
 	removeFile          = func(string) error { return nil }
 	persistDisabled     = func() error { return nil }
 )
@@ -19,8 +21,8 @@ var (
 func TestDisableSucceeds(t *testing.T) {
 	deps := dependencies{
 		GitUnsetCommitTemplate: unsetCommitTemplate,
-		GitRemoveCommitSection: removeCommitSection,
 		LoadConfig:             loadConfig,
+		StatFile:               statFile,
 		RemoveFile:             removeFile,
 		PersistDisabled:        persistDisabled,
 	}
@@ -32,10 +34,13 @@ func TestDisableSucceeds(t *testing.T) {
 	}
 }
 
-func TestDisableShouldSucceedWhenUnsetCommitTemplateFails(t *testing.T) {
-	expectedErr := errors.New("failed to unset commit template")
+func TestDisableShouldSucceedWhenUnsetCommitTemplateFailsBecauseItWasAlreadyUnset(t *testing.T) {
 	deps := dependencies{
-		GitUnsetCommitTemplate: func() error { return expectedErr },
+		GitUnsetCommitTemplate: func() error { return errors.New("exit status 5") },
+		LoadConfig:             loadConfig,
+		StatFile:               statFile,
+		RemoveFile:             removeFile,
+		PersistDisabled:        persistDisabled,
 	}
 
 	err := executorFactory(deps)()
@@ -46,11 +51,10 @@ func TestDisableShouldSucceedWhenUnsetCommitTemplateFails(t *testing.T) {
 	}
 }
 
-func TestDisableShouldFailWhenRemoveCommitSectionFails(t *testing.T) {
-	expectedErr := errors.New("failed to remove commit section")
+func TestDisableShouldFailWhenUnsetCommitTemplateFails(t *testing.T) {
+	expectedErr := errors.New("failed to unset commit template")
 	deps := dependencies{
-		GitUnsetCommitTemplate: unsetCommitTemplate,
-		GitRemoveCommitSection: func() error { return expectedErr },
+		GitUnsetCommitTemplate: func() error { return expectedErr },
 	}
 
 	err := executorFactory(deps)()
@@ -65,7 +69,6 @@ func TestDisableShouldFailWhenLoadConfigFails(t *testing.T) {
 	expectedErr := errors.New("failed to load config")
 	deps := dependencies{
 		GitUnsetCommitTemplate: unsetCommitTemplate,
-		GitRemoveCommitSection: removeCommitSection,
 		LoadConfig:             func() (config.Config, error) { return config.Config{}, expectedErr },
 	}
 
@@ -77,12 +80,28 @@ func TestDisableShouldFailWhenLoadConfigFails(t *testing.T) {
 	}
 }
 
+func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenStatFileFails(t *testing.T) {
+	deps := dependencies{
+		GitUnsetCommitTemplate: unsetCommitTemplate,
+		LoadConfig:             loadConfig,
+		StatFile:               func(string) (os.FileInfo, error) { return fileInfo, errors.New("failed to stat file") },
+		PersistDisabled:        persistDisabled,
+	}
+
+	err := executorFactory(deps)()
+
+	if err != nil {
+		t.Error(err)
+		t.Fail()
+	}
+}
+
 func TestDisableShouldFailWhenRemoveFileFails(t *testing.T) {
 	expectedErr := errors.New("failed to remove file")
 	deps := dependencies{
 		GitUnsetCommitTemplate: unsetCommitTemplate,
-		GitRemoveCommitSection: removeCommitSection,
 		LoadConfig:             loadConfig,
+		StatFile:               statFile,
 		RemoveFile:             func(string) error { return expectedErr },
 	}
 
@@ -98,8 +117,8 @@ func TestDisableShouldFailWhenpersistDisabledFails(t *testing.T) {
 	expectedErr := errors.New("failed to save status")
 	deps := dependencies{
 		GitUnsetCommitTemplate: unsetCommitTemplate,
-		GitRemoveCommitSection: removeCommitSection,
 		LoadConfig:             loadConfig,
+		StatFile:               statFile,
 		RemoveFile:             removeFile,
 		PersistDisabled:        func() error { return expectedErr },
 	}
