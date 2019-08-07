@@ -60,6 +60,6 @@ func persistToFileFactory(deps persistDependencies) func(state state) error {
 			return err
 		}
 
-		return deps.writeFile(fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.StatusFileName), []byte(buf.String()), 0644)
+		return deps.writeFile(fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.StatusFileName), buf.Bytes(), 0644)
 	}
 }
