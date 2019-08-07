@@ -1,31 +1,53 @@
 #!/usr/bin/env bats
 
+load '/bats-libs/bats-support/load.bash'
+load '/bats-libs/bats-assert/load.bash'
+
 setup() {
-	/usr/local/bin/git-team add a 'A <a@x.y>'
-	/usr/local/bin/git-team add b 'B <b@x.y>'
-	/usr/local/bin/git-team add c 'C <c@x.y>'
-
-	/usr/local/bin/git-team enable a b c
-	touch /tmp/foo
-}
-
-@test "prepare-commit-msg: git-team enabled - commit -m" {
-  run /usr/local/bin/prepare-commit-msg /tmp/foo message && cat /tmp/foo
-  [ "$status" -eq 0 ]
-  [ "${lines[0]}" = "" ]
-  [ "${lines[1]}" = "" ]
-  [ "${lines[2]}" = "Co-authored-by: A <a@x.y>" ]
-  [ "${lines[3]}" = "Co-authored-by: B <b@x.y>" ]
-  [ "${lines[4]}" = "Co-authored-by: C <c@x.y>" ]
+	/usr/local/bin/git-team enable 'A <a@x.y>' 'B <b@x.y>' 'C <c@x.y>'
+	touch /tmp/COMMIT_MSG
 }
 
 teardown() {
-	/usr/local/bin/git-team rm a
-	/usr/local/bin/git-team rm b
-	/usr/local/bin/git-team rm c
-
 	/usr/local/bin/git-team disable
-	rm /tmp/foo
+	rm /tmp/COMMIT_MSG
 }
 
+@test "prepare-commit-msg: git-team enabled - message" {
+	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG message && cat /tmp/COMMIT_MSG"
+	assert_success
+	assert_line --index 0 'Co-authored-by: A <a@x.y>'
+	assert_line --index 1 'Co-authored-by: B <b@x.y>'
+	assert_line --index 2 'Co-authored-by: C <c@x.y>'
+}
+
+@test "prepare-commit-msg: git-team enabled - none" {
+	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG && cat /tmp/COMMIT_MSG"
+	assert_success
+	refute_output --regexp '\w+'
+}
+
+@test "prepare-commit-msg: git-team enabled - commit" {
+	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG commit && cat /tmp/COMMIT_MSG"
+	assert_success
+	refute_output --regexp '\w+'
+}
+
+@test "prepare-commit-msg: git-team enabled - template" {
+	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG template && cat /tmp/COMMIT_MSG"
+	assert_success
+	refute_output --regexp '\w+'
+}
+
+@test "prepare-commit-msg: git-team enabled - merge" {
+	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG merge && cat /tmp/COMMIT_MSG"
+	assert_success
+	refute_output --regexp '\w+'
+}
+
+@test "prepare-commit-msg: git-team enabled - squash" {
+	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG squash && cat /tmp/COMMIT_MSG"
+	assert_success
+	refute_output --regexp '\w+'
+}
 
