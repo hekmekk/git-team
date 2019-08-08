@@ -1,5 +1,7 @@
 VERSION:=$(shell grep "version =" `pwd`/cmd/git-team/main.go | awk -F '"' '{print $$2}' | cut -c2-)
 
+CURR_DIR:=$(shell pwd)
+
 UNAME_S:= $(shell uname -s)
 BASH_COMPLETION_PREFIX:=
 ifeq ($(UNAME_S),Darwin)
@@ -24,20 +26,20 @@ fmt:
 
 build: clean deps
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install ./cmd/...
-	mkdir -p $(shell pwd)/pkg/target/bin
-	mv $(GOPATH)/bin/git-team $(shell pwd)/pkg/target/bin/git-team
-	mv $(GOPATH)/bin/prepare-commit-msg $(shell pwd)/pkg/target/bin/prepare-commit-msg
+	mkdir -p $(CURR_DIR)/pkg/target/bin
+	mv $(GOPATH)/bin/git-team $(CURR_DIR)/pkg/target/bin/git-team
+	mv $(GOPATH)/bin/prepare-commit-msg $(CURR_DIR)/pkg/target/bin/prepare-commit-msg
 	@echo "[INFO] Successfully built git-team version v$(VERSION)"
 
 man-page:
-	mkdir -p $(shell pwd)/pkg/target/man/
-	go run $(shell pwd)/cmd/git-team/main.go --help-man > pkg/target/man/git-team.1
-	gzip -f $(shell pwd)/pkg/target/man/git-team.1
+	mkdir -p $(CURR_DIR)/pkg/target/man/
+	go run $(CURR_DIR)/cmd/git-team/main.go --help-man > pkg/target/man/git-team.1
+	gzip -f $(CURR_DIR)/pkg/target/man/git-team.1
 
 install:
-	install $(shell pwd)/pkg/target/bin/git-team /usr/local/bin/git-team
+	install $(CURR_DIR)/pkg/target/bin/git-team /usr/local/bin/git-team
 	mkdir -p /usr/local/share/.config/git-team/hooks
-	install $(shell pwd)/pkg/target/bin/prepare-commit-msg /usr/local/share/.config/git-team/hooks/prepare-commit-msg
+	install $(CURR_DIR)/pkg/target/bin/prepare-commit-msg /usr/local/share/.config/git-team/hooks/prepare-commit-msg
 	mkdir -p /usr/local/share/man/man1
 	install -m "0644" pkg/target/man/git-team.1.gz /usr/local/share/man/man1/git-team.1.gz
 	install -m "0644" bash_completion/git-team.bash $(BASH_COMPLETION_PREFIX)/etc/bash_completion.d/git-team
@@ -61,7 +63,7 @@ package-build: clean
 package: package-build
 	mkdir -p pkg/target/deb
 	chown -R $(shell id -u):$(shell id -g) pkg/target/deb
-	docker run --rm -h git-team-pkg -v $(shell pwd)/pkg/target/deb:/deb-target git-team-pkg:v$(VERSION) fpm \
+	docker run --rm -h git-team-pkg -v $(CURR_DIR)/pkg/target/deb:/deb-target git-team-pkg:v$(VERSION) fpm \
 		-f \
 		-s dir \
 		-t deb \
@@ -79,13 +81,18 @@ package: package-build
 		pkg/target/man/git-team.1.gz=/usr/share/man/man1/git-team.1.gz
 
 release:
-	@echo "nope... :D"
+	$(eval SHA256_CHECKSUM := $(shell /usr/bin/sha256sum $(CURR_DIR)/pkg/target/deb/git-team_$(VERSION)_amd64.deb | awk '{ print $$1 }'))
+	@echo "SHA256_CHECKSUM=$(SHA256_CHECKSUM)"
+	@echo "git tag -a v$(VERSION)"
+	@echo "git push origin --tags"
+	$(eval RELEASE_ID := $(shell curl --silent -f https://api.github.com/repos/hekmekk/git-team/releases/tags/v$(VERSION) | jq '.id'))
+	@echo "RELEASE_ID=$(RELEASE_ID)"
+	@echo "curl -v -f -d@$(CURR_DIR)/pkg/target/deb/git-team_$(VERSION)_amd64.deb -H 'Content-Type: application/vnd.debian.binary-package' -X POST https://uploads.github.com/repos/hekmekk/git-team/releases/$(RELEASE_ID)/assets?name=git-team_$(VERSION)_amd64.deb"
 
 clean:
-	rm -f git-team
-	rm -rf pkg/src/
-	rm -rf pkg/target/
-	rm -rf acceptance-tests/src
+	rm -f $(CURR_DIR)/git-team
+	rm -rf $(CURR_DIR)/pkg/src/
+	rm -rf $(CURR_DIR)/pkg/target/
 
 purge: clean uninstall
 	git config --global --unset-all commit.template
@@ -96,11 +103,12 @@ docker-build: clean
 	docker tag git-team-run:v$(VERSION) git-team-run:latest
 
 .PHONY: acceptance-tests
-acceptance-tests: clean
-	mkdir -p acceptance-tests/src/
-	cp go.* acceptance-tests/src/
-	cp -r cmd acceptance-tests/src/
-	cp -r src acceptance-tests/src/
-	docker build -t git-team-acceptance-tests $(shell pwd)/acceptance-tests
-	docker run --rm -v $(shell pwd)/acceptance-tests/cases:/acceptance-tests git-team-acceptance-tests --tap /acceptance-tests
+acceptance-tests:
+	rm -rf $(CURR_DIR)/acceptance-tests/src
+	mkdir -p $(CURR_DIR)/acceptance-tests/src/
+	cp $(CURR_DIR)/go.* $(CURR_DIR)/acceptance-tests/src/
+	cp -r $(CURR_DIR)/cmd $(CURR_DIR)/acceptance-tests/src/
+	cp -r $(CURR_DIR)/src $(CURR_DIR)/acceptance-tests/src/
+	docker build -t git-team-acceptance-tests $(CURR_DIR)/acceptance-tests
+	docker run --rm -v $(CURR_DIR)/acceptance-tests/cases:/acceptance-tests git-team-acceptance-tests --tap /acceptance-tests
 
