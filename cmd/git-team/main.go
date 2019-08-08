@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	version = "v1.3.0-rc1"
+	version = "v1.3.0-to-be-deleted-again"
 	author  = "Rea Sand <hekmek@posteo.de>"
 )
 
