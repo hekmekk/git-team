@@ -26,6 +26,14 @@ sudo apt update && sudo apt install git-team
 ansible-playbook git-team.yml --ask-become-pass
 ```
 
+#### Download a Release
+1. Download the [latest release](https://github.com/hekmekk/git-team/releases/latest)
+
+2. Install it manually
+```bash
+sudo dpkg -i /path/to/downloaded/release.deb
+```
+
 #### Build from Source
 The latest version of git-team has been built against go version 1.12.
 ```bash
