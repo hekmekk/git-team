@@ -8,7 +8,7 @@ sudo luarocks install sha2
 --]]
 
 --[[ Purge a release (and respective tag)
-curl -v -f -H 'Authorization: token GITHUB_API_TOKEN' -X DELETE https://api.github.com/repos/hekmekk/git-team/releases/:id
+curl -I -f -H 'Authorization: token GITHUB_API_TOKEN' -X DELETE https://api.github.com/repos/hekmekk/git-team/releases/:id
 git tag -d VERSION
 git push origin --delete VERSION
 --]]
@@ -125,6 +125,9 @@ function is_checksum_in_body_already(release, checksum)
 end
 
 function is_asset_uploaded_already(assets, deb_file_name)
+  if not assets then
+    return false
+  end
   for _, asset in pairs(assets) do
     if asset['name'] and asset['name'] == deb_file_name then
       return true
@@ -148,6 +151,7 @@ function interactively_add_git_tag_and_push_to_remote(version)
 end
 
 -- main program
+-- TODO: create logger with version and stuff set?!
 
 local args = parser:parse()
 
@@ -165,10 +169,15 @@ if respcode == 404 then
   interactively_add_git_tag_and_push_to_remote(git_team_version)
   print(string.format('[info ] latest commit has been tagged', version))
   print(string.format('[info ] remote tags have been updated', version))
-  local create_ret, release = create_release(releases_uri, github_api_token, git_team_version)
+  ret, release = create_release(releases_uri, github_api_token, git_team_version) -- note: MUST NOT use local here... or else 'release' will not be visible after 'end'
+  if ret == 201 then
+    print(string.format('[info ] release with id=%s has been created successfully', release['id']))
+  else
+    print(string.format('[error] failed to create release for version %s', git_team_version))
+  end
 end
 if respcode ~= 200 and respcode ~= 404 then
-  print(string.format("[error] failure while trying to find release for version=%s", git_team_version))
+  print(string.format('[error] failure while trying to find release for version=%s', git_team_version))
 end
 
 if not release then
@@ -194,6 +203,7 @@ if not is_asset_uploaded_already(release['assets'], deb_file_name) then
   end
 end
 
+-- TODO: resolve bug where on each run we overwtite the deb file, which results in its checksum changing, which results in it never beein equal to the current one, which means we update it every time and it diverges from the uploaded deb file ... meh :/
 local sha256sum = sha2.sha256hex(deb_file)
 if not is_checksum_in_body_already(release, sha256sum) then
   local release_id = release['id']
