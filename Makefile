@@ -81,30 +81,14 @@ package: package-build
 		pkg/target/man/git-team.1.gz=/usr/share/man/man1/git-team.1.gz
 
 release:
-# TODO: move this to a script for better readability
-# TODO: if body contains deb then abort
-# TODO: if body does not contain checksum, update it (PUT)
 # TODO: requires 'package' target
 ifndef GITHUB_API_TOKEN
 	$(error GITHUB_API_TOKEN is not set)
 endif
-	$(eval UPLOAD_URL_TEMPLATE := $(shell curl --silent -f https://api.github.com/repos/hekmekk/git-team/releases/tags/v$(VERSION) | jq '.upload_url'))
-	$(info UPLOAD_URL_TEMPLATE=$(UPLOAD_URL_TEMPLATE))
-ifeq ($(UPLOAD_URL_TEMPLATE),)
-	git tag -a v$(VERSION)
-	git push origin --tags
-	$(eval SHA256_CHECKSUM := $(shell /usr/bin/sha256sum $(CURR_DIR)/pkg/target/deb/git-team_$(VERSION)_amd64.deb | awk '{ print $$1 }'))
-	$(info [DEBUG] SHA256_CHECKSUM=$(SHA256_CHECKSUM))
-	$(eval UPLOAD_URL_TEMPLATE := $(shell curl --silent -f -d '{"tag_name": "v$(VERSION)", "body":"**sha256 checksum:** `$(SHA256_CHECKSUM)`"}' -H 'Content-Type: application/json' -H 'Authorization: token $(GITHUB_API_TOKEN)' -X POST https://api.github.com/repos/hekmekk/git-team/releases | jq '.upload_url'))
-	$(info UPLOAD_URL_TEMPLATE=$(UPLOAD_URL_TEMPLATE))
-endif
-ifeq ($(UPLOAD_URL_TEMPLATE),)
-	$(error failed to determine UPLOAD_URL_TEMPLATE)
-endif
-	$(info [DEBUG] UPLOAD_URL_TEMPLATE=$(UPLOAD_URL_TEMPLATE))
-	$(eval UPLOAD_URL := $(shell echo $(UPLOAD_URL_TEMPLATE) | sed 's/{?name,label}/?name=git-team_$(VERSION)_amd64.deb/'))
-	$(info [DEBUG] UPLOAD_URL=$(UPLOAD_URL))
-	$(info curl -f -d@$(CURR_DIR)/pkg/target/deb/git-team_$(VERSION)_amd64.deb -H 'Content-Type: application/vnd.debian.binary-package' -H 'Authorization: token $(GITHUB_API_TOKEN)' -X POST $(UPLOAD_URL))
+	lua scripts/release.lua \
+		--github-api-token $(GITHUB_API_TOKEN) \
+		--git-team-version v$(VERSION) \
+		--git-team-deb-path $(CURR_DIR)/pkg/target/deb/git-team_$(VERSION)_amd64.deb
 
 clean:
 	rm -f $(CURR_DIR)/git-team
