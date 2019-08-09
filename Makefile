@@ -80,8 +80,7 @@ package: package-build
 		bash_completion/git-team.bash=/etc/bash_completion.d/git-team \
 		pkg/target/man/git-team.1.gz=/usr/share/man/man1/git-team.1.gz
 
-release:
-# TODO: requires 'package' target
+release: package
 ifndef GITHUB_API_TOKEN
 	$(error GITHUB_API_TOKEN is not set)
 endif
