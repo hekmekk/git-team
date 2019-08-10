@@ -65,5 +65,4 @@ sudo make purge
 - refactor: add `assign` and `unassign` but keep `add` and `rm` as aliases for backwards compatibility
 - refactor: make `ls` the command and `list` the alias for backwards compatibility
 - feat: make it possible to rm multiple aliases
-- feat: when adding an existing alias, ask for override
 
