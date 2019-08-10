@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	version = "v0.0.1-github-api-test"
+	version = "v1.3.0-rc2"
 	author  = "Rea Sand <hekmek@posteo.de>"
 )
 
