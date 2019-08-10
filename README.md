@@ -60,8 +60,8 @@ sudo make purge
 - [git mob](https://www.npmjs.com/package/git-mob)
 
 ## TODOs
-- **tech:** apply pattern as exemplified by `add`
-- **tech:** refactor `Dockerfile`s and `Makefile`
+- **internal quality:** apply pattern as exemplified by `add`
+- **internal quality:** refactor `Dockerfile`s and `Makefile`
 - refactor: add `assign` and `unassign` but keep `add` and `rm` as aliases for backwards compatibility
 - refactor: make `ls` the command and `list` the alias for backwards compatibility
 - feat: make it possible to rm multiple aliases
