@@ -64,10 +64,14 @@ type AssignmentAborted struct {
 }
 
 const (
-	yes string = "y"
-	no  string = "n"
+	y    string = "y"
+	yes  string = "yes"
+	n    string = "n"
+	no   string = "no"
+	none string = ""
 )
 
+// TODO: need to inject io handling for unit tests
 // Apply assign a co-author to an alias
 func Apply(deps Dependencies, args Args) interface{} {
 	alias := *args.Alias
@@ -76,7 +80,7 @@ func Apply(deps Dependencies, args Args) interface{} {
 
 	if "" != existingCoauthor {
 		reader := bufio.NewReader(os.Stdin)
-		question := fmt.Sprintf("Alias '%s' -> '%s' exists already. Override with '%s'? [y/N]", alias, existingCoauthor, coauthor)
+		question := fmt.Sprintf("Alias '%s' -> '%s' exists already. Override with '%s'? [N/y] ", alias, existingCoauthor, coauthor)
 		fmt.Print(question)
 		answer, readErr := reader.ReadString('\n')
 		if readErr != nil {
@@ -84,19 +88,20 @@ func Apply(deps Dependencies, args Args) interface{} {
 		}
 		answer = strings.ToLower(strings.TrimSpace(strings.TrimRight(answer, "\n")))
 		switch answer {
-		case yes:
+		case y, yes:
 			err := assignCoauthorToAlias(deps, alias, coauthor)
 			if err != nil {
 				return AssignmentFailed{Reason: err}
 			}
-		case no:
+			return AssignmentSucceeded{Alias: alias, Coauthor: coauthor}
+		case n, no, none:
 			return AssignmentAborted{
 				Alias:             alias,
 				ExistingCoauthor:  existingCoauthor,
 				ReplacingCoauthor: coauthor,
 			}
 		default:
-			return AssignmentFailed{Reason: errors.New("invalid answer :/")}
+			return AssignmentFailed{Reason: errors.New("invalid answer :|")}
 		}
 	}
 	err := assignCoauthorToAlias(deps, alias, coauthor)
