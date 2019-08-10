@@ -170,9 +170,6 @@ function interactively_add_git_tag_and_push_to_remote(version)
 end
 
 -- main program
--- TODO: create logger with version and stuff set?!
--- TODO: remote checksum validity check?!
-
 local args = parser:parse()
 
 local github_api_token = args['github_api_token']
@@ -213,8 +210,18 @@ local remote_checksum = get_current_checksum(release)
 local remote_asset = find_asset_by_name(release, deb_file_name)
 
 if remote_asset and remote_checksum then
-  print('[info ] assuming consistency regarding remote asset and checksum - done.')
-  os.exit(0)
+  local browser_download_url = remote_asset['browser_download_url']
+  if browser_download_url then
+    -- TODO: fix this logic - download file and compute checksum to compare against the current remote; exit if equal
+    -- local remote_deb_file = ltn12.sink.file(io.open('/tmp/git-team-remote.deb', 'w'))
+    -- local result, code, respheaders, respstatus = https.request {
+      -- url = browser_download_url,
+      -- sink = remote_deb_file
+    -- }
+
+    print('[info ] assuming consistency regarding remote asset and checksum - done.')
+    os.exit(0)
+  end
 end
 
 -- checksum
