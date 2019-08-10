@@ -70,6 +70,25 @@ function upload_asset(github_api_token, upload_url, deb_file)
   return respcode, nil
 end
 
+function delete_asset(github_api_token, releases_uri, asset_id)
+  local respbody = {}
+  local result, respcode, respheaders, respstatus = https.request {
+      method = 'DELETE',
+      url = releases_uri .. '/assets/' .. asset_id,
+      headers = {
+          ['Authorization'] = string.format('token %s', github_api_token)
+      },
+      sink = ltn12.sink.table(respbody)
+  }
+  respbody = table.concat(respbody)
+
+  if respbody and respbody ~= "" then
+    return respcode, json.decode(respbody)
+  end
+
+  return respcode, nil
+end
+
 function update_release(github_api_token, releases_uri, release_id, request_body)
   local respbody = {} -- for the response body
 
@@ -189,13 +208,12 @@ end
 local deb_file_name = ''
 for x in git_team_deb_path:gmatch("([^/]+)/?") do deb_file_name = x end
 
-local deb_file = read_file(git_team_deb_path)
-local local_checksum = sha2.sha256hex(deb_file)
+local local_deb_file = read_file(git_team_deb_path)
 local remote_checksum = get_current_checksum(release)
 local remote_asset = find_asset_by_name(release, deb_file_name)
 
 if remote_asset and remote_checksum then
-  print('[info ] asset with corresponding checksum up-to-date') -- TODO: we trust in consistency here
+  print('[info ] assuming consistency regarding remote asset and checksum - done.')
   os.exit(0)
 end
 
@@ -203,7 +221,7 @@ end
 print('[info ] updating checksum ...')
 local release_id = release['id']
 local reqbody = json.encode({
-  body = string.format('**sha256 checksum:** `%s`', local_checksum)
+  body = string.format('**sha256 checksum:** `%s`', sha2.sha256hex(local_deb_file))
 })
 
 local respcode2, body2 = update_release(github_api_token, releases_uri, release_id, reqbody)
@@ -215,22 +233,31 @@ else
   print(string.format("[debug] release_id=%s", release_id))
   print(string.format("[debug] code=%s", respcode2))
   print(string.format("[debug] body=%s", inspect(body2)))
-end
-
-if remote_asset then
-  -- TODO: delete the current asset
-  print('[info ] deleting the current asset ...')
-  os.exit(-1) -- TODO: remove
+  os.exit(-1)
 end
 
 -- asset
+if remote_asset then
+  print('[info ] deleting the current asset ...')
+  local asset_id = remote_asset['id']
+  local code, res = delete_asset(github_api_token, releases_uri, asset_id)
+  if code == 204 then
+    print('[info ] asset deleted successfully')
+  else
+    print(string.format('[error] failed to delete asset with id=%s', asset_id))
+    print(string.format("[debug] code=%s", code))
+    print(string.format("[debug] body=%s", inspect(res)))
+    os.exit(-1)
+  end
+end
+
 print('[info ] creating a new asset ...')
 local upload_url_template = release['upload_url']
 local upload_url = string.gsub(upload_url_template, "%{%?name,label%}", string.format('?name=%s', deb_file_name))
 
-local respcode, body = upload_asset(github_api_token, upload_url, deb_file)
+local respcode, body = upload_asset(github_api_token, upload_url, local_deb_file)
 if respcode == 201 then
-  print("[info ] asset uploaded successfully")
+  print("[info ] asset created successfully")
 else
   print("[error] failed to upload asset")
   print(string.format("[debug] code=%s", respcode))
