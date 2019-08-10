@@ -1,4 +1,3 @@
-
 #!/usr/bin/env bats
 
 load '/bats-libs/bats-support/load.bash'
