@@ -117,23 +117,23 @@ function create_release(releases_uri, github_api_token, version)
   return respcode, nil
 end
 
-function is_checksum_in_body_already(release, checksum)
-  if release and release['body'] == string.format('**sha256 checksum:** `%s`', checksum) then
-    return true
+function get_current_checksum(release)
+  if release and release['body'] then
+    return release['body']:match("%*%*sha256 checksum:%*%* `(%w+)`")
   end
-  return false
+  return nil
 end
 
-function is_asset_uploaded_already(assets, deb_file_name)
-  if not assets then
-    return false
+function find_asset_by_name(release, asset_name)
+  if not release or not release['assets'] then
+    return nil
   end
-  for _, asset in pairs(assets) do
-    if asset['name'] and asset['name'] == deb_file_name then
-      return true
+  for _, asset in pairs(release['assets']) do
+    if asset['name'] and asset['name'] == asset_name then
+      return asset
     end
-    return false
   end
+  return nil
 end
 
 function read_file(file)
@@ -152,6 +152,7 @@ end
 
 -- main program
 -- TODO: create logger with version and stuff set?!
+-- TODO: remote checksum validity check?!
 
 local args = parser:parse()
 
@@ -189,37 +190,50 @@ local deb_file_name = ''
 for x in git_team_deb_path:gmatch("([^/]+)/?") do deb_file_name = x end
 
 local deb_file = read_file(git_team_deb_path)
-if not is_asset_uploaded_already(release['assets'], deb_file_name) then
-  local upload_url_template = release['upload_url']
-  local upload_url = string.gsub(upload_url_template, "%{%?name,label%}", string.format('?name=%s', deb_file_name))
+local local_checksum = sha2.sha256hex(deb_file)
+local remote_checksum = get_current_checksum(release)
+local remote_asset = find_asset_by_name(release, deb_file_name)
 
-  local respcode, body = upload_asset(github_api_token, upload_url, deb_file)
-  if respcode == 201 then
-    print("[info ] asset uploaded successfully")
-  else
-    print("[error] failed to upload asset")
-    print(string.format("[debug] code=%s", respcode))
-    print(string.format("[debug] body=%s", inspect(body)))
-  end
+if remote_asset and remote_checksum then
+  print('[info ] asset with corresponding checksum up-to-date') -- TODO: we trust in consistency here
+  os.exit(0)
 end
 
--- TODO: resolve bug where on each run we overwtite the deb file, which results in its checksum changing, which results in it never beein equal to the current one, which means we update it every time and it diverges from the uploaded deb file ... meh :/
-local sha256sum = sha2.sha256hex(deb_file)
-if not is_checksum_in_body_already(release, sha256sum) then
-  local release_id = release['id']
-  local reqbody = json.encode({
-    body = string.format('**sha256 checksum:** `%s`', sha256sum)
-  })
+-- checksum
+print('[info ] updating checksum ...')
+local release_id = release['id']
+local reqbody = json.encode({
+  body = string.format('**sha256 checksum:** `%s`', local_checksum)
+})
 
-  local respcode2, body2 = update_release(github_api_token, releases_uri, release_id, reqbody)
+local respcode2, body2 = update_release(github_api_token, releases_uri, release_id, reqbody)
 
-  if respcode2 == 200 then
-    print("[info ] checksum added successfully")
-  else
-    print("[error] failed to update release with checksum")
-    print(string.format("[debug] release_id=%s", release_id))
-    print(string.format("[debug] code=%s", respcode2))
-    print(string.format("[debug] body=%s", inspect(body2)))
-  end
+if respcode2 == 200 then
+  print("[info ] checksum added successfully")
+else
+  print("[error] failed to update release with checksum")
+  print(string.format("[debug] release_id=%s", release_id))
+  print(string.format("[debug] code=%s", respcode2))
+  print(string.format("[debug] body=%s", inspect(body2)))
+end
+
+if remote_asset then
+  -- TODO: delete the current asset
+  print('[info ] deleting the current asset ...')
+  os.exit(-1) -- TODO: remove
+end
+
+-- asset
+print('[info ] creating a new asset ...')
+local upload_url_template = release['upload_url']
+local upload_url = string.gsub(upload_url_template, "%{%?name,label%}", string.format('?name=%s', deb_file_name))
+
+local respcode, body = upload_asset(github_api_token, upload_url, deb_file)
+if respcode == 201 then
+  print("[info ] asset uploaded successfully")
+else
+  print("[error] failed to upload asset")
+  print(string.format("[debug] code=%s", respcode))
+  print(string.format("[debug] body=%s", inspect(body)))
 end
 
