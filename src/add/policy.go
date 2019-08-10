@@ -1,6 +1,12 @@
 package add
 
 import (
+	"bufio"
+	"errors"
+	"fmt"
+	"os"
+	"strings"
+
 	"github.com/hekmekk/git-team/src/gitconfig"
 	"github.com/hekmekk/git-team/src/validation"
 )
@@ -13,7 +19,8 @@ type Args struct {
 
 // Dependencies the dependencies of the Runner
 type Dependencies struct {
-	AddGitAlias func(string, string) error
+	AddGitAlias     func(string, string) error
+	GitResolveAlias func(string) (string, error)
 }
 
 // Definition the command, arguments, and dependencies
@@ -32,7 +39,8 @@ func New(name string, alias, coauthor *string) Definition {
 			Coauthor: coauthor,
 		},
 		Deps: Dependencies{
-			AddGitAlias: gitconfig.AddAlias,
+			AddGitAlias:     gitconfig.AddAlias,
+			GitResolveAlias: gitconfig.ResolveAlias,
 		},
 	}
 }
@@ -48,16 +56,68 @@ type AssignmentSucceeded struct {
 	Coauthor string
 }
 
+// AssignmentAborted nothing happened
+type AssignmentAborted struct {
+	Alias             string
+	ExistingCoauthor  string
+	ReplacingCoauthor string
+}
+
+const (
+	yes string = "y"
+	no  string = "n"
+)
+
 // Apply assign a co-author to an alias
 func Apply(deps Dependencies, args Args) interface{} {
 	alias := *args.Alias
 	coauthor := *args.Coauthor
+	existingCoauthor := findExistingCoauthor(deps, alias)
+
+	if "" != existingCoauthor {
+		reader := bufio.NewReader(os.Stdin)
+		question := fmt.Sprintf("Alias '%s' -> '%s' exists already. Override with '%s'? [y/N]", alias, existingCoauthor, coauthor)
+		fmt.Print(question)
+		answer, readErr := reader.ReadString('\n')
+		if readErr != nil {
+			return AssignmentFailed{Reason: readErr}
+		}
+		answer = strings.ToLower(strings.TrimSpace(strings.TrimRight(answer, "\n")))
+		switch answer {
+		case yes:
+			err := assignCoauthorToAlias(deps, alias, coauthor)
+			if err != nil {
+				return AssignmentFailed{Reason: err}
+			}
+		case no:
+			return AssignmentAborted{
+				Alias:             alias,
+				ExistingCoauthor:  existingCoauthor,
+				ReplacingCoauthor: coauthor,
+			}
+		default:
+			return AssignmentFailed{Reason: errors.New("invalid answer :/")}
+		}
+	}
 	err := assignCoauthorToAlias(deps, alias, coauthor)
 	if err != nil {
 		return AssignmentFailed{Reason: err}
 	}
 
 	return AssignmentSucceeded{Alias: alias, Coauthor: coauthor}
+}
+
+func shouldOverride(deps Dependencies, alias, existingCoauthor, replacingCoauthor string) bool {
+	return false
+}
+
+func findExistingCoauthor(deps Dependencies, alias string) string {
+	existingCoauthor, resolveErr := deps.GitResolveAlias(alias)
+	if resolveErr == nil {
+		return existingCoauthor
+	}
+
+	return ""
 }
 
 func assignCoauthorToAlias(deps Dependencies, alias string, coauthor string) error {
