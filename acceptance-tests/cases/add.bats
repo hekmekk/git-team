@@ -35,6 +35,14 @@ teardown() {
 	assert_line "Alias 'noujz' -> 'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed."
 }
 
+@test "git-team: add should ask for override and abort if user replies with anything else" {
+	/usr/local/bin/git-team add noujz 'Mr. Green <green@mr.se>'
+	# note: due to injecting yes this way (or via <<< 'n') the two lines below will appear as one
+	run bash -c "echo 'foo' | /usr/local/bin/git-team add noujz 'Mr. Noujz <noujz@mr.se>'"
+	assert_success
+	assert_line "Alias 'noujz' -> 'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed."
+}
+
 @test "git-team: add should fail to create an assigment for an invalidly formatted co-author" {
 	run /usr/local/bin/git-team add noujz INVALID-CO-AUTHOR
 	assert_failure 255
