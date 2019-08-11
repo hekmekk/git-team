@@ -1,21 +1,10 @@
 package add
 
 import (
-	"bufio"
 	"fmt"
-	"os"
+	"os" // TODO: remove this dependency aswell. dep: question: string -> answer: string
 	"strings"
-
-	"github.com/hekmekk/git-team/src/gitconfig"
-	"github.com/hekmekk/git-team/src/validation"
 )
-
-// Definition the command, arguments, and dependencies
-type Definition struct {
-	CommandName string
-	Request     AssignmentRequest
-	Deps        Dependencies
-}
 
 // AssignmentRequest the arguments of the Runner
 type AssignmentRequest struct {
@@ -29,23 +18,6 @@ type Dependencies struct {
 	GitAddAlias         func(string, string) error
 	GitResolveAlias     func(string) (string, error)
 	StdinReadLine       func() (string, error)
-}
-
-// New the constructor for Definition
-func New(name string, alias, coauthor *string) Definition {
-	return Definition{
-		CommandName: name,
-		Request: AssignmentRequest{
-			Alias:    alias,
-			Coauthor: coauthor,
-		},
-		Deps: Dependencies{
-			SanityCheckCoauthor: validation.SanityCheckCoauthor,
-			GitAddAlias:         gitconfig.AddAlias,
-			GitResolveAlias:     gitconfig.ResolveAlias,
-			StdinReadLine:       func() (string, error) { return bufio.NewReader(os.Stdin).ReadString('\n') },
-		},
-	}
 }
 
 const (
