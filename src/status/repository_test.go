@@ -2,7 +2,6 @@ package status
 
 import (
 	"errors"
-	"io"
 	"os"
 	"reflect"
 	"testing"
@@ -20,8 +19,7 @@ var (
 	writeFile      = func(string, []byte, os.FileMode) error { return nil }
 	statFile       = func(string) (os.FileInfo, error) { return fileInfo, nil }
 	isFileNotExist = func(error) bool { return false }
-	tomlNewEncoder = func(io.Writer) *toml.Encoder { return nil }
-	tomlEncode     = func(*toml.Encoder, interface{}) error { return nil }
+	tomlEncode     = func(interface{}) ([]byte, error) { return nil, nil }
 )
 
 func TestFetchSucceeds(t *testing.T) {
@@ -102,10 +100,9 @@ func TestFetchFailsDueToDecodeError(t *testing.T) {
 
 func TestPersistSucceeds(t *testing.T) {
 	deps := persistDependencies{
-		loadConfig:     loadConfig,
-		writeFile:      writeFile,
-		tomlNewEncoder: tomlNewEncoder,
-		tomlEncode:     tomlEncode,
+		loadConfig: loadConfig,
+		writeFile:  writeFile,
+		tomlEncode: tomlEncode,
 	}
 
 	// TODO: assert that this is passed to tomlEncode
@@ -122,10 +119,9 @@ func TestPersistSucceeds(t *testing.T) {
 func TestPersistFailsDueToConfigLoadError(t *testing.T) {
 	loadConfig := func() (config.Config, error) { return config.Config{}, errors.New("failed to load config") }
 	deps := persistDependencies{
-		loadConfig:     loadConfig,
-		writeFile:      writeFile,
-		tomlNewEncoder: tomlNewEncoder,
-		tomlEncode:     tomlEncode,
+		loadConfig: loadConfig,
+		writeFile:  writeFile,
+		tomlEncode: tomlEncode,
 	}
 
 	err := persistToFileFactory(deps)(state{})
@@ -137,12 +133,13 @@ func TestPersistFailsDueToConfigLoadError(t *testing.T) {
 }
 
 func TestPersistFailsDueToTomlEncodeError(t *testing.T) {
-	tomlEncode := func(*toml.Encoder, interface{}) error { return errors.New("failed to encode struct with toml encoder") }
+	tomlEncode := func(interface{}) ([]byte, error) {
+		return nil, errors.New("failed to encode struct with toml encoder")
+	}
 	deps := persistDependencies{
-		loadConfig:     loadConfig,
-		writeFile:      writeFile,
-		tomlNewEncoder: tomlNewEncoder,
-		tomlEncode:     tomlEncode,
+		loadConfig: loadConfig,
+		writeFile:  writeFile,
+		tomlEncode: tomlEncode,
 	}
 
 	err := persistToFileFactory(deps)(state{})
@@ -156,10 +153,9 @@ func TestPersistFailsDueToTomlEncodeError(t *testing.T) {
 func TestPersistFailsDueToWriteFileError(t *testing.T) {
 	writeFile := func(string, []byte, os.FileMode) error { return errors.New("failed to write file") }
 	deps := persistDependencies{
-		loadConfig:     loadConfig,
-		writeFile:      writeFile,
-		tomlNewEncoder: tomlNewEncoder,
-		tomlEncode:     tomlEncode,
+		loadConfig: loadConfig,
+		writeFile:  writeFile,
+		tomlEncode: tomlEncode,
 	}
 
 	err := persistToFileFactory(deps)(state{})

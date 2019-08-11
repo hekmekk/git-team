@@ -1,9 +1,7 @@
 package status
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"os"
 
 	"github.com/BurntSushi/toml"
@@ -40,10 +38,9 @@ func fetchFromFileFactory(deps fetchDependencies) func() (state, error) {
 }
 
 type persistDependencies struct {
-	loadConfig     func() (config.Config, error)
-	writeFile      func(string, []byte, os.FileMode) error
-	tomlNewEncoder func(io.Writer) *toml.Encoder
-	tomlEncode     func(*toml.Encoder, interface{}) error
+	loadConfig func() (config.Config, error)
+	writeFile  func(string, []byte, os.FileMode) error
+	tomlEncode func(interface{}) ([]byte, error)
 }
 
 func persistToFileFactory(deps persistDependencies) func(state state) error {
@@ -53,13 +50,11 @@ func persistToFileFactory(deps persistDependencies) func(state state) error {
 			return err
 		}
 
-		buf := new(bytes.Buffer)
-
-		err = deps.tomlEncode(deps.tomlNewEncoder(buf), state)
+		bytes, err := deps.tomlEncode(state)
 		if err != nil {
 			return err
 		}
 
-		return deps.writeFile(fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.StatusFileName), buf.Bytes(), 0644)
+		return deps.writeFile(fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.StatusFileName), bytes, 0644)
 	}
 }
