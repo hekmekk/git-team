@@ -1,4 +1,4 @@
-package interfaceadapter
+package addeventadapter
 
 import (
 	"fmt"

@@ -11,7 +11,8 @@ import (
 
 	"github.com/fatih/color"
 	addPolicy "github.com/hekmekk/git-team/src/add"
-	addInterfaceAdapter "github.com/hekmekk/git-team/src/add/interfaceadapter"
+	"github.com/hekmekk/git-team/src/add/interfaceadapter/cmd"
+	"github.com/hekmekk/git-team/src/add/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/config"
 	execDisable "github.com/hekmekk/git-team/src/disable"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
@@ -31,7 +32,7 @@ func main() {
 
 	switch kingpin.MustParse(application.app.Parse(os.Args[1:])) {
 	case application.add.CommandName:
-		effects := addInterfaceAdapter.MapAddEventToEffects(addPolicy.Apply(application.add.Deps, application.add.Request))
+		effects := addeventadapter.MapAddEventToEffects(addPolicy.Apply(application.add.Deps, application.add.Request))
 		for _, effect := range effects {
 			effect.Run()
 		}
@@ -110,7 +111,7 @@ func newList(app *kingpin.Application) list {
 
 type application struct {
 	app     *kingpin.Application
-	add     addInterfaceAdapter.Definition
+	add     addcmdadapter.Definition
 	remove  remove
 	enable  enable
 	disable disable
@@ -127,7 +128,7 @@ func newApplication(author string, version string) application {
 
 	return application{
 		app:     app,
-		add:     addInterfaceAdapter.New(app),
+		add:     addcmdadapter.New(app),
 		remove:  newRemove(app),
 		enable:  newEnable(app),
 		disable: newDisable(app),
