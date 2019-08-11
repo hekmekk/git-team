@@ -2,7 +2,7 @@
 
 # git-team
 
-Command line interface for injecting one or more co-authors into a git commit message template.
+Command line interface for managing and enhancing `git commit` messages with co-authors.
 
 ## Installation
 #### Build from Source
@@ -18,17 +18,17 @@ ansible-playbook git-team.yml --ask-become-pass
 
 ## Usage
 
-#### Setup some aliases
+#### Setup some aliases for convenience
 ```bash
 git team add noujz "Mr. Noujz <noujz@mr.se>"
 ```
 
-To review your current aliases use:
+To review your current alias to co-author assignments use:
 ```bash
-git team list
+git team ls
 ```
 
-To remove an alias use:
+To remove an assignment use:
 ```bash
 git team rm noujz
 ```
@@ -44,16 +44,11 @@ git team [enable] noujz <alias1> ... <aliasN> "Mr. Green <green@mr.se>"
 ```
 
 #### Commit some
-Just use `git commit` or `git commit -m"msg"`. Please note that `git commit --amend` is not affected.
+Just use `git commit` or `git commit -m <msg>`.
 
 #### Back to being a loner
 ```bash
 git team disable
-```
-
-## Uninstall
-```bash
-sudo make purge
 ```
 
 ## Similar projects
@@ -61,6 +56,5 @@ sudo make purge
 
 ## TODOs
 - **internal quality:** apply pattern as exemplified by `add`
-- **internal quality:** refactor `Dockerfile`s and `Makefile`
-- feat: make it possible to rm multiple aliases
+- **internal quality:** refactor `Dockerfile`s and `Makefile` for a better development experience
 
