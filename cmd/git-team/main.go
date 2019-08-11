@@ -101,8 +101,8 @@ type list struct {
 }
 
 func newList(app *kingpin.Application) list {
-	command := app.Command("list", "List currently available aliases")
-	command.Alias("ls")
+	command := app.Command("ls", "List currently available aliases")
+	command.Alias("list")
 	return list{
 		command: command,
 	}
