@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set +x
 
-#GIT_TEAM_AUTHORS_COMMAND="git authors -a -p"
 GIT_TEAM_CURRENT_REV=""
 GIT_TEAM_AUTHORS=()
 
@@ -65,7 +64,7 @@ _git_team() {
 				fi
 			done
 			if [[ $show_flags == true ]]; then
-				local flags="add enable disable list ls rm status --help --version"
+				local flags="add enable disable ls rm status --help --version"
 				COMPREPLY+=( $(compgen -W "$flags" -- $cur) )
 			fi
 			return 0
