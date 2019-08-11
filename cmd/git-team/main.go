@@ -56,10 +56,10 @@ type remove struct {
 }
 
 func newRemove(app *kingpin.Application) remove {
-	command := app.Command("rm", "Remove an alias")
+	command := app.Command("rm", "Remove an alias to co-author assignment")
 	return remove{
 		command: command,
-		alias:   command.Arg("alias", "The alias to be removed").Required().String(),
+		alias:   command.Arg("alias", "The alias to identify the assignment to be removed").Required().String(),
 	}
 }
 
@@ -119,8 +119,8 @@ type application struct {
 }
 
 func defineAdd(app *kingpin.Application) (string, *string, *string) {
-	command := app.Command("add", "Add an alias")
-	alias := command.Arg("alias", "The alias to be added").Required().String()
+	command := app.Command("add", "Add a new or override an existing alias to co-author assignment")
+	alias := command.Arg("alias", "The alias to assign a co-author to").Required().String()
 	coauthor := command.Arg("coauthor", "The co-author").Required().String()
 
 	return command.FullCommand(), alias, coauthor
