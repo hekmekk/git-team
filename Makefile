@@ -72,7 +72,7 @@ package: package-build
 		-m "Rea Sand <hekmek@posteo.de>" \
 		--url "https://github.com/hekmekk/git-team" \
 		--license "MIT" \
-		--description "git-team - commit template provisioning with co-authors" \
+		--description "git-team - commit message enhancement with co-authors" \
 		--deb-no-default-config-files \
 		-p /deb-target \
 		pkg/target/bin/git-team=/usr/bin/git-team \
