@@ -1,6 +1,7 @@
 package status
 
 import (
+	"bytes"
 	"io/ioutil"
 	"os"
 
@@ -31,10 +32,13 @@ func PersistDisabled() error {
 
 func persist(state state) error {
 	deps := persistDependencies{
-		loadConfig:     config.Load,
-		writeFile:      ioutil.WriteFile,
-		tomlNewEncoder: toml.NewEncoder,
-		tomlEncode:     func(encoder *toml.Encoder, state interface{}) error { return encoder.Encode(state) },
+		loadConfig: config.Load,
+		writeFile:  ioutil.WriteFile,
+		tomlEncode: func(state interface{}) ([]byte, error) {
+			buf := new(bytes.Buffer)
+			err := toml.NewEncoder(buf).Encode(state)
+			return buf.Bytes(), err
+		},
 	}
 	return persistToFileFactory(deps)(state)
 }
