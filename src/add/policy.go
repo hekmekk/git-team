@@ -2,7 +2,6 @@ package add
 
 import (
 	"fmt"
-	"os" // TODO: remove this dependency aswell. dep: question: string -> answer: string
 	"strings"
 )
 
@@ -17,7 +16,7 @@ type Dependencies struct {
 	SanityCheckCoauthor func(string) error
 	GitAddAlias         func(string, string) error
 	GitResolveAlias     func(string) (string, error)
-	StdinReadLine       func() (string, error)
+	GetAnswerFromUser   func(string) (string, error)
 }
 
 const (
@@ -63,12 +62,11 @@ func Apply(deps Dependencies, req AssignmentRequest) interface{} {
 }
 
 func shouldAssignmentBeOverridden(deps Dependencies, alias, existingCoauthor, replacingCoauthor string) (bool, error) {
-	question := fmt.Sprintf("Alias '%s' -> '%s' exists already. Override with '%s'?", alias, existingCoauthor, replacingCoauthor)
-	os.Stdout.WriteString(fmt.Sprintf("%s [N/y] ", question)) // ignoring errors for now, unlikely
+	question := fmt.Sprintf("Alias '%s' -> '%s' exists already. Override with '%s'? [N/y] ", alias, existingCoauthor, replacingCoauthor)
 
-	answer, readErr := deps.StdinReadLine()
-	if readErr != nil {
-		return false, readErr
+	answer, err := deps.GetAnswerFromUser(question)
+	if err != nil {
+		return false, err
 	}
 
 	answer = strings.ToLower(strings.TrimSpace(strings.TrimRight(answer, "\n")))
