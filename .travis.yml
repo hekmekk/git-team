@@ -1,9 +1,16 @@
 language: go
 go:
-  - "1.12"
+  - 1.12.x
+os:
+  - linux
+  - osx
+dist:
+  - stretch
+  - buster
 sudo: required
 services:
   - docker
+install: true
 script:
-  - make test
-  - make acceptance-tests
+  - env GO111MODULE=on make test
+  - env GO111MODULE=on make acceptance-tests
