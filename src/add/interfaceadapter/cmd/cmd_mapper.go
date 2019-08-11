@@ -33,9 +33,15 @@ func NewDefinition(app *kingpin.Application) Definition {
 		},
 		Deps: add.Dependencies{
 			SanityCheckCoauthor: validation.SanityCheckCoauthor,
-			GitAddAlias:         gitconfig.AddAlias,
 			GitResolveAlias:     gitconfig.ResolveAlias,
-			StdinReadLine:       func() (string, error) { return bufio.NewReader(os.Stdin).ReadString('\n') },
+			GitAddAlias:         gitconfig.AddAlias,
+			GetAnswerFromUser: func(question string) (string, error) {
+				_, err := os.Stdout.WriteString(question)
+				if err != nil {
+					return "", err
+				}
+				return bufio.NewReader(os.Stdin).ReadString('\n')
+			},
 		},
 	}
 }

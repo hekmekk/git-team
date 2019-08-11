@@ -14,7 +14,7 @@ func TestAddShouldMakeTheNewAssignment(t *testing.T) {
 		SanityCheckCoauthor: func(coauthor string) error { return nil },
 		GitResolveAlias:     func(alias string) (string, error) { return "", errors.New("no such alias") },
 		GitAddAlias:         func(alias, coauthor string) error { return nil },
-		StdinReadLine:       func() (string, error) { return "", nil },
+		GetAnswerFromUser:   func(string) (string, error) { return "", nil },
 	}
 
 	expectedEvent := AssignmentSucceeded{Alias: alias, Coauthor: coauthor}
@@ -56,7 +56,7 @@ func TestAddShouldNotOverrideTheOriginalAssignment(t *testing.T) {
 		SanityCheckCoauthor: func(coauthor string) error { return nil },
 		GitResolveAlias:     func(alias string) (string, error) { return existingCoauthor, nil },
 		GitAddAlias:         func(alias, coauthor string) error { return nil },
-		StdinReadLine:       func() (string, error) { return "n", nil },
+		GetAnswerFromUser:   func(string) (string, error) { return "", nil },
 	}
 
 	expectedEvent := AssignmentAborted{Alias: alias, ExistingCoauthor: existingCoauthor, ReplacingCoauthor: replacingCoauthor}
@@ -78,7 +78,7 @@ func TestAddShouldOverrideTheOriginalAssignment(t *testing.T) {
 		SanityCheckCoauthor: func(coauthor string) error { return nil },
 		GitResolveAlias:     func(alias string) (string, error) { return existingCoauthor, nil },
 		GitAddAlias:         func(alias, coauthor string) error { return nil },
-		StdinReadLine:       func() (string, error) { return "y", nil },
+		GetAnswerFromUser:   func(string) (string, error) { return "y", nil },
 	}
 
 	expectedEvent := AssignmentSucceeded{Alias: alias, Coauthor: replacingCoauthor}
