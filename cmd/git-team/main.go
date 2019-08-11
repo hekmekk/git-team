@@ -128,7 +128,7 @@ func newApplication(author string, version string) application {
 
 	return application{
 		app:     app,
-		add:     addcmdadapter.New(app),
+		add:     addcmdadapter.NewDefinition(app),
 		remove:  newRemove(app),
 		enable:  newEnable(app),
 		disable: newDisable(app),
