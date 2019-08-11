@@ -65,45 +65,57 @@ func Apply(deps Dependencies, args Args) interface{} {
 		return AssignmentFailed{Reason: checkErr}
 	}
 
-	existingCoauthor := findExistingCoauthor(deps, alias)
+	shouldAskForOverride, existingCoauthor := findExistingCoauthor(deps, alias)
 
-	if "" != existingCoauthor {
-		reader := deps.StdinNewReader()
-		question := fmt.Sprintf("Alias '%s' -> '%s' exists already. Override with '%s'? [N/y] ", alias, existingCoauthor, coauthor)
-		os.Stdout.WriteString(question) // ignoring errors for now, unlikely
-		answer, readErr := deps.StdinReadLine(reader)
-		if readErr != nil {
-			return AssignmentFailed{Reason: readErr}
+	shouldAddAssignment := true
+	if shouldAskForOverride {
+		choice, err := shouldAssignmentBeOverridden(deps, alias, existingCoauthor, coauthor)
+		if err != nil {
+			return AssignmentFailed{Reason: err}
 		}
-		answer = strings.ToLower(strings.TrimSpace(strings.TrimRight(answer, "\n")))
-		switch answer {
-		case y, yes:
-			err := deps.GitAddAlias(alias, coauthor)
-			if err != nil {
-				return AssignmentFailed{Reason: err}
-			}
-			return AssignmentSucceeded{Alias: alias, Coauthor: coauthor}
-		default:
-			return AssignmentAborted{
-				Alias:             alias,
-				ExistingCoauthor:  existingCoauthor,
-				ReplacingCoauthor: coauthor,
-			}
-		}
-	}
-	err := deps.GitAddAlias(alias, coauthor)
-	if err != nil {
-		return AssignmentFailed{Reason: err}
+		shouldAddAssignment = choice
 	}
 
-	return AssignmentSucceeded{Alias: alias, Coauthor: coauthor}
+	switch shouldAddAssignment {
+	case true:
+		err := deps.GitAddAlias(alias, coauthor)
+		if err != nil {
+			return AssignmentFailed{Reason: err}
+		}
+		return AssignmentSucceeded{Alias: alias, Coauthor: coauthor}
+	default:
+		return AssignmentAborted{
+			Alias:             alias,
+			ExistingCoauthor:  existingCoauthor,
+			ReplacingCoauthor: coauthor,
+		}
+	}
 }
 
-func findExistingCoauthor(deps Dependencies, alias string) string {
+func shouldAssignmentBeOverridden(deps Dependencies, alias, existingCoauthor, replacingCoauthor string) (bool, error) {
+	reader := deps.StdinNewReader()
+
+	question := fmt.Sprintf("Alias '%s' -> '%s' exists already. Override with '%s'?", alias, existingCoauthor, replacingCoauthor)
+	os.Stdout.WriteString(fmt.Sprintf("%s [N/y] ", question)) // ignoring errors for now, unlikely
+
+	answer, readErr := deps.StdinReadLine(reader)
+	if readErr != nil {
+		return false, readErr
+	}
+	answer = strings.ToLower(strings.TrimSpace(strings.TrimRight(answer, "\n")))
+	switch answer {
+	case y, yes:
+		return true, nil
+	default:
+		return false, nil
+	}
+}
+
+func findExistingCoauthor(deps Dependencies, alias string) (bool, string) {
 	existingCoauthor, resolveErr := deps.GitResolveAlias(alias)
 	if resolveErr == nil {
-		return existingCoauthor
+		return true, existingCoauthor
 	}
 
-	return ""
+	return false, ""
 }
