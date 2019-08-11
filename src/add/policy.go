@@ -28,8 +28,7 @@ type Dependencies struct {
 	SanityCheckCoauthor func(string) error
 	GitAddAlias         func(string, string) error
 	GitResolveAlias     func(string) (string, error)
-	StdinNewReader      func() *bufio.Reader
-	StdinReadLine       func(reader *bufio.Reader) (string, error)
+	StdinReadLine       func() (string, error)
 }
 
 // New the constructor for Definition
@@ -44,8 +43,7 @@ func New(name string, alias, coauthor *string) Definition {
 			SanityCheckCoauthor: validation.SanityCheckCoauthor,
 			GitAddAlias:         gitconfig.AddAlias,
 			GitResolveAlias:     gitconfig.ResolveAlias,
-			StdinNewReader:      func() *bufio.Reader { return bufio.NewReader(os.Stdin) },
-			StdinReadLine:       func(reader *bufio.Reader) (string, error) { return reader.ReadString('\n') },
+			StdinReadLine:       func() (string, error) { return bufio.NewReader(os.Stdin).ReadString('\n') },
 		},
 	}
 }
@@ -93,15 +91,14 @@ func Apply(deps Dependencies, req AssignmentRequest) interface{} {
 }
 
 func shouldAssignmentBeOverridden(deps Dependencies, alias, existingCoauthor, replacingCoauthor string) (bool, error) {
-	reader := deps.StdinNewReader()
-
 	question := fmt.Sprintf("Alias '%s' -> '%s' exists already. Override with '%s'?", alias, existingCoauthor, replacingCoauthor)
 	os.Stdout.WriteString(fmt.Sprintf("%s [N/y] ", question)) // ignoring errors for now, unlikely
 
-	answer, readErr := deps.StdinReadLine(reader)
+	answer, readErr := deps.StdinReadLine()
 	if readErr != nil {
 		return false, readErr
 	}
+
 	answer = strings.ToLower(strings.TrimSpace(strings.TrimRight(answer, "\n")))
 	switch answer {
 	case y, yes:
