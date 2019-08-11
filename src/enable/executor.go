@@ -20,6 +20,7 @@ type Dependencies struct {
 	CreateDir         func(path string, perm os.FileMode) error
 	WriteFile         func(path string, data []byte, mode os.FileMode) error
 	SetCommitTemplate func(path string) error
+	GitSetHooksPath   func(path string) error
 	GitResolveAliases func(aliases []string) ([]string, []error)
 	PersistEnabled    func(coauthors []string) error
 }
@@ -70,6 +71,9 @@ func ExecutorFactory(deps Dependencies) func(cmd Command) []error {
 			return []error{err}
 		}
 		if err := deps.SetCommitTemplate(templatePath); err != nil {
+			return []error{err}
+		}
+		if err := deps.GitSetHooksPath(cfg.GitHooksPath); err != nil {
 			return []error{err}
 		}
 		if err := deps.PersistEnabled(uniqueCoauthors); err != nil {

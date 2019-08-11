@@ -7,6 +7,7 @@ import (
 // Config currently static config for git-team
 type Config struct {
 	BaseDir          string
+	GitHooksPath     string
 	TemplateFileName string
 	StatusFileName   string
 }
@@ -27,6 +28,11 @@ func executorFactory(deps dependencies) func() (Config, error) {
 			return Config{}, err
 		}
 
-		return Config{BaseDir: baseDir, TemplateFileName: "COMMIT_TEMPLATE", StatusFileName: "status.toml"}, nil
+		return Config{
+			BaseDir:          baseDir,
+			GitHooksPath:     "/usr/local/share/.config/git-team/hooks",
+			TemplateFileName: "COMMIT_TEMPLATE",
+			StatusFileName:   "status.toml",
+		}, nil
 	}
 }
