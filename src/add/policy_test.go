@@ -1,7 +1,6 @@
 package add
 
 import (
-	"bufio"
 	"errors"
 	"reflect"
 	"testing"
@@ -15,8 +14,7 @@ func TestAddShouldMakeTheNewAssignment(t *testing.T) {
 		SanityCheckCoauthor: func(coauthor string) error { return nil },
 		GitResolveAlias:     func(alias string) (string, error) { return "", errors.New("no such alias") },
 		GitAddAlias:         func(alias, coauthor string) error { return nil },
-		StdinNewReader:      func() *bufio.Reader { return nil },
-		StdinReadLine:       func(reader *bufio.Reader) (string, error) { return "", nil },
+		StdinReadLine:       func() (string, error) { return "", nil },
 	}
 
 	expectedEvent := AssignmentSucceeded{Alias: alias, Coauthor: coauthor}
@@ -58,8 +56,7 @@ func TestAddShouldNotOverrideTheOriginalAssignment(t *testing.T) {
 		SanityCheckCoauthor: func(coauthor string) error { return nil },
 		GitResolveAlias:     func(alias string) (string, error) { return existingCoauthor, nil },
 		GitAddAlias:         func(alias, coauthor string) error { return nil },
-		StdinNewReader:      func() *bufio.Reader { return nil },
-		StdinReadLine:       func(reader *bufio.Reader) (string, error) { return "n", nil },
+		StdinReadLine:       func() (string, error) { return "n", nil },
 	}
 
 	expectedEvent := AssignmentAborted{Alias: alias, ExistingCoauthor: existingCoauthor, ReplacingCoauthor: replacingCoauthor}
@@ -81,8 +78,7 @@ func TestAddShouldOverrideTheOriginalAssignment(t *testing.T) {
 		SanityCheckCoauthor: func(coauthor string) error { return nil },
 		GitResolveAlias:     func(alias string) (string, error) { return existingCoauthor, nil },
 		GitAddAlias:         func(alias, coauthor string) error { return nil },
-		StdinNewReader:      func() *bufio.Reader { return nil },
-		StdinReadLine:       func(reader *bufio.Reader) (string, error) { return "y", nil },
+		StdinReadLine:       func() (string, error) { return "y", nil },
 	}
 
 	expectedEvent := AssignmentSucceeded{Alias: alias, Coauthor: replacingCoauthor}
