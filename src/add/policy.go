@@ -25,10 +25,11 @@ type Args struct {
 
 // Dependencies the dependencies of the Runner
 type Dependencies struct {
-	GitAddAlias     func(string, string) error
-	GitResolveAlias func(string) (string, error)
-	StdinNewReader  func() *bufio.Reader
-	StdinReadLine   func(reader *bufio.Reader) (string, error)
+	SanityCheckCoauthor func(string) error
+	GitAddAlias         func(string, string) error
+	GitResolveAlias     func(string) (string, error)
+	StdinNewReader      func() *bufio.Reader
+	StdinReadLine       func(reader *bufio.Reader) (string, error)
 }
 
 // New the constructor for Definition
@@ -40,10 +41,11 @@ func New(name string, alias, coauthor *string) Definition {
 			Coauthor: coauthor,
 		},
 		Deps: Dependencies{
-			GitAddAlias:     gitconfig.AddAlias,
-			GitResolveAlias: gitconfig.ResolveAlias,
-			StdinNewReader:  func() *bufio.Reader { return bufio.NewReader(os.Stdin) },
-			StdinReadLine:   func(reader *bufio.Reader) (string, error) { return reader.ReadString('\n') },
+			SanityCheckCoauthor: validation.SanityCheckCoauthor,
+			GitAddAlias:         gitconfig.AddAlias,
+			GitResolveAlias:     gitconfig.ResolveAlias,
+			StdinNewReader:      func() *bufio.Reader { return bufio.NewReader(os.Stdin) },
+			StdinReadLine:       func(reader *bufio.Reader) (string, error) { return reader.ReadString('\n') },
 		},
 	}
 }
@@ -58,7 +60,7 @@ func Apply(deps Dependencies, args Args) interface{} {
 	alias := *args.Alias
 	coauthor := *args.Coauthor
 
-	checkErr := validation.SanityCheckCoauthor(coauthor) // TODO: Add as dependency. Has no side effects but doesn't need to be tested here.
+	checkErr := deps.SanityCheckCoauthor(coauthor)
 	if checkErr != nil {
 		return AssignmentFailed{Reason: checkErr}
 	}
