@@ -18,8 +18,8 @@ type Definition struct {
 	Deps        add.Dependencies
 }
 
-// New the constructor for Definition
-func New(app *kingpin.Application) Definition {
+// NewDefinition the constructor for Definition
+func NewDefinition(app *kingpin.Application) Definition {
 
 	command := app.Command("add", "Add a new or override an existing alias to co-author assignment")
 	alias := command.Arg("alias", "The alias to assign a co-author to").Required().String()
