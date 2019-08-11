@@ -1,18 +1,21 @@
 package add
 
 import (
+	"bufio"
 	"errors"
 	"reflect"
 	"testing"
 )
 
-func TestAddSucceeds(t *testing.T) {
+func TestAddShouldMakeTheNewAssignment(t *testing.T) {
 	alias := "mr"
 	coauthor := "Mr. Noujz <noujz@mr.se>"
 
 	deps := Dependencies{
 		GitResolveAlias: func(alias string) (string, error) { return "", errors.New("no such alias") },
-		AddGitAlias:     func(alias, coauthor string) error { return nil },
+		GitAddAlias:     func(alias, coauthor string) error { return nil },
+		StdinNewReader:  func() *bufio.Reader { return nil },
+		StdinReadLine:   func(reader *bufio.Reader) (string, error) { return "", nil },
 	}
 
 	expectedEvent := AssignmentSucceeded{Alias: alias, Coauthor: coauthor}
@@ -25,14 +28,32 @@ func TestAddSucceeds(t *testing.T) {
 	}
 }
 
-func TestAddShouldCheckForAnExistingAliasFirst(t *testing.T) {
+func TestAddShouldFailDueToProvidedCoauthorNotPassingSanityCheck(t *testing.T) {
+	alias := "mr"
+	coauthor := "INVALID COAUTHOR"
+
+	err := errors.New("Not a valid coauthor: INVALID COAUTHOR")
+
+	expectedEvent := AssignmentFailed{Reason: err}
+
+	event := Apply(Dependencies{}, Args{Alias: &alias, Coauthor: &coauthor})
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
+	}
+}
+
+func TestAddShouldNotOverrideTheOriginalAssignment(t *testing.T) {
 	alias := "mr"
 	existingCoauthor := "Mr. Green <green@mr.se>"
 	replacingCoauthor := "Mr. Noujz <noujz@mr.se>"
 
 	deps := Dependencies{
 		GitResolveAlias: func(alias string) (string, error) { return existingCoauthor, nil },
-		AddGitAlias:     func(alias, coauthor string) error { return nil },
+		GitAddAlias:     func(alias, coauthor string) error { return nil },
+		StdinNewReader:  func() *bufio.Reader { return nil },
+		StdinReadLine:   func(reader *bufio.Reader) (string, error) { return "n", nil },
 	}
 
 	expectedEvent := AssignmentAborted{Alias: alias, ExistingCoauthor: existingCoauthor, ReplacingCoauthor: replacingCoauthor}
@@ -45,20 +66,21 @@ func TestAddShouldCheckForAnExistingAliasFirst(t *testing.T) {
 	}
 }
 
-func TestAddFailsDueToProvidedCoauthorNotPassingSanityCheck(t *testing.T) {
+func TestAddShouldOverrideTheOriginalAssignment(t *testing.T) {
 	alias := "mr"
-	coauthor := "INVALID COAUTHOR"
-
-	err := errors.New("Not a valid coauthor: INVALID COAUTHOR")
+	existingCoauthor := "Mr. Green <green@mr.se>"
+	replacingCoauthor := "Mr. Noujz <noujz@mr.se>"
 
 	deps := Dependencies{
-		GitResolveAlias: func(alias string) (string, error) { return "", errors.New("no such alias") },
-		AddGitAlias:     func(alias, coauthor string) error { return nil },
+		GitResolveAlias: func(alias string) (string, error) { return existingCoauthor, nil },
+		GitAddAlias:     func(alias, coauthor string) error { return nil },
+		StdinNewReader:  func() *bufio.Reader { return nil },
+		StdinReadLine:   func(reader *bufio.Reader) (string, error) { return "y", nil },
 	}
 
-	expectedEvent := AssignmentFailed{Reason: err}
+	expectedEvent := AssignmentSucceeded{Alias: alias, Coauthor: replacingCoauthor}
 
-	event := Apply(deps, Args{Alias: &alias, Coauthor: &coauthor})
+	event := Apply(deps, Args{Alias: &alias, Coauthor: &replacingCoauthor})
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
@@ -66,7 +88,7 @@ func TestAddFailsDueToProvidedCoauthorNotPassingSanityCheck(t *testing.T) {
 	}
 }
 
-func TestAddFailsBecauseUnderlyingGitAddFails(t *testing.T) {
+func TestAddShouldFailBecauseUnderlyingGitAddFails(t *testing.T) {
 	alias := "mr"
 	coauthor := "Mr. Noujz <noujz@mr.se>"
 
@@ -74,7 +96,7 @@ func TestAddFailsBecauseUnderlyingGitAddFails(t *testing.T) {
 
 	deps := Dependencies{
 		GitResolveAlias: func(alias string) (string, error) { return "", errors.New("no such alias") },
-		AddGitAlias:     func(alias, coauthor string) error { return err },
+		GitAddAlias:     func(alias, coauthor string) error { return err },
 	}
 
 	expectedEvent := AssignmentFailed{Reason: err}

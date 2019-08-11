@@ -21,7 +21,6 @@ teardown() {
 
 @test "git-team: add should ask for override and apply it if user replies with yes" {
 	/usr/local/bin/git-team add noujz 'Mr. Green <green@mr.se>'
-	# note: due to injecting yes this way (or via <<< 'y') the two lines below will appear as one
 	run bash -c "yes | /usr/local/bin/git-team add noujz 'Mr. Noujz <noujz@mr.se>'"
 	assert_success
 	assert_line "Alias 'noujz' -> 'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Alias 'noujz' -> 'Mr. Noujz <noujz@mr.se>' has been added."
@@ -29,7 +28,6 @@ teardown() {
 
 @test "git-team: add should ask for override and abort if user replies with no" {
 	/usr/local/bin/git-team add noujz 'Mr. Green <green@mr.se>'
-	# note: due to injecting yes this way (or via <<< 'n') the two lines below will appear as one
 	run bash -c "yes 'n' | /usr/local/bin/git-team add noujz 'Mr. Noujz <noujz@mr.se>'"
 	assert_success
 	assert_line "Alias 'noujz' -> 'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed."
@@ -37,8 +35,14 @@ teardown() {
 
 @test "git-team: add should ask for override and abort if user replies with anything else" {
 	/usr/local/bin/git-team add noujz 'Mr. Green <green@mr.se>'
-	# note: due to injecting yes this way (or via <<< 'n') the two lines below will appear as one
 	run bash -c "echo 'foo' | /usr/local/bin/git-team add noujz 'Mr. Noujz <noujz@mr.se>'"
+	assert_success
+	assert_line "Alias 'noujz' -> 'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed."
+}
+
+@test "git-team: add should ask for override and abort if user just hits ENTER" {
+	/usr/local/bin/git-team add noujz 'Mr. Green <green@mr.se>'
+	run bash -c "echo '' | /usr/local/bin/git-team add noujz 'Mr. Noujz <noujz@mr.se>'"
 	assert_success
 	assert_line "Alias 'noujz' -> 'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed."
 }

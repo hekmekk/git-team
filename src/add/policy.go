@@ -2,7 +2,6 @@ package add
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -10,6 +9,13 @@ import (
 	"github.com/hekmekk/git-team/src/gitconfig"
 	"github.com/hekmekk/git-team/src/validation"
 )
+
+// Definition the command, arguments, and dependencies
+type Definition struct {
+	CommandName string
+	Args        Args
+	Deps        Dependencies
+}
 
 // Args the arguments of the Runner
 type Args struct {
@@ -19,15 +25,10 @@ type Args struct {
 
 // Dependencies the dependencies of the Runner
 type Dependencies struct {
-	AddGitAlias     func(string, string) error
+	GitAddAlias     func(string, string) error
 	GitResolveAlias func(string) (string, error)
-}
-
-// Definition the command, arguments, and dependencies
-type Definition struct {
-	CommandName string
-	Args        Args
-	Deps        Dependencies
+	StdinNewReader  func() *bufio.Reader
+	StdinReadLine   func(reader *bufio.Reader) (string, error)
 }
 
 // New the constructor for Definition
@@ -39,81 +40,61 @@ func New(name string, alias, coauthor *string) Definition {
 			Coauthor: coauthor,
 		},
 		Deps: Dependencies{
-			AddGitAlias:     gitconfig.AddAlias,
+			GitAddAlias:     gitconfig.AddAlias,
 			GitResolveAlias: gitconfig.ResolveAlias,
+			StdinNewReader:  func() *bufio.Reader { return bufio.NewReader(os.Stdin) },
+			StdinReadLine:   func(reader *bufio.Reader) (string, error) { return reader.ReadString('\n') },
 		},
 	}
 }
 
-// AssignmentFailed assignment of coauthor to alias failed with Reason
-type AssignmentFailed struct {
-	Reason error
-}
-
-// AssignmentSucceeded assignment of coauthor to alias succeeded
-type AssignmentSucceeded struct {
-	Alias    string
-	Coauthor string
-}
-
-// AssignmentAborted nothing happened
-type AssignmentAborted struct {
-	Alias             string
-	ExistingCoauthor  string
-	ReplacingCoauthor string
-}
-
 const (
-	y    string = "y"
-	yes  string = "yes"
-	n    string = "n"
-	no   string = "no"
-	none string = ""
+	y   string = "y"
+	yes string = "yes"
 )
 
-// TODO: need to inject io handling for unit tests
 // Apply assign a co-author to an alias
 func Apply(deps Dependencies, args Args) interface{} {
 	alias := *args.Alias
 	coauthor := *args.Coauthor
+
+	checkErr := validation.SanityCheckCoauthor(coauthor) // TODO: Add as dependency. Has no side effects but doesn't need to be tested here.
+	if checkErr != nil {
+		return AssignmentFailed{Reason: checkErr}
+	}
+
 	existingCoauthor := findExistingCoauthor(deps, alias)
 
 	if "" != existingCoauthor {
-		reader := bufio.NewReader(os.Stdin)
+		reader := deps.StdinNewReader()
 		question := fmt.Sprintf("Alias '%s' -> '%s' exists already. Override with '%s'? [N/y] ", alias, existingCoauthor, coauthor)
-		fmt.Print(question)
-		answer, readErr := reader.ReadString('\n')
+		os.Stdout.WriteString(question) // ignoring errors for now, unlikely
+		answer, readErr := deps.StdinReadLine(reader)
 		if readErr != nil {
 			return AssignmentFailed{Reason: readErr}
 		}
 		answer = strings.ToLower(strings.TrimSpace(strings.TrimRight(answer, "\n")))
 		switch answer {
 		case y, yes:
-			err := assignCoauthorToAlias(deps, alias, coauthor)
+			err := deps.GitAddAlias(alias, coauthor)
 			if err != nil {
 				return AssignmentFailed{Reason: err}
 			}
 			return AssignmentSucceeded{Alias: alias, Coauthor: coauthor}
-		case n, no, none:
+		default:
 			return AssignmentAborted{
 				Alias:             alias,
 				ExistingCoauthor:  existingCoauthor,
 				ReplacingCoauthor: coauthor,
 			}
-		default:
-			return AssignmentFailed{Reason: errors.New("invalid answer :|")}
 		}
 	}
-	err := assignCoauthorToAlias(deps, alias, coauthor)
+	err := deps.GitAddAlias(alias, coauthor)
 	if err != nil {
 		return AssignmentFailed{Reason: err}
 	}
 
 	return AssignmentSucceeded{Alias: alias, Coauthor: coauthor}
-}
-
-func shouldOverride(deps Dependencies, alias, existingCoauthor, replacingCoauthor string) bool {
-	return false
 }
 
 func findExistingCoauthor(deps Dependencies, alias string) string {
@@ -123,17 +104,4 @@ func findExistingCoauthor(deps Dependencies, alias string) string {
 	}
 
 	return ""
-}
-
-func assignCoauthorToAlias(deps Dependencies, alias string, coauthor string) error {
-	checkErr := validation.SanityCheckCoauthor(coauthor) // TODO: Add as dependency. Has no side effects but doesn't need to be tested here.
-	if checkErr != nil {
-		return checkErr
-	}
-
-	addErr := deps.AddGitAlias(alias, coauthor)
-	if addErr != nil {
-		return addErr
-	}
-	return nil
 }
