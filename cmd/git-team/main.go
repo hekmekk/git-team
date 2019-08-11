@@ -69,10 +69,10 @@ type enable struct {
 }
 
 func newEnable(app *kingpin.Application) enable {
-	command := app.Command("enable", "Provisions a git-commit template with the provided co-authors. A co-author must either be an alias or of the shape \"Name <email>\"").Default()
+	command := app.Command("enable", "Enables injection of the provided co-authors whenever `git-commit` is used").Default()
 	return enable{
 		command:             command,
-		aliasesAndCoauthors: command.Arg("coauthors", "Git co-authors").Strings(),
+		aliasesAndCoauthors: command.Arg("coauthors", "The co-authors for the next commit(s). A co-author must either be an alias or of the shape \"Name <email>\"").Strings(),
 	}
 }
 
@@ -127,7 +127,7 @@ func defineAdd(app *kingpin.Application) (string, *string, *string) {
 }
 
 func newApplication(author string, version string) application {
-	app := kingpin.New("git-team", "Command line interface for injecting one or more co-authors into a git commit message template.")
+	app := kingpin.New("git-team", "Command line interface for managing and enhancing git commit messages with co-authors.")
 
 	app.HelpFlag.Short('h')
 	app.Version(version)
