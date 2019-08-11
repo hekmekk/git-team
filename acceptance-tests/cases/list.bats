@@ -1,29 +1,32 @@
 #!/usr/bin/env bats
 
+load '/bats-libs/bats-support/load.bash'
+load '/bats-libs/bats-assert/load.bash'
+
 setup() {
 	/usr/local/bin/git-team add a 'A <a@x.y>'
 	/usr/local/bin/git-team add b 'B <b@x.y>'
 	/usr/local/bin/git-team add c 'C <c@x.y>'
 }
 
-@test "list" {
+@test "git-team: list should show all alias -> coauthor assignments" {
   run /usr/local/bin/git-team list
-  [ "$status" -eq 0 ]
-  [ "${lines[0]}" = "Aliases:" ]
-  [ "${lines[1]}" = "--------" ]
-  [ "${lines[2]}" = "'a' -> 'A <a@x.y>'" ]
-  [ "${lines[3]}" = "'b' -> 'B <b@x.y>'" ]
-  [ "${lines[4]}" = "'c' -> 'C <c@x.y>'" ]
+  assert_success
+  assert_line --index 0 'Aliases:'
+  assert_line --index 1 '--------' ]
+  assert_line --index 2 "'a' -> 'A <a@x.y>'"
+  assert_line --index 3 "'b' -> 'B <b@x.y>'"
+  assert_line --index 4 "'c' -> 'C <c@x.y>'"
 }
 
-@test "ls" {
+@test "git-team: ls should show all alias -> coauthor assignments" {
   run /usr/local/bin/git-team ls
-  [ "$status" -eq 0 ]
-  [ "${lines[0]}" = "Aliases:" ]
-  [ "${lines[1]}" = "--------" ]
-  [ "${lines[2]}" = "'a' -> 'A <a@x.y>'" ]
-  [ "${lines[3]}" = "'b' -> 'B <b@x.y>'" ]
-  [ "${lines[4]}" = "'c' -> 'C <c@x.y>'" ]
+  assert_success
+  assert_line --index 0 'Aliases:'
+  assert_line --index 1 '--------' ]
+  assert_line --index 2 "'a' -> 'A <a@x.y>'"
+  assert_line --index 3 "'b' -> 'B <b@x.y>'"
+  assert_line --index 4 "'c' -> 'C <c@x.y>'"
 }
 
 teardown() {

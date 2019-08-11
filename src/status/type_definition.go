@@ -20,6 +20,10 @@ type state struct {
 	Coauthors []string   `toml:"co-authors"`
 }
 
+func (state state) IsEnabled() bool {
+	return state.Status == enabled
+}
+
 func (state state) ToString() string {
 	var buffer bytes.Buffer
 	switch state.Status {

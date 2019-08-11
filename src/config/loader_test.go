@@ -11,7 +11,12 @@ func TestLoadSucceeds(t *testing.T) {
 
 	deps := dependencies{expandHomedir: func(path string) (string, error) { return expectedBaseDir, nil }}
 
-	expectedCfg := Config{BaseDir: expectedBaseDir, TemplateFileName: "COMMIT_TEMPLATE", StatusFileName: "status.toml"}
+	expectedCfg := Config{
+		BaseDir:          expectedBaseDir,
+		GitHooksPath:     "/usr/local/share/.config/git-team/hooks",
+		TemplateFileName: "COMMIT_TEMPLATE",
+		StatusFileName:   "status.toml",
+	}
 
 	cfg, err := executorFactory(deps)()
 

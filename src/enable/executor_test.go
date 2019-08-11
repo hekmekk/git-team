@@ -14,6 +14,7 @@ func TestEnableSucceeds(t *testing.T) {
 	expectedPersistEnabledCoauthors := []string{"Mr. Noujz <noujz@mr.se>", "Mrs. Noujz <noujz@mrs.se>"}
 	expectedCommitTemplateCoauthors := "\n\nCo-authored-by: Mr. Noujz <noujz@mr.se>\nCo-authored-by: Mrs. Noujz <noujz@mrs.se>"
 
+	setHooksPath := func(string) error { return nil }
 	createDir := func(string, os.FileMode) error { return nil }
 	writeFile := func(_ string, data []byte, _ os.FileMode) error {
 		if expectedCommitTemplateCoauthors != string(data) {
@@ -37,6 +38,7 @@ func TestEnableSucceeds(t *testing.T) {
 	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
+		GitSetHooksPath:   setHooksPath,
 		SetCommitTemplate: setCommitTemplate,
 		GitResolveAliases: resolveAliases,
 		PersistEnabled:    persistEnabled,
@@ -61,6 +63,7 @@ func TestEnableDropsDuplicateEntries(t *testing.T) {
 	expectedPersistEnabledCoauthors := []string{"Mr. Noujz <noujz@mr.se>", "Mrs. Noujz <noujz@mrs.se>"}
 	expectedCommitTemplateCoauthors := "\n\nCo-authored-by: Mr. Noujz <noujz@mr.se>\nCo-authored-by: Mrs. Noujz <noujz@mrs.se>"
 
+	setHooksPath := func(string) error { return nil }
 	createDir := func(string, os.FileMode) error { return nil }
 	writeFile := func(_ string, data []byte, _ os.FileMode) error {
 		if expectedCommitTemplateCoauthors != string(data) {
@@ -84,6 +87,7 @@ func TestEnableDropsDuplicateEntries(t *testing.T) {
 	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
+		GitSetHooksPath:   setHooksPath,
 		SetCommitTemplate: setCommitTemplate,
 		GitResolveAliases: resolveAliases,
 		PersistEnabled:    persistEnabled,
@@ -108,6 +112,7 @@ func TestEnableFailsDueToSanityCheckErr(t *testing.T) {
 
 	expectedErr := errors.New("Not a valid coauthor: INVALID COAUTHOR")
 
+	setHooksPath := func(string) error { return nil }
 	createDir := func(string, os.FileMode) error { return nil }
 	writeFile := func(string, []byte, os.FileMode) error { return nil }
 	setCommitTemplate := func(string) error { return nil }
@@ -119,6 +124,7 @@ func TestEnableFailsDueToSanityCheckErr(t *testing.T) {
 	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
+		GitSetHooksPath:   setHooksPath,
 		SetCommitTemplate: setCommitTemplate,
 		GitResolveAliases: resolveAliases,
 		PersistEnabled:    persistEnabled,
@@ -139,6 +145,7 @@ func TestEnableFailsDueToResolveAliasesErr(t *testing.T) {
 
 	expectedErr := errors.New("failed to resolve alias mrs")
 
+	setHooksPath := func(string) error { return nil }
 	createDir := func(string, os.FileMode) error { return nil }
 	writeFile := func(string, []byte, os.FileMode) error { return nil }
 	setCommitTemplate := func(string) error { return nil }
@@ -149,6 +156,7 @@ func TestEnableFailsDueToResolveAliasesErr(t *testing.T) {
 	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
+		GitSetHooksPath:   setHooksPath,
 		SetCommitTemplate: setCommitTemplate,
 		GitResolveAliases: resolveAliases,
 		PersistEnabled:    persistEnabled,
@@ -169,6 +177,7 @@ func TestEnableFailsDueToLoadConfigErr(t *testing.T) {
 
 	expectedErr := errors.New("failed to load config")
 
+	setHooksPath := func(string) error { return nil }
 	createDir := func(string, os.FileMode) error { return nil }
 	writeFile := func(string, []byte, os.FileMode) error { return nil }
 	setCommitTemplate := func(string) error { return nil }
@@ -179,6 +188,7 @@ func TestEnableFailsDueToLoadConfigErr(t *testing.T) {
 	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
+		GitSetHooksPath:   setHooksPath,
 		SetCommitTemplate: setCommitTemplate,
 		GitResolveAliases: resolveAliases,
 		PersistEnabled:    persistEnabled,
@@ -199,6 +209,7 @@ func TestEnableFailsDueToCreateDirErr(t *testing.T) {
 
 	expectedErr := errors.New("Failed to create Dir")
 
+	setHooksPath := func(string) error { return nil }
 	createDir := func(string, os.FileMode) error { return expectedErr }
 	writeFile := func(string, []byte, os.FileMode) error { return nil }
 	setCommitTemplate := func(string) error { return nil }
@@ -210,6 +221,7 @@ func TestEnableFailsDueToCreateDirErr(t *testing.T) {
 	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
+		GitSetHooksPath:   setHooksPath,
 		SetCommitTemplate: setCommitTemplate,
 		GitResolveAliases: resolveAliases,
 		PersistEnabled:    persistEnabled,
@@ -230,6 +242,7 @@ func TestEnableFailsDueToWriteFileErr(t *testing.T) {
 
 	expectedErr := errors.New("Failed to write file")
 
+	setHooksPath := func(string) error { return nil }
 	createDir := func(string, os.FileMode) error { return nil }
 	writeFile := func(string, []byte, os.FileMode) error { return expectedErr }
 	setCommitTemplate := func(string) error { return nil }
@@ -241,6 +254,7 @@ func TestEnableFailsDueToWriteFileErr(t *testing.T) {
 	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
+		GitSetHooksPath:   setHooksPath,
 		SetCommitTemplate: setCommitTemplate,
 		GitResolveAliases: resolveAliases,
 		PersistEnabled:    persistEnabled,
@@ -261,6 +275,7 @@ func TestEnableFailsDueToSetCommitTemplateErr(t *testing.T) {
 
 	expectedErr := errors.New("Failed to set commit template")
 
+	setHooksPath := func(string) error { return nil }
 	createDir := func(string, os.FileMode) error { return nil }
 	writeFile := func(string, []byte, os.FileMode) error { return nil }
 	setCommitTemplate := func(string) error { return expectedErr }
@@ -272,6 +287,40 @@ func TestEnableFailsDueToSetCommitTemplateErr(t *testing.T) {
 	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
+		GitSetHooksPath:   setHooksPath,
+		SetCommitTemplate: setCommitTemplate,
+		GitResolveAliases: resolveAliases,
+		PersistEnabled:    persistEnabled,
+		LoadConfig:        loadConfig,
+	}
+	execEnable := ExecutorFactory(deps)
+
+	cmd := Command{
+		Coauthors: coAuthorsAndAliases,
+	}
+
+	errs := execEnable(cmd)
+	assertEqualsErr(t, expectedErr, errs)
+}
+
+func TestEnableFailsDueToSetHooksPathErr(t *testing.T) {
+	coAuthorsAndAliases := []string{"Mr. Noujz <noujz@mr.se>"}
+
+	expectedErr := errors.New("Failed to set hooks path")
+
+	setHooksPath := func(string) error { return expectedErr }
+	createDir := func(string, os.FileMode) error { return nil }
+	writeFile := func(string, []byte, os.FileMode) error { return nil }
+	setCommitTemplate := func(string) error { return nil }
+	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
+	persistEnabled := func([]string) error { return nil }
+	cfg := config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
+	loadConfig := func() (config.Config, error) { return cfg, nil }
+
+	deps := Dependencies{
+		CreateDir:         createDir,
+		WriteFile:         writeFile,
+		GitSetHooksPath:   setHooksPath,
 		SetCommitTemplate: setCommitTemplate,
 		GitResolveAliases: resolveAliases,
 		PersistEnabled:    persistEnabled,
@@ -292,6 +341,7 @@ func TestEnableFailsDueToSaveStatusErr(t *testing.T) {
 
 	expectedErr := errors.New("Failed to set status")
 
+	setHooksPath := func(string) error { return nil }
 	createDir := func(string, os.FileMode) error { return nil }
 	writeFile := func(string, []byte, os.FileMode) error { return nil }
 	setCommitTemplate := func(string) error { return nil }
@@ -303,6 +353,7 @@ func TestEnableFailsDueToSaveStatusErr(t *testing.T) {
 	deps := Dependencies{
 		CreateDir:         createDir,
 		WriteFile:         writeFile,
+		GitSetHooksPath:   setHooksPath,
 		SetCommitTemplate: setCommitTemplate,
 		GitResolveAliases: resolveAliases,
 		PersistEnabled:    persistEnabled,

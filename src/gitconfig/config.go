@@ -6,24 +6,31 @@ import (
 	"strings"
 )
 
+const hooksPath = "core.hooksPath"
 const commitTemplate = "commit.template"
 const teamAlias = "team.alias"
 
-// SetCommitTemplate set "commit.template" globally
+// SetHooksPath set your global "core.hooksPath"
+func SetHooksPath(path string) error {
+	_, err := execGitConfig("--add", hooksPath, path)
+	return err
+}
+
+// UnsetHooksPath unset your global "core.hooksPath"
+func UnsetHooksPath() error {
+	_, err := execGitConfig("--unset-all", hooksPath)
+	return err
+}
+
+// SetCommitTemplate set your global "commit.template" globally
 func SetCommitTemplate(path string) error {
-	_, err := execGitConfig(commitTemplate, path)
+	_, err := execGitConfig("--add", commitTemplate, path)
 	return err
 }
 
 // UnsetCommitTemplate unset your global "commit.template"
 func UnsetCommitTemplate() error {
-	_, err := execGitConfig("--unset", commitTemplate)
-	return err
-}
-
-// RemoveCommitSection remove your global config section "commit"
-func RemoveCommitSection() error {
-	_, err := execGitConfig("--remove-section", "commit")
+	_, err := execGitConfig("--unset-all", commitTemplate)
 	return err
 }
 

@@ -7,18 +7,13 @@ import (
 
 func TestRmSucceeds(t *testing.T) {
 	alias := "mr"
-	coAuthor := "Mr. Noujz <noujz@mr.se>"
-
-	resolve := func(alias string) (string, error) {
-		return coAuthor, nil
-	}
 
 	remove := func(alias string) error {
 		return nil
 	}
 
-	execAdd := ExecutorFactory(Dependencies{GitResolveAlias: resolve, GitRemoveAlias: remove})
-	err := execAdd(Command{Alias: alias})
+	execRemove := executorFactory(dependencies{GitRemoveAlias: remove})
+	err := execRemove(Command{Alias: alias})
 
 	if err != nil {
 		t.Error(err)
@@ -26,19 +21,15 @@ func TestRmSucceeds(t *testing.T) {
 	}
 }
 
-func TestRmSucceedsRegardlessOfResolveError(t *testing.T) {
+func TestRmSucceedsWhenTryingToRemoveANonExistingAlias(t *testing.T) {
 	alias := "mr"
 
-	resolve := func(alias string) (string, error) {
-		return "", errors.New("no such alias")
-	}
-
 	remove := func(alias string) error {
-		return nil
+		return errors.New("exit status 5")
 	}
 
-	execAdd := ExecutorFactory(Dependencies{GitResolveAlias: resolve, GitRemoveAlias: remove})
-	err := execAdd(Command{Alias: alias})
+	execRemove := executorFactory(dependencies{GitRemoveAlias: remove})
+	err := execRemove(Command{Alias: alias})
 
 	if err != nil {
 		t.Error(err)
@@ -48,18 +39,13 @@ func TestRmSucceedsRegardlessOfResolveError(t *testing.T) {
 
 func TestRmFailsBecauseUnderlyingGitRemoveFails(t *testing.T) {
 	alias := "mr"
-	coAuthor := "Mr. Noujz <noujz@mr.se>"
-
-	resolve := func(alias string) (string, error) {
-		return coAuthor, nil
-	}
 
 	remove := func(alias string) error {
 		return errors.New("git remove command failed")
 	}
 
-	execAdd := ExecutorFactory(Dependencies{GitResolveAlias: resolve, GitRemoveAlias: remove})
-	err := execAdd(Command{Alias: alias})
+	execRemove := executorFactory(dependencies{GitRemoveAlias: remove})
+	err := execRemove(Command{Alias: alias})
 
 	if err == nil {
 		t.Error("Expected remove to fail")

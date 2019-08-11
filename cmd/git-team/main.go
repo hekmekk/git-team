@@ -16,13 +16,13 @@ import (
 	execDisable "github.com/hekmekk/git-team/src/disable"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
 	git "github.com/hekmekk/git-team/src/gitconfig"
-	removeExecutor "github.com/hekmekk/git-team/src/remove"
+	rm "github.com/hekmekk/git-team/src/remove"
 	statusApi "github.com/hekmekk/git-team/src/status"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
-	version = "v1.3.0-alpha1"
+	version = "v1.3.0-rc2"
 	author  = "Rea Sand <hekmek@posteo.de>"
 )
 
@@ -56,10 +56,10 @@ type remove struct {
 }
 
 func newRemove(app *kingpin.Application) remove {
-	command := app.Command("rm", "Remove an alias")
+	command := app.Command("rm", "Remove an alias to co-author assignment")
 	return remove{
 		command: command,
-		alias:   command.Arg("alias", "The alias to be removed").Required().String(),
+		alias:   command.Arg("alias", "The alias to identify the assignment to be removed").Required().String(),
 	}
 }
 
@@ -69,10 +69,10 @@ type enable struct {
 }
 
 func newEnable(app *kingpin.Application) enable {
-	command := app.Command("enable", "Provisions a git-commit template with the provided co-authors. A co-author must either be an alias or of the shape \"Name <email>\"").Default()
+	command := app.Command("enable", "Enables injection of the provided co-authors whenever `git-commit` is used").Default()
 	return enable{
 		command:             command,
-		aliasesAndCoauthors: command.Arg("coauthors", "Git co-authors").Strings(),
+		aliasesAndCoauthors: command.Arg("coauthors", "The co-authors for the next commit(s). A co-author must either be an alias or of the shape \"Name <email>\"").Strings(),
 	}
 }
 
@@ -101,8 +101,8 @@ type list struct {
 }
 
 func newList(app *kingpin.Application) list {
-	command := app.Command("list", "List currently available aliases")
-	command.Alias("ls")
+	command := app.Command("ls", "List currently available aliases")
+	command.Alias("list")
 	return list{
 		command: command,
 	}
@@ -119,15 +119,15 @@ type application struct {
 }
 
 func defineAdd(app *kingpin.Application) (string, *string, *string) {
-	command := app.Command("add", "Add an alias")
-	alias := command.Arg("alias", "The alias to be added").Required().String()
+	command := app.Command("add", "Add a new or override an existing alias to co-author assignment")
+	alias := command.Arg("alias", "The alias to assign a co-author to").Required().String()
 	coauthor := command.Arg("coauthor", "The co-author").Required().String()
 
 	return command.FullCommand(), alias, coauthor
 }
 
 func newApplication(author string, version string) application {
-	app := kingpin.New("git-team", "Command line interface for creating git commit templates provisioned with one or more co-authors. Please note that \"git commit -m\" is not affected by commit templates.")
+	app := kingpin.New("git-team", "Command line interface for managing and enhancing git commit messages with co-authors.")
 
 	app.HelpFlag.Short('h')
 	app.Version(version)
@@ -145,19 +145,13 @@ func newApplication(author string, version string) application {
 }
 
 func runRemove(remove remove) {
-	rmDeps := removeExecutor.Dependencies{
-		GitResolveAlias: git.ResolveAlias,
-		GitRemoveAlias:  git.RemoveAlias,
-	}
-	execRemove := removeExecutor.ExecutorFactory(rmDeps)
-
 	removeAlias := *remove.alias
 
-	cmd := removeExecutor.Command{
+	cmd := rm.Command{
 		Alias: removeAlias,
 	}
 
-	rmErr := execRemove(cmd)
+	rmErr := rm.Exec(cmd)
 	exitIfErr(rmErr)
 
 	color.Red(fmt.Sprintf("Alias '%s' has been removed.", removeAlias))
@@ -169,6 +163,7 @@ func runEnable(enable enable) {
 		CreateDir:         os.MkdirAll,           // TODO: CreateTemplateDir
 		WriteFile:         ioutil.WriteFile,      // TODO: WriteTemplateFile
 		SetCommitTemplate: git.SetCommitTemplate, // TODO: GitSetCommitTemplate
+		GitSetHooksPath:   git.SetHooksPath,
 		GitResolveAliases: git.ResolveAliases,
 		PersistEnabled:    statusApi.PersistEnabled,
 		LoadConfig:        config.Load,

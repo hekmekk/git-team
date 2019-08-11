@@ -2,7 +2,7 @@
 
 # git-team
 
-Command line interface for creating git commit templates provisioned with one or more co-authors.
+Command line interface for managing and enhancing `git commit` messages with co-authors.
 
 ## Installation
 #### via [apt-sourc.es](https://apt-sourc.es)
@@ -43,52 +43,39 @@ sudo make install
 
 ## Usage
 
-#### Setup some aliases
+#### Setup some aliases for convenience
 ```bash
 git team add noujz "Mr. Noujz <noujz@mr.se>"
 ```
 
-To review your current aliases use:
+To review your current alias to co-author assignments use:
 ```bash
-git team list
+git team ls
 ```
 
-To remove an alias use:
+To remove an assignment use:
 ```bash
 git team rm noujz
 ```
 
-#### Provision a commit template
-This alias (along with others) can then be used as an argument to the `enable` command and will be resolved while parsing the command line.
-```bash
-git team [enable] noujz
-```
+#### Set active co-authors
 Apart from one or more aliases, you may provide a properly formatted co-author aswell.
 ```bash
 git team [enable] noujz <alias1> ... <aliasN> "Mr. Green <green@mr.se>"
 ```
 
 #### Commit some
-Just use `git commit`. Please note that templates don't affect `-m`.
+Just use `git commit` or `git commit -m <msg>`.
 
 #### Back to being a loner
 ```bash
 git team disable
 ```
 
-## Uninstall
-```bash
-sudo make purge
-```
-
 ## Similar projects
 - [git mob](https://www.npmjs.com/package/git-mob)
 
 ## TODOs
-- refactor: add `assign` and `unassign` but keep `add` and `rm` as aliases for backwards compatibility
-- refactor: make `ls` the command and `list` the alias for backwards compatibility
-- refactor: consolidate "persistence backends" `git config` and git-team status file
-- feat: make it possible to rm multiple aliases
-- feat: when adding an existing alias, ask for override
-- feat: use current COMMIT TEMPLATE if one exists
+- **internal quality:** apply pattern as exemplified by `add`
+- **internal quality:** refactor `Dockerfile`s and `Makefile` for a better development experience
 
