@@ -5,4 +5,5 @@ sudo: required
 services:
   - docker
 script:
+  - make test
   - make acceptance-tests
