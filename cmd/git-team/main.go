@@ -110,20 +110,12 @@ func newList(app *kingpin.Application) list {
 
 type application struct {
 	app     *kingpin.Application
-	add     addPolicy.Definition
+	add     addInterfaceAdapter.Definition
 	remove  remove
 	enable  enable
 	disable disable
 	status  status
 	list    list
-}
-
-func defineAdd(app *kingpin.Application) (string, *string, *string) {
-	command := app.Command("add", "Add a new or override an existing alias to co-author assignment")
-	alias := command.Arg("alias", "The alias to assign a co-author to").Required().String()
-	coauthor := command.Arg("coauthor", "The co-author").Required().String()
-
-	return command.FullCommand(), alias, coauthor
 }
 
 func newApplication(author string, version string) application {
@@ -135,7 +127,7 @@ func newApplication(author string, version string) application {
 
 	return application{
 		app:     app,
-		add:     addPolicy.New(defineAdd(app)),
+		add:     addInterfaceAdapter.New(app),
 		remove:  newRemove(app),
 		enable:  newEnable(app),
 		disable: newDisable(app),
