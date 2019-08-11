@@ -31,7 +31,7 @@ func main() {
 
 	switch kingpin.MustParse(application.app.Parse(os.Args[1:])) {
 	case application.add.CommandName:
-		effects := addInterfaceAdapter.MapAddEventToEffects(addPolicy.Apply(application.add.Deps, application.add.Args))
+		effects := addInterfaceAdapter.MapAddEventToEffects(addPolicy.Apply(application.add.Deps, application.add.Request))
 		for _, effect := range effects {
 			effect.Run()
 		}

@@ -21,7 +21,7 @@ func TestAddShouldMakeTheNewAssignment(t *testing.T) {
 
 	expectedEvent := AssignmentSucceeded{Alias: alias, Coauthor: coauthor}
 
-	event := Apply(deps, Args{Alias: &alias, Coauthor: &coauthor})
+	event := Apply(deps, AssignmentRequest{Alias: &alias, Coauthor: &coauthor})
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
@@ -41,7 +41,7 @@ func TestAddShouldFailDueToProvidedCoauthorNotPassingSanityCheck(t *testing.T) {
 
 	expectedEvent := AssignmentFailed{Reason: err}
 
-	event := Apply(deps, Args{Alias: &alias, Coauthor: &coauthor})
+	event := Apply(deps, AssignmentRequest{Alias: &alias, Coauthor: &coauthor})
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
@@ -64,7 +64,7 @@ func TestAddShouldNotOverrideTheOriginalAssignment(t *testing.T) {
 
 	expectedEvent := AssignmentAborted{Alias: alias, ExistingCoauthor: existingCoauthor, ReplacingCoauthor: replacingCoauthor}
 
-	event := Apply(deps, Args{Alias: &alias, Coauthor: &replacingCoauthor})
+	event := Apply(deps, AssignmentRequest{Alias: &alias, Coauthor: &replacingCoauthor})
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
@@ -87,7 +87,7 @@ func TestAddShouldOverrideTheOriginalAssignment(t *testing.T) {
 
 	expectedEvent := AssignmentSucceeded{Alias: alias, Coauthor: replacingCoauthor}
 
-	event := Apply(deps, Args{Alias: &alias, Coauthor: &replacingCoauthor})
+	event := Apply(deps, AssignmentRequest{Alias: &alias, Coauthor: &replacingCoauthor})
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
@@ -109,7 +109,7 @@ func TestAddShouldFailBecauseUnderlyingGitAddFails(t *testing.T) {
 
 	expectedEvent := AssignmentFailed{Reason: err}
 
-	event := Apply(deps, Args{Alias: &alias, Coauthor: &coauthor})
+	event := Apply(deps, AssignmentRequest{Alias: &alias, Coauthor: &coauthor})
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)

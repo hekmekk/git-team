@@ -13,12 +13,12 @@ import (
 // Definition the command, arguments, and dependencies
 type Definition struct {
 	CommandName string
-	Args        Args
+	Request     AssignmentRequest
 	Deps        Dependencies
 }
 
-// Args the arguments of the Runner
-type Args struct {
+// AssignmentRequest the arguments of the Runner
+type AssignmentRequest struct {
 	Alias    *string
 	Coauthor *string
 }
@@ -36,7 +36,7 @@ type Dependencies struct {
 func New(name string, alias, coauthor *string) Definition {
 	return Definition{
 		CommandName: name,
-		Args: Args{
+		Request: AssignmentRequest{
 			Alias:    alias,
 			Coauthor: coauthor,
 		},
@@ -56,9 +56,9 @@ const (
 )
 
 // Apply assign a co-author to an alias
-func Apply(deps Dependencies, args Args) interface{} {
-	alias := *args.Alias
-	coauthor := *args.Coauthor
+func Apply(deps Dependencies, req AssignmentRequest) interface{} {
+	alias := *req.Alias
+	coauthor := *req.Coauthor
 
 	checkErr := deps.SanityCheckCoauthor(coauthor)
 	if checkErr != nil {
