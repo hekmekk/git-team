@@ -3,7 +3,6 @@ go:
   - 1.12.x
 os:
   - linux
-  - osx
 dist:
   - stretch
   - buster
@@ -13,4 +12,4 @@ services:
 install: true
 script:
   - env GO111MODULE=on make test
-  - env GO111MODULE=on make acceptance-tests
+  - make acceptance-tests
