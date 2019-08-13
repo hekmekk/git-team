@@ -29,8 +29,7 @@ func Apply(deps Dependencies, req AssignmentRequest) interface{} {
 	alias := *req.Alias
 	coauthor := *req.Coauthor
 
-	checkErr := deps.SanityCheckCoauthor(coauthor)
-	if checkErr != nil {
+	if checkErr := deps.SanityCheckCoauthor(coauthor); checkErr != nil {
 		return AssignmentFailed{Reason: checkErr}
 	}
 
@@ -45,20 +44,20 @@ func Apply(deps Dependencies, req AssignmentRequest) interface{} {
 		shouldAddAssignment = choice
 	}
 
-	switch shouldAddAssignment {
-	case true:
-		err := deps.GitAddAlias(alias, coauthor)
-		if err != nil {
-			return AssignmentFailed{Reason: err}
-		}
-		return AssignmentSucceeded{Alias: alias, Coauthor: coauthor}
-	default:
+	if !shouldAddAssignment {
 		return AssignmentAborted{
 			Alias:             alias,
 			ExistingCoauthor:  existingCoauthor,
 			ReplacingCoauthor: coauthor,
 		}
 	}
+
+	err := deps.GitAddAlias(alias, coauthor)
+	if err != nil {
+		return AssignmentFailed{Reason: err}
+	}
+
+	return AssignmentSucceeded{Alias: alias, Coauthor: coauthor}
 }
 
 func shouldAssignmentBeOverridden(deps Dependencies, alias, existingCoauthor, replacingCoauthor string) (bool, error) {
