@@ -29,6 +29,10 @@ parser:option "--github-api-token"
 parser:option "--git-team-version"
 parser:option "--git-team-deb-path"
 
+function is_pre_release(version)
+  return version:match('^v%d.%d.%d$') == nil
+end
+
 function find_release_in_tags(releases_uri, version)
   local respbody = {}
 
@@ -113,7 +117,7 @@ function update_release(github_api_token, releases_uri, release_id, request_body
 end
 
 function create_release(releases_uri, github_api_token, version)
-  local reqbody = json.encode({ tag_name = version, body = '', name = version })
+  local reqbody = json.encode({ tag_name = version, body = '', name = version, prerelease = is_pre_release(version) })
   local respbody = {}
 
   local result, respcode, respheaders, respstatus = https.request {
