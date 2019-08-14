@@ -25,6 +25,9 @@ fmt:
 	go fmt ./src/...
 
 build: clean deps
+ifndef GOPATH
+	$(error GOPATH is not set)
+endif
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install ./cmd/...
 	mkdir -p $(CURR_DIR)/pkg/target/bin
 	mv $(GOPATH)/bin/git-team $(CURR_DIR)/pkg/target/bin/git-team
