@@ -76,6 +76,7 @@ git team disable
 - [git mob](https://www.npmjs.com/package/git-mob)
 
 ## TODOs
+- **releases:** make it available via `homebrew`
 - **internal quality:** apply pattern as exemplified by `add`
 - **internal quality:** refactor `Dockerfile`s and `Makefile` for a better development experience
 
