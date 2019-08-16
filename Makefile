@@ -63,13 +63,13 @@ package-build: clean
 	cp -r bash_completion pkg/src/
 	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-pkg:v$(VERSION) pkg/
 
-package: package-build
-	mkdir -p pkg/target/deb
-	chown -R $(shell id -u):$(shell id -g) pkg/target/deb
-	docker run --rm -h git-team-pkg -v $(CURR_DIR)/pkg/target/deb:/deb-target git-team-pkg:v$(VERSION) fpm \
+deb rpm: package-build
+	mkdir -p pkg/target/$@
+	chown -R $(shell id -u):$(shell id -g) pkg/target/$@
+	docker run --rm -h git-team-pkg -v $(CURR_DIR)/pkg/target/$@:/deb-target git-team-pkg:v$(VERSION) fpm \
 		-f \
 		-s dir \
-		-t deb \
+		-t $@ \
 		-n "git-team" \
 		-v $(VERSION) \
 		-m "Rea Sand <hekmek@posteo.de>" \
@@ -82,6 +82,8 @@ package: package-build
 		pkg/target/bin/prepare-commit-msg=/usr/local/share/.config/git-team/hooks/prepare-commit-msg \
 		bash_completion/git-team.bash=/etc/bash_completion.d/git-team \
 		pkg/target/man/git-team.1.gz=/usr/share/man/man1/git-team.1.gz
+
+package: deb rpm
 
 release: package
 ifndef GITHUB_API_TOKEN

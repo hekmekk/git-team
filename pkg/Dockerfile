@@ -14,7 +14,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
 	build-essential \
 	ruby \
 	ruby-dev \
-	rubygems
+	rubygems \
+	rpm
 
 RUN gem install --no-ri --no-rdoc fpm
 
