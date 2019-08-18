@@ -8,7 +8,7 @@ ifeq ($(UNAME_S),Darwin)
 	BASH_COMPLETION_PREFIX:=/usr/local
 endif
 
-all: test fmt build man-page
+all: deps build man-page
 
 tidy:
 	go mod tidy
