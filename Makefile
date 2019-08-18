@@ -40,7 +40,8 @@ man-page:
 	gzip -f $(CURR_DIR)/pkg/target/man/git-team.1
 
 install:
-	install $(CURR_DIR)/pkg/target/bin/git-team /bin/git-team
+	@echo "[INFO] Installing into $(BIN_PREFIX)/bin/ ..."
+	install $(CURR_DIR)/pkg/target/bin/git-team $(BIN_PREFIX)/bin/git-team
 	mkdir -p /usr/local/share/.config/git-team/hooks
 	install $(CURR_DIR)/pkg/target/bin/prepare-commit-msg /usr/local/share/.config/git-team/hooks/prepare-commit-msg
 	mkdir -p /usr/local/share/man/man1
@@ -49,7 +50,7 @@ install:
 	@echo "[INFO] Don't forget to source $(BASH_COMPLETION_PREFIX)/etc/bash_completion"
 
 uninstall:
-	rm -f /bin/git-team
+	rm -f $(BIN_PREFIX)/bin/git-team
 	rm -f /etc/bash_completion.d/git-team
 	rm -f /usr/share/man/man1/git-team.1.gz
 	rm -rf /usr/local/share/.config/git-team
