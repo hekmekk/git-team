@@ -4,7 +4,9 @@ CURR_DIR:=$(shell pwd)
 
 UNAME_S:= $(shell uname -s)
 BASH_COMPLETION_PREFIX:=
+GOOS:=linux
 ifeq ($(UNAME_S),Darwin)
+	GOOS=darwin
 	BASH_COMPLETION_PREFIX:=/usr/local
 endif
 
@@ -28,7 +30,7 @@ build: clean deps
 ifndef GOPATH
 	$(error GOPATH is not set)
 endif
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install ./cmd/...
+	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=amd64 go install ./cmd/...
 	mkdir -p $(CURR_DIR)/pkg/target/bin
 	mv $(GOPATH)/bin/git-team $(CURR_DIR)/pkg/target/bin/git-team
 	mv $(GOPATH)/bin/prepare-commit-msg $(CURR_DIR)/pkg/target/bin/prepare-commit-msg
