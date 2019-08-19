@@ -5,6 +5,18 @@
 Command line interface for managing and enhancing `git commit` messages with co-authors.
 
 ## Installation
+#### via [Homebrew](https://brew.sh)
+1. Add tap
+```bash
+brew tap hekmekk/git-team
+```
+
+2. Install git-team
+Install stable release. Use `--HEAD` in case you want to install from the latest commit.
+```bash
+brew install git-team
+```
+
 #### via [apt-sourc.es](https://apt-sourc.es)
 1. Add *apt-sourc.es* GPG Key
 ```bash
