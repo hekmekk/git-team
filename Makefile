@@ -82,7 +82,7 @@ deb rpm: package-build
 		--description "git-team - commit message enhancement with co-authors" \
 		--deb-no-default-config-files \
 		-p /deb-target \
-		pkg/target/bin/git-team=/usr/bin/git-team \
+		pkg/target/bin/git-team=$(BIN_PREFIX)/bin/git-team \
 		pkg/target/bin/prepare-commit-msg=$(HOOKS_DIR)/prepare-commit-msg \
 		bash_completion/git-team.bash=/etc/bash_completion.d/git-team \
 		pkg/target/man/git-team.1.gz=/usr/share/man/man1/git-team.1.gz
