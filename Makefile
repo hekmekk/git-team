@@ -38,7 +38,7 @@ endif
 
 man-page:
 	mkdir -p $(CURR_DIR)/pkg/target/man/
-	go run $(CURR_DIR)/cmd/git-team/main.go --help-man > pkg/target/man/git-team.1
+	go run $(CURR_DIR)/cmd/git-team/main.go --help-man > $(CURR_DIR)/pkg/target/man/git-team.1
 	gzip -f $(CURR_DIR)/pkg/target/man/git-team.1
 
 install:
