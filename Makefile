@@ -9,6 +9,7 @@ ifeq ($(UNAME_S),Darwin)
 	GOOS=darwin
 	BASH_COMPLETION_PREFIX:=/usr/local
 endif
+HOOKS_DIR:=/usr/local/etc/git-team/hooks
 
 all: deps build man-page
 
@@ -44,8 +45,8 @@ man-page:
 install:
 	@echo "[INFO] Installing into $(BIN_PREFIX)/bin/ ..."
 	install $(CURR_DIR)/pkg/target/bin/git-team $(BIN_PREFIX)/bin/git-team
-	mkdir -p /usr/local/share/.config/git-team/hooks
-	install $(CURR_DIR)/pkg/target/bin/prepare-commit-msg /usr/local/share/.config/git-team/hooks/prepare-commit-msg
+	mkdir -p $(HOOKS_DIR)
+	install $(CURR_DIR)/pkg/target/bin/prepare-commit-msg $(HOOKS_DIR)/prepare-commit-msg
 	mkdir -p /usr/local/share/man/man1
 	install -m "0644" pkg/target/man/git-team.1.gz /usr/local/share/man/man1/git-team.1.gz
 	install -m "0644" bash_completion/git-team.bash $(BASH_COMPLETION_PREFIX)/etc/bash_completion.d/git-team
@@ -55,7 +56,7 @@ uninstall:
 	rm -f $(BIN_PREFIX)/bin/git-team
 	rm -f /etc/bash_completion.d/git-team
 	rm -f /usr/share/man/man1/git-team.1.gz
-	rm -rf /usr/local/share/.config/git-team
+	rm -rf $(HOOKS_DIR)
 
 package-build: clean
 	mkdir -p pkg/src/
@@ -82,7 +83,7 @@ deb rpm: package-build
 		--deb-no-default-config-files \
 		-p /deb-target \
 		pkg/target/bin/git-team=/usr/bin/git-team \
-		pkg/target/bin/prepare-commit-msg=/usr/local/share/.config/git-team/hooks/prepare-commit-msg \
+		pkg/target/bin/prepare-commit-msg=$(HOOKS_DIR)/prepare-commit-msg \
 		bash_completion/git-team.bash=/etc/bash_completion.d/git-team \
 		pkg/target/man/git-team.1.gz=/usr/share/man/man1/git-team.1.gz
 

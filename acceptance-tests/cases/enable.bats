@@ -19,7 +19,7 @@ setup() {
 @test "git-team: enable should enable the prepare-commit-msg hook" {
 	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && git config --global core.hooksPath"
 	assert_success
-	assert_line '/usr/local/share/.config/git-team/hooks'
+	assert_line '/usr/local/etc/git-team/hooks'
 }
 
 @test "git-team: enable should set a commit template" {

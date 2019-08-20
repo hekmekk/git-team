@@ -4,7 +4,7 @@ load '/bats-libs/bats-support/load.bash'
 load '/bats-libs/bats-assert/load.bash'
 
 LOCAL_CONFIG_PATH=/root/.config/git-team
-HOOKS_PATH=/usr/local/share/.config/git-team/hooks
+HOOKS_PATH=/usr/local/etc/git-team/hooks
 REPO_PATH=/tmp/repo
 
 setup() {

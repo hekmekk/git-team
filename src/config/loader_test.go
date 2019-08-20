@@ -13,7 +13,7 @@ func TestLoadSucceeds(t *testing.T) {
 
 	expectedCfg := Config{
 		BaseDir:          expectedBaseDir,
-		GitHooksPath:     "/usr/local/share/.config/git-team/hooks",
+		GitHooksPath:     "/usr/local/etc/git-team/hooks",
 		TemplateFileName: "COMMIT_TEMPLATE",
 		StatusFileName:   "status.toml",
 	}

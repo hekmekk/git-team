@@ -30,7 +30,7 @@ func executorFactory(deps dependencies) func() (Config, error) {
 
 		return Config{
 			BaseDir:          baseDir,
-			GitHooksPath:     "/usr/local/share/.config/git-team/hooks",
+			GitHooksPath:     "/usr/local/etc/git-team/hooks",
 			TemplateFileName: "COMMIT_TEMPLATE",
 			StatusFileName:   "status.toml",
 		}, nil
