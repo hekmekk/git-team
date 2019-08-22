@@ -7,11 +7,13 @@ Command line interface for managing and enhancing `git commit` messages with co-
 ## Installation
 #### via [Homebrew](https://brew.sh)
 1. Add tap
+
 ```bash
 brew tap hekmekk/git-team
 ```
 
 2. Install git-team
+
 Install stable release. Use `--HEAD` in case you want to install from the latest commit.
 ```bash
 brew install git-team
