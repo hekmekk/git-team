@@ -17,13 +17,15 @@ import (
 	execDisable "github.com/hekmekk/git-team/src/disable"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
 	git "github.com/hekmekk/git-team/src/gitconfig"
-	rm "github.com/hekmekk/git-team/src/remove"
+	removePolicy "github.com/hekmekk/git-team/src/remove"
+	"github.com/hekmekk/git-team/src/remove/interfaceadapter/cmd"
+	"github.com/hekmekk/git-team/src/remove/interfaceadapter/event"
 	statusApi "github.com/hekmekk/git-team/src/status"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
-	version = "v1.3.1"
+	version = "v1.3.2-alpha1"
 	author  = "Rea Sand <hekmek@posteo.de>"
 )
 
@@ -36,8 +38,11 @@ func main() {
 		for _, effect := range effects {
 			effect.Run()
 		}
-	case application.remove.command.FullCommand():
-		runRemove(application.remove)
+	case application.remove.CommandName:
+		effects := removeeventadapter.MapRemoveEventToEffects(removePolicy.Apply(application.remove.Deps, application.remove.Request))
+		for _, effect := range effects {
+			effect.Run()
+		}
 	case application.enable.command.FullCommand():
 		runEnable(application.enable)
 	case application.disable.command.FullCommand():
@@ -49,19 +54,6 @@ func main() {
 	}
 
 	os.Exit(0)
-}
-
-type remove struct {
-	command *kingpin.CmdClause
-	alias   *string
-}
-
-func newRemove(app *kingpin.Application) remove {
-	command := app.Command("rm", "Remove an alias to co-author assignment")
-	return remove{
-		command: command,
-		alias:   command.Arg("alias", "The alias to identify the assignment to be removed").Required().String(),
-	}
 }
 
 type enable struct {
@@ -112,7 +104,7 @@ func newList(app *kingpin.Application) list {
 type application struct {
 	app     *kingpin.Application
 	add     addcmdadapter.Definition
-	remove  remove
+	remove  removecmdadapter.Definition
 	enable  enable
 	disable disable
 	status  status
@@ -129,26 +121,12 @@ func newApplication(author string, version string) application {
 	return application{
 		app:     app,
 		add:     addcmdadapter.NewDefinition(app),
-		remove:  newRemove(app),
+		remove:  removecmdadapter.NewDefinition(app),
 		enable:  newEnable(app),
 		disable: newDisable(app),
 		status:  newStatus(app),
 		list:    newList(app),
 	}
-}
-
-func runRemove(remove remove) {
-	removeAlias := *remove.alias
-
-	cmd := rm.Command{
-		Alias: removeAlias,
-	}
-
-	rmErr := rm.Exec(cmd)
-	exitIfErr(rmErr)
-
-	color.Red(fmt.Sprintf("Alias '%s' has been removed.", removeAlias))
-	os.Exit(0)
 }
 
 func runEnable(enable enable) {
