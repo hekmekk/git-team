@@ -15,6 +15,7 @@ import (
 	"github.com/hekmekk/git-team/src/add/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/config"
 	execDisable "github.com/hekmekk/git-team/src/disable"
+	"github.com/hekmekk/git-team/src/effects"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
 	git "github.com/hekmekk/git-team/src/gitconfig"
 	removePolicy "github.com/hekmekk/git-team/src/remove"
@@ -34,15 +35,11 @@ func main() {
 
 	switch kingpin.MustParse(application.app.Parse(os.Args[1:])) {
 	case application.add.CommandName:
-		effects := addeventadapter.MapAddEventToEffects(addPolicy.Apply(application.add.Deps, application.add.Request))
-		for _, effect := range effects {
-			effect.Run()
-		}
+		addCmd := application.add
+		runCommand(addPolicy.Apply(addCmd.Deps, addCmd.Request), addeventadapter.MapEventToEffects)
 	case application.remove.CommandName:
-		effects := removeeventadapter.MapRemoveEventToEffects(removePolicy.Apply(application.remove.Deps, application.remove.Request))
-		for _, effect := range effects {
-			effect.Run()
-		}
+		removeCmd := application.remove
+		runCommand(removePolicy.Apply(removeCmd.Deps, removeCmd.Request), removeeventadapter.MapEventToEffects)
 	case application.enable.command.FullCommand():
 		runEnable(application.enable)
 	case application.disable.command.FullCommand():
@@ -54,6 +51,13 @@ func main() {
 	}
 
 	os.Exit(0)
+}
+
+func runCommand(evt interface{}, mapper func(interface{}) []effects.Effect) {
+	effects := mapper(evt)
+	for _, effect := range effects {
+		effect.Run()
+	}
 }
 
 type enable struct {

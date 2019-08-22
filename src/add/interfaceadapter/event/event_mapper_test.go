@@ -20,7 +20,7 @@ func TestMapEventToEffectsAssignmentSucceeded(t *testing.T) {
 		effects.NewExitOk(),
 	}
 
-	effects := MapAddEventToEffects(add.AssignmentSucceeded{Alias: alias, Coauthor: coauthor})
+	effects := MapEventToEffects(add.AssignmentSucceeded{Alias: alias, Coauthor: coauthor})
 
 	if !reflect.DeepEqual(expectedEffects, effects) {
 		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
@@ -36,7 +36,7 @@ func TestMapEventToEffectsAssignmentFailed(t *testing.T) {
 		effects.NewExitErr(),
 	}
 
-	effects := MapAddEventToEffects(add.AssignmentFailed{Reason: err})
+	effects := MapEventToEffects(add.AssignmentFailed{Reason: err})
 
 	if !reflect.DeepEqual(expectedEffects, effects) {
 		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
@@ -50,7 +50,7 @@ func TestMapEventToEffectsAssignmentAborted(t *testing.T) {
 		effects.NewExitOk(),
 	}
 
-	effects := MapAddEventToEffects(add.AssignmentAborted{Alias: "", ExistingCoauthor: "", ReplacingCoauthor: ""})
+	effects := MapEventToEffects(add.AssignmentAborted{Alias: "", ExistingCoauthor: "", ReplacingCoauthor: ""})
 
 	if !reflect.DeepEqual(expectedEffects, effects) {
 		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
@@ -61,7 +61,7 @@ func TestMapEventToEffectsAssignmentAborted(t *testing.T) {
 func TestMapEventToEffectsUnknownEvent(t *testing.T) {
 	expectedEffects := []effects.Effect{}
 
-	effects := MapAddEventToEffects("UNKNOWN_EVENT")
+	effects := MapEventToEffects("UNKNOWN_EVENT")
 
 	if !reflect.DeepEqual(expectedEffects, effects) {
 		t.Errorf("expected: %s, got: %s", expectedEffects, effects)

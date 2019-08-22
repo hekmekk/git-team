@@ -9,8 +9,8 @@ import (
 	"github.com/hekmekk/git-team/src/remove"
 )
 
-// MapRemoveEventToEffects convert deallocation events to effects for the cli
-func MapRemoveEventToEffects(event interface{}) []effects.Effect {
+// MapEventToEffects convert deallocation events to effects for the cli
+func MapEventToEffects(event interface{}) []effects.Effect {
 	switch evt := event.(type) {
 	case remove.DeAllocationSucceeded:
 		return []effects.Effect{
