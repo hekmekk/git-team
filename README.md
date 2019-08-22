@@ -16,11 +16,6 @@ To review your current alias to co-author assignments use:
 git team ls
 ```
 
-To remove an assignment use:
-```bash
-git team rm noujz
-```
-
 #### Set active co-authors
 Apart from one or more aliases, you may provide a properly formatted co-author aswell.
 ```bash
@@ -30,7 +25,7 @@ git team [enable] noujz <alias1> ... <aliasN> "Mr. Green <green@mr.se>"
 #### Commit some
 Just use `git commit` or `git commit -m <msg>`.
 
-#### Back to being a loner
+#### Disable git team
 ```bash
 git team disable
 ```
