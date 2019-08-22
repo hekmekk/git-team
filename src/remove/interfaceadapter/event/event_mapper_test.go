@@ -19,7 +19,7 @@ func TestMapEventToEffectsDeAllocationSucceeded(t *testing.T) {
 		effects.NewExitOk(),
 	}
 
-	effects := MapRemoveEventToEffects(remove.DeAllocationSucceeded{Alias: alias})
+	effects := MapEventToEffects(remove.DeAllocationSucceeded{Alias: alias})
 
 	if !reflect.DeepEqual(expectedEffects, effects) {
 		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
@@ -35,7 +35,7 @@ func TestMapEventToEffectsDeAllocationFailed(t *testing.T) {
 		effects.NewExitErr(),
 	}
 
-	effects := MapRemoveEventToEffects(remove.DeAllocationFailed{Reason: err})
+	effects := MapEventToEffects(remove.DeAllocationFailed{Reason: err})
 
 	if !reflect.DeepEqual(expectedEffects, effects) {
 		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
@@ -46,7 +46,7 @@ func TestMapEventToEffectsDeAllocationFailed(t *testing.T) {
 func TestMapEventToEffectsUnknownEvent(t *testing.T) {
 	expectedEffects := []effects.Effect{}
 
-	effects := MapRemoveEventToEffects("UNKNOWN_EVENT")
+	effects := MapEventToEffects("UNKNOWN_EVENT")
 
 	if !reflect.DeepEqual(expectedEffects, effects) {
 		t.Errorf("expected: %s, got: %s", expectedEffects, effects)

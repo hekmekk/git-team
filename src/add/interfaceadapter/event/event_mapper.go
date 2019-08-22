@@ -9,8 +9,8 @@ import (
 	"github.com/hekmekk/git-team/src/effects"
 )
 
-// MapAddEventToEffects convert assignment events to effects for the cli
-func MapAddEventToEffects(event interface{}) []effects.Effect {
+// MapEventToEffects convert assignment events to effects for the cli
+func MapEventToEffects(event interface{}) []effects.Effect {
 	switch evt := event.(type) {
 	case add.AssignmentSucceeded:
 		return []effects.Effect{
