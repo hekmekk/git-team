@@ -4,6 +4,37 @@
 
 Command line interface for managing and enhancing `git commit` messages with co-authors.
 
+## Usage
+
+#### Setup some aliases for convenience
+```bash
+git team add noujz "Mr. Noujz <noujz@mr.se>"
+```
+
+To review your current alias to co-author assignments use:
+```bash
+git team ls
+```
+
+To remove an assignment use:
+```bash
+git team rm noujz
+```
+
+#### Set active co-authors
+Apart from one or more aliases, you may provide a properly formatted co-author aswell.
+```bash
+git team [enable] noujz <alias1> ... <aliasN> "Mr. Green <green@mr.se>"
+```
+
+#### Commit some
+Just use `git commit` or `git commit -m <msg>`.
+
+#### Back to being a loner
+```bash
+git team disable
+```
+
 ## Installation
 #### via [Homebrew](https://brew.sh)
 1. Add tap
@@ -53,37 +84,6 @@ The latest version of git-team has been built against go version 1.12.
 ```bash
 make
 sudo make install
-```
-
-## Usage
-
-#### Setup some aliases for convenience
-```bash
-git team add noujz "Mr. Noujz <noujz@mr.se>"
-```
-
-To review your current alias to co-author assignments use:
-```bash
-git team ls
-```
-
-To remove an assignment use:
-```bash
-git team rm noujz
-```
-
-#### Set active co-authors
-Apart from one or more aliases, you may provide a properly formatted co-author aswell.
-```bash
-git team [enable] noujz <alias1> ... <aliasN> "Mr. Green <green@mr.se>"
-```
-
-#### Commit some
-Just use `git commit` or `git commit -m <msg>`.
-
-#### Back to being a loner
-```bash
-git team disable
 ```
 
 ## Similar projects
