@@ -10,15 +10,17 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	addPolicy "github.com/hekmekk/git-team/src/add"
+	"github.com/hekmekk/git-team/src/add"
 	"github.com/hekmekk/git-team/src/add/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/add/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/config"
+	"github.com/hekmekk/git-team/src/core/events"
+	"github.com/hekmekk/git-team/src/core/policy"
 	execDisable "github.com/hekmekk/git-team/src/disable"
 	"github.com/hekmekk/git-team/src/effects"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
 	git "github.com/hekmekk/git-team/src/gitconfig"
-	removePolicy "github.com/hekmekk/git-team/src/remove"
+	"github.com/hekmekk/git-team/src/remove"
 	"github.com/hekmekk/git-team/src/remove/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/remove/interfaceadapter/event"
 	statusApi "github.com/hekmekk/git-team/src/status"
@@ -36,10 +38,12 @@ func main() {
 	switch kingpin.MustParse(application.app.Parse(os.Args[1:])) {
 	case application.add.CommandName:
 		addCmd := application.add
-		runCommand(addPolicy.Apply(addCmd.Deps, addCmd.Request), addeventadapter.MapEventToEffects)
+		policy := add.NewPolicy(addCmd.Deps, addCmd.Request) // TODO: create this at Definition?!
+		applyPolicy(policy, addeventadapter.MapEventToEffects)
 	case application.remove.CommandName:
 		removeCmd := application.remove
-		runCommand(removePolicy.Apply(removeCmd.Deps, removeCmd.Request), removeeventadapter.MapEventToEffects)
+		policy := remove.NewPolicy(removeCmd.Deps, removeCmd.Request) // TODO: create this at Definition?!
+		applyPolicy(policy, removeeventadapter.MapEventToEffects)
 	case application.enable.command.FullCommand():
 		runEnable(application.enable)
 	case application.disable.command.FullCommand():
@@ -53,8 +57,8 @@ func main() {
 	os.Exit(0)
 }
 
-func runCommand(evt interface{}, mapper func(interface{}) []effects.Effect) {
-	effects := mapper(evt)
+func applyPolicy(policy policy.Policy, adapter func(events.Event) []effects.Effect) {
+	effects := adapter(policy.Apply())
 	for _, effect := range effects {
 		effect.Run()
 	}

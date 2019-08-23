@@ -3,6 +3,8 @@ package add
 import (
 	"fmt"
 	"strings"
+
+	"github.com/hekmekk/git-team/src/core/events"
 )
 
 // AssignmentRequest the arguments of the Runner
@@ -19,13 +21,27 @@ type Dependencies struct {
 	GetAnswerFromUser   func(string) (string, error)
 }
 
+// Policy the policy to apply
+type Policy struct {
+	deps Dependencies
+	req  AssignmentRequest
+}
+
 const (
 	y   string = "y"
 	yes string = "yes"
 )
 
+// NewPolicy constructor of Policy
+func NewPolicy(deps Dependencies, req AssignmentRequest) Policy {
+	return Policy{deps, req}
+}
+
 // Apply assign a co-author to an alias
-func Apply(deps Dependencies, req AssignmentRequest) interface{} {
+func (policy Policy) Apply() events.Event {
+	req := policy.req
+	deps := policy.deps
+
 	alias := *req.Alias
 	coauthor := *req.Coauthor
 
