@@ -6,11 +6,12 @@ import (
 	"github.com/fatih/color"
 
 	"github.com/hekmekk/git-team/src/add"
+	"github.com/hekmekk/git-team/src/core/events"
 	"github.com/hekmekk/git-team/src/effects"
 )
 
 // MapEventToEffects convert assignment events to effects for the cli
-func MapEventToEffects(event interface{}) []effects.Effect {
+func MapEventToEffects(event events.Event) []effects.Effect {
 	switch evt := event.(type) {
 	case add.AssignmentSucceeded:
 		return []effects.Effect{

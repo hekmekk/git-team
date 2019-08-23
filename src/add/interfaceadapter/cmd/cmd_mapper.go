@@ -25,6 +25,7 @@ func NewDefinition(app *kingpin.Application) Definition {
 	alias := command.Arg("alias", "The alias to assign a co-author to").Required().String()
 	coauthor := command.Arg("coauthor", "The co-author").Required().String()
 
+	// TODO: create NewPolicy here?!
 	return Definition{
 		CommandName: command.FullCommand(),
 		Request: add.AssignmentRequest{
