@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hekmekk/git-team/src/config"
+	"github.com/hekmekk/git-team/src/core/config"
+	"github.com/hekmekk/git-team/src/core/validation"
 	utils "github.com/hekmekk/git-team/src/enable/utils"
-	"github.com/hekmekk/git-team/src/validation"
 )
 
 // Command add a <Coauthor> under "team.alias.<Alias>"

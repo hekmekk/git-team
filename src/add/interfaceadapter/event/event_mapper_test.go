@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/hekmekk/git-team/src/add"
-	"github.com/hekmekk/git-team/src/effects"
+	"github.com/hekmekk/git-team/src/core/effects"
 )
 
 func TestMapEventToEffectsAssignmentSucceeded(t *testing.T) {

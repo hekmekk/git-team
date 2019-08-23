@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hekmekk/git-team/src/config"
+	"github.com/hekmekk/git-team/src/core/config"
 )
 
 func TestEnableSucceeds(t *testing.T) {

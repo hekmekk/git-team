@@ -6,7 +6,7 @@ import (
 	"github.com/fatih/color"
 
 	"github.com/hekmekk/git-team/src/core/events"
-	"github.com/hekmekk/git-team/src/effects"
+	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/remove"
 )
 

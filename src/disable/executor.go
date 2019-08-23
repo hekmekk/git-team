@@ -2,9 +2,9 @@ package disable
 
 import (
 	"fmt"
-	"github.com/hekmekk/git-team/src/config"
-	git "github.com/hekmekk/git-team/src/gitconfig"
-	giterror "github.com/hekmekk/git-team/src/gitconfig/error"
+	"github.com/hekmekk/git-team/src/core/config"
+	git "github.com/hekmekk/git-team/src/core/gitconfig"
+	giterror "github.com/hekmekk/git-team/src/core/gitconfig/error"
 	statusApi "github.com/hekmekk/git-team/src/status"
 	"os"
 )
