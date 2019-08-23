@@ -2,7 +2,7 @@ package remove
 
 import (
 	"github.com/hekmekk/git-team/src/core/events"
-	giterror "github.com/hekmekk/git-team/src/gitconfig/error"
+	giterror "github.com/hekmekk/git-team/src/core/gitconfig/error"
 )
 
 // DeAllocationRequest remove an alias -> coauthor assignment

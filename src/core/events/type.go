@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/hekmekk/git-team/src/effects"
+	"github.com/hekmekk/git-team/src/core/effects"
 )
 
 // Event an event emitted when applying a Policy

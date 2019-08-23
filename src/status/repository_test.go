@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/BurntSushi/toml"
-	"github.com/hekmekk/git-team/src/config"
+	"github.com/hekmekk/git-team/src/core/config"
 )
 
 // TODO: add assertions on arguments to mocked functions

@@ -7,7 +7,7 @@ import (
 
 	"github.com/hekmekk/git-team/src/add"
 	"github.com/hekmekk/git-team/src/core/events"
-	"github.com/hekmekk/git-team/src/effects"
+	"github.com/hekmekk/git-team/src/core/effects"
 )
 
 // MapEventToEffects convert assignment events to effects for the cli

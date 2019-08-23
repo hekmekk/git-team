@@ -3,7 +3,7 @@ package removecmdadapter
 import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/hekmekk/git-team/src/gitconfig"
+	"github.com/hekmekk/git-team/src/core/gitconfig"
 	"github.com/hekmekk/git-team/src/remove"
 )
 

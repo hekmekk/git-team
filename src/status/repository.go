@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/BurntSushi/toml"
-	"github.com/hekmekk/git-team/src/config"
+	"github.com/hekmekk/git-team/src/core/config"
 )
 
 type fetchDependencies struct {
