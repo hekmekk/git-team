@@ -17,19 +17,14 @@ type Dependencies struct {
 
 // Policy the policy to apply
 type Policy struct {
-	deps Dependencies
-	req  DeAllocationRequest
-}
-
-// NewPolicy constructor of Policy
-func NewPolicy(deps Dependencies, req DeAllocationRequest) Policy {
-	return Policy{deps, req}
+	Deps Dependencies
+	Req  DeAllocationRequest
 }
 
 // Apply remove an alias -> coauthor assignment
 func (policy Policy) Apply() events.Event {
-	deps := policy.deps
-	req := policy.req
+	deps := policy.Deps
+	req := policy.Req
 
 	alias := *req.Alias
 

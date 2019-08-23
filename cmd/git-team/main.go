@@ -10,17 +10,15 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/hekmekk/git-team/src/add"
 	"github.com/hekmekk/git-team/src/add/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/add/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/core/config"
+	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/events"
+	git "github.com/hekmekk/git-team/src/core/gitconfig"
 	"github.com/hekmekk/git-team/src/core/policy"
 	execDisable "github.com/hekmekk/git-team/src/disable"
-	"github.com/hekmekk/git-team/src/core/effects"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
-	git "github.com/hekmekk/git-team/src/core/gitconfig"
-	"github.com/hekmekk/git-team/src/remove"
 	"github.com/hekmekk/git-team/src/remove/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/remove/interfaceadapter/event"
 	statusApi "github.com/hekmekk/git-team/src/status"
@@ -37,13 +35,9 @@ func main() {
 
 	switch kingpin.MustParse(application.app.Parse(os.Args[1:])) {
 	case application.add.CommandName:
-		addCmd := application.add
-		policy := add.NewPolicy(addCmd.Deps, addCmd.Request) // TODO: create this at Definition?!
-		applyPolicy(policy, addeventadapter.MapEventToEffects)
+		applyPolicy(application.add.Policy, addeventadapter.MapEventToEffects)
 	case application.remove.CommandName:
-		removeCmd := application.remove
-		policy := remove.NewPolicy(removeCmd.Deps, removeCmd.Request) // TODO: create this at Definition?!
-		applyPolicy(policy, removeeventadapter.MapEventToEffects)
+		applyPolicy(application.remove.Policy, removeeventadapter.MapEventToEffects)
 	case application.enable.command.FullCommand():
 		runEnable(application.enable)
 	case application.disable.command.FullCommand():
