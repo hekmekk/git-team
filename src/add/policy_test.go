@@ -19,7 +19,7 @@ func TestAddShouldMakeTheNewAssignment(t *testing.T) {
 
 	expectedEvent := AssignmentSucceeded{Alias: alias, Coauthor: coauthor}
 
-	event := NewPolicy(deps, AssignmentRequest{Alias: &alias, Coauthor: &coauthor}).Apply()
+	event := Policy{deps, AssignmentRequest{Alias: &alias, Coauthor: &coauthor}}.Apply()
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
@@ -39,7 +39,7 @@ func TestAddShouldFailDueToProvidedCoauthorNotPassingSanityCheck(t *testing.T) {
 
 	expectedEvent := AssignmentFailed{Reason: err}
 
-	event := NewPolicy(deps, AssignmentRequest{Alias: &alias, Coauthor: &coauthor}).Apply()
+	event := Policy{deps, AssignmentRequest{Alias: &alias, Coauthor: &coauthor}}.Apply()
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
@@ -61,7 +61,7 @@ func TestAddShouldNotOverrideTheOriginalAssignment(t *testing.T) {
 
 	expectedEvent := AssignmentAborted{Alias: alias, ExistingCoauthor: existingCoauthor, ReplacingCoauthor: replacingCoauthor}
 
-	event := NewPolicy(deps, AssignmentRequest{Alias: &alias, Coauthor: &replacingCoauthor}).Apply()
+	event := Policy{deps, AssignmentRequest{Alias: &alias, Coauthor: &replacingCoauthor}}.Apply()
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
@@ -83,7 +83,7 @@ func TestAddShouldOverrideTheOriginalAssignment(t *testing.T) {
 
 	expectedEvent := AssignmentSucceeded{Alias: alias, Coauthor: replacingCoauthor}
 
-	event := NewPolicy(deps, AssignmentRequest{Alias: &alias, Coauthor: &replacingCoauthor}).Apply()
+	event := Policy{deps, AssignmentRequest{Alias: &alias, Coauthor: &replacingCoauthor}}.Apply()
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
@@ -105,7 +105,7 @@ func TestAddShouldFailBecauseUnderlyingGitAddFails(t *testing.T) {
 
 	expectedEvent := AssignmentFailed{Reason: err}
 
-	event := NewPolicy(deps, AssignmentRequest{Alias: &alias, Coauthor: &coauthor}).Apply()
+	event := Policy{deps, AssignmentRequest{Alias: &alias, Coauthor: &coauthor}}.Apply()
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)

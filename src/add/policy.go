@@ -23,8 +23,8 @@ type Dependencies struct {
 
 // Policy the policy to apply
 type Policy struct {
-	deps Dependencies
-	req  AssignmentRequest
+	Deps Dependencies
+	Req  AssignmentRequest
 }
 
 const (
@@ -32,15 +32,10 @@ const (
 	yes string = "yes"
 )
 
-// NewPolicy constructor of Policy
-func NewPolicy(deps Dependencies, req AssignmentRequest) Policy {
-	return Policy{deps, req}
-}
-
 // Apply assign a co-author to an alias
 func (policy Policy) Apply() events.Event {
-	req := policy.req
-	deps := policy.deps
+	req := policy.Req
+	deps := policy.Deps
 
 	alias := *req.Alias
 	coauthor := *req.Coauthor

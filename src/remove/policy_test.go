@@ -15,7 +15,7 @@ func TestRmShouldRemoveTheAssignment(t *testing.T) {
 
 	expectedEvent := DeAllocationSucceeded{Alias: alias}
 
-	event := NewPolicy(Dependencies{GitRemoveAlias: remove}, DeAllocationRequest{Alias: &alias}).Apply()
+	event := Policy{Dependencies{GitRemoveAlias: remove}, DeAllocationRequest{Alias: &alias}}.Apply()
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
@@ -32,7 +32,7 @@ func TestRmShouldRemoveTheAssignmentWhenTryingToRemoveANonExistingAlias(t *testi
 
 	expectedEvent := DeAllocationSucceeded{Alias: alias}
 
-	event := NewPolicy(Dependencies{GitRemoveAlias: remove}, DeAllocationRequest{Alias: &alias}).Apply()
+	event := Policy{Dependencies{GitRemoveAlias: remove}, DeAllocationRequest{Alias: &alias}}.Apply()
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
@@ -51,7 +51,7 @@ func TestRmShouldFailBecauseUnderlyingGitRemoveFails(t *testing.T) {
 
 	expectedEvent := DeAllocationFailed{Reason: err}
 
-	event := NewPolicy(Dependencies{GitRemoveAlias: remove}, DeAllocationRequest{Alias: &alias}).Apply()
+	event := Policy{Dependencies{GitRemoveAlias: remove}, DeAllocationRequest{Alias: &alias}}.Apply()
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)

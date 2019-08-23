@@ -10,8 +10,7 @@ import (
 // Definition the command, arguments, and dependencies
 type Definition struct {
 	CommandName string
-	Request     remove.DeAllocationRequest
-	Deps        remove.Dependencies
+	Policy      remove.Policy
 }
 
 // NewDefinition the constructor for Definition
@@ -22,11 +21,13 @@ func NewDefinition(app *kingpin.Application) Definition {
 
 	return Definition{
 		CommandName: command.FullCommand(),
-		Request: remove.DeAllocationRequest{
-			Alias: alias,
-		},
-		Deps: remove.Dependencies{
-			GitRemoveAlias: gitconfig.RemoveAlias,
+		Policy: remove.Policy{
+			Req: remove.DeAllocationRequest{
+				Alias: alias,
+			},
+			Deps: remove.Dependencies{
+				GitRemoveAlias: gitconfig.RemoveAlias,
+			},
 		},
 	}
 }
