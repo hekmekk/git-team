@@ -7,13 +7,13 @@ import (
 	"github.com/hekmekk/git-team/src/core/events"
 )
 
-// AssignmentRequest the arguments of the Runner
+// AssignmentRequest the arguments of the Policy
 type AssignmentRequest struct {
 	Alias    *string
 	Coauthor *string
 }
 
-// Dependencies the dependencies of the Runner
+// Dependencies the dependencies of the Policy
 type Dependencies struct {
 	SanityCheckCoauthor func(string) error
 	GitAddAlias         func(string, string) error
