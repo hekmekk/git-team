@@ -3,6 +3,7 @@ package disable
 import (
 	"errors"
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/hekmekk/git-team/src/core/config"
@@ -20,7 +21,7 @@ var (
 )
 
 func TestDisableSucceeds(t *testing.T) {
-	deps := dependencies{
+	deps := Dependencies{
 		GitUnsetHooksPath:      unsetHooksPath,
 		GitUnsetCommitTemplate: unsetCommitTemplate,
 		LoadConfig:             loadConfig,
@@ -28,17 +29,20 @@ func TestDisableSucceeds(t *testing.T) {
 		RemoveFile:             removeFile,
 		PersistDisabled:        persistDisabled,
 	}
-	err := executorFactory(deps)()
 
-	if err != nil {
-		t.Error(err)
+	expectedEvent := Succeeded{}
+
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
 		t.Fail()
 	}
 }
 
 func TestDisableShouldSucceedWhenUnsetHooksPathFailsBecauseTheOptionDoesntExist(t *testing.T) {
 	expectedErr := errors.New("exit status 5")
-	deps := dependencies{
+	deps := Dependencies{
 		GitUnsetHooksPath:      func() error { return expectedErr },
 		GitUnsetCommitTemplate: unsetCommitTemplate,
 		LoadConfig:             loadConfig,
@@ -47,98 +51,115 @@ func TestDisableShouldSucceedWhenUnsetHooksPathFailsBecauseTheOptionDoesntExist(
 		PersistDisabled:        persistDisabled,
 	}
 
-	err := executorFactory(deps)()
+	expectedEvent := Succeeded{}
 
-	if err != nil {
-		t.Error(err)
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
 		t.Fail()
 	}
 }
 
 func TestDisableShouldFailWhenUnsetHooksPathFails(t *testing.T) {
-	expectedErr := errors.New("failed to unset hooks path")
-	deps := dependencies{
-		GitUnsetHooksPath: func() error { return expectedErr },
+	err := errors.New("failed to unset hooks path")
+
+	deps := Dependencies{
+		GitUnsetHooksPath: func() error { return err },
 	}
 
-	err := executorFactory(deps)()
+	expectedEvent := Failed{Reason: err}
 
-	if err == nil || expectedErr != err {
-		t.Errorf("expected: %s, received: %s", expectedErr, err)
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
 		t.Fail()
 	}
 }
 
 func TestDisableShouldSucceedWhenUnsetCommitTemplateFailsBecauseItWasUnsetAlready(t *testing.T) {
-	expectedErr := errors.New("exit status 5")
-	deps := dependencies{
+	err := errors.New("exit status 5")
+
+	deps := Dependencies{
 		GitUnsetHooksPath:      unsetHooksPath,
-		GitUnsetCommitTemplate: func() error { return expectedErr },
+		GitUnsetCommitTemplate: func() error { return err },
 		LoadConfig:             loadConfig,
 		StatFile:               statFile,
 		RemoveFile:             removeFile,
 		PersistDisabled:        persistDisabled,
 	}
 
-	err := executorFactory(deps)()
+	expectedEvent := Succeeded{}
 
-	if err != nil {
-		t.Error(err)
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
 		t.Fail()
 	}
 }
 
 func TestDisableShouldFailWhenUnsetCommitTemplateFails(t *testing.T) {
-	expectedErr := errors.New("failed to unset commit template")
-	deps := dependencies{
+	err := errors.New("failed to unset commit template")
+
+	deps := Dependencies{
 		GitUnsetHooksPath:      unsetHooksPath,
-		GitUnsetCommitTemplate: func() error { return expectedErr },
+		GitUnsetCommitTemplate: func() error { return err },
 	}
 
-	err := executorFactory(deps)()
+	expectedEvent := Failed{Reason: err}
 
-	if err == nil || expectedErr != err {
-		t.Errorf("expected: %s, received: %s", expectedErr, err)
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
 		t.Fail()
 	}
 }
 
 func TestDisableShouldFailWhenLoadConfigFails(t *testing.T) {
-	expectedErr := errors.New("failed to load config")
-	deps := dependencies{
+	err := errors.New("failed to load config")
+
+	deps := Dependencies{
 		GitUnsetHooksPath:      unsetHooksPath,
 		GitUnsetCommitTemplate: unsetCommitTemplate,
-		LoadConfig:             func() (config.Config, error) { return config.Config{}, expectedErr },
+		LoadConfig:             func() (config.Config, error) { return config.Config{}, err },
 	}
 
-	err := executorFactory(deps)()
+	expectedEvent := Failed{Reason: err}
 
-	if err == nil || expectedErr != err {
-		t.Errorf("expected: %s, received: %s", expectedErr, err)
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
 		t.Fail()
 	}
 }
 
 func TestDisableShouldFailWhenRemoveFileFails(t *testing.T) {
-	expectedErr := errors.New("failed to remove file")
-	deps := dependencies{
+	err := errors.New("failed to remove file")
+
+	deps := Dependencies{
 		GitUnsetHooksPath:      unsetHooksPath,
 		GitUnsetCommitTemplate: unsetCommitTemplate,
 		LoadConfig:             loadConfig,
 		StatFile:               statFile,
-		RemoveFile:             func(string) error { return expectedErr },
+		RemoveFile:             func(string) error { return err },
 	}
 
-	err := executorFactory(deps)()
+	expectedEvent := Failed{Reason: err}
 
-	if err == nil || expectedErr != err {
-		t.Errorf("expected: %s, received: %s", expectedErr, err)
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
 		t.Fail()
 	}
 }
 
 func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenStatFileFails(t *testing.T) {
-	deps := dependencies{
+	deps := Dependencies{
 		GitUnsetHooksPath:      unsetHooksPath,
 		GitUnsetCommitTemplate: unsetCommitTemplate,
 		LoadConfig:             loadConfig,
@@ -146,29 +167,34 @@ func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenStatFileF
 		PersistDisabled:        persistDisabled,
 	}
 
-	err := executorFactory(deps)()
+	expectedEvent := Succeeded{}
 
-	if err != nil {
-		t.Error(err)
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
 		t.Fail()
 	}
 }
 
 func TestDisableShouldFailWhenpersistDisabledFails(t *testing.T) {
-	expectedErr := errors.New("failed to save status")
-	deps := dependencies{
+	err := errors.New("failed to save status")
+
+	deps := Dependencies{
 		GitUnsetHooksPath:      unsetHooksPath,
 		GitUnsetCommitTemplate: unsetCommitTemplate,
 		LoadConfig:             loadConfig,
 		StatFile:               statFile,
 		RemoveFile:             removeFile,
-		PersistDisabled:        func() error { return expectedErr },
+		PersistDisabled:        func() error { return err },
 	}
 
-	err := executorFactory(deps)()
+	expectedEvent := Failed{Reason: err}
 
-	if err == nil || expectedErr != err {
-		t.Errorf("expected: %s, received: %s", expectedErr, err)
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
 		t.Fail()
 	}
 }

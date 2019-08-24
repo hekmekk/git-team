@@ -17,7 +17,8 @@ import (
 	"github.com/hekmekk/git-team/src/core/events"
 	git "github.com/hekmekk/git-team/src/core/gitconfig"
 	"github.com/hekmekk/git-team/src/core/policy"
-	execDisable "github.com/hekmekk/git-team/src/disable"
+	"github.com/hekmekk/git-team/src/disable/interfaceadapter/cmd"
+	"github.com/hekmekk/git-team/src/disable/interfaceadapter/event"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
 	"github.com/hekmekk/git-team/src/remove/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/remove/interfaceadapter/event"
@@ -40,8 +41,8 @@ func main() {
 		applyPolicy(application.remove.Policy, removeeventadapter.MapEventToEffects)
 	case application.enable.command.FullCommand():
 		runEnable(application.enable)
-	case application.disable.command.FullCommand():
-		runDisable()
+	case application.disable.CommandName:
+		applyPolicy(application.disable.Policy, disableeventadapter.MapEventToEffectsFactory(statusApi.Fetch))
 	case application.status.command.FullCommand():
 		runStatus()
 	case application.list.command.FullCommand():
@@ -68,16 +69,6 @@ func newEnable(app *kingpin.Application) enable {
 	return enable{
 		command:             command,
 		aliasesAndCoauthors: command.Arg("coauthors", "The co-authors for the next commit(s). A co-author must either be an alias or of the shape \"Name <email>\"").Strings(),
-	}
-}
-
-type disable struct {
-	command *kingpin.CmdClause
-}
-
-func newDisable(app *kingpin.Application) disable {
-	return disable{
-		command: app.Command("disable", "Use default template"),
 	}
 }
 
@@ -108,7 +99,7 @@ type application struct {
 	add     addcmdadapter.Definition
 	remove  removecmdadapter.Definition
 	enable  enable
-	disable disable
+	disable disablecmdadapter.Definition
 	status  status
 	list    list
 }
@@ -125,7 +116,7 @@ func newApplication(author string, version string) application {
 		add:     addcmdadapter.NewDefinition(app),
 		remove:  removecmdadapter.NewDefinition(app),
 		enable:  newEnable(app),
-		disable: newDisable(app),
+		disable: disablecmdadapter.NewDefinition(app),
 		status:  newStatus(app),
 		list:    newList(app),
 	}
@@ -147,17 +138,6 @@ func runEnable(enable enable) {
 	}
 	enableErrs := execEnable(cmd)
 	exitIfErr(enableErrs...)
-
-	status, err := statusApi.Fetch()
-	exitIfErr(err)
-
-	fmt.Println(status.ToString())
-	os.Exit(0)
-}
-
-func runDisable() {
-	err := execDisable.Exec()
-	exitIfErr(err)
 
 	status, err := statusApi.Fetch()
 	exitIfErr(err)

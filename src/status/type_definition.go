@@ -15,16 +15,20 @@ const (
 	msgTemplate string     = "git-team %s."
 )
 
-type state struct {
+// State the state of git-team
+type State struct {
 	Status    teamStatus `toml:"status"`
 	Coauthors []string   `toml:"co-authors"`
 }
 
-func (state state) IsEnabled() bool {
+// IsEnabled returns true if git-team is enabled
+func (state State) IsEnabled() bool {
 	return state.Status == enabled
 }
 
-func (state state) ToString() string {
+// ToString the cli string representation of the current state
+// TODO: move to mapper...
+func (state State) ToString() string {
 	var buffer bytes.Buffer
 	switch state.Status {
 	case enabled:

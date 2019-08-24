@@ -10,7 +10,7 @@ import (
 )
 
 // Fetch read the current state from file
-func Fetch() (state, error) {
+func Fetch() (State, error) {
 	deps := fetchDependencies{
 		loadConfig:     config.Load,
 		tomlDecodeFile: toml.DecodeFile,
@@ -22,15 +22,15 @@ func Fetch() (state, error) {
 
 // PersistEnabled persist the current state to file as enabled
 func PersistEnabled(coauthors []string) error {
-	return persist(state{Status: enabled, Coauthors: coauthors})
+	return persist(State{Status: enabled, Coauthors: coauthors})
 }
 
 // PersistDisabled persist the current state to file as disabled
 func PersistDisabled() error {
-	return persist(state{Status: disabled})
+	return persist(State{Status: disabled})
 }
 
-func persist(state state) error {
+func persist(state State) error {
 	deps := persistDependencies{
 		loadConfig: config.Load,
 		writeFile:  ioutil.WriteFile,

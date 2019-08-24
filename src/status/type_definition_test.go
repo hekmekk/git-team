@@ -11,7 +11,7 @@ func TestIsEnabled(t *testing.T) {
 	teamStatusToIsEnabled[disabled] = false
 
 	for status, expectedIsEnabled := range teamStatusToIsEnabled {
-		isEnabled := state{Status: status}.IsEnabled()
+		isEnabled := State{Status: status}.IsEnabled()
 
 		if isEnabled != expectedIsEnabled {
 			t.Errorf("expected: %t, got: %t", expectedIsEnabled, isEnabled)
@@ -23,7 +23,7 @@ func TestIsEnabled(t *testing.T) {
 func TestToStringEnabled(t *testing.T) {
 	expectedString := "git-team enabled.\n\nCo-authors:\n-----------\nMr. Noujz <noujz@mr.se>\nMrs. Noujz <noujz@mrs.se>"
 
-	str := state{Status: enabled, Coauthors: []string{"Mrs. Noujz <noujz@mrs.se>", "Mr. Noujz <noujz@mr.se>"}}.ToString()
+	str := State{Status: enabled, Coauthors: []string{"Mrs. Noujz <noujz@mrs.se>", "Mr. Noujz <noujz@mr.se>"}}.ToString()
 
 	if str != expectedString {
 		t.Errorf("expected: %s, got: %s", expectedString, str)
@@ -34,7 +34,7 @@ func TestToStringEnabled(t *testing.T) {
 func TestToStringDisabled(t *testing.T) {
 	expectedString := "git-team disabled."
 
-	str := state{Status: disabled}.ToString()
+	str := State{Status: disabled}.ToString()
 
 	if str != expectedString {
 		t.Errorf("expected: %s, got: %s", expectedString, str)
