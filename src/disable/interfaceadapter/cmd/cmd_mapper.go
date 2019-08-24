@@ -7,8 +7,8 @@ import (
 
 	"github.com/hekmekk/git-team/src/core/config"
 	"github.com/hekmekk/git-team/src/core/gitconfig"
+	"github.com/hekmekk/git-team/src/core/state_repository"
 	"github.com/hekmekk/git-team/src/disable"
-	"github.com/hekmekk/git-team/src/status"
 )
 
 // Definition the command, arguments, and dependencies
@@ -31,7 +31,7 @@ func NewDefinition(app *kingpin.Application) Definition {
 				LoadConfig:             config.Load,
 				StatFile:               os.Stat,
 				RemoveFile:             os.Remove,
-				PersistDisabled:        status.PersistDisabled,
+				PersistDisabled:        staterepository.PersistDisabled,
 			},
 		},
 	}

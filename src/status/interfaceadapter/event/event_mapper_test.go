@@ -1,4 +1,4 @@
-package disableeventadapter
+package statuseventadapter
 
 import (
 	"errors"
@@ -7,20 +7,19 @@ import (
 
 	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/state"
-	"github.com/hekmekk/git-team/src/disable"
+	"github.com/hekmekk/git-team/src/status"
 )
 
-func TestMapEventToEffectsSucceeded(t *testing.T) {
+func TestMapEventToEffectsStateRetrievalSucceededEnabled(t *testing.T) {
+	msg := "git-team enabled.\n\nCo-authors:\n-----------\nMr. Noujz <noujz@mr.se>\nMrs. Noujz <noujz@mrs.se>"
+	state := state.NewStateEnabled([]string{"Mrs. Noujz <noujz@mrs.se>", "Mr. Noujz <noujz@mr.se>"})
+
 	expectedEffects := []effects.Effect{
-		effects.NewPrintMessage("git-team disabled."),
+		effects.NewPrintMessage(msg),
 		effects.NewExitOk(),
 	}
 
-	queryStatus := func() (state.State, error) {
-		return state.NewStateDisabled(), nil
-	}
-
-	effects := MapEventToEffectsFactory(queryStatus)(disable.Succeeded{})
+	effects := MapEventToEffects(status.StateRetrievalSucceeded{State: state})
 
 	if !reflect.DeepEqual(expectedEffects, effects) {
 		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
@@ -28,19 +27,16 @@ func TestMapEventToEffectsSucceeded(t *testing.T) {
 	}
 }
 
-func TestMapEventToEffectsSucceededButQueryStatusFailed(t *testing.T) {
-	err := errors.New("query status failure")
+func TestMapEventToEffectsStateRetrievalSucceededDisabled(t *testing.T) {
+	msg := "git-team disabled."
+	state := state.NewStateDisabled()
 
 	expectedEffects := []effects.Effect{
-		effects.NewPrintErr(err),
-		effects.NewExitErr(),
+		effects.NewPrintMessage(msg),
+		effects.NewExitOk(),
 	}
 
-	queryStatus := func() (state.State, error) {
-		return state.State{}, err
-	}
-
-	effects := MapEventToEffectsFactory(queryStatus)(disable.Succeeded{})
+	effects := MapEventToEffects(status.StateRetrievalSucceeded{State: state})
 
 	if !reflect.DeepEqual(expectedEffects, effects) {
 		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
@@ -48,15 +44,15 @@ func TestMapEventToEffectsSucceededButQueryStatusFailed(t *testing.T) {
 	}
 }
 
-func TestMapEventToEffectsFailed(t *testing.T) {
-	err := errors.New("disable failure")
+func TestMapEventToEffectsAssignmentFailed(t *testing.T) {
+	err := errors.New("failure")
 
 	expectedEffects := []effects.Effect{
 		effects.NewPrintErr(err),
 		effects.NewExitErr(),
 	}
 
-	effects := MapEventToEffectsFactory(nil)(disable.Failed{Reason: err})
+	effects := MapEventToEffects(status.StateRetrievalFailed{Reason: err})
 
 	if !reflect.DeepEqual(expectedEffects, effects) {
 		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
@@ -67,7 +63,7 @@ func TestMapEventToEffectsFailed(t *testing.T) {
 func TestMapEventToEffectsUnknownEvent(t *testing.T) {
 	expectedEffects := []effects.Effect{}
 
-	effects := MapEventToEffectsFactory(nil)("UNKNOWN_EVENT")
+	effects := MapEventToEffects("UNKNOWN_EVENT")
 
 	if !reflect.DeepEqual(expectedEffects, effects) {
 		t.Errorf("expected: %s, got: %s", expectedEffects, effects)

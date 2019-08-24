@@ -4,8 +4,8 @@ import (
 	"flag"
 	"os"
 
+	"github.com/hekmekk/git-team/src/core/state_repository"
 	"github.com/hekmekk/git-team/src/enable/utils"
-	"github.com/hekmekk/git-team/src/status"
 )
 
 type commitMsgSourceT string
@@ -20,7 +20,7 @@ const (
 )
 
 func main() {
-	status, err := status.Fetch()
+	status, err := staterepository.Query()
 	if err != nil {
 		panic(err)
 	}
