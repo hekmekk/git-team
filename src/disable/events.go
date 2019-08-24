@@ -1,6 +1,6 @@
 package disable
 
-// Succeeded assignment of coauthor to alias succeeded
+// Succeeded successfully disabled git-team
 type Succeeded struct{}
 
 // Failed failed to disable git-team
