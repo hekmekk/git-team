@@ -1,4 +1,4 @@
-package status
+package staterepository
 
 import (
 	"errors"
@@ -8,6 +8,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/hekmekk/git-team/src/core/config"
+	"github.com/hekmekk/git-team/src/core/state"
 )
 
 // TODO: add assertions on arguments to mocked functions
@@ -22,15 +23,15 @@ var (
 	tomlEncode     = func(interface{}) ([]byte, error) { return nil, nil }
 )
 
-func TestFetchSucceeds(t *testing.T) {
-	deps := fetchDependencies{
+func TestQuerySucceeds(t *testing.T) {
+	deps := queryDependencies{
 		loadConfig:     loadConfig,
 		tomlDecodeFile: tomlDecodeFile,
 		statFile:       statFile,
 		isFileNotExist: isFileNotExist,
 	}
 
-	_, err := fetchFromFileFactory(deps)()
+	_, err := queryFileFactory(deps)()
 
 	if err != nil {
 		t.Error(err)
@@ -38,18 +39,18 @@ func TestFetchSucceeds(t *testing.T) {
 	}
 }
 
-func TestFetchSucceedsWithDefaultIfFileNotPresent(t *testing.T) {
+func TestQuerySucceedsWithDefaultIfFileNotPresent(t *testing.T) {
 	statFile := func(string) (os.FileInfo, error) { return fileInfo, errors.New("failed to stat path") }
 	isFileNotExist := func(error) bool { return true }
-	deps := fetchDependencies{
+	deps := queryDependencies{
 		loadConfig:     loadConfig,
 		tomlDecodeFile: tomlDecodeFile,
 		statFile:       statFile,
 		isFileNotExist: isFileNotExist,
 	}
 
-	expectedState := State{Status: disabled, Coauthors: []string{}}
-	state, err := fetchFromFileFactory(deps)()
+	expectedState := state.NewStateDisabled()
+	state, err := queryFileFactory(deps)()
 
 	if err != nil {
 		t.Error(err)
@@ -62,16 +63,16 @@ func TestFetchSucceedsWithDefaultIfFileNotPresent(t *testing.T) {
 	}
 }
 
-func TestFetchFailsDueToConfigLoadError(t *testing.T) {
+func TestQueryFailsDueToConfigLoadError(t *testing.T) {
 	loadConfig := func() (config.Config, error) { return config.Config{}, errors.New("failed to load config") }
-	deps := fetchDependencies{
+	deps := queryDependencies{
 		loadConfig:     loadConfig,
 		tomlDecodeFile: tomlDecodeFile,
 		statFile:       statFile,
 		isFileNotExist: isFileNotExist,
 	}
 
-	_, err := fetchFromFileFactory(deps)()
+	_, err := queryFileFactory(deps)()
 
 	if err == nil {
 		t.Error("expected failure")
@@ -79,18 +80,18 @@ func TestFetchFailsDueToConfigLoadError(t *testing.T) {
 	}
 }
 
-func TestFetchFailsDueToDecodeError(t *testing.T) {
+func TestQueryFailsDueToDecodeError(t *testing.T) {
 	tomlDecodeFile := func(string, interface{}) (toml.MetaData, error) {
 		return toml.MetaData{}, errors.New("failed to decode")
 	}
-	deps := fetchDependencies{
+	deps := queryDependencies{
 		loadConfig:     loadConfig,
 		tomlDecodeFile: tomlDecodeFile,
 		statFile:       statFile,
 		isFileNotExist: isFileNotExist,
 	}
 
-	_, err := fetchFromFileFactory(deps)()
+	_, err := queryFileFactory(deps)()
 
 	if err == nil {
 		t.Error("expected failure")
@@ -106,7 +107,7 @@ func TestPersistSucceeds(t *testing.T) {
 	}
 
 	// TODO: assert that this is passed to tomlEncode
-	state := State{Status: enabled, Coauthors: []string{"CO-AUTHOR"}}
+	state := state.NewStateEnabled([]string{"CO-AUTHOR"})
 
 	err := persistToFileFactory(deps)(state)
 
@@ -124,7 +125,7 @@ func TestPersistFailsDueToConfigLoadError(t *testing.T) {
 		tomlEncode: tomlEncode,
 	}
 
-	err := persistToFileFactory(deps)(State{})
+	err := persistToFileFactory(deps)(state.NewStateDisabled())
 
 	if err == nil {
 		t.Error("expected failure")
@@ -142,7 +143,7 @@ func TestPersistFailsDueToTomlEncodeError(t *testing.T) {
 		tomlEncode: tomlEncode,
 	}
 
-	err := persistToFileFactory(deps)(State{})
+	err := persistToFileFactory(deps)(state.NewStateDisabled())
 
 	if err == nil {
 		t.Error("expected failure")
@@ -158,7 +159,7 @@ func TestPersistFailsDueToWriteFileError(t *testing.T) {
 		tomlEncode: tomlEncode,
 	}
 
-	err := persistToFileFactory(deps)(State{})
+	err := persistToFileFactory(deps)(state.NewStateDisabled())
 
 	if err == nil {
 		t.Error("expected failure")

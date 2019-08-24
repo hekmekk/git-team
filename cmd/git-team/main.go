@@ -17,17 +17,20 @@ import (
 	"github.com/hekmekk/git-team/src/core/events"
 	git "github.com/hekmekk/git-team/src/core/gitconfig"
 	"github.com/hekmekk/git-team/src/core/policy"
+	"github.com/hekmekk/git-team/src/core/state_repository"
 	"github.com/hekmekk/git-team/src/disable/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/disable/interfaceadapter/event"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
 	"github.com/hekmekk/git-team/src/remove/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/remove/interfaceadapter/event"
-	statusApi "github.com/hekmekk/git-team/src/status"
+	"github.com/hekmekk/git-team/src/status"
+	"github.com/hekmekk/git-team/src/status/interfaceadapter/cmd"
+	"github.com/hekmekk/git-team/src/status/interfaceadapter/event"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
-	version = "v1.3.2-alpha1"
+	version = "v1.3.2-alpha2"
 	author  = "Rea Sand <hekmek@posteo.de>"
 )
 
@@ -42,9 +45,9 @@ func main() {
 	case application.enable.command.FullCommand():
 		runEnable(application.enable)
 	case application.disable.CommandName:
-		applyPolicy(application.disable.Policy, disableeventadapter.MapEventToEffectsFactory(statusApi.Fetch))
-	case application.status.command.FullCommand():
-		runStatus()
+		applyPolicy(application.disable.Policy, disableeventadapter.MapEventToEffectsFactory(application.status.Policy.Deps.StateRepositoryQuery))
+	case application.status.CommandName:
+		applyPolicy(application.status.Policy, statuseventadapter.MapEventToEffects)
 	case application.list.command.FullCommand():
 		runList()
 	}
@@ -72,16 +75,6 @@ func newEnable(app *kingpin.Application) enable {
 	}
 }
 
-type status struct {
-	command *kingpin.CmdClause
-}
-
-func newStatus(app *kingpin.Application) status {
-	return status{
-		command: app.Command("status", "Print the current status"),
-	}
-}
-
 type list struct {
 	command *kingpin.CmdClause
 }
@@ -100,7 +93,7 @@ type application struct {
 	remove  removecmdadapter.Definition
 	enable  enable
 	disable disablecmdadapter.Definition
-	status  status
+	status  statuscmdadapter.Definition
 	list    list
 }
 
@@ -117,7 +110,7 @@ func newApplication(author string, version string) application {
 		remove:  removecmdadapter.NewDefinition(app),
 		enable:  newEnable(app),
 		disable: disablecmdadapter.NewDefinition(app),
-		status:  newStatus(app),
+		status:  statuscmdadapter.NewDefinition(app),
 		list:    newList(app),
 	}
 }
@@ -129,7 +122,7 @@ func runEnable(enable enable) {
 		SetCommitTemplate: git.SetCommitTemplate, // TODO: GitSetCommitTemplate
 		GitSetHooksPath:   git.SetHooksPath,
 		GitResolveAliases: git.ResolveAliases,
-		PersistEnabled:    statusApi.PersistEnabled,
+		PersistEnabled:    staterepository.PersistEnabled,
 		LoadConfig:        config.Load,
 	}
 	execEnable := enableExecutor.ExecutorFactory(enableDeps)
@@ -139,18 +132,10 @@ func runEnable(enable enable) {
 	enableErrs := execEnable(cmd)
 	exitIfErr(enableErrs...)
 
-	status, err := statusApi.Fetch()
+	currState, err := staterepository.Query()
 	exitIfErr(err)
 
-	fmt.Println(status.ToString())
-	os.Exit(0)
-}
-
-func runStatus() {
-	status, err := statusApi.Fetch()
-	exitIfErr(err)
-
-	fmt.Println(status.ToString())
+	statuseventadapter.MapEventToEffects(status.StateRetrievalSucceeded{State: currState})[0].Run()
 	os.Exit(0)
 }
 
