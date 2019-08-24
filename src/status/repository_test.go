@@ -48,7 +48,7 @@ func TestFetchSucceedsWithDefaultIfFileNotPresent(t *testing.T) {
 		isFileNotExist: isFileNotExist,
 	}
 
-	expectedState := state{Status: disabled, Coauthors: []string{}}
+	expectedState := State{Status: disabled, Coauthors: []string{}}
 	state, err := fetchFromFileFactory(deps)()
 
 	if err != nil {
@@ -106,7 +106,7 @@ func TestPersistSucceeds(t *testing.T) {
 	}
 
 	// TODO: assert that this is passed to tomlEncode
-	state := state{Status: enabled, Coauthors: []string{"CO-AUTHOR"}}
+	state := State{Status: enabled, Coauthors: []string{"CO-AUTHOR"}}
 
 	err := persistToFileFactory(deps)(state)
 
@@ -124,7 +124,7 @@ func TestPersistFailsDueToConfigLoadError(t *testing.T) {
 		tomlEncode: tomlEncode,
 	}
 
-	err := persistToFileFactory(deps)(state{})
+	err := persistToFileFactory(deps)(State{})
 
 	if err == nil {
 		t.Error("expected failure")
@@ -142,7 +142,7 @@ func TestPersistFailsDueToTomlEncodeError(t *testing.T) {
 		tomlEncode: tomlEncode,
 	}
 
-	err := persistToFileFactory(deps)(state{})
+	err := persistToFileFactory(deps)(State{})
 
 	if err == nil {
 		t.Error("expected failure")
@@ -158,7 +158,7 @@ func TestPersistFailsDueToWriteFileError(t *testing.T) {
 		tomlEncode: tomlEncode,
 	}
 
-	err := persistToFileFactory(deps)(state{})
+	err := persistToFileFactory(deps)(State{})
 
 	if err == nil {
 		t.Error("expected failure")
