@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-// Dependencies the dependencies of the Policy
+// Dependencies the dependencies of the disable Policy module
 type Dependencies struct {
 	GitUnsetCommitTemplate func() error
 	GitUnsetHooksPath      func() error
