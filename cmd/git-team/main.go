@@ -135,8 +135,9 @@ func runEnable(enable enable) {
 	currState, err := staterepository.Query()
 	exitIfErr(err)
 
-	statuseventadapter.MapEventToEffects(status.StateRetrievalSucceeded{State: currState})[0].Run()
-	os.Exit(0)
+	for _, effect := range statuseventadapter.MapEventToEffects(status.StateRetrievalSucceeded{State: currState}) {
+		effect.Run()
+	}
 }
 
 func runList() {
