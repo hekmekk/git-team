@@ -11,7 +11,7 @@ type AssignmentSucceeded struct {
 	Coauthor string
 }
 
-// AssignmentAborted nothing happened
+// AssignmentAborted nothing changed
 type AssignmentAborted struct {
 	Alias             string
 	ExistingCoauthor  string

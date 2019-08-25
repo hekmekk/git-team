@@ -7,7 +7,7 @@ import (
 	"github.com/hekmekk/git-team/src/remove"
 )
 
-// Definition the command, arguments, and dependencies
+// Definition definition of the remove command
 type Definition struct {
 	CommandName string
 	Policy      remove.Policy

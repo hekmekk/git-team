@@ -13,7 +13,7 @@ import (
 	"github.com/hekmekk/git-team/src/list"
 )
 
-// MapEventToEffects convert assignment events to effects for the cli
+// MapEventToEffects convert list events to effects for the cli
 func MapEventToEffects(event events.Event) []effects.Effect {
 	switch evt := event.(type) {
 	case list.RetrievalSucceeded:

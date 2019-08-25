@@ -5,7 +5,7 @@ type DeAllocationFailed struct {
 	Reason error
 }
 
-// DeAllocationSucceeded successfully remove an alias -> co-author assignment
+// DeAllocationSucceeded successfully removed an alias -> co-author assignment
 type DeAllocationSucceeded struct {
 	Alias string
 }

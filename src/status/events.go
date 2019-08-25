@@ -4,12 +4,12 @@ import (
 	"github.com/hekmekk/git-team/src/core/state"
 )
 
-// StateRetrievalSucceeded successfully queried the state repository for the current state
+// StateRetrievalSucceeded successfully got the current state
 type StateRetrievalSucceeded struct {
 	State state.State
 }
 
-// StateRetrievalFailed failed to query the state repository
+// StateRetrievalFailed failed to get the current state
 type StateRetrievalFailed struct {
 	Reason error
 }
