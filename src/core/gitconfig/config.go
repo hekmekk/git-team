@@ -47,16 +47,16 @@ func RemoveAlias(alias string) error {
 }
 
 // GetAssignments get all alias -> co-author mappings
-func GetAssignments() map[string]string {
+func GetAssignments() (map[string]string, error) {
 	return getAssignments(execGitConfig)
 }
 
-func getAssignments(exec func(...string) ([]string, error)) map[string]string {
+func getAssignments(exec func(...string) ([]string, error)) (map[string]string, error) {
 	mapping := make(map[string]string)
 
 	lines, err := exec("--get-regexp", teamAlias)
 	if err != nil {
-		lines = make([]string, 0)
+		return mapping, err
 	}
 
 	for _, v := range lines {
@@ -64,7 +64,7 @@ func getAssignments(exec func(...string) ([]string, error)) map[string]string {
 		mapping[strings.TrimPrefix(aliasAndCoauthor[0], fmt.Sprintf("%s.", teamAlias))] = aliasAndCoauthor[1]
 	}
 
-	return mapping
+	return mapping, nil
 }
 
 // ResolveAliases convenience function to resolve multiple aliases and accumulate errors

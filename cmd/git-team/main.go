@@ -6,10 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"sort"
 	"strings"
 
-	"github.com/fatih/color"
 	"github.com/hekmekk/git-team/src/add/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/add/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/core/config"
@@ -21,6 +19,8 @@ import (
 	"github.com/hekmekk/git-team/src/disable/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/disable/interfaceadapter/event"
 	enableExecutor "github.com/hekmekk/git-team/src/enable"
+	"github.com/hekmekk/git-team/src/list/interfaceadapter/cmd"
+	"github.com/hekmekk/git-team/src/list/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/remove/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/remove/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/status"
@@ -30,7 +30,7 @@ import (
 )
 
 const (
-	version = "v1.3.2-alpha2"
+	version = "v1.3.2-alpha3"
 	author  = "Rea Sand <hekmek@posteo.de>"
 )
 
@@ -48,8 +48,8 @@ func main() {
 		applyPolicy(application.disable.Policy, disableeventadapter.MapEventToEffectsFactory(application.status.Policy.Deps.StateRepositoryQuery))
 	case application.status.CommandName:
 		applyPolicy(application.status.Policy, statuseventadapter.MapEventToEffects)
-	case application.list.command.FullCommand():
-		runList()
+	case application.list.CommandName:
+		applyPolicy(application.list.Policy, listeventadapter.MapEventToEffects)
 	}
 
 	os.Exit(0)
@@ -62,31 +62,6 @@ func applyPolicy(policy policy.Policy, adapter func(events.Event) []effects.Effe
 	}
 }
 
-type enable struct {
-	command             *kingpin.CmdClause
-	aliasesAndCoauthors *[]string // can contain both aliases and coauthors
-}
-
-func newEnable(app *kingpin.Application) enable {
-	command := app.Command("enable", "Enables injection of the provided co-authors whenever `git-commit` is used").Default()
-	return enable{
-		command:             command,
-		aliasesAndCoauthors: command.Arg("coauthors", "The co-authors for the next commit(s). A co-author must either be an alias or of the shape \"Name <email>\"").Strings(),
-	}
-}
-
-type list struct {
-	command *kingpin.CmdClause
-}
-
-func newList(app *kingpin.Application) list {
-	command := app.Command("ls", "List currently available aliases")
-	command.Alias("list")
-	return list{
-		command: command,
-	}
-}
-
 type application struct {
 	app     *kingpin.Application
 	add     addcmdadapter.Definition
@@ -94,7 +69,12 @@ type application struct {
 	enable  enable
 	disable disablecmdadapter.Definition
 	status  statuscmdadapter.Definition
-	list    list
+	list    listcmdadapter.Definition
+}
+
+type enable struct {
+	command             *kingpin.CmdClause
+	aliasesAndCoauthors *[]string // can contain both aliases and coauthors
 }
 
 func newApplication(author string, version string) application {
@@ -111,7 +91,15 @@ func newApplication(author string, version string) application {
 		enable:  newEnable(app),
 		disable: disablecmdadapter.NewDefinition(app),
 		status:  statuscmdadapter.NewDefinition(app),
-		list:    newList(app),
+		list:    listcmdadapter.NewDefinition(app),
+	}
+}
+
+func newEnable(app *kingpin.Application) enable {
+	command := app.Command("enable", "Enables injection of the provided co-authors whenever `git-commit` is used").Default()
+	return enable{
+		command:             command,
+		aliasesAndCoauthors: command.Arg("coauthors", "The co-authors for the next commit(s). A co-author must either be an alias or of the shape \"Name <email>\"").Strings(),
 	}
 }
 
@@ -138,28 +126,6 @@ func runEnable(enable enable) {
 	for _, effect := range statuseventadapter.MapEventToEffects(status.StateRetrievalSucceeded{State: currState}) {
 		effect.Run()
 	}
-}
-
-func runList() {
-	assignments := git.GetAssignments()
-
-	blackBold := color.New(color.FgBlack).Add(color.Bold)
-	blackBold.Println("Aliases:")
-	blackBold.Println("--------")
-
-	var aliases []string
-
-	for alias := range assignments {
-		aliases = append(aliases, alias)
-	}
-
-	sort.Strings(aliases)
-
-	for _, alias := range aliases {
-		coauthor := assignments[alias]
-		color.Magenta(fmt.Sprintf("'%s' -> '%s'", alias, coauthor))
-	}
-	os.Exit(0)
 }
 
 func exitIfErr(validationErrs ...error) {
