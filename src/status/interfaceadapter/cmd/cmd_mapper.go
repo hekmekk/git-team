@@ -7,7 +7,7 @@ import (
 	"github.com/hekmekk/git-team/src/status"
 )
 
-// Definition the command, arguments, and dependencies
+// Definition definition of the status command
 type Definition struct {
 	CommandName string
 	Policy      status.Policy

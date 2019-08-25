@@ -10,7 +10,7 @@ type DeAllocationRequest struct {
 	Alias *string
 }
 
-// Dependencies the dependencies of the Policy
+// Dependencies the dependencies of the remove Policy module
 type Dependencies struct {
 	GitRemoveAlias func(string) error
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/hekmekk/git-team/src/status/interfaceadapter/event"
 )
 
-// MapEventToEffectsFactory convert assignment events to effects for the cli
+// MapEventToEffectsFactory convert disable events to effects for the cli
 func MapEventToEffectsFactory(queryStatus func() (state.State, error)) func(events.Event) []effects.Effect {
 	return func(event events.Event) []effects.Effect {
 		switch evt := event.(type) {

@@ -5,7 +5,7 @@ import (
 	"github.com/hekmekk/git-team/src/core/state"
 )
 
-// Dependencies the dependencies of the Policy
+// Dependencies the dependencies of the status Policy module
 type Dependencies struct {
 	StateRepositoryQuery func() (state.State, error)
 }
@@ -15,7 +15,7 @@ type Policy struct {
 	Deps Dependencies
 }
 
-// Apply assign a co-author to an alias
+// Apply show the current status of git-team
 func (policy Policy) Apply() events.Event {
 	deps := policy.Deps
 

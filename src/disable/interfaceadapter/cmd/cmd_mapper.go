@@ -11,7 +11,7 @@ import (
 	"github.com/hekmekk/git-team/src/disable"
 )
 
-// Definition the command, arguments, and dependencies
+// Definition definition of the disable command
 type Definition struct {
 	CommandName string
 	Policy      disable.Policy

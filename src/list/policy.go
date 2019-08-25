@@ -5,7 +5,7 @@ import (
 	"github.com/hekmekk/git-team/src/core/events"
 )
 
-// Dependencies the dependencies of the Policy
+// Dependencies the dependencies of the list Policy module
 type Dependencies struct {
 	GitGetAssignments func() (map[string]string, error)
 }
@@ -15,7 +15,7 @@ type Policy struct {
 	Deps Dependencies
 }
 
-// Apply assign a co-author to an alias
+// Apply show the available assignments
 func (policy Policy) Apply() events.Event {
 	deps := policy.Deps
 

@@ -12,7 +12,7 @@ import (
 	"github.com/hekmekk/git-team/src/status"
 )
 
-// MapEventToEffects convert assignment events to effects for the cli
+// MapEventToEffects convert status events to effects for the cli
 func MapEventToEffects(event events.Event) []effects.Effect {
 	switch evt := event.(type) {
 	case status.StateRetrievalSucceeded:

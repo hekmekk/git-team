@@ -7,7 +7,7 @@ import (
 	"github.com/hekmekk/git-team/src/list"
 )
 
-// Definition what defines the list command
+// Definition definition of the list command
 type Definition struct {
 	CommandName string
 	Policy      list.Policy

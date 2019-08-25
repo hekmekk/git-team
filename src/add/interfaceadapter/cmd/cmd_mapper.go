@@ -11,7 +11,7 @@ import (
 	"github.com/hekmekk/git-team/src/core/validation"
 )
 
-// Definition the command, arguments, and dependencies
+// Definition definition of the add command
 type Definition struct {
 	CommandName string
 	Policy      add.Policy
