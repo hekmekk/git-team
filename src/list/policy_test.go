@@ -14,21 +14,26 @@ func TestListShouldReturnTheAvailableAssignments(t *testing.T) {
 		"alias2": "coauthor2",
 	}
 
-	assignments := []assignment.Assignment{
-		assignment.Assignment{Alias: "alias1", Coauthor: "coauthor1"},
-		assignment.Assignment{Alias: "alias2", Coauthor: "coauthor2"},
-	}
-
 	deps := Dependencies{
 		GitGetAssignments: func() (map[string]string, error) { return aliasCoauthorMap, nil },
 	}
 
-	expectedEvent := RetrievalSucceeded{Assignments: assignments}
+	assignmentsA := []assignment.Assignment{
+		assignment.Assignment{Alias: "alias1", Coauthor: "coauthor1"},
+		assignment.Assignment{Alias: "alias2", Coauthor: "coauthor2"},
+	}
+	expectedEventA := RetrievalSucceeded{Assignments: assignmentsA}
+
+	assignmentsB := []assignment.Assignment{
+		assignment.Assignment{Alias: "alias1", Coauthor: "coauthor1"},
+		assignment.Assignment{Alias: "alias2", Coauthor: "coauthor2"},
+	}
+	expectedEventB := RetrievalSucceeded{Assignments: assignmentsB}
 
 	event := Policy{deps}.Apply()
 
-	if !reflect.DeepEqual(expectedEvent, event) {
-		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+	if !reflect.DeepEqual(expectedEventA, event) && !reflect.DeepEqual(expectedEventB, event) {
+		t.Errorf("expected: %s, got: %s", expectedEventA, event)
 		t.Fail()
 	}
 }
