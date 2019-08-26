@@ -1,36 +1,28 @@
 package main
 
 import (
-	"bytes"
-	"errors"
-	"fmt"
-	"io/ioutil"
 	"os"
-	"strings"
 
 	"github.com/hekmekk/git-team/src/add/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/add/interfaceadapter/event"
-	"github.com/hekmekk/git-team/src/core/config"
 	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/events"
-	git "github.com/hekmekk/git-team/src/core/gitconfig"
 	"github.com/hekmekk/git-team/src/core/policy"
-	"github.com/hekmekk/git-team/src/core/state_repository"
 	"github.com/hekmekk/git-team/src/disable/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/disable/interfaceadapter/event"
-	enableExecutor "github.com/hekmekk/git-team/src/enable"
+	"github.com/hekmekk/git-team/src/enable/interfaceadapter/cmd"
+	"github.com/hekmekk/git-team/src/enable/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/list/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/list/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/remove/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/remove/interfaceadapter/event"
-	"github.com/hekmekk/git-team/src/status"
 	"github.com/hekmekk/git-team/src/status/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/status/interfaceadapter/event"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
-	version = "v1.3.2-alpha3"
+	version = "v1.3.2-alpha4"
 	author  = "Rea Sand <hekmek@posteo.de>"
 )
 
@@ -42,8 +34,8 @@ func main() {
 		applyPolicy(application.add.Policy, addeventadapter.MapEventToEffects)
 	case application.remove.CommandName:
 		applyPolicy(application.remove.Policy, removeeventadapter.MapEventToEffects)
-	case application.enable.command.FullCommand():
-		runEnable(application.enable)
+	case application.enable.CommandName:
+		applyPolicy(application.enable.Policy, enableeventadapter.MapEventToEffectsFactory(application.status.Policy.Deps.StateRepositoryQuery))
 	case application.disable.CommandName:
 		applyPolicy(application.disable.Policy, disableeventadapter.MapEventToEffectsFactory(application.status.Policy.Deps.StateRepositoryQuery))
 	case application.status.CommandName:
@@ -66,15 +58,10 @@ type application struct {
 	app     *kingpin.Application
 	add     addcmdadapter.Definition
 	remove  removecmdadapter.Definition
-	enable  enable
+	enable  enablecmdadapter.Definition
 	disable disablecmdadapter.Definition
 	status  statuscmdadapter.Definition
 	list    listcmdadapter.Definition
-}
-
-type enable struct {
-	command             *kingpin.CmdClause
-	aliasesAndCoauthors *[]string // can contain both aliases and coauthors
 }
 
 func newApplication(author string, version string) application {
@@ -88,59 +75,9 @@ func newApplication(author string, version string) application {
 		app:     app,
 		add:     addcmdadapter.NewDefinition(app),
 		remove:  removecmdadapter.NewDefinition(app),
-		enable:  newEnable(app),
+		enable:  enablecmdadapter.NewDefinition(app),
 		disable: disablecmdadapter.NewDefinition(app),
 		status:  statuscmdadapter.NewDefinition(app),
 		list:    listcmdadapter.NewDefinition(app),
 	}
-}
-
-func newEnable(app *kingpin.Application) enable {
-	command := app.Command("enable", "Enables injection of the provided co-authors whenever `git-commit` is used").Default()
-	return enable{
-		command:             command,
-		aliasesAndCoauthors: command.Arg("coauthors", "The co-authors for the next commit(s). A co-author must either be an alias or of the shape \"Name <email>\"").Strings(),
-	}
-}
-
-func runEnable(enable enable) {
-	enableDeps := enableExecutor.Dependencies{
-		CreateDir:         os.MkdirAll,           // TODO: CreateTemplateDir
-		WriteFile:         ioutil.WriteFile,      // TODO: WriteTemplateFile
-		SetCommitTemplate: git.SetCommitTemplate, // TODO: GitSetCommitTemplate
-		GitSetHooksPath:   git.SetHooksPath,
-		GitResolveAliases: git.ResolveAliases,
-		PersistEnabled:    staterepository.PersistEnabled,
-		LoadConfig:        config.Load,
-	}
-	execEnable := enableExecutor.ExecutorFactory(enableDeps)
-	cmd := enableExecutor.Command{
-		Coauthors: append(*enable.aliasesAndCoauthors),
-	}
-	enableErrs := execEnable(cmd)
-	exitIfErr(enableErrs...)
-
-	currState, err := staterepository.Query()
-	exitIfErr(err)
-
-	for _, effect := range statuseventadapter.MapEventToEffects(status.StateRetrievalSucceeded{State: currState}) {
-		effect.Run()
-	}
-}
-
-func exitIfErr(validationErrs ...error) {
-	if len(validationErrs) > 0 && validationErrs[0] != nil {
-		os.Stderr.WriteString(fmt.Sprintf("error: %s\n", foldErrors(validationErrs)))
-		os.Exit(-1)
-	}
-}
-
-// TODO: is this required for anything else than "enable"?
-func foldErrors(validationErrors []error) error {
-	var buffer bytes.Buffer
-	for _, err := range validationErrors {
-		buffer.WriteString(err.Error())
-		buffer.WriteString("; ")
-	}
-	return errors.New(strings.TrimRight(buffer.String(), "; "))
 }
