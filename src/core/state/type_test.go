@@ -4,18 +4,22 @@ import (
 	"testing"
 )
 
-func TestIsEnabled(t *testing.T) {
+func TestIsEnabledShouldBeTrue(t *testing.T) {
+	expectedIsEnabled := true
+	isEnabled := NewStateEnabled([]string{}).IsEnabled()
 
-	teamStatusToIsEnabled := make(map[teamStatus]bool)
-	teamStatusToIsEnabled[enabled] = true
-	teamStatusToIsEnabled[disabled] = false
+	if expectedIsEnabled != isEnabled {
+		t.Errorf("expected: %t, got: %t", expectedIsEnabled, isEnabled)
+		t.Fail()
+	}
+}
 
-	for status, expectedIsEnabled := range teamStatusToIsEnabled {
-		isEnabled := State{Status: status}.IsEnabled()
+func TestIsEnabledShouldBeFalse(t *testing.T) {
+	expectedIsEnabled := false
+	isEnabled := NewStateDisabled().IsEnabled()
 
-		if isEnabled != expectedIsEnabled {
-			t.Errorf("expected: %t, got: %t", expectedIsEnabled, isEnabled)
-			t.Fail()
-		}
+	if expectedIsEnabled != isEnabled {
+		t.Errorf("expected: %t, got: %t", expectedIsEnabled, isEnabled)
+		t.Fail()
 	}
 }
