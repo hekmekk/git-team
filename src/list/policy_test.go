@@ -25,8 +25,8 @@ func TestListShouldReturnTheAvailableAssignments(t *testing.T) {
 	expectedEventA := RetrievalSucceeded{Assignments: assignmentsA}
 
 	assignmentsB := []assignment.Assignment{
-		assignment.Assignment{Alias: "alias1", Coauthor: "coauthor1"},
 		assignment.Assignment{Alias: "alias2", Coauthor: "coauthor2"},
+		assignment.Assignment{Alias: "alias1", Coauthor: "coauthor1"},
 	}
 	expectedEventB := RetrievalSucceeded{Assignments: assignmentsB}
 
