@@ -38,6 +38,23 @@ func TestListShouldReturnTheAvailableAssignments(t *testing.T) {
 	}
 }
 
+func TestListShouldReturnAnEmptyListIfGitConfigSectionIsEmpty(t *testing.T) {
+	err := errors.New("exit status 1")
+
+	deps := Dependencies{
+		GitGetAssignments: func() (map[string]string, error) { return map[string]string{}, err },
+	}
+
+	expectedEvent := RetrievalSucceeded{Assignments: []assignment.Assignment{}}
+
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
+	}
+}
+
 func TestListShouldReturnFailure(t *testing.T) {
 	err := errors.New("failed to get assignments")
 
