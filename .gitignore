@@ -3,3 +3,4 @@ go.sum
 pkg/src/
 pkg/target/
 acceptance-tests/src/
+acceptance-tests/git-hooks/

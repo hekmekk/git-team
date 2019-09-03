@@ -21,6 +21,31 @@ teardown() {
 	rm -rf $REPO_PATH
 }
 
+@test "use case: an existing repo-local git hook should be respected" {
+	/usr/local/bin/git-team enable 'A <a@x.y>'
+
+	cd $REPO_PATH
+	touch THE_FILE
+
+	git init
+	git config user.name git-team-acceptance-test
+	git config user.email foo@bar.baz
+
+	echo -e "#!/bin/sh\necho 'pre-commit hook triggered'\nexit 1" > $REPO_PATH/.git/hooks/pre-commit
+	chmod +x $REPO_PATH/.git/hooks/pre-commit
+
+	cat /tmp/repo/.git/hooks/pre-commit
+
+	git add -A
+	run git commit -m "test"
+
+	assert_failure
+	assert_line --index 0 'pre-commit hook triggered'
+
+	cd -
+	/usr/local/bin/git-team disable
+}
+
 @test "use case: when git-team is enabled then 'git commit -m' should have the respective co-authors injected" {
 	/usr/local/bin/git-team enable 'B <b@x.y>' 'A <a@x.y>' 'C <c@x.y>'
 
