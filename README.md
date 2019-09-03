@@ -89,6 +89,5 @@ sudo make install
 
 ## TODOs
 - **fix**: if `core.hooksPath` is set already, symlink git-team `prepare-commit-msg` there (fail if it exists already)
-- **internal quality:** apply pattern as exemplified by `add`
 - **internal quality:** refactor `Dockerfile`s and `Makefile` for a better development experience
 
