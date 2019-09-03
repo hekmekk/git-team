@@ -24,7 +24,7 @@ COPY src/ .
 RUN chown -R $UID:$GID .
 
 RUN mkdir -p /go && chown -R $UID:$GID /go && chmod -R 2750 /go
-RUN mkdir -p /deb-target && chown -R $UID:$GID /deb-target
+RUN mkdir -p /pkg-target && chown -R $UID:$GID /pkg-target
 
 USER $USERNAME
 

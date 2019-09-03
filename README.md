@@ -30,6 +30,9 @@ Just use `git commit` or `git commit -m <msg>`.
 git team disable
 ```
 
+## A note on git hooks
+git-team uses a `prepare-commit-msg` hook to inject co-authors into a commit message. This hook is installed into `/usr/local/etc/git-team/hooks`. When you `enable` git-team, the git config option `core.hooksPath` will be set to point to that directory. Along with the `prepare-commit-msg` hook come proxies for all the other git hooks, so that other existing repo-local hooks are still being triggered.
+
 ## Installation
 #### via [Homebrew](https://brew.sh)
 1. Add tap
@@ -85,6 +88,7 @@ sudo make install
 - [git mob](https://www.npmjs.com/package/git-mob)
 
 ## TODOs
+- **fix**: if `core.hooksPath` is set already, symlink git-team `prepare-commit-msg` there (fail if it exists already)
 - **internal quality:** apply pattern as exemplified by `add`
 - **internal quality:** refactor `Dockerfile`s and `Makefile` for a better development experience
 
