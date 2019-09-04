@@ -48,8 +48,9 @@ install:
 	install $(CURR_DIR)/pkg/target/bin/git-team $(BIN_PREFIX)/bin/git-team
 	mkdir -p $(HOOKS_DIR)
 	install $(CURR_DIR)/pkg/target/bin/prepare-commit-msg $(HOOKS_DIR)/prepare-commit-msg
+	install $(CURR_DIR)/git-hooks/proxy.sh /usr/local/etc/git-team/hooks/proxy.sh
 	for hook in $(AVAILABLE_GIT_HOOKS) ; do \
-		install $(CURR_DIR)/git-hooks/proxy.sh /usr/local/etc/git-team/hooks/$$hook ; \
+		ln -fs proxy.sh /usr/local/etc/git-team/hooks/$$hook ; \
 	done
 	mkdir -p /usr/local/share/man/man1
 	install -m "0644" pkg/target/man/git-team.1.gz /usr/local/share/man/man1/git-team.1.gz
