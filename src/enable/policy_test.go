@@ -47,7 +47,7 @@ func TestEnableSucceeds(t *testing.T) {
 		return nil
 	}
 	cfg := config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
-	loadConfig := func() (config.Config, error) { return cfg, nil }
+	loadConfig := func() config.Config { return cfg }
 
 	deps := Dependencies{
 		SanityCheckCoauthors:          func(coauthors []string) []error { return []error{} },
@@ -95,7 +95,7 @@ func TestEnableDropsDuplicateEntries(t *testing.T) {
 		return nil
 	}
 	cfg := config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
-	loadConfig := func() (config.Config, error) { return cfg, nil }
+	loadConfig := func() config.Config { return cfg }
 
 	deps := Dependencies{
 		SanityCheckCoauthors:          func(coauthors []string) []error { return []error{} },
@@ -160,32 +160,6 @@ func TestEnableFailsDueToResolveAliasesErr(t *testing.T) {
 	}
 }
 
-func TestEnableFailsDueToLoadConfigErr(t *testing.T) {
-	coauthors := []string{"Mr. Noujz <noujz@mr.se>"}
-
-	expectedErr := errors.New("failed to load config")
-
-	sanityCheck := func([]string) []error { return []error{} }
-	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
-	loadConfig := func() (config.Config, error) { return config.Config{}, expectedErr }
-
-	deps := Dependencies{
-		SanityCheckCoauthors: sanityCheck,
-		GitResolveAliases:    resolveAliases,
-		LoadConfig:           loadConfig,
-	}
-	req := Request{AliasesAndCoauthors: &coauthors}
-
-	expectedEvent := Failed{Reason: []error{expectedErr}}
-
-	event := Policy{deps, req}.Apply()
-
-	if !reflect.DeepEqual(expectedEvent, event) {
-		t.Errorf("expected: %s, got: %s", expectedEvent, event)
-		t.Fail()
-	}
-}
-
 func TestEnableFailsDueToCreateTemplateDirErr(t *testing.T) {
 	coauthors := []string{"Mr. Noujz <noujz@mr.se>"}
 
@@ -194,7 +168,7 @@ func TestEnableFailsDueToCreateTemplateDirErr(t *testing.T) {
 	sanityCheck := func([]string) []error { return []error{} }
 	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
 	cfg := config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
-	loadConfig := func() (config.Config, error) { return cfg, nil }
+	loadConfig := func() config.Config { return cfg }
 	CreateTemplateDir := func(string, os.FileMode) error { return expectedErr }
 
 	deps := Dependencies{
@@ -223,7 +197,7 @@ func TestEnableFailsDueToWriteTemplateFileErr(t *testing.T) {
 	sanityCheck := func([]string) []error { return []error{} }
 	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
 	cfg := config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
-	loadConfig := func() (config.Config, error) { return cfg, nil }
+	loadConfig := func() config.Config { return cfg }
 	CreateTemplateDir := func(string, os.FileMode) error { return nil }
 	WriteTemplateFile := func(string, []byte, os.FileMode) error { return expectedErr }
 
@@ -254,7 +228,7 @@ func TestEnableFailsDueToGitSetCommitTemplateErr(t *testing.T) {
 	sanityCheck := func([]string) []error { return []error{} }
 	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
 	cfg := config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
-	loadConfig := func() (config.Config, error) { return cfg, nil }
+	loadConfig := func() config.Config { return cfg }
 	CreateTemplateDir := func(string, os.FileMode) error { return nil }
 	WriteTemplateFile := func(string, []byte, os.FileMode) error { return nil }
 	GitSetCommitTemplate := func(string) error { return expectedErr }
@@ -287,7 +261,7 @@ func TestEnableFailsDueToSetHooksPathErr(t *testing.T) {
 	sanityCheck := func([]string) []error { return []error{} }
 	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
 	cfg := config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
-	loadConfig := func() (config.Config, error) { return cfg, nil }
+	loadConfig := func() config.Config { return cfg }
 	CreateTemplateDir := func(string, os.FileMode) error { return nil }
 	WriteTemplateFile := func(string, []byte, os.FileMode) error { return nil }
 	GitSetCommitTemplate := func(string) error { return nil }
@@ -322,7 +296,7 @@ func TestEnableFailsDueToSaveStatusErr(t *testing.T) {
 	sanityCheck := func([]string) []error { return []error{} }
 	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
 	cfg := config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
-	loadConfig := func() (config.Config, error) { return cfg, nil }
+	loadConfig := func() config.Config { return cfg }
 	CreateTemplateDir := func(string, os.FileMode) error { return nil }
 	WriteTemplateFile := func(string, []byte, os.FileMode) error { return nil }
 	GitSetCommitTemplate := func(string) error { return nil }
@@ -348,18 +322,5 @@ func TestEnableFailsDueToSaveStatusErr(t *testing.T) {
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
 		t.Fail()
-	}
-}
-
-func assertEqualsErr(t *testing.T, expectedErr error, errs []error) {
-	if len(errs) != 1 {
-		t.Errorf("got unexpected errs: %s", errs)
-		t.Fail()
-		return
-	}
-	if errs[0].Error() != expectedErr.Error() {
-		t.Errorf("expexted: %s, got: %s", expectedErr.Error(), errs[0].Error())
-		t.Fail()
-		return
 	}
 }

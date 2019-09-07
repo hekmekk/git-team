@@ -14,7 +14,7 @@ import (
 // TODO: add assertions on arguments to mocked functions
 var (
 	cfg            = config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
-	loadConfig     = func() (config.Config, error) { return cfg, nil }
+	loadConfig     = func() config.Config { return cfg }
 	tomlDecodeFile = func(string, interface{}) (toml.MetaData, error) { return toml.MetaData{}, nil }
 	fileInfo       os.FileInfo
 	writeFile      = func(string, []byte, os.FileMode) error { return nil }
@@ -63,23 +63,6 @@ func TestQuerySucceedsWithDefaultIfFileNotPresent(t *testing.T) {
 	}
 }
 
-func TestQueryFailsDueToConfigLoadError(t *testing.T) {
-	loadConfig := func() (config.Config, error) { return config.Config{}, errors.New("failed to load config") }
-	deps := queryDependencies{
-		loadConfig:     loadConfig,
-		tomlDecodeFile: tomlDecodeFile,
-		statFile:       statFile,
-		isFileNotExist: isFileNotExist,
-	}
-
-	_, err := queryFileFactory(deps)()
-
-	if err == nil {
-		t.Error("expected failure")
-		t.Fail()
-	}
-}
-
 func TestQueryFailsDueToDecodeError(t *testing.T) {
 	tomlDecodeFile := func(string, interface{}) (toml.MetaData, error) {
 		return toml.MetaData{}, errors.New("failed to decode")
@@ -113,22 +96,6 @@ func TestPersistSucceeds(t *testing.T) {
 
 	if err != nil {
 		t.Error(err)
-		t.Fail()
-	}
-}
-
-func TestPersistFailsDueToConfigLoadError(t *testing.T) {
-	loadConfig := func() (config.Config, error) { return config.Config{}, errors.New("failed to load config") }
-	deps := persistDependencies{
-		loadConfig: loadConfig,
-		writeFile:  writeFile,
-		tomlEncode: tomlEncode,
-	}
-
-	err := persistToFileFactory(deps)(state.NewStateDisabled())
-
-	if err == nil {
-		t.Error("expected failure")
 		t.Fail()
 	}
 }

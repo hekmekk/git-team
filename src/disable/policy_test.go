@@ -13,7 +13,7 @@ var (
 	unsetCommitTemplate = func() error { return nil }
 	unsetHooksPath      = func() error { return nil }
 	cfg                 = config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
-	loadConfig          = func() (config.Config, error) { return cfg, nil }
+	loadConfig          = func() config.Config { return cfg }
 	fileInfo            os.FileInfo
 	statFile            = func(string) (os.FileInfo, error) { return fileInfo, nil }
 	removeFile          = func(string) error { return nil }
@@ -106,25 +106,6 @@ func TestDisableShouldFailWhenUnsetCommitTemplateFails(t *testing.T) {
 	deps := Dependencies{
 		GitUnsetHooksPath:      unsetHooksPath,
 		GitUnsetCommitTemplate: func() error { return err },
-	}
-
-	expectedEvent := Failed{Reason: err}
-
-	event := Policy{deps}.Apply()
-
-	if !reflect.DeepEqual(expectedEvent, event) {
-		t.Errorf("expected: %s, got: %s", expectedEvent, event)
-		t.Fail()
-	}
-}
-
-func TestDisableShouldFailWhenLoadConfigFails(t *testing.T) {
-	err := errors.New("failed to load config")
-
-	deps := Dependencies{
-		GitUnsetHooksPath:      unsetHooksPath,
-		GitUnsetCommitTemplate: unsetCommitTemplate,
-		LoadConfig:             func() (config.Config, error) { return config.Config{}, err },
 	}
 
 	expectedEvent := Failed{Reason: err}

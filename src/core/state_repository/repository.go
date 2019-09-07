@@ -46,7 +46,7 @@ func persist(state state.State) error {
 }
 
 type queryDependencies struct {
-	loadConfig     func() (config.Config, error)
+	loadConfig     func() config.Config
 	tomlDecodeFile func(string, interface{}) (toml.MetaData, error)
 	statFile       func(string) (os.FileInfo, error)
 	isFileNotExist func(error) bool
@@ -54,10 +54,7 @@ type queryDependencies struct {
 
 func queryFileFactory(deps queryDependencies) func() (state.State, error) {
 	return func() (state.State, error) {
-		cfg, err := deps.loadConfig()
-		if err != nil {
-			return state.State{}, err
-		}
+		cfg := deps.loadConfig()
 
 		stateFilePath := fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.StatusFileName)
 
@@ -75,17 +72,14 @@ func queryFileFactory(deps queryDependencies) func() (state.State, error) {
 }
 
 type persistDependencies struct {
-	loadConfig func() (config.Config, error)
+	loadConfig func() config.Config
 	writeFile  func(string, []byte, os.FileMode) error
 	tomlEncode func(interface{}) ([]byte, error)
 }
 
 func persistToFileFactory(deps persistDependencies) func(state state.State) error {
 	return func(state state.State) error {
-		cfg, err := deps.loadConfig()
-		if err != nil {
-			return err
-		}
+		cfg := deps.loadConfig()
 
 		bytes, err := deps.tomlEncode(state)
 		if err != nil {
