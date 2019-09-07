@@ -12,7 +12,7 @@ const teamAlias = "team.alias"
 
 // SetHooksPath set your global "core.hooksPath"
 func SetHooksPath(path string) error {
-	_, err := execGitConfig("--add", hooksPath, path)
+	_, err := execGitConfig("--replace-all", hooksPath, path)
 	return err
 }
 
@@ -24,7 +24,7 @@ func UnsetHooksPath() error {
 
 // SetCommitTemplate set your global "commit.template" globally
 func SetCommitTemplate(path string) error {
-	_, err := execGitConfig("--add", commitTemplate, path)
+	_, err := execGitConfig("--replace-all", commitTemplate, path)
 	return err
 }
 
@@ -36,7 +36,7 @@ func UnsetCommitTemplate() error {
 
 // AddAlias add a co-author for "team.alias.<alias>"
 func AddAlias(alias, author string) error {
-	_, err := execGitConfig("--add", getAliasFullPath(alias), author)
+	_, err := execGitConfig("--replace-all", getAliasFullPath(alias), author)
 	return err
 }
 
