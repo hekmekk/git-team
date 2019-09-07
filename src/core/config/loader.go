@@ -25,10 +25,10 @@ type dependencies struct {
 func executorFactory(deps dependencies) func() Config {
 	return func() Config {
 		return Config{
-			BaseDir:          fmt.Sprintf("%s/.config/git-team", deps.getEnv("HOME")),
+			BaseDir:          fmt.Sprintf("%s/.config/git-team", deps.getEnv("HOME")), // remove
 			GitHooksPath:     "/usr/local/etc/git-team/hooks",
-			TemplateFileName: "COMMIT_TEMPLATE",
-			StatusFileName:   "status.toml",
+			TemplateFileName: "COMMIT_TEMPLATE", // CommitTemplatePath
+			StatusFileName:   "status.toml",     // TODO: remove, as we persist via gitconfig
 		}
 	}
 }

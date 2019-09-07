@@ -11,6 +11,16 @@ ifeq ($(UNAME_S),Darwin)
 endif
 HOOKS_DIR:=/usr/local/etc/git-team/hooks
 
+BATS_FILE:=
+ifdef CASE
+	BATS_FILE=$(CASE).bats
+endif
+
+BATS_FILTER:=
+ifdef FILTER
+	BATS_FILTER=--filter $(FILTER)
+endif
+
 all: deps build man-page
 
 tidy:
@@ -109,6 +119,8 @@ clean:
 	rm -f $(CURR_DIR)/git-team
 	rm -rf $(CURR_DIR)/pkg/src/
 	rm -rf $(CURR_DIR)/pkg/target/
+	rm -rf $(CURR_DIR)/acceptance-tests/src/
+	rm -rf $(CURR_DIR)/acceptance-tests/git-hooks/
 
 purge: clean uninstall
 	git config --global --unset-all commit.template
@@ -127,5 +139,4 @@ acceptance-tests:
 	cp -r $(CURR_DIR)/src $(CURR_DIR)/acceptance-tests/src/
 	cp -r $(CURR_DIR)/git-hooks $(CURR_DIR)/acceptance-tests/git-hooks
 	docker build -t git-team-acceptance-tests $(CURR_DIR)/acceptance-tests
-	docker run --rm -v $(CURR_DIR)/acceptance-tests/cases:/acceptance-tests git-team-acceptance-tests --tap /acceptance-tests
-
+	docker run -e "TERM=$(TERM)" --rm -v $(CURR_DIR)/acceptance-tests/cases:/acceptance-tests git-team-acceptance-tests --pretty /acceptance-tests/$(BATS_FILE) $(BATS_FILTER)

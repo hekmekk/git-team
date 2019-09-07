@@ -19,8 +19,8 @@ func TestShouldReturnAliasAssignments(t *testing.T) {
 	expectedMap[mrs] = mrsNoujz
 
 	lines := make([]string, 0)
-	lines = append(lines, fmt.Sprintf("team.alias.%s\n%s\n", mr, mrNoujz))
-	lines = append(lines, fmt.Sprintf("team.alias.%s\n%s\n", mrs, mrsNoujz))
+	lines = append(lines, fmt.Sprintf("team.alias.%s %s", mr, mrNoujz))
+	lines = append(lines, fmt.Sprintf("team.alias.%s %s", mrs, mrsNoujz))
 
 	execSucceeds := func(args ...string) ([]string, error) { return lines, nil }
 

@@ -9,8 +9,8 @@ const (
 
 // State the state of git-team
 type State struct {
-	Status    teamStatus `toml:"status"`
-	Coauthors []string   `toml:"co-authors"`
+	Status    teamStatus
+	Coauthors []string
 }
 
 // NewStateEnabled the constructor for the enabled state

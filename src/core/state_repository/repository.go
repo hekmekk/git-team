@@ -1,91 +1,86 @@
 package staterepository
 
 import (
-	"bytes"
-	"fmt"
-	"io/ioutil"
-	"os"
+	"errors"
 
-	"github.com/BurntSushi/toml"
-	"github.com/hekmekk/git-team/src/core/config"
+	"github.com/hekmekk/git-team/src/core/gitconfig"
+	giterror "github.com/hekmekk/git-team/src/core/gitconfig/error"
 	"github.com/hekmekk/git-team/src/core/state"
 )
 
 // Query read the current state from file
 func Query() (state.State, error) {
 	deps := queryDependencies{
-		loadConfig:     config.Load,
-		tomlDecodeFile: toml.DecodeFile,
-		statFile:       os.Stat,
-		isFileNotExist: os.IsNotExist,
+		gitconfigGet:    gitconfig.Get,
+		gitconfigGetAll: gitconfig.GetAll,
 	}
-	return queryFileFactory(deps)()
-}
-
-// PersistEnabled persist the current state to file as enabled
-func PersistEnabled(coauthors []string) error {
-	return persist(state.NewStateEnabled(coauthors))
-}
-
-// PersistDisabled persist the current state to file as disabled
-func PersistDisabled() error {
-	return persist(state.NewStateDisabled())
-}
-
-func persist(state state.State) error {
-	deps := persistDependencies{
-		loadConfig: config.Load,
-		writeFile:  ioutil.WriteFile,
-		tomlEncode: func(state interface{}) ([]byte, error) {
-			buf := new(bytes.Buffer)
-			err := toml.NewEncoder(buf).Encode(state)
-			return buf.Bytes(), err
-		},
-	}
-	return persistToFileFactory(deps)(state)
+	return query(deps)
 }
 
 type queryDependencies struct {
-	loadConfig     func() config.Config
-	tomlDecodeFile func(string, interface{}) (toml.MetaData, error)
-	statFile       func(string) (os.FileInfo, error)
-	isFileNotExist func(error) bool
+	gitconfigGet    func(string) (string, error)
+	gitconfigGetAll func(string) ([]string, error)
 }
 
-func queryFileFactory(deps queryDependencies) func() (state.State, error) {
-	return func() (state.State, error) {
-		cfg := deps.loadConfig()
+const (
+	keyStatus          = "team.state.status"
+	keyActiveCoauthors = "team.state.active-coauthors"
+)
 
-		stateFilePath := fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.StatusFileName)
-
-		if _, err := deps.statFile(stateFilePath); deps.isFileNotExist(err) {
-			return state.NewStateDisabled(), nil
-		}
-
-		var decodedState state.State
-		if _, err := deps.tomlDecodeFile(stateFilePath, &decodedState); err != nil {
-			return state.State{}, err
-		}
-
-		return decodedState, nil
+func query(deps queryDependencies) (state.State, error) {
+	status, err := deps.gitconfigGet(keyStatus)
+	if err != nil || "disabled" == status || "" == status {
+		return state.NewStateDisabled(), nil
 	}
+
+	activeCoauthors, err := deps.gitconfigGetAll(keyActiveCoauthors)
+	if err != nil {
+		return state.State{}, errors.New("no active co-authors found")
+	}
+
+	return state.NewStateEnabled(activeCoauthors), nil
+}
+
+// PersistEnabled persist the current state as enabled
+func PersistEnabled(coauthors []string) error {
+	return Persist(state.NewStateEnabled(coauthors))
+}
+
+// PersistDisabled persist the current state as disabled
+func PersistDisabled() error {
+	return Persist(state.NewStateDisabled())
+}
+
+// Persist persist the current state
+func Persist(state state.State) error {
+	deps := persistDependencies{
+		gitconfigAdd:        gitconfig.Add,
+		gitconfigReplaceAll: gitconfig.ReplaceAll,
+		gitconfigUnsetAll:   gitconfig.UnsetAll,
+	}
+	return persist(deps, state)
 }
 
 type persistDependencies struct {
-	loadConfig func() config.Config
-	writeFile  func(string, []byte, os.FileMode) error
-	tomlEncode func(interface{}) ([]byte, error)
+	gitconfigAdd        func(key, value string) error
+	gitconfigReplaceAll func(key, value string) error
+	gitconfigUnsetAll   func(key string) error
 }
 
-func persistToFileFactory(deps persistDependencies) func(state state.State) error {
-	return func(state state.State) error {
-		cfg := deps.loadConfig()
+func persist(deps persistDependencies, state state.State) error {
+	if err := deps.gitconfigUnsetAll(keyActiveCoauthors); err != nil && err.Error() != giterror.UnsetOptionWhichDoesNotExist {
+		return err
+	}
 
-		bytes, err := deps.tomlEncode(state)
-		if err != nil {
+	for _, coauthor := range state.Coauthors {
+		if err := deps.gitconfigAdd(keyActiveCoauthors, coauthor); err != nil {
 			return err
 		}
-
-		return deps.writeFile(fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.StatusFileName), bytes, 0644)
 	}
+
+	if err := deps.gitconfigReplaceAll(keyStatus, string(state.Status)); err != nil {
+		return err
+	}
+
+	return nil
 }

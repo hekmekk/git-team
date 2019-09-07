@@ -9,11 +9,16 @@ setup() {
 	/usr/local/bin/git-team add c 'C <c@x.y>'
 }
 
-@test "git-team: enable should persist the current status to status file" {
-	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && cat /root/.config/git-team/status.toml"
+@test "git-team: enable should persist the current status to gitconfig" {
+	/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>'
+
+	run bash -c "git config --global --get-regexp team.state | sort"
 	assert_success
-	assert_line --index 0 'status = "enabled"'
-	assert_line --index 1 'co-authors = ["A <a@x.y>", "Ad-hoc <adhoc@tmp.se>", "B <b@x.y>", "C <c@x.y>"]'
+	assert_line --index 0 'team.state.active-coauthors A <a@x.y>'
+	assert_line --index 1 'team.state.active-coauthors Ad-hoc <adhoc@tmp.se>'
+	assert_line --index 2 'team.state.active-coauthors B <b@x.y>'
+	assert_line --index 3 'team.state.active-coauthors C <c@x.y>'
+	assert_line --index 4 'team.state.status enabled'
 }
 
 @test "git-team: enable should enable the prepare-commit-msg hook" {
@@ -59,6 +64,23 @@ setup() {
 	assert_line --index 4 'Ad-hoc <adhoc@tmp.se>'
 	assert_line --index 5 'B <b@x.y>'
 	assert_line --index 6 'C <c@x.y>'
+}
+
+@test "git-team: issuing enable should be idempotent" {
+	/usr/local/bin/git-team enable b a c 'Ad-hoc <adhoc@tmp.se>'
+	/usr/local/bin/git-team enable b a c 'Ad-hoc <adhoc@tmp.se>'
+	run /usr/local/bin/git-team enable b a c 'Ad-hoc <adhoc@tmp.se>'
+	assert_success
+	assert_line --index 0 'git-team enabled.'
+	assert_line --index 1 'Co-authors:'
+	assert_line --index 2 '-----------'
+	assert_line --index 3 'A <a@x.y>'
+	assert_line --index 4 'Ad-hoc <adhoc@tmp.se>'
+	assert_line --index 5 'B <b@x.y>'
+	assert_line --index 6 'C <c@x.y>'
+	assert_line --index 7 ''
+	assert_line --index 8 ''
+	assert_line --index 9 ''
 }
 
 @test "git-team: enable should ignore duplicates" {
