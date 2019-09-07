@@ -2,55 +2,21 @@ package staterepository
 
 import (
 	"errors"
-	"os"
 	"reflect"
 	"testing"
 
-	"github.com/BurntSushi/toml"
-	"github.com/hekmekk/git-team/src/core/config"
 	"github.com/hekmekk/git-team/src/core/state"
 )
 
-// TODO: add assertions on arguments to mocked functions
-var (
-	cfg            = config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
-	loadConfig     = func() config.Config { return cfg }
-	tomlDecodeFile = func(string, interface{}) (toml.MetaData, error) { return toml.MetaData{}, nil }
-	fileInfo       os.FileInfo
-	writeFile      = func(string, []byte, os.FileMode) error { return nil }
-	statFile       = func(string) (os.FileInfo, error) { return fileInfo, nil }
-	isFileNotExist = func(error) bool { return false }
-	tomlEncode     = func(interface{}) ([]byte, error) { return nil, nil }
-)
-
-func TestQuerySucceeds(t *testing.T) {
+func TestQueryDisabled(t *testing.T) {
 	deps := queryDependencies{
-		loadConfig:     loadConfig,
-		tomlDecodeFile: tomlDecodeFile,
-		statFile:       statFile,
-		isFileNotExist: isFileNotExist,
+		gitconfigGet:    func(string) (string, error) { return "disabled", nil },
+		gitconfigGetAll: func(string) ([]string, error) { return []string{}, nil },
 	}
 
-	_, err := queryFileFactory(deps)()
+	expectedState := state.State{Status: "disabled", Coauthors: []string{}}
 
-	if err != nil {
-		t.Error(err)
-		t.Fail()
-	}
-}
-
-func TestQuerySucceedsWithDefaultIfFileNotPresent(t *testing.T) {
-	statFile := func(string) (os.FileInfo, error) { return fileInfo, errors.New("failed to stat path") }
-	isFileNotExist := func(error) bool { return true }
-	deps := queryDependencies{
-		loadConfig:     loadConfig,
-		tomlDecodeFile: tomlDecodeFile,
-		statFile:       statFile,
-		isFileNotExist: isFileNotExist,
-	}
-
-	expectedState := state.NewStateDisabled()
-	state, err := queryFileFactory(deps)()
+	state, err := query(deps)
 
 	if err != nil {
 		t.Error(err)
@@ -58,41 +24,63 @@ func TestQuerySucceedsWithDefaultIfFileNotPresent(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(expectedState, state) {
-		t.Errorf("expected: %s, received %s", expectedState, state)
+		t.Errorf("expected: %s, got: %s", expectedState, state)
 		t.Fail()
 	}
 }
 
-func TestQueryFailsDueToDecodeError(t *testing.T) {
-	tomlDecodeFile := func(string, interface{}) (toml.MetaData, error) {
-		return toml.MetaData{}, errors.New("failed to decode")
-	}
+func TestQueryEnabled(t *testing.T) {
+	activeCoauthors := []string{"Mr. Noujz <noujz@mr.se>"}
+
 	deps := queryDependencies{
-		loadConfig:     loadConfig,
-		tomlDecodeFile: tomlDecodeFile,
-		statFile:       statFile,
-		isFileNotExist: isFileNotExist,
+		gitconfigGet:    func(string) (string, error) { return "enabled", nil },
+		gitconfigGetAll: func(string) ([]string, error) { return activeCoauthors, nil },
 	}
 
-	_, err := queryFileFactory(deps)()
+	expectedState := state.State{Status: "enabled", Coauthors: activeCoauthors}
 
-	if err == nil {
-		t.Error("expected failure")
+	state, err := query(deps)
+
+	if err != nil {
+		t.Error(err)
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(expectedState, state) {
+		t.Errorf("expected: %s, got: %s", expectedState, state)
+		t.Fail()
+	}
+}
+
+func TestQueryDisabledWhenStatusUnset(t *testing.T) {
+	deps := queryDependencies{
+		gitconfigGet:    func(string) (string, error) { return "", nil },
+		gitconfigGetAll: func(string) ([]string, error) { return []string{}, nil },
+	}
+
+	expectedState := state.State{Status: "disabled", Coauthors: []string{}}
+
+	state, err := query(deps)
+
+	if err != nil {
+		t.Error(err)
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(expectedState, state) {
+		t.Errorf("expected: %s, got: %s", expectedState, state)
 		t.Fail()
 	}
 }
 
 func TestPersistSucceeds(t *testing.T) {
 	deps := persistDependencies{
-		loadConfig: loadConfig,
-		writeFile:  writeFile,
-		tomlEncode: tomlEncode,
+		gitconfigUnsetAll:   func(string) error { return nil },
+		gitconfigAdd:        func(string, string) error { return nil },
+		gitconfigReplaceAll: func(string, string) error { return nil },
 	}
 
-	// TODO: assert that this is passed to tomlEncode
-	state := state.NewStateEnabled([]string{"CO-AUTHOR"})
-
-	err := persistToFileFactory(deps)(state)
+	err := persist(deps, state.NewStateEnabled([]string{"CO-AUTHOR"}))
 
 	if err != nil {
 		t.Error(err)
@@ -100,36 +88,65 @@ func TestPersistSucceeds(t *testing.T) {
 	}
 }
 
-func TestPersistFailsDueToTomlEncodeError(t *testing.T) {
-	tomlEncode := func(interface{}) ([]byte, error) {
-		return nil, errors.New("failed to encode struct with toml encoder")
-	}
+func TestPersistSucceedsWhenTryingToRemoveNonExistingActiveCoauthorsFromGitConfig(t *testing.T) {
 	deps := persistDependencies{
-		loadConfig: loadConfig,
-		writeFile:  writeFile,
-		tomlEncode: tomlEncode,
+		gitconfigUnsetAll:   func(string) error { return errors.New("exit status 5") },
+		gitconfigAdd:        func(string, string) error { return nil },
+		gitconfigReplaceAll: func(string, string) error { return nil },
 	}
 
-	err := persistToFileFactory(deps)(state.NewStateDisabled())
+	err := persist(deps, state.NewStateEnabled([]string{"CO-AUTHOR"}))
 
-	if err == nil {
-		t.Error("expected failure")
+	if err != nil {
+		t.Error(err)
 		t.Fail()
 	}
 }
 
-func TestPersistFailsDueToWriteFileError(t *testing.T) {
-	writeFile := func(string, []byte, os.FileMode) error { return errors.New("failed to write file") }
+func TestPersistFailsDueToAnotherUnsetAllFailure(t *testing.T) {
+	expectedErr := errors.New("unset-all failure")
+
 	deps := persistDependencies{
-		loadConfig: loadConfig,
-		writeFile:  writeFile,
-		tomlEncode: tomlEncode,
+		gitconfigUnsetAll: func(string) error { return expectedErr },
 	}
 
-	err := persistToFileFactory(deps)(state.NewStateDisabled())
+	err := persist(deps, state.NewStateEnabled([]string{"CO-AUTHOR"}))
 
-	if err == nil {
-		t.Error("expected failure")
+	if expectedErr != err {
+		t.Errorf("expected: %s, got: %s", expectedErr, err)
+		t.Fail()
+	}
+}
+
+func TestPersistFailsDueToAddFailure(t *testing.T) {
+	expectedErr := errors.New("add failure")
+
+	deps := persistDependencies{
+		gitconfigUnsetAll: func(string) error { return nil },
+		gitconfigAdd:      func(string, string) error { return expectedErr },
+	}
+
+	err := persist(deps, state.NewStateEnabled([]string{"CO-AUTHOR"}))
+
+	if expectedErr != err {
+		t.Errorf("expected: %s, got: %s", expectedErr, err)
+		t.Fail()
+	}
+}
+
+func TestPersistFailsDueReplaceAllFailure(t *testing.T) {
+	expectedErr := errors.New("replace-all failure")
+
+	deps := persistDependencies{
+		gitconfigUnsetAll:   func(string) error { return nil },
+		gitconfigAdd:        func(string, string) error { return nil },
+		gitconfigReplaceAll: func(string, string) error { return expectedErr },
+	}
+
+	err := persist(deps, state.NewStateDisabled())
+
+	if expectedErr != err {
+		t.Errorf("expected: %s, got: %s", expectedErr, err)
 		t.Fail()
 	}
 }

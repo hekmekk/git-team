@@ -8,7 +8,7 @@ import (
 )
 
 func TestShouldExecuteGitConfigWithTheExpectedCommandLineArguments(t *testing.T) {
-	staticArgs := []string{"config", "--null", "--global"}
+	staticArgs := []string{"config", "--global"}
 	providedArgs := []string{"--one", "--two"}
 	expectedArgs := append(staticArgs, providedArgs...)
 
@@ -25,8 +25,8 @@ func TestShouldExecuteGitConfigWithTheExpectedCommandLineArguments(t *testing.T)
 }
 
 func TestShouldReturnTheTwoLines(t *testing.T) {
-	expectedLines := []string{"line1\n", "line2\n"}
-	out := []byte(fmt.Sprintf("%s\000%s\000", expectedLines[0], expectedLines[1]))
+	expectedLines := []string{"line1", "line2"}
+	out := []byte(fmt.Sprintf("%s\n%s\n", expectedLines[0], expectedLines[1]))
 
 	executor := func(args ...string) ([]byte, error) {
 		return out, nil

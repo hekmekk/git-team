@@ -3,12 +3,56 @@ package gitconfig
 import (
 	"fmt"
 	"os/exec"
+	"regexp"
 	"strings"
 )
 
 const hooksPath = "core.hooksPath"
 const commitTemplate = "commit.template"
 const teamAlias = "team.alias"
+
+// Get git config --global --get <key>
+func Get(key string) (string, error) {
+	return get(execGitConfig)(key)
+}
+
+func get(exec func(...string) ([]string, error)) func(string) (string, error) {
+	return func(key string) (string, error) {
+		lines, err := exec("--get", key)
+		if err != nil {
+			return "", err
+		}
+
+		if len(lines) == 0 {
+			return "", nil
+		}
+
+		return lines[0], nil
+	}
+}
+
+// GetAll git config --global --get-all <key>
+func GetAll(key string) ([]string, error) {
+	return execGitConfig("--get-all", key)
+}
+
+// Add git config --global --replace-all <key> <value>
+func Add(key string, value string) error {
+	_, err := execGitConfig("--add", key, value)
+	return err
+}
+
+// ReplaceAll git config --global --replace-all <key> <value>
+func ReplaceAll(key string, value string) error {
+	_, err := execGitConfig("--replace-all", key, value)
+	return err
+}
+
+// UnsetAll git config --global --unset-all <key>
+func UnsetAll(key string) error {
+	_, err := execGitConfig("--unset-all", key)
+	return err
+}
 
 // SetHooksPath set your global "core.hooksPath"
 func SetHooksPath(path string) error {
@@ -60,7 +104,7 @@ func getAssignments(exec func(...string) ([]string, error)) (map[string]string, 
 	}
 
 	for _, v := range lines {
-		aliasAndCoauthor := strings.Split(strings.TrimRight(v, "\n"), "\n")
+		aliasAndCoauthor := regexp.MustCompile("\\s").Split(v, 2)
 		mapping[strings.TrimPrefix(aliasAndCoauthor[0], fmt.Sprintf("%s.", teamAlias))] = aliasAndCoauthor[1]
 	}
 
@@ -111,7 +155,7 @@ func getAliasFullPath(alias string) string {
 	return fmt.Sprintf("%s.%s", teamAlias, alias)
 }
 
-// execute /usr/bin/env git config --null --global <args>
+// execute /usr/bin/env git config --global <args>
 func execGitConfig(args ...string) ([]string, error) {
 	exec := func(theArgs ...string) ([]byte, error) {
 		return exec.Command("/usr/bin/env", append([]string{"git"}, theArgs...)...).CombinedOutput()
@@ -122,7 +166,7 @@ func execGitConfig(args ...string) ([]string, error) {
 
 func execGitConfigFactory(cmd func(...string) ([]byte, error)) func(...string) ([]string, error) {
 	return func(args ...string) ([]string, error) {
-		gitArgs := append([]string{"config", "--null", "--global"}, args...)
+		gitArgs := append([]string{"config", "--global"}, args...)
 
 		out, err := cmd(gitArgs...)
 
@@ -136,7 +180,7 @@ func execGitConfigFactory(cmd func(...string) ([]byte, error)) func(...string) (
 			return []string{}, nil
 		}
 
-		lines := strings.Split(strings.TrimRight(stringOut, "\000"), "\000")
+		lines := strings.Split(strings.TrimRight(stringOut, "\n"), "\n")
 
 		return lines, nil
 	}
