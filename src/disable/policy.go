@@ -12,7 +12,7 @@ import (
 type Dependencies struct {
 	GitUnsetCommitTemplate func() error
 	GitUnsetHooksPath      func() error
-	LoadConfig             func() (config.Config, error)
+	LoadConfig             func() config.Config
 	StatFile               func(string) (os.FileInfo, error)
 	RemoveFile             func(string) error
 	PersistDisabled        func() error
@@ -35,10 +35,7 @@ func (policy Policy) Apply() events.Event {
 		return Failed{Reason: err}
 	}
 
-	cfg, err := deps.LoadConfig()
-	if err != nil {
-		return Failed{Reason: err}
-	}
+	cfg := deps.LoadConfig()
 
 	templateFilePath := fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.TemplateFileName)
 

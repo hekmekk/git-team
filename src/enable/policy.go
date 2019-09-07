@@ -12,7 +12,7 @@ import (
 // Dependencies the dependencies of the enable Policy module
 type Dependencies struct {
 	SanityCheckCoauthors          func([]string) []error
-	LoadConfig                    func() (config.Config, error)
+	LoadConfig                    func() config.Config
 	CreateTemplateDir             func(path string, perm os.FileMode) error
 	WriteTemplateFile             func(path string, data []byte, mode os.FileMode) error
 	GitSetCommitTemplate          func(path string) error
@@ -67,10 +67,7 @@ func (policy Policy) Apply() events.Event {
 		uniqueCoauthors = append(uniqueCoauthors, coauthor)
 	}
 
-	cfg, err := deps.LoadConfig()
-	if err != nil {
-		return Failed{Reason: []error{err}}
-	}
+	cfg := deps.LoadConfig()
 
 	// TODO: extract these 3 commit template functions into a method
 	if err := deps.CreateTemplateDir(cfg.BaseDir, os.ModePerm); err != nil {
