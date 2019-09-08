@@ -1,7 +1,6 @@
 package disable
 
 import (
-	"fmt"
 	"github.com/hekmekk/git-team/src/core/config"
 	"github.com/hekmekk/git-team/src/core/events"
 	giterror "github.com/hekmekk/git-team/src/core/gitconfig/error"
@@ -35,12 +34,10 @@ func (policy Policy) Apply() events.Event {
 		return Failed{Reason: err}
 	}
 
-	cfg := deps.LoadConfig()
+	commitTemplatePath := deps.LoadConfig().GitTeamCommitTemplatePath
 
-	templateFilePath := fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.TemplateFileName)
-
-	if _, err := deps.StatFile(templateFilePath); err == nil {
-		if err := deps.RemoveFile(templateFilePath); err != nil {
+	if _, err := deps.StatFile(commitTemplatePath); err == nil {
+		if err := deps.RemoveFile(commitTemplatePath); err != nil {
 			return Failed{Reason: err}
 		}
 	}

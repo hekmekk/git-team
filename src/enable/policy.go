@@ -1,8 +1,8 @@
 package enable
 
 import (
-	"fmt"
 	"os"
+	"path"
 
 	"github.com/hekmekk/git-team/src/core/config"
 	"github.com/hekmekk/git-team/src/core/events"
@@ -68,21 +68,21 @@ func (policy Policy) Apply() events.Event {
 	}
 
 	cfg := deps.LoadConfig()
+	commitTemplatePath := cfg.GitTeamCommitTemplatePath
+	commitTemplateDir := path.Dir(commitTemplatePath)
 
 	// TODO: extract these 3 commit template functions into a method
-	if err := deps.CreateTemplateDir(cfg.BaseDir, os.ModePerm); err != nil {
+	if err := deps.CreateTemplateDir(commitTemplateDir, os.ModePerm); err != nil {
 		return Failed{Reason: []error{err}}
 	}
 
-	templatePath := fmt.Sprintf("%s/%s", cfg.BaseDir, cfg.TemplateFileName)
-
-	if err := deps.WriteTemplateFile(templatePath, []byte(utils.PrepareForCommitMessage(uniqueCoauthors)), 0644); err != nil {
+	if err := deps.WriteTemplateFile(commitTemplatePath, []byte(utils.PrepareForCommitMessage(uniqueCoauthors)), 0644); err != nil {
 		return Failed{Reason: []error{err}}
 	}
-	if err := deps.GitSetCommitTemplate(templatePath); err != nil {
+	if err := deps.GitSetCommitTemplate(commitTemplatePath); err != nil {
 		return Failed{Reason: []error{err}}
 	}
-	if err := deps.GitSetHooksPath(cfg.GitHooksPath); err != nil {
+	if err := deps.GitSetHooksPath(cfg.GitTeamHooksPath); err != nil {
 		return Failed{Reason: []error{err}}
 	}
 	if err := deps.StateRepositoryPersistEnabled(uniqueCoauthors); err != nil {
