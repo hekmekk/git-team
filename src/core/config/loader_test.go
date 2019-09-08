@@ -15,7 +15,6 @@ func TestLoadSucceeds(t *testing.T) {
 		BaseDir:          fmt.Sprintf("%s/.config/git-team", home),
 		GitHooksPath:     "/usr/local/etc/git-team/hooks",
 		TemplateFileName: "COMMIT_TEMPLATE",
-		StatusFileName:   "status.toml",
 	}
 
 	cfg := executorFactory(deps)()

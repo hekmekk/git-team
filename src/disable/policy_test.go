@@ -12,7 +12,7 @@ import (
 var (
 	unsetCommitTemplate = func() error { return nil }
 	unsetHooksPath      = func() error { return nil }
-	cfg                 = config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", StatusFileName: "STATUS_FILE"}
+	cfg                 = config.Config{TemplateFileName: "TEMPLATE_FILE", BaseDir: "BASE_DIR", GitHooksPath: "GIT_HOOKSPATH"}
 	loadConfig          = func() config.Config { return cfg }
 	fileInfo            os.FileInfo
 	statFile            = func(string) (os.FileInfo, error) { return fileInfo, nil }
