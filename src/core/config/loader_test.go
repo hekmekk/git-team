@@ -12,9 +12,8 @@ func TestLoadSucceeds(t *testing.T) {
 	deps := dependencies{getEnv: func(variable string) string { return home }}
 
 	expectedCfg := Config{
-		BaseDir:          fmt.Sprintf("%s/.config/git-team", home),
-		GitHooksPath:     "/usr/local/etc/git-team/hooks",
-		TemplateFileName: "COMMIT_TEMPLATE",
+		GitTeamCommitTemplatePath: fmt.Sprintf("%s/.config/git-team/COMMIT_TEMPLATE", home),
+		GitTeamHooksPath:          "/usr/local/etc/git-team/hooks",
 	}
 
 	cfg := executorFactory(deps)()
