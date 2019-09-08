@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-const hooksPath = "core.hooksPath"
 const commitTemplate = "commit.template"
 const teamAlias = "team.alias"
 
@@ -51,18 +50,6 @@ func ReplaceAll(key string, value string) error {
 // UnsetAll git config --global --unset-all <key>
 func UnsetAll(key string) error {
 	_, err := execGitConfig("--unset-all", key)
-	return err
-}
-
-// SetHooksPath set your global "core.hooksPath"
-func SetHooksPath(path string) error {
-	_, err := execGitConfig("--replace-all", hooksPath, path)
-	return err
-}
-
-// UnsetHooksPath unset your global "core.hooksPath"
-func UnsetHooksPath() error {
-	_, err := execGitConfig("--unset-all", hooksPath)
 	return err
 }
 

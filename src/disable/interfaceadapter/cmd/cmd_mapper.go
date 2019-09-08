@@ -27,7 +27,7 @@ func NewDefinition(app *kingpin.Application) Definition {
 		Policy: disable.Policy{
 			Deps: disable.Dependencies{
 				GitUnsetCommitTemplate: gitconfig.UnsetCommitTemplate,
-				GitUnsetHooksPath:      gitconfig.UnsetHooksPath,
+				GitUnsetHooksPath:      func() error { return gitconfig.UnsetAll("core.hooksPath") },
 				LoadConfig:             config.Load,
 				StatFile:               os.Stat,
 				RemoveFile:             os.Remove,
