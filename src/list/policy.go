@@ -1,6 +1,8 @@
 package list
 
 import (
+	"strings"
+
 	"github.com/hekmekk/git-team/src/core/assignment"
 	"github.com/hekmekk/git-team/src/core/events"
 	"github.com/hekmekk/git-team/src/core/gitconfig/error"
@@ -27,7 +29,8 @@ func (policy Policy) Apply() events.Event {
 
 	assignments := []assignment.Assignment{}
 
-	for alias, coauthor := range aliasCoauthorMap {
+	for rawAlias, coauthor := range aliasCoauthorMap {
+		alias := strings.TrimPrefix(rawAlias, "team.alias.")
 		assignments = append(assignments, assignment.Assignment{Alias: alias, Coauthor: coauthor})
 	}
 
