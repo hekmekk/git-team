@@ -34,7 +34,7 @@ func NewDefinition(app *kingpin.Application) Definition {
 				CreateTemplateDir:             os.MkdirAll,
 				WriteTemplateFile:             ioutil.WriteFile,
 				GitSetCommitTemplate:          gitconfig.SetCommitTemplate,
-				GitSetHooksPath:               gitconfig.SetHooksPath,
+				GitSetHooksPath:               func(path string) error { return gitconfig.ReplaceAll("core.hooksPath", path) },
 				GitResolveAliases:             gitconfig.ResolveAliases,
 				StateRepositoryPersistEnabled: staterepository.PersistEnabled,
 				LoadConfig:                    config.Load,
