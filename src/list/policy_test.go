@@ -10,8 +10,8 @@ import (
 
 func TestListShouldReturnTheAvailableAssignments(t *testing.T) {
 	aliasCoauthorMap := map[string]string{
-		"alias1": "coauthor1",
-		"alias2": "coauthor2",
+		"team.alias.alias1": "coauthor1",
+		"team.alias.alias2": "coauthor2",
 	}
 
 	deps := Dependencies{

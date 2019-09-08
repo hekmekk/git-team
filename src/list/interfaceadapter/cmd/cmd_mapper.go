@@ -22,7 +22,7 @@ func NewDefinition(app *kingpin.Application) Definition {
 		CommandName: command.FullCommand(),
 		Policy: list.Policy{
 			Deps: list.Dependencies{
-				GitGetAssignments: gitconfig.GetAssignments,
+				GitGetAssignments: func() (map[string]string, error) { return gitconfig.GetRegexp("team.alias") },
 			},
 		},
 	}
