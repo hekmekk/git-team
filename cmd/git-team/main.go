@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	version = "v1.3.5-alpha5"
+	version = "v1.3.5-alpha6"
 	author  = "Rea Sand <hekmek@posteo.de>"
 )
 
@@ -31,9 +31,11 @@ func main() {
 
 	switch kingpin.MustParse(application.app.Parse(os.Args[1:])) {
 	case application.add.CommandName:
-		applyPolicy(application.add.Policy, addeventadapter.MapEventToEffects, effects.NewDeprecationWarning("git team add", "git team assignments add"))
+		effects.NewDeprecationWarning("git team add", "git team assignments add").Run()
+		applyPolicy(application.add.Policy, addeventadapter.MapEventToEffects)
 	case application.remove.CommandName:
-		applyPolicy(application.remove.Policy, removeeventadapter.MapEventToEffects, effects.NewDeprecationWarning("git team rm", "git team assignments rm"))
+		effects.NewDeprecationWarning("git team rm", "git team assignments rm").Run()
+		applyPolicy(application.remove.Policy, removeeventadapter.MapEventToEffects)
 	case application.enable.CommandName:
 		applyPolicy(application.enable.Policy, enableeventadapter.MapEventToEffectsFactory(application.status.Policy.Deps.StateRepositoryQuery))
 	case application.disable.CommandName:
@@ -41,15 +43,16 @@ func main() {
 	case application.status.CommandName:
 		applyPolicy(application.status.Policy, statuseventadapter.MapEventToEffects)
 	case application.list.CommandName:
-		applyPolicy(application.list.Policy, listeventadapter.MapEventToEffects, effects.NewDeprecationWarning("git team ls", "git team assignments"))
+		effects.NewDeprecationWarning("git team ls", "git team assignments").Run()
+		applyPolicy(application.list.Policy, listeventadapter.MapEventToEffects)
 	}
 
 	os.Exit(0)
 }
 
-func applyPolicy(policy policy.Policy, adapter func(events.Event) []effects.Effect, adHoc ...effects.Effect) {
+func applyPolicy(policy policy.Policy, adapter func(events.Event) []effects.Effect) {
 	effects := adapter(policy.Apply())
-	for _, effect := range append(adHoc, effects...) {
+	for _, effect := range effects {
 		effect.Run()
 	}
 }
