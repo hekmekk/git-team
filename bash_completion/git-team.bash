@@ -23,7 +23,7 @@ _git_team() {
 	done
 
 	case $prev in
-		--help)
+		-h | --help)
 			COMPREPLY=()
 			return 0
 			;;
@@ -42,6 +42,9 @@ _git_team() {
 		add)
 			COMPREPLY=()
 			return 0
+			;;
+		assignments)
+			COMPREPLY+=( $(compgen -W "add rm ls") )
 			;;
 		rm)
 			__git_team_coauthor_completion
@@ -64,7 +67,7 @@ _git_team() {
 				fi
 			done
 			if [[ $show_flags == true ]]; then
-				local flags="add enable disable ls rm status --help --version"
+				local flags="add assignments enable disable ls rm status -h --help --version"
 				COMPREPLY+=( $(compgen -W "$flags" -- $cur) )
 			fi
 			return 0
