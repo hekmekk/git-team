@@ -12,7 +12,7 @@ setup() {
 @test "git-team: list should show all alias -> coauthor assignments" {
   run bash -c "/usr/local/bin/git-team list | grep -v ^warn:.*deprecated"
   assert_success
-  assert_line --index 0 'Aliases:'
+  assert_line --index 0 'Assignments:'
   assert_line --index 1 '--------'
   assert_line --index 2 "'a' -> 'A <a@x.y>'"
   assert_line --index 3 "'b' -> 'B <b@x.y>'"
@@ -22,7 +22,7 @@ setup() {
 @test "git-team: ls should show all alias -> coauthor assignments" {
   run bash -c "/usr/local/bin/git-team ls | grep -v ^warn:.*deprecated"
   assert_success
-  assert_line --index 0 'Aliases:'
+  assert_line --index 0 'Assignments:'
   assert_line --index 1 '--------'
   assert_line --index 2 "'a' -> 'A <a@x.y>'"
   assert_line --index 3 "'b' -> 'B <b@x.y>'"
@@ -34,5 +34,4 @@ teardown() {
 	/usr/local/bin/git-team rm b
 	/usr/local/bin/git-team rm c
 }
-
 
