@@ -39,7 +39,7 @@ func toString(assignments []assignment.Assignment) string {
 
 	blackBold := color.New(color.FgBlack).Add(color.Bold)
 
-	buffer.WriteString(blackBold.Sprintln("Aliases:"))
+	buffer.WriteString(blackBold.Sprintln("Assignments:"))
 	buffer.WriteString(blackBold.Sprint("--------"))
 
 	for _, assgnmnt := range sorted {
