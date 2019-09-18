@@ -14,7 +14,7 @@ setup() {
   assert_success
   assert_line --index 0 "warn: 'git team ls' has been deprecated and is going to be removed in a future major release, use 'git team assignments' instead"
   assert_line --index 1 'Assignments:'
-  assert_line --index 2 '--------'
+  assert_line --index 2 '------------'
   assert_line --index 3 "'a' -> 'A <a@x.y>'"
   assert_line --index 4 "'b' -> 'B <b@x.y>'"
   assert_line --index 5 "'c' -> 'C <c@x.y>'"
@@ -25,7 +25,7 @@ setup() {
   assert_success
   assert_line --index 0 "warn: 'git team ls' has been deprecated and is going to be removed in a future major release, use 'git team assignments' instead"
   assert_line --index 1 'Assignments:'
-  assert_line --index 2 '--------'
+  assert_line --index 2 '------------'
   assert_line --index 3 "'a' -> 'A <a@x.y>'"
   assert_line --index 4 "'b' -> 'B <b@x.y>'"
   assert_line --index 5 "'c' -> 'C <c@x.y>'"
