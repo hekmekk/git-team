@@ -14,14 +14,16 @@ load '/bats-libs/bats-assert/load.bash'
 @test "git-team: remove should remove an assigment" {
 	/usr/local/bin/git-team add noujz 'Mr. Noujz <noujz@mr.se>'
 
-	run bash -c "/usr/local/bin/git-team rm noujz | grep -v ^warn:.*deprecated"
+	run /usr/local/bin/git-team rm noujz
 	assert_success
-	assert_line "Alias 'noujz' has been removed."
+	assert_line --index 0 "warn: 'git team rm' has been deprecated and is going to be removed in a future major release, use 'git team assignments rm' instead"
+	assert_line --index 1 "Alias 'noujz' has been removed."
 }
 
 @test "git-team: remove should remove a non-existing assigment without err" {
-	run bash -c "/usr/local/bin/git-team rm noujz | grep -v ^warn:.*deprecated"
+	run /usr/local/bin/git-team rm noujz
 	assert_success
-	assert_line "Alias 'noujz' has been removed."
+	assert_line --index 0 "warn: 'git team rm' has been deprecated and is going to be removed in a future major release, use 'git team assignments rm' instead"
+	assert_line --index 1 "Alias 'noujz' has been removed."
 }
 

@@ -10,23 +10,25 @@ setup() {
 }
 
 @test "git-team: list should show all alias -> coauthor assignments" {
-  run bash -c "/usr/local/bin/git-team list | grep -v ^warn:.*deprecated"
+  run /usr/local/bin/git-team list
   assert_success
-  assert_line --index 0 'Assignments:'
-  assert_line --index 1 '--------'
-  assert_line --index 2 "'a' -> 'A <a@x.y>'"
-  assert_line --index 3 "'b' -> 'B <b@x.y>'"
-  assert_line --index 4 "'c' -> 'C <c@x.y>'"
+  assert_line --index 0 "warn: 'git team ls' has been deprecated and is going to be removed in a future major release, use 'git team assignments' instead"
+  assert_line --index 1 'Assignments:'
+  assert_line --index 2 '--------'
+  assert_line --index 3 "'a' -> 'A <a@x.y>'"
+  assert_line --index 4 "'b' -> 'B <b@x.y>'"
+  assert_line --index 5 "'c' -> 'C <c@x.y>'"
 }
 
 @test "git-team: ls should show all alias -> coauthor assignments" {
-  run bash -c "/usr/local/bin/git-team ls | grep -v ^warn:.*deprecated"
+  run /usr/local/bin/git-team ls
   assert_success
-  assert_line --index 0 'Assignments:'
-  assert_line --index 1 '--------'
-  assert_line --index 2 "'a' -> 'A <a@x.y>'"
-  assert_line --index 3 "'b' -> 'B <b@x.y>'"
-  assert_line --index 4 "'c' -> 'C <c@x.y>'"
+  assert_line --index 0 "warn: 'git team ls' has been deprecated and is going to be removed in a future major release, use 'git team assignments' instead"
+  assert_line --index 1 'Assignments:'
+  assert_line --index 2 '--------'
+  assert_line --index 3 "'a' -> 'A <a@x.y>'"
+  assert_line --index 4 "'b' -> 'B <b@x.y>'"
+  assert_line --index 5 "'c' -> 'C <c@x.y>'"
 }
 
 teardown() {
