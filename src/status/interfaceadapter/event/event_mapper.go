@@ -34,21 +34,17 @@ const msgTemplate string = "git-team %s."
 
 func toString(theState state.State) string {
 	var buffer bytes.Buffer
+	buffer.WriteString(color.CyanString(msgTemplate, theState.Status))
 	if theState.IsEnabled() {
-		buffer.WriteString(color.GreenString(msgTemplate, theState.Status))
 		coauthors := theState.Coauthors
 		sort.Strings(coauthors)
 		if len(coauthors) > 0 {
 			buffer.WriteString("\n\n")
-			blackBold := color.New(color.FgBlack).Add(color.Bold)
-			buffer.WriteString(blackBold.Sprintln("Co-authors:"))
-			buffer.WriteString(blackBold.Sprint("-----------"))
+			buffer.WriteString(color.New(color.FgBlue).Add(color.Bold).Sprint("co-authors"))
 			for _, coauthor := range coauthors {
-				buffer.WriteString(color.MagentaString("\n%s", coauthor))
+				buffer.WriteString(color.WhiteString("\n- %s", coauthor))
 			}
 		}
-	} else {
-		buffer.WriteString(color.RedString(msgTemplate, theState.Status))
 	}
 
 	return buffer.String()
