@@ -3,6 +3,8 @@ package effects
 import (
 	"fmt"
 	"os"
+
+	"github.com/fatih/color"
 )
 
 // PrintErr the type definition
@@ -19,5 +21,5 @@ func NewPrintErr(err error) PrintErr {
 
 // Run write a line to STDERR
 func (printErr PrintErr) Run() {
-	os.Stderr.WriteString(fmt.Sprintf("error: %s\n", printErr.err))
+	os.Stderr.WriteString(color.RedString(fmt.Sprintf("error: %s\n", printErr.err)))
 }
