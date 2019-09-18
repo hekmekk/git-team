@@ -2,7 +2,6 @@ package listeventadapter
 
 import (
 	"bytes"
-	"fmt"
 	"sort"
 
 	"github.com/fatih/color"
@@ -35,15 +34,20 @@ func toString(assignments []assignment.Assignment) string {
 	sorted := assignments
 	sort.SliceStable(sorted, func(i, j int) bool { return sorted[i].Alias < sorted[j].Alias })
 
+	maxAliasLength := 0
+	for _, assignment := range sorted {
+		currAliasLength := len(assignment.Alias)
+		if currAliasLength > maxAliasLength {
+			maxAliasLength = currAliasLength
+		}
+	}
+
 	var buffer bytes.Buffer
 
-	blackBold := color.New(color.FgBlack).Add(color.Bold)
-
-	buffer.WriteString(blackBold.Sprintln("Assignments:"))
-	buffer.WriteString(blackBold.Sprint("------------"))
+	buffer.WriteString(color.New(color.FgBlue).Add(color.Bold).Sprint("assignments"))
 
 	for _, assgnmnt := range sorted {
-		buffer.WriteString(color.MagentaString(fmt.Sprintf("\n'%s' -> '%s'", assgnmnt.Alias, assgnmnt.Coauthor)))
+		buffer.WriteString(color.WhiteString("\n- %-[1]*s -> '%s'", maxAliasLength, assgnmnt.Alias, assgnmnt.Coauthor))
 	}
 
 	return buffer.String()
