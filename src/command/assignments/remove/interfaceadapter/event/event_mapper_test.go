@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/hekmekk/git-team/src/core/effects"
-	"github.com/hekmekk/git-team/src/remove"
+	"github.com/hekmekk/git-team/src/command/assignments/remove"
 )
 
 func TestMapEventToEffectsDeAllocationSucceeded(t *testing.T) {

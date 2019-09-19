@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hekmekk/git-team/src/add"
+	"github.com/hekmekk/git-team/src/command/assignments/add"
 	"github.com/hekmekk/git-team/src/core/effects"
 )
 

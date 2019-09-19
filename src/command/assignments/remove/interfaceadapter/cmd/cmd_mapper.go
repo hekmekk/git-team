@@ -5,8 +5,8 @@ import (
 
 	"github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/core/gitconfig"
-	"github.com/hekmekk/git-team/src/remove"
-	"github.com/hekmekk/git-team/src/remove/interfaceadapter/event"
+	"github.com/hekmekk/git-team/src/command/assignments/remove"
+	"github.com/hekmekk/git-team/src/command/assignments/remove/interfaceadapter/event"
 )
 
 // Command the rm command
