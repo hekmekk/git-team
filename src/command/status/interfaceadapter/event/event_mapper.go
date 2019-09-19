@@ -6,10 +6,10 @@ import (
 
 	"github.com/fatih/color"
 
+	"github.com/hekmekk/git-team/src/command/status"
 	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/events"
 	"github.com/hekmekk/git-team/src/core/state"
-	"github.com/hekmekk/git-team/src/status"
 )
 
 // MapEventToEffects convert status events to effects for the cli

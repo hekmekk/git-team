@@ -4,8 +4,8 @@ import (
 	"flag"
 	"os"
 
+	"github.com/hekmekk/git-team/src/command/enable/utils"
 	"github.com/hekmekk/git-team/src/core/state_repository"
-	"github.com/hekmekk/git-team/src/enable/utils"
 )
 
 type commitMsgSourceT string

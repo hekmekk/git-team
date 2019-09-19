@@ -3,8 +3,8 @@ package statuscmdadapter
 import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
+	"github.com/hekmekk/git-team/src/command/status"
 	"github.com/hekmekk/git-team/src/core/state_repository"
-	"github.com/hekmekk/git-team/src/status"
 )
 
 // Definition definition of the status command

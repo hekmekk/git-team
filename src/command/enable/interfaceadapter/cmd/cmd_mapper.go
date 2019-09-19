@@ -6,11 +6,11 @@ import (
 
 	"gopkg.in/alecthomas/kingpin.v2"
 
+	"github.com/hekmekk/git-team/src/command/enable"
 	"github.com/hekmekk/git-team/src/core/config"
 	"github.com/hekmekk/git-team/src/core/gitconfig"
 	"github.com/hekmekk/git-team/src/core/state_repository"
 	"github.com/hekmekk/git-team/src/core/validation"
-	"github.com/hekmekk/git-team/src/enable"
 )
 
 // Definition definition of the add command

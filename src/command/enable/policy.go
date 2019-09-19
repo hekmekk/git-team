@@ -4,9 +4,9 @@ import (
 	"os"
 	"path"
 
+	utils "github.com/hekmekk/git-team/src/command/enable/utils"
 	"github.com/hekmekk/git-team/src/core/config"
 	"github.com/hekmekk/git-team/src/core/events"
-	utils "github.com/hekmekk/git-team/src/enable/utils"
 )
 
 // Dependencies the dependencies of the enable Policy module

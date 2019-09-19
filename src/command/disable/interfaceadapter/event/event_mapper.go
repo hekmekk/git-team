@@ -1,12 +1,12 @@
 package disableeventadapter
 
 import (
+	"github.com/hekmekk/git-team/src/command/disable"
+	"github.com/hekmekk/git-team/src/command/status"
+	"github.com/hekmekk/git-team/src/command/status/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/events"
 	"github.com/hekmekk/git-team/src/core/state"
-	"github.com/hekmekk/git-team/src/disable"
-	"github.com/hekmekk/git-team/src/status"
-	"github.com/hekmekk/git-team/src/status/interfaceadapter/event"
 )
 
 // MapEventToEffectsFactory convert disable events to effects for the cli
