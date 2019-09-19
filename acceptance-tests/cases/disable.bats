@@ -39,7 +39,7 @@ load '/bats-libs/bats-assert/load.bash'
 
 	run /usr/local/bin/git-team disable
 	assert_success
-	assert_line "git-team disabled."
+	assert_line "git-team disabled"
 
 	rm -rf /root/.config/git-team/
 }
@@ -50,7 +50,7 @@ load '/bats-libs/bats-assert/load.bash'
 
 	run /usr/local/bin/git-team disable
 	assert_success
-	assert_line "git-team disabled."
+	assert_line "git-team disabled"
 
 	rm -rf /root/.config/git-team/
 }

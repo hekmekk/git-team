@@ -44,10 +44,14 @@ func toString(assignments []assignment.Assignment) string {
 
 	var buffer bytes.Buffer
 
-	buffer.WriteString(color.New(color.FgBlue).Add(color.Bold).Sprint("assignments"))
+	if len(sorted) == 0 {
+		buffer.WriteString(color.New(color.FgBlue).Add(color.Bold).Sprint("No assignments"))
+		return buffer.String()
+	}
 
-	for _, assgnmnt := range sorted {
-		buffer.WriteString(color.WhiteString("\n- %-[1]*s -> '%s'", maxAliasLength, assgnmnt.Alias, assgnmnt.Coauthor))
+	buffer.WriteString(color.New(color.FgBlue).Add(color.Bold).Sprint("assignments"))
+	for _, assignment := range sorted {
+		buffer.WriteString(color.WhiteString("\n├── %-[1]*s →  %s", maxAliasLength, assignment.Alias, assignment.Coauthor))
 	}
 
 	return buffer.String()
