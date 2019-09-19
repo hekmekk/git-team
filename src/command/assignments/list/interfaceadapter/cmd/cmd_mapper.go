@@ -4,9 +4,9 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/hekmekk/git-team/src/command/adapter"
-	"github.com/hekmekk/git-team/src/core/gitconfig"
 	"github.com/hekmekk/git-team/src/command/assignments/list"
 	"github.com/hekmekk/git-team/src/command/assignments/list/interfaceadapter/event"
+	"github.com/hekmekk/git-team/src/core/gitconfig"
 )
 
 // Command the ls command

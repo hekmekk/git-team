@@ -6,9 +6,9 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/hekmekk/git-team/src/command/assignments/list"
 	"github.com/hekmekk/git-team/src/core/assignment"
 	"github.com/hekmekk/git-team/src/core/effects"
-	"github.com/hekmekk/git-team/src/command/assignments/list"
 )
 
 func TestMapEventToEffectsRetrievalSucceededSorted(t *testing.T) {

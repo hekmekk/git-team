@@ -4,9 +4,9 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/hekmekk/git-team/src/command/adapter"
-	"github.com/hekmekk/git-team/src/core/gitconfig"
 	"github.com/hekmekk/git-team/src/command/assignments/remove"
 	"github.com/hekmekk/git-team/src/command/assignments/remove/interfaceadapter/event"
+	"github.com/hekmekk/git-team/src/core/gitconfig"
 )
 
 // Command the rm command

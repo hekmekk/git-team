@@ -3,8 +3,8 @@ package assignmentscmdadapter
 import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/command/adapter"
+	"github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/command/assignments/list/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/command/assignments/remove/interfaceadapter/cmd"
 )

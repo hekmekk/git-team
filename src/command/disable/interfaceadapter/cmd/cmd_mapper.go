@@ -5,10 +5,10 @@ import (
 
 	"gopkg.in/alecthomas/kingpin.v2"
 
+	"github.com/hekmekk/git-team/src/command/disable"
 	"github.com/hekmekk/git-team/src/core/config"
 	"github.com/hekmekk/git-team/src/core/gitconfig"
 	"github.com/hekmekk/git-team/src/core/state_repository"
-	"github.com/hekmekk/git-team/src/disable"
 )
 
 // Definition definition of the disable command

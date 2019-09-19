@@ -5,9 +5,9 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/hekmekk/git-team/src/command/disable"
 	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/state"
-	"github.com/hekmekk/git-team/src/disable"
 )
 
 func TestMapEventToEffectsSucceeded(t *testing.T) {

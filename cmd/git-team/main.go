@@ -7,20 +7,20 @@ import (
 	"github.com/hekmekk/git-team/src/command/assignments/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/command/assignments/list/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/command/assignments/remove/interfaceadapter/cmd"
+	"github.com/hekmekk/git-team/src/command/disable/interfaceadapter/cmd"
+	"github.com/hekmekk/git-team/src/command/disable/interfaceadapter/event"
+	"github.com/hekmekk/git-team/src/command/enable/interfaceadapter/cmd"
+	"github.com/hekmekk/git-team/src/command/enable/interfaceadapter/event"
+	"github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
+	"github.com/hekmekk/git-team/src/command/status/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/events"
 	"github.com/hekmekk/git-team/src/core/policy"
-	"github.com/hekmekk/git-team/src/disable/interfaceadapter/cmd"
-	"github.com/hekmekk/git-team/src/disable/interfaceadapter/event"
-	"github.com/hekmekk/git-team/src/enable/interfaceadapter/cmd"
-	"github.com/hekmekk/git-team/src/enable/interfaceadapter/event"
-	"github.com/hekmekk/git-team/src/status/interfaceadapter/cmd"
-	"github.com/hekmekk/git-team/src/status/interfaceadapter/event"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
-	version = "v1.3.5-alpha8"
+	version = "v1.3.5-alpha9"
 	author  = "Rea Sand <hekmek@posteo.de>"
 )
 

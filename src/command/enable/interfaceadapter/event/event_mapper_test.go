@@ -8,9 +8,9 @@ import (
 	"testing"
 	"testing/quick"
 
+	"github.com/hekmekk/git-team/src/command/enable"
 	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/state"
-	"github.com/hekmekk/git-team/src/enable"
 )
 
 func TestFoldErrors(t *testing.T) {
