@@ -8,7 +8,6 @@ import (
 	"github.com/hekmekk/git-team/src/command/assignments/list/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/command/assignments/remove/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/command/disable/interfaceadapter/cmd"
-	"github.com/hekmekk/git-team/src/command/disable/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/command/enable/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/command/status/interfaceadapter/event"
@@ -27,8 +26,6 @@ func main() {
 	application := newApplication(author, version)
 
 	switch kingpin.MustParse(application.app.Parse(os.Args[1:])) {
-	case application.disable.CommandName:
-		applyPolicy(application.disable.Policy, disableeventadapter.MapEventToEffectsFactory(application.status.Policy.Deps.StateRepositoryQuery))
 	case application.status.CommandName:
 		applyPolicy(application.status.Policy, statuseventadapter.MapEventToEffects)
 	}
@@ -44,9 +41,8 @@ func applyPolicy(policy policy.Policy, adapter func(events.Event) []effects.Effe
 }
 
 type application struct {
-	app     *kingpin.Application
-	disable disablecmdadapter.Definition
-	status  statuscmdadapter.Definition
+	app    *kingpin.Application
+	status statuscmdadapter.Definition
 }
 
 func newApplication(author string, version string) application {
@@ -78,10 +74,10 @@ func newApplication(author string, version string) application {
 
 	assignmentscmdadapter.Command(app)
 	enablecmdadapter.Command(app)
+	disablecmdadapter.Command(app)
 
 	return application{
-		app:     app, // TODO: use actions and just return this ...
-		disable: disablecmdadapter.NewDefinition(app),
-		status:  statuscmdadapter.NewDefinition(app),
+		app:    app, // TODO: use actions and just return this ...
+		status: statuscmdadapter.NewDefinition(app),
 	}
 }
