@@ -7,41 +7,39 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/hekmekk/git-team/src/add"
+	"github.com/hekmekk/git-team/src/add/interfaceadapter/event"
+	"github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/core/gitconfig"
 	"github.com/hekmekk/git-team/src/core/validation"
 )
 
-// Definition definition of the add command
-type Definition struct {
-	CommandName string
-	Policy      add.Policy
+// Command the add command
+func Command(root commandadapter.CommandRoot) *kingpin.CmdClause {
+	add := root.Command("add", "Add a new or override an existing alias to co-author assignment")
+	alias := add.Arg("alias", "The alias to assign a co-author to").Required().String()
+	coauthor := add.Arg("coauthor", "The co-author").Required().String()
+
+	add.Action(commandadapter.Run(policy(alias, coauthor), addeventadapter.MapEventToEffects))
+
+	return add
 }
 
-// NewDefinition the constructor for Definition
-func NewDefinition(app *kingpin.Application) Definition {
-
-	command := app.Command("add", "Add a new or override an existing alias to co-author assignment")
-	alias := command.Arg("alias", "The alias to assign a co-author to").Required().String()
-	coauthor := command.Arg("coauthor", "The co-author").Required().String()
-
-	return Definition{
-		CommandName: command.FullCommand(),
-		Policy: add.Policy{
-			Req: add.AssignmentRequest{
-				Alias:    alias,
-				Coauthor: coauthor,
-			},
-			Deps: add.Dependencies{
-				SanityCheckCoauthor: validation.SanityCheckCoauthor,
-				GitResolveAlias:     gitconfig.ResolveAlias,
-				GitAddAlias:         gitconfig.AddAlias,
-				GetAnswerFromUser: func(question string) (string, error) {
-					_, err := os.Stdout.WriteString(question)
-					if err != nil {
-						return "", err
-					}
-					return bufio.NewReader(os.Stdin).ReadString('\n')
-				},
+func policy(alias *string, coauthor *string) add.Policy {
+	return add.Policy{
+		Req: add.AssignmentRequest{
+			Alias:    alias,
+			Coauthor: coauthor,
+		},
+		Deps: add.Dependencies{
+			SanityCheckCoauthor: validation.SanityCheckCoauthor,
+			GitResolveAlias:     gitconfig.ResolveAlias,
+			GitAddAlias:         gitconfig.AddAlias,
+			GetAnswerFromUser: func(question string) (string, error) {
+				_, err := os.Stdout.WriteString(question)
+				if err != nil {
+					return "", err
+				}
+				return bufio.NewReader(os.Stdin).ReadString('\n')
 			},
 		},
 	}

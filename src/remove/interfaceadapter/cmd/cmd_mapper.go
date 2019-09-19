@@ -3,31 +3,29 @@ package removecmdadapter
 import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
+	"github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/core/gitconfig"
 	"github.com/hekmekk/git-team/src/remove"
+	"github.com/hekmekk/git-team/src/remove/interfaceadapter/event"
 )
 
-// Definition definition of the remove command
-type Definition struct {
-	CommandName string
-	Policy      remove.Policy
+// Command the rm command
+func Command(root commandadapter.CommandRoot) *kingpin.CmdClause {
+	rm := root.Command("rm", "Remove an alias to co-author assignment")
+	alias := rm.Arg("alias", "The alias to identify the assignment to be removed").Required().String()
+
+	rm.Action(commandadapter.Run(policy(alias), removeeventadapter.MapEventToEffects))
+
+	return rm
 }
 
-// NewDefinition the constructor for Definition
-func NewDefinition(app *kingpin.Application) Definition {
-
-	command := app.Command("rm", "Remove an alias to co-author assignment")
-	alias := command.Arg("alias", "The alias to identify the assignment to be removed").Required().String()
-
-	return Definition{
-		CommandName: command.FullCommand(),
-		Policy: remove.Policy{
-			Req: remove.DeAllocationRequest{
-				Alias: alias,
-			},
-			Deps: remove.Dependencies{
-				GitRemoveAlias: gitconfig.RemoveAlias,
-			},
+func policy(alias *string) remove.Policy {
+	return remove.Policy{
+		Req: remove.DeAllocationRequest{
+			Alias: alias,
+		},
+		Deps: remove.Dependencies{
+			GitRemoveAlias: gitconfig.RemoveAlias,
 		},
 	}
 }
