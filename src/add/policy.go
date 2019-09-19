@@ -72,7 +72,7 @@ func (policy Policy) Apply() events.Event {
 }
 
 func shouldAssignmentBeOverridden(deps Dependencies, alias, existingCoauthor, replacingCoauthor string) (bool, error) {
-	question := fmt.Sprintf("Alias '%s' -> '%s' exists already. Override with '%s'? [N/y] ", alias, existingCoauthor, replacingCoauthor)
+	question := fmt.Sprintf("Assignment '%s' →  '%s' exists already. Override with '%s'? [N/y] ", alias, existingCoauthor, replacingCoauthor)
 
 	answer, err := deps.GetAnswerFromUser(question)
 	if err != nil {

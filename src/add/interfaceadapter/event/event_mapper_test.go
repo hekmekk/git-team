@@ -13,7 +13,7 @@ import (
 func TestMapEventToEffectsAssignmentSucceeded(t *testing.T) {
 	alias := "mr"
 	coauthor := "Mr. Noujz <noujz@mr.se>"
-	msg := fmt.Sprintf("Alias '%s' -> '%s' has been added.", alias, coauthor)
+	msg := fmt.Sprintf("Assignment added: '%s' →  '%s'", alias, coauthor)
 
 	expectedEffects := []effects.Effect{
 		effects.NewPrintMessage(msg),
@@ -46,7 +46,7 @@ func TestMapEventToEffectsAssignmentFailed(t *testing.T) {
 
 func TestMapEventToEffectsAssignmentAborted(t *testing.T) {
 	expectedEffects := []effects.Effect{
-		effects.NewPrintMessage("Nothing changed."),
+		effects.NewPrintMessage("Nothing changed"),
 		effects.NewExitOk(),
 	}
 

@@ -13,38 +13,38 @@ teardown() {
 	assert_line 'Mr. Noujz <noujz@mr.se>'
 }
 
-@test "git-team: assignments add should create an assigment" {
+@test "git-team: assignments add should create a new assigment" {
 	run /usr/local/bin/git-team assignments add noujz 'Mr. Noujz <noujz@mr.se>'
 	assert_success
-	assert_line --index 0 "Alias 'noujz' -> 'Mr. Noujz <noujz@mr.se>' has been added."
+	assert_line --index 0 "Assignment added: 'noujz' →  'Mr. Noujz <noujz@mr.se>'"
 }
 
 @test "git-team: assignments add should ask for override and apply it if user replies with yes" {
 	/usr/local/bin/git-team assignments add noujz 'Mr. Green <green@mr.se>'
 	run bash -c "/usr/local/bin/git-team assignments add noujz 'Mr. Noujz <noujz@mr.se>' <<< yes"
 	assert_success
-	assert_line --index 0 "Alias 'noujz' -> 'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Alias 'noujz' -> 'Mr. Noujz <noujz@mr.se>' has been added."
+	assert_line --index 0 "Assignment 'noujz' →  'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Assignment added: 'noujz' →  'Mr. Noujz <noujz@mr.se>'"
 }
 
 @test "git-team: assignments add should ask for override and abort if user replies with no" {
 	/usr/local/bin/git-team assignments add noujz 'Mr. Green <green@mr.se>'
 	run bash -c "/usr/local/bin/git-team assignments add noujz 'Mr. Noujz <noujz@mr.se>' <<< no"
 	assert_success
-	assert_line --index 0 "Alias 'noujz' -> 'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed."
+	assert_line --index 0 "Assignment 'noujz' →  'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed"
 }
 
 @test "git-team: assignments add should ask for override and abort if user replies with anything else" {
 	/usr/local/bin/git-team assignments add noujz 'Mr. Green <green@mr.se>'
 	run bash -c "/usr/local/bin/git-team assignments add noujz 'Mr. Noujz <noujz@mr.se>' <<< foo"
 	assert_success
-	assert_line --index 0 "Alias 'noujz' -> 'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed."
+	assert_line --index 0 "Assignment 'noujz' →  'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed"
 }
 
 @test "git-team: assignments add should ask for override and abort if user just hits ENTER" {
 	/usr/local/bin/git-team assignments add noujz 'Mr. Green <green@mr.se>'
 	run bash -c "/usr/local/bin/git-team assignments add noujz 'Mr. Noujz <noujz@mr.se>' <<< ''"
 	assert_success
-	assert_line --index 0 "Alias 'noujz' -> 'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed."
+	assert_line --index 0 "Assignment 'noujz' →  'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed"
 }
 
 @test "git-team: assignments add should fail to create an assigment for an invalidly formatted co-author" {

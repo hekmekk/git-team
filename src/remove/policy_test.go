@@ -2,6 +2,7 @@ package remove
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -30,7 +31,7 @@ func TestRmShouldRemoveTheAssignmentWhenTryingToRemoveANonExistingAlias(t *testi
 		return errors.New("exit status 5")
 	}
 
-	expectedEvent := DeAllocationSucceeded{Alias: alias}
+	expectedEvent := DeAllocationFailed{Reason: fmt.Errorf("No such alias: '%s'", alias)}
 
 	event := Policy{Dependencies{GitRemoveAlias: remove}, DeAllocationRequest{Alias: &alias}}.Apply()
 
