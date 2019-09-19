@@ -45,25 +45,23 @@ setup() {
 @test "git-team: enable shorthand should display the enabled co-authors in alphabetical order" {
 	run /usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>'
 	assert_success
-	assert_line --index 0 'git-team enabled.'
-	assert_line --index 1 'Co-authors:'
-	assert_line --index 2 '-----------'
-	assert_line --index 3 'A <a@x.y>'
-	assert_line --index 4 'Ad-hoc <adhoc@tmp.se>'
-	assert_line --index 5 'B <b@x.y>'
-	assert_line --index 6 'C <c@x.y>'
+	assert_line --index 0 'git-team enabled'
+	assert_line --index 1 'co-authors'
+	assert_line --index 2 '├── A <a@x.y>'
+	assert_line --index 3 '├── Ad-hoc <adhoc@tmp.se>'
+	assert_line --index 4 '├── B <b@x.y>'
+	assert_line --index 5 '├── C <c@x.y>'
 }
 
 @test "git-team: enable should display the enabled co-authors in alphabetical order" {
 	run /usr/local/bin/git-team enable b a c 'Ad-hoc <adhoc@tmp.se>'
 	assert_success
-	assert_line --index 0 'git-team enabled.'
-	assert_line --index 1 'Co-authors:'
-	assert_line --index 2 '-----------'
-	assert_line --index 3 'A <a@x.y>'
-	assert_line --index 4 'Ad-hoc <adhoc@tmp.se>'
-	assert_line --index 5 'B <b@x.y>'
-	assert_line --index 6 'C <c@x.y>'
+	assert_line --index 0 'git-team enabled'
+	assert_line --index 1 'co-authors'
+	assert_line --index 2 '├── A <a@x.y>'
+	assert_line --index 3 '├── Ad-hoc <adhoc@tmp.se>'
+	assert_line --index 4 '├── B <b@x.y>'
+	assert_line --index 5 '├── C <c@x.y>'
 }
 
 @test "git-team: issuing enable should be idempotent" {
@@ -71,26 +69,24 @@ setup() {
 	/usr/local/bin/git-team enable b a c 'Ad-hoc <adhoc@tmp.se>'
 	run /usr/local/bin/git-team enable b a c 'Ad-hoc <adhoc@tmp.se>'
 	assert_success
-	assert_line --index 0 'git-team enabled.'
-	assert_line --index 1 'Co-authors:'
-	assert_line --index 2 '-----------'
-	assert_line --index 3 'A <a@x.y>'
-	assert_line --index 4 'Ad-hoc <adhoc@tmp.se>'
-	assert_line --index 5 'B <b@x.y>'
-	assert_line --index 6 'C <c@x.y>'
+	assert_line --index 0 'git-team enabled'
+	assert_line --index 1 'co-authors'
+	assert_line --index 2 '├── A <a@x.y>'
+	assert_line --index 3 '├── Ad-hoc <adhoc@tmp.se>'
+	assert_line --index 4 '├── B <b@x.y>'
+	assert_line --index 5 '├── C <c@x.y>'
+	assert_line --index 6 ''
 	assert_line --index 7 ''
 	assert_line --index 8 ''
-	assert_line --index 9 ''
 }
 
 @test "git-team: enable should ignore duplicates" {
 	run /usr/local/bin/git-team enable a a 'A <a@x.y>'
 	assert_success
-	assert_line --index 0 'git-team enabled.'
-	assert_line --index 1 'Co-authors:'
-	assert_line --index 2 '-----------'
-	assert_line --index 3 'A <a@x.y>'
-	assert_line --index 4 ''
+	assert_line --index 0 'git-team enabled'
+	assert_line --index 1 'co-authors'
+	assert_line --index 2 '├── A <a@x.y>'
+	assert_line --index 3 ''
 }
 
 @test "git-team: enable should fail when trying to enable with a non-existing alias" {

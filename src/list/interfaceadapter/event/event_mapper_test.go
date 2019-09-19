@@ -13,12 +13,12 @@ import (
 
 func TestMapEventToEffectsRetrievalSucceededSorted(t *testing.T) {
 	assignments := []assignment.Assignment{
-		assignment.Assignment{Alias: "alias2", Coauthor: "coauthor2"},
+		assignment.Assignment{Alias: "alias200", Coauthor: "coauthor2"},
 		assignment.Assignment{Alias: "alias1", Coauthor: "coauthor1"},
 		assignment.Assignment{Alias: "alias3", Coauthor: "coauthor3"},
 	}
 
-	msg := fmt.Sprintf("Assignments:\n------------\n'alias1' -> 'coauthor1'\n'alias2' -> 'coauthor2'\n'alias3' -> 'coauthor3'")
+	msg := fmt.Sprintf("assignments\n├── alias1   →  coauthor1\n├── alias200 →  coauthor2\n├── alias3   →  coauthor3")
 
 	expectedEffects := []effects.Effect{
 		effects.NewPrintMessage(msg),
@@ -36,7 +36,7 @@ func TestMapEventToEffectsRetrievalSucceededSorted(t *testing.T) {
 func TestMapEventToEffectsRetrievalSucceededEmpty(t *testing.T) {
 	assignments := []assignment.Assignment{}
 
-	msg := fmt.Sprintf("Assignments:\n------------")
+	msg := fmt.Sprintf("No assignments")
 
 	expectedEffects := []effects.Effect{
 		effects.NewPrintMessage(msg),

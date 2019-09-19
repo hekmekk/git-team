@@ -12,7 +12,7 @@ import (
 
 func TestMapEventToEffectsSucceeded(t *testing.T) {
 	expectedEffects := []effects.Effect{
-		effects.NewPrintMessage("git-team disabled."),
+		effects.NewPrintMessage("git-team disabled"),
 		effects.NewExitOk(),
 	}
 

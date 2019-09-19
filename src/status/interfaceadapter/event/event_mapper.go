@@ -30,7 +30,7 @@ func MapEventToEffects(event events.Event) []effects.Effect {
 	}
 }
 
-const msgTemplate string = "git-team %s."
+const msgTemplate string = "git-team %s"
 
 func toString(theState state.State) string {
 	var buffer bytes.Buffer
@@ -42,7 +42,7 @@ func toString(theState state.State) string {
 			buffer.WriteString("\n\n")
 			buffer.WriteString(color.New(color.FgBlue).Add(color.Bold).Sprint("co-authors"))
 			for _, coauthor := range coauthors {
-				buffer.WriteString(color.WhiteString("\n- %s", coauthor))
+				buffer.WriteString(color.WhiteString("\n├── %s", coauthor))
 			}
 		}
 	}
