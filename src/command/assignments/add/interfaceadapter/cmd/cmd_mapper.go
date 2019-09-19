@@ -6,8 +6,8 @@ import (
 
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/hekmekk/git-team/src/add"
-	"github.com/hekmekk/git-team/src/add/interfaceadapter/event"
+	"github.com/hekmekk/git-team/src/command/assignments/add"
+	"github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/core/gitconfig"
 	"github.com/hekmekk/git-team/src/core/validation"

@@ -3,8 +3,10 @@ package main
 import (
 	"os"
 
-	"github.com/hekmekk/git-team/src/add/interfaceadapter/cmd"
-	"github.com/hekmekk/git-team/src/assignments/interfaceadapter/cmd"
+	"github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/cmd"
+	"github.com/hekmekk/git-team/src/command/assignments/interfaceadapter/cmd"
+	"github.com/hekmekk/git-team/src/command/assignments/list/interfaceadapter/cmd"
+	"github.com/hekmekk/git-team/src/command/assignments/remove/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/events"
 	"github.com/hekmekk/git-team/src/core/policy"
@@ -12,8 +14,6 @@ import (
 	"github.com/hekmekk/git-team/src/disable/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/enable/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/enable/interfaceadapter/event"
-	"github.com/hekmekk/git-team/src/list/interfaceadapter/cmd"
-	"github.com/hekmekk/git-team/src/remove/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/status/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/status/interfaceadapter/event"
 	"gopkg.in/alecthomas/kingpin.v2"
