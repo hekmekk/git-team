@@ -10,42 +10,22 @@ import (
 	"github.com/hekmekk/git-team/src/command/disable/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/command/enable/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
-	"github.com/hekmekk/git-team/src/command/status/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/core/effects"
-	"github.com/hekmekk/git-team/src/core/events"
-	"github.com/hekmekk/git-team/src/core/policy"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
-	version = "v1.3.5-alpha9"
+	version = "v1.3.5-alpha10"
 	author  = "Rea Sand <hekmek@posteo.de>"
 )
 
 func main() {
 	application := newApplication(author, version)
-
-	switch kingpin.MustParse(application.app.Parse(os.Args[1:])) {
-	case application.status.CommandName:
-		applyPolicy(application.status.Policy, statuseventadapter.MapEventToEffects)
-	}
-
+	kingpin.MustParse(application.Parse(os.Args[1:]))
 	os.Exit(0)
 }
 
-func applyPolicy(policy policy.Policy, adapter func(events.Event) []effects.Effect) {
-	effects := adapter(policy.Apply())
-	for _, effect := range effects {
-		effect.Run()
-	}
-}
-
-type application struct {
-	app    *kingpin.Application
-	status statuscmdadapter.Definition
-}
-
-func newApplication(author string, version string) application {
+func newApplication(author string, version string) *kingpin.Application {
 	app := kingpin.New("git-team", "Command line interface for managing and enhancing git commit messages with co-authors.")
 
 	app.Author(author)
@@ -75,9 +55,7 @@ func newApplication(author string, version string) application {
 	assignmentscmdadapter.Command(app)
 	enablecmdadapter.Command(app)
 	disablecmdadapter.Command(app)
+	statuscmdadapter.Command(app)
 
-	return application{
-		app:    app, // TODO: use actions and just return this ...
-		status: statuscmdadapter.NewDefinition(app),
-	}
+	return app
 }
