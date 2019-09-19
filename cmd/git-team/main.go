@@ -3,6 +3,8 @@ package main
 import (
 	"os"
 
+	"gopkg.in/alecthomas/kingpin.v2"
+
 	"github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/command/assignments/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/command/assignments/list/interfaceadapter/cmd"
@@ -11,7 +13,6 @@ import (
 	"github.com/hekmekk/git-team/src/command/enable/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/core/effects"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
