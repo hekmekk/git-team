@@ -12,7 +12,7 @@ import (
 
 func TestMapEventToEffectsDeAllocationSucceeded(t *testing.T) {
 	alias := "mr"
-	msg := fmt.Sprintf("Alias '%s' has been removed.", alias)
+	msg := fmt.Sprintf("Assignment removed: '%s'", alias)
 
 	expectedEffects := []effects.Effect{
 		effects.NewPrintMessage(msg),

@@ -4,7 +4,7 @@ load '/bats-libs/bats-support/load.bash'
 load '/bats-libs/bats-assert/load.bash'
 
 teardown() {
-	/usr/local/bin/git-team rm noujz
+	bash -c "/usr/local/bin/git-team rm noujz || true"
 }
 
 @test "git-team: add should add an assignment to git config" {
@@ -17,7 +17,7 @@ teardown() {
 	run /usr/local/bin/git-team add noujz 'Mr. Noujz <noujz@mr.se>'
 	assert_success
 	assert_line --index 0 "warn: 'git team add' has been deprecated and is going to be removed in a future major release, use 'git team assignments add' instead"
-	assert_line --index 1 "Alias 'noujz' -> 'Mr. Noujz <noujz@mr.se>' has been added."
+	assert_line --index 1 "Assignment added: 'noujz' →  'Mr. Noujz <noujz@mr.se>'"
 }
 
 @test "git-team: add should ask for override and apply it if user replies with yes" {
@@ -25,7 +25,7 @@ teardown() {
 	run bash -c "/usr/local/bin/git-team add noujz 'Mr. Noujz <noujz@mr.se>' <<< yes"
 	assert_success
 	assert_line --index 0 "warn: 'git team add' has been deprecated and is going to be removed in a future major release, use 'git team assignments add' instead"
-	assert_line --index 1 "Alias 'noujz' -> 'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Alias 'noujz' -> 'Mr. Noujz <noujz@mr.se>' has been added."
+	assert_line --index 1 "Assignment 'noujz' →  'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Assignment added: 'noujz' →  'Mr. Noujz <noujz@mr.se>'"
 }
 
 @test "git-team: add should ask for override and abort if user replies with no" {
@@ -33,7 +33,7 @@ teardown() {
 	run bash -c "/usr/local/bin/git-team add noujz 'Mr. Noujz <noujz@mr.se>' <<< no"
 	assert_success
 	assert_line --index 0 "warn: 'git team add' has been deprecated and is going to be removed in a future major release, use 'git team assignments add' instead"
-	assert_line --index 1 "Alias 'noujz' -> 'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed."
+	assert_line --index 1 "Assignment 'noujz' →  'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed"
 }
 
 @test "git-team: add should ask for override and abort if user replies with anything else" {
@@ -41,7 +41,7 @@ teardown() {
 	run bash -c "/usr/local/bin/git-team add noujz 'Mr. Noujz <noujz@mr.se>' <<< foo"
 	assert_success
 	assert_line --index 0 "warn: 'git team add' has been deprecated and is going to be removed in a future major release, use 'git team assignments add' instead"
-	assert_line --index 1 "Alias 'noujz' -> 'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed."
+	assert_line --index 1 "Assignment 'noujz' →  'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed"
 }
 
 @test "git-team: add should ask for override and abort if user just hits ENTER" {
@@ -49,7 +49,7 @@ teardown() {
 	run bash -c "/usr/local/bin/git-team add noujz 'Mr. Noujz <noujz@mr.se>' <<< ''"
 	assert_success
 	assert_line --index 0 "warn: 'git team add' has been deprecated and is going to be removed in a future major release, use 'git team assignments add' instead"
-	assert_line --index 1 "Alias 'noujz' -> 'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed."
+	assert_line --index 1 "Assignment 'noujz' →  'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed"
 }
 
 @test "git-team: add should fail to create an assigment for an invalidly formatted co-author" {

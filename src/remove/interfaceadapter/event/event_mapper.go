@@ -5,8 +5,8 @@ import (
 
 	"github.com/fatih/color"
 
-	"github.com/hekmekk/git-team/src/core/events"
 	"github.com/hekmekk/git-team/src/core/effects"
+	"github.com/hekmekk/git-team/src/core/events"
 	"github.com/hekmekk/git-team/src/remove"
 )
 
@@ -15,7 +15,7 @@ func MapEventToEffects(event events.Event) []effects.Effect {
 	switch evt := event.(type) {
 	case remove.DeAllocationSucceeded:
 		return []effects.Effect{
-			effects.NewPrintMessage(color.RedString(fmt.Sprintf("Alias '%s' has been removed.", evt.Alias))),
+			effects.NewPrintMessage(color.CyanString(fmt.Sprintf("Assignment removed: '%s'", evt.Alias))),
 			effects.NewExitOk(),
 		}
 	case remove.DeAllocationFailed:

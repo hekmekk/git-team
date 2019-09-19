@@ -16,12 +16,12 @@ load '/bats-libs/bats-assert/load.bash'
 
 	run /usr/local/bin/git-team assignments rm noujz
 	assert_success
-	assert_line --index 0 "Alias 'noujz' has been removed."
+	assert_line --index 0 "Assignment removed: 'noujz'"
 }
 
-@test "git-team: assignments rm should remove a non-existing assigment without err" {
+@test "git-team: assignments rm should fail for a non-existing alias" {
 	run /usr/local/bin/git-team assignments rm noujz
-	assert_success
-	assert_line --index 0 "Alias 'noujz' has been removed."
+	assert_failure
+	assert_line --index 0 "error: No such alias: 'noujz'"
 }
 

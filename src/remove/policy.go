@@ -1,6 +1,8 @@
 package remove
 
 import (
+	"fmt"
+
 	"github.com/hekmekk/git-team/src/core/events"
 	giterror "github.com/hekmekk/git-team/src/core/gitconfig/error"
 )
@@ -29,8 +31,12 @@ func (policy Policy) Apply() events.Event {
 	alias := *req.Alias
 
 	err := deps.GitRemoveAlias(alias)
-	if err != nil && err.Error() != giterror.UnsetOptionWhichDoesNotExist {
-		return DeAllocationFailed{Reason: err}
+	if err != nil {
+		if err.Error() != giterror.UnsetOptionWhichDoesNotExist {
+			return DeAllocationFailed{Reason: err}
+		}
+
+		return DeAllocationFailed{Reason: fmt.Errorf("No such alias: '%s'", alias)}
 	}
 
 	return DeAllocationSucceeded{Alias: alias}

@@ -12,7 +12,7 @@ func TestAddShouldMakeTheNewAssignment(t *testing.T) {
 
 	deps := Dependencies{
 		SanityCheckCoauthor: func(coauthor string) error { return nil },
-		GitResolveAlias:     func(alias string) (string, error) { return "", errors.New("no such alias") },
+		GitResolveAlias:     func(alias string) (string, error) { return "", errors.New("No such alias") },
 		GitAddAlias:         func(alias, coauthor string) error { return nil },
 		GetAnswerFromUser:   func(string) (string, error) { return "", nil },
 	}
@@ -99,7 +99,7 @@ func TestAddShouldFailBecauseUnderlyingGitAddFails(t *testing.T) {
 
 	deps := Dependencies{
 		SanityCheckCoauthor: func(coauthor string) error { return nil },
-		GitResolveAlias:     func(alias string) (string, error) { return "", errors.New("no such alias") },
+		GitResolveAlias:     func(alias string) (string, error) { return "", errors.New("No such alias") },
 		GitAddAlias:         func(alias, coauthor string) error { return err },
 	}
 
