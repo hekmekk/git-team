@@ -91,6 +91,7 @@ deb rpm: package-build
 		-v $(VERSION) \
 		-m "Rea Sand <hekmek@posteo.de>" \
 		--url "https://github.com/hekmekk/git-team" \
+		--architecture "x86_64" \
 		--license "MIT" \
 		--vendor "git-team authors" \
 		--description "git-team - commit message enhancement with co-authors" \
