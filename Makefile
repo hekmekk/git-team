@@ -92,6 +92,7 @@ deb rpm: package-build
 		-m "Rea Sand <hekmek@posteo.de>" \
 		--url "https://github.com/hekmekk/git-team" \
 		--license "MIT" \
+		--vendor "git-team authors" \
 		--description "git-team - commit message enhancement with co-authors" \
 		--deb-no-default-config-files \
 		--after-install git-hooks/install_symlinks.sh \
