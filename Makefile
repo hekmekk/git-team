@@ -94,6 +94,7 @@ deb rpm: package-build
 		--license "MIT" \
 		--vendor "git-team authors" \
 		--description "git-team - commit message enhancement with co-authors" \
+		--depends "git" \
 		--deb-no-default-config-files \
 		--after-install git-hooks/install_symlinks.sh \
 		-p /pkg-target \
