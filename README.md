@@ -48,6 +48,22 @@ Install stable release. Use `--HEAD` in case you want to install from the latest
 brew install git-team
 ```
 
+#### via [bintray](https://bintray.com)
+1. Add GPG Key
+```bash
+curl https://bintray.com/user/downloadSubjectPublicKey?username=bintray | sudo apt-key add -
+```
+
+2. Setup the `apt` repository
+```bash
+echo "deb [arch=amd64] https://dl.bintray.com/hekmekk/git-team stretch main" | sudo tee /etc/apt/sources.list.d/git-team.list
+```
+
+3. Update the `apt` package index and install `git-team`
+```bash
+sudo apt update && sudo apt install git-team
+```
+
 #### via [apt-sourc.es](https://apt-sourc.es)
 1. Add *apt-sourc.es* GPG Key
 ```bash
