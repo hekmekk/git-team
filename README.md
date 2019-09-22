@@ -5,15 +5,14 @@
 Command line interface for managing and enhancing `git commit` messages with co-authors.
 
 ## Usage
-
-#### Setup some aliases for convenience
+#### Setup some alias -> co-author assignments for convenience
 ```bash
-git team add noujz "Mr. Noujz <noujz@mr.se>"
+git team assignments add noujz "Mr. Noujz <noujz@mr.se>"
 ```
 
-To review your current alias to co-author assignments use:
+To review your current assignments use:
 ```bash
-git team ls
+git team assignments
 ```
 
 #### Set active co-authors
