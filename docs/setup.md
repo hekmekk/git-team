@@ -34,7 +34,7 @@ sudo apt update && sudo apt install git-team
 #### via [apt-sourc.es](https://apt-sourc.es)
 1. Add *apt-sourc.es* GPG Key
 ```bash
-curl https://apt-sourc.es/admin/gpg.asc | sudo apt-key add -
+curl -fsSL https://apt-sourc.es/admin/gpg.asc | sudo apt-key add -
 ```
 
 2. Setup the `apt` repository
@@ -55,11 +55,13 @@ ansible-playbook git-team.yml --ask-become-pass
 ## rpm
 1. Add bintray GPG Key
 ```bash
-echo "`curl -s https://bintray.com/user/downloadSubjectPublicKey?username=bintray`" > /tmp/bintray-public.key.asc && sudo rpm --import /tmp/bintray-public.key.asc && rm -f /tmp/bintray-public.key.asc
+echo "`curl -fsSL https://bintray.com/user/downloadSubjectPublicKey?username=bintray`" > /tmp/bintray-public.key.asc && sudo rpm --import /tmp/bintray-public.key.asc && rm -f /tmp/bintray-public.key.asc
 ```
 
 2. Setup the `yum` repository
+
 Note: Automatic signing of packages during upload doesn't seem to work for `.rpm` files. Set `gpgcheck=0` as a workaround.
+
 ```bash
 echo "[git-team]
 name=git-team
