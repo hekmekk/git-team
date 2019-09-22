@@ -60,8 +60,6 @@ echo "`curl -fsSL https://bintray.com/user/downloadSubjectPublicKey?username=bin
 
 2. Setup the `yum` repository
 
-Note: Automatic signing of packages during upload doesn't seem to work for `.rpm` files. Set `gpgcheck=0` as a workaround.
-
 ```bash
 echo "[git-team]
 name=git-team
@@ -71,8 +69,11 @@ enabled=1" | sudo tee /etc/yum.repos.d/git-team.repo
 ```
 
 3. Install `git-team`
+
+**Warning:** Automatic signing of packages during upload doesn't seem to work for `.rpm` files, therefore the `--nogpgcheck` workaround.
+
 ```bash
-sudo yum install git-team
+sudo yum install git-team --nogpgcheck
 ```
 
 ## Manually
@@ -81,7 +82,7 @@ sudo yum install git-team
 
 2. Install it manually
 ```bash
-sudo dpkg -i /path/to/downloaded/release.deb
+sudo [dpkg|rpm] -i /path/to/downloaded/release.[deb|rpm]
 ```
 
 #### Build from Source
