@@ -1,6 +1,6 @@
 # Installation
-## osx
-#### via [Homebrew](https://brew.sh)
+## OSX
+### via [Homebrew](https://brew.sh)
 1. Add tap
 
 ```bash
@@ -14,8 +14,9 @@ Install stable release. Use `--HEAD` in case you want to install from the latest
 brew install git-team
 ```
 
-## deb
-#### via [bintray](https://bintray.com)
+## Debian / Ubuntu
+### via apt / aptitude
+#### using [bintray](https://bintray.com)
 1. Add bintray GPG Key
 ```bash
 curl -fsSL https://api.bintray.com/users/hekmekk/keys/gpg/public.key | sudo apt-key add -
@@ -31,7 +32,7 @@ echo "deb [arch=amd64] https://dl.bintray.com/hekmekk/git-team $(lsb_release -cs
 sudo apt update && sudo apt install git-team
 ```
 
-#### via [apt-sourc.es](https://apt-sourc.es)
+#### using [apt-sourc.es](https://apt-sourc.es)
 1. Add *apt-sourc.es* GPG Key
 ```bash
 curl -fsSL https://apt-sourc.es/admin/gpg.asc | sudo apt-key add -
@@ -47,12 +48,22 @@ echo "deb [arch=amd64] https://apt-sourc.es/deb/hekmekk/git-team stable main" | 
 sudo apt update && sudo apt install git-team
 ```
 
-#### via an [ansible playbook](../master/contrib/ansible/roles/git-team/tasks/main.yml)
+### via an [ansible playbook](../master/contrib/ansible/roles/git-team/tasks/main.yml)
 ```
 ansible-playbook git-team.yml --ask-become-pass
 ```
 
-## rpm
+### manually
+1. Download the [latest release](https://github.com/hekmekk/git-team/releases/latest)
+
+2. Install it manually
+```bash
+sudo dpkg -i /path/to/downloaded/release.deb
+```
+
+## RedHat / CentOS / Fedora
+### via yum
+#### using [bintray](https://bintray.com)
 1. Add bintray GPG Key
 ```bash
 rpm --import https://api.bintray.com/users/hekmekk/keys/gpg/public.key
@@ -73,16 +84,15 @@ gpgkey=https://api.bintray.com/users/hekmekk/keys/gpg/public.key" | sudo tee /et
 sudo yum install git-team
 ```
 
-## Manually
-#### Download a Release
+### manually
 1. Download the [latest release](https://github.com/hekmekk/git-team/releases/latest)
 
 2. Install it manually
 ```bash
-sudo [dpkg|rpm] -i /path/to/downloaded/release.[deb|rpm]
+sudo rpm -i /path/to/downloaded/release.rpm
 ```
 
-#### Build from Source
+## Build from source
 The latest version of git-team has been built against go version 1.12.
 ```bash
 make
