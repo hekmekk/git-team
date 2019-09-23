@@ -70,11 +70,8 @@ gpgkey=https://api.bintray.com/users/hekmekk/keys/gpg/public.key" | sudo tee /et
 ```
 
 3. Install `git-team`
-
-**Warning:** Automatic signing of packages during upload doesn't seem to work for `.rpm` files, therefore the `--nogpgcheck` workaround.
-
 ```bash
-sudo yum install git-team --nogpgcheck
+sudo yum install git-team
 ```
 
 ## Manually
