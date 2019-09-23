@@ -70,11 +70,13 @@ uninstall:
 	rm -f /usr/share/man/man1/git-team.1.gz
 	rm -rf $(HOOKS_DIR)
 
-package-build: clean
-ifndef RPM_SIGNING_KEY_ID
-	$(error RPM_SIGNING_KEY_ID is not set)
+export-signing-key:
+ifndef GPG_SIGNING_KEY_ID
+	$(error GPG_SIGNING_KEY_ID is not set)
 endif
-	gpg --armor --export-secret-keys $(RPM_SIGNING_KEY_ID) > $(CURR_DIR)/pkg/signing-key.asc
+	gpg --armor --export-secret-keys $(GPG_SIGNING_KEY_ID) > $(CURR_DIR)/pkg/signing-key.asc
+
+package-build: clean export-signing-key
 	mkdir -p pkg/src/
 	cp Makefile pkg/src/
 	cp go.mod pkg/src/
@@ -110,7 +112,16 @@ deb rpm: package-build
 		bash_completion/git-team.bash=/etc/bash_completion.d/git-team \
 		pkg/target/man/git-team.1.gz=/usr/share/man/man1/git-team.1.gz
 
-package: deb rpm
+sign-deb:
+ifndef GPG_SIGNING_KEY_ID
+	$(error GPG_SIGNING_KEY_ID is not set)
+endif
+	dpkg-sig -s builder -k $(GPG_SIGNING_KEY_ID) $(CURR_DIR)/pkg/target/deb/git-team_$(VERSION)_amd64.deb
+
+show-checksums:
+	find $(CURR_DIR)/pkg/target/ -type f -exec sha256sum {} \;
+
+package: rpm deb sign-deb show-checksums
 
 release-github: package
 ifndef GITHUB_API_TOKEN
