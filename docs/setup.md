@@ -16,12 +16,12 @@ brew install git-team
 
 ## Debian / Ubuntu
 ### via apt / aptitude
-#### using [bintray](https://bintray.com)
 0. Pre-requisites
 ```bash
 sudo apt install curl gnupg lsb-release
 ```
 
+#### using [bintray](https://bintray.com)
 1. Add bintray GPG Key
 ```bash
 curl -fsSL https://api.bintray.com/users/hekmekk/keys/gpg/public.key | sudo apt-key add -
