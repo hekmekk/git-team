@@ -55,11 +55,10 @@ ansible-playbook git-team.yml --ask-become-pass
 ## rpm
 1. Add bintray GPG Key
 ```bash
-echo "`curl -fsSL https://api.bintray.com/users/hekmekk/keys/gpg/public.key`" > /tmp/bintray-public.key.asc && sudo rpm --import /tmp/bintray-public.key.asc && rm -f /tmp/bintray-public.key.asc
+rpm --import https://api.bintray.com/users/hekmekk/keys/gpg/public.key
 ```
 
 2. Setup the `yum` repository
-
 ```bash
 echo "[git-team]
 name=git-team
