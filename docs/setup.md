@@ -18,7 +18,7 @@ brew install git-team
 #### via [bintray](https://bintray.com)
 1. Add bintray GPG Key
 ```bash
-curl -fsSL https://bintray.com/user/downloadSubjectPublicKey?username=bintray | sudo apt-key add -
+curl -fsSL https://api.bintray.com/users/hekmekk/keys/gpg/public.key | sudo apt-key add -
 ```
 
 2. Setup the `apt` repository
@@ -55,7 +55,7 @@ ansible-playbook git-team.yml --ask-become-pass
 ## rpm
 1. Add bintray GPG Key
 ```bash
-echo "`curl -fsSL https://bintray.com/user/downloadSubjectPublicKey?username=bintray`" > /tmp/bintray-public.key.asc && sudo rpm --import /tmp/bintray-public.key.asc && rm -f /tmp/bintray-public.key.asc
+echo "`curl -fsSL https://api.bintray.com/users/hekmekk/keys/gpg/public.key`" > /tmp/bintray-public.key.asc && sudo rpm --import /tmp/bintray-public.key.asc && rm -f /tmp/bintray-public.key.asc
 ```
 
 2. Setup the `yum` repository
@@ -63,9 +63,10 @@ echo "`curl -fsSL https://bintray.com/user/downloadSubjectPublicKey?username=bin
 ```bash
 echo "[git-team]
 name=git-team
-baseurl=https://dl.bintray.com/hekmekk/git-team-rpm
+enabled=1
+baseurl=https://dl.bintray.com/hekmekk/rpm
 gpgcheck=1
-enabled=1" | sudo tee /etc/yum.repos.d/git-team.repo
+gpgkey=https://api.bintray.com/users/hekmekk/keys/gpg/public.key" | sudo tee /etc/yum.repos.d/git-team.repo
 ```
 
 3. Install `git-team`
