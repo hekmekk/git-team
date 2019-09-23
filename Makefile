@@ -96,8 +96,9 @@ deb rpm: package-build
 		--vendor "git-team authors" \
 		--description "git-team - commit message enhancement with co-authors" \
 		--depends "git" \
-		--deb-no-default-config-files \
 		--after-install git-hooks/install_symlinks.sh \
+		--deb-no-default-config-files \
+		--rpm-sign \
 		-p /pkg-target \
 		pkg/target/bin/git-team=$(BIN_PREFIX)/bin/git-team \
 		pkg/target/bin/prepare-commit-msg=$(HOOKS_DIR)/prepare-commit-msg \

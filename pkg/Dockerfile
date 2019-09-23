@@ -28,6 +28,14 @@ RUN mkdir -p /pkg-target && chown -R $UID:$GID /pkg-target
 
 USER $USERNAME
 
+COPY signing-key.asc /signing-key.asc
+RUN gpg --import /signing-key.asc
+
+RUN echo -e "%_signature gpg\n \
+%_gpg_path /home/${USERNAME}/.gnupg\n \
+%_gpg_name A25BDCDD58EBF2C0\n \
+%_gpgbin /usr/bin/gpg" | tee /home/${USERNAME}/.rpmmacros
+
 ENV GOPATH=/go
 
 RUN make
