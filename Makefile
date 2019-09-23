@@ -89,7 +89,7 @@ deb rpm: package-build
 		-t $@ \
 		-n "git-team" \
 		-v $(VERSION) \
-		-m "Rea Sand <hekmek@posteo.de>" \
+		-m "git-team authors" \
 		--url "https://github.com/hekmekk/git-team" \
 		--architecture "x86_64" \
 		--license "MIT" \
