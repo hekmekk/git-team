@@ -71,6 +71,10 @@ uninstall:
 	rm -rf $(HOOKS_DIR)
 
 package-build: clean
+ifndef RPM_SIGNING_KEY_ID
+	$(error RPM_SIGNING_KEY_ID is not set)
+endif
+	gpg --armor --export-secret-keys $(RPM_SIGNING_KEY_ID) > $(CURR_DIR)/pkg/signing-key.asc
 	mkdir -p pkg/src/
 	cp Makefile pkg/src/
 	cp go.mod pkg/src/
@@ -121,6 +125,7 @@ release: release-github
 
 clean:
 	rm -f $(CURR_DIR)/git-team
+	rm -f $(CURR_DIR)/pkg/signing-key.asc
 	rm -rf $(CURR_DIR)/pkg/src/
 	rm -rf $(CURR_DIR)/pkg/target/
 	rm -rf $(CURR_DIR)/acceptance-tests/src/
