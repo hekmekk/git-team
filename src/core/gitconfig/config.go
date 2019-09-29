@@ -35,7 +35,7 @@ func GetAll(key string) ([]string, error) {
 	return execGitConfig("--get-all", key)
 }
 
-// Add git config --global --replace-all <key> <value>
+// Add git config --global --add <key> <value>
 func Add(key string, value string) error {
 	_, err := execGitConfig("--add", key, value)
 	return err
@@ -62,12 +62,6 @@ func SetCommitTemplate(path string) error {
 // UnsetCommitTemplate unset your global "commit.template"
 func UnsetCommitTemplate() error {
 	_, err := execGitConfig("--unset-all", commitTemplate)
-	return err
-}
-
-// AddAlias add a co-author for "team.alias.<alias>"
-func AddAlias(alias, author string) error {
-	_, err := execGitConfig("--replace-all", getAliasFullPath(alias), author)
 	return err
 }
 

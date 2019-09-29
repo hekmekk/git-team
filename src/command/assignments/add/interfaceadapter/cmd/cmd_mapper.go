@@ -2,6 +2,7 @@ package addcmdadapter
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -33,7 +34,9 @@ func policy(alias *string, coauthor *string) add.Policy {
 		Deps: add.Dependencies{
 			SanityCheckCoauthor: validation.SanityCheckCoauthor,
 			GitResolveAlias:     gitconfig.ResolveAlias,
-			GitAddAlias:         gitconfig.AddAlias,
+			GitAddAlias: func(alias string, coauthor string) error {
+				return gitconfig.ReplaceAll(fmt.Sprintf("team.alias.%s", alias), coauthor) // TODO: move this logic into the policy
+			},
 			GetAnswerFromUser: func(question string) (string, error) {
 				_, err := os.Stdout.WriteString(question)
 				if err != nil {
