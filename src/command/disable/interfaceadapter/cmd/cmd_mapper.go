@@ -25,8 +25,8 @@ func Command(root commandadapter.CommandRoot) *kingpin.CmdClause {
 func policy() disable.Policy {
 	return disable.Policy{
 		Deps: disable.Dependencies{
-			GitUnsetCommitTemplate: gitconfig.UnsetCommitTemplate,
-			GitUnsetHooksPath:      func() error { return gitconfig.UnsetAll("core.hooksPath") }, // TODO: move this logic into the policy
+			GitUnsetCommitTemplate: func() error { return gitconfig.UnsetAll("commit.template") }, // TODO: move this logic into the policy
+			GitUnsetHooksPath:      func() error { return gitconfig.UnsetAll("core.hooksPath") },  // TODO: move this logic into the policy
 			LoadConfig:             config.Load,
 			StatFile:               os.Stat,
 			RemoveFile:             os.Remove,
