@@ -22,7 +22,7 @@ func Command(root commandadapter.CommandRoot) *kingpin.CmdClause {
 func policy() list.Policy {
 	return list.Policy{
 		Deps: list.Dependencies{
-			GitGetAssignments: func() (map[string]string, error) { return gitconfig.GetRegexp("team.alias") },
+			GitGetAssignments: func() (map[string]string, error) { return gitconfig.GetRegexp("team.alias") }, // TODO: move this logic into the policy
 		},
 	}
 }
