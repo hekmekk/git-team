@@ -1,6 +1,8 @@
 package removecmdadapter
 
 import (
+	"fmt"
+
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/hekmekk/git-team/src/command/adapter"
@@ -25,7 +27,9 @@ func policy(alias *string) remove.Policy {
 			Alias: alias,
 		},
 		Deps: remove.Dependencies{
-			GitRemoveAlias: gitconfig.RemoveAlias,
+			GitRemoveAlias: func(alias string) error {
+				return gitconfig.UnsetAll(fmt.Sprintf("team.alias.%s", alias)) // TODO: move this logic into the policy
+			},
 		},
 	}
 }
