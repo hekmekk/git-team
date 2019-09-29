@@ -40,7 +40,6 @@ git-team uses a `prepare-commit-msg` hook to inject co-authors into a commit mes
 
 ## TODOs
 - **internal quality:** refactor `Dockerfile`s and `Makefile` for a better development experience
-- **internal quality:** get rid of command-specific functionality in `gitconfig` module
 
 ## Similar projects
 - [git mob](https://www.npmjs.com/package/git-mob)
