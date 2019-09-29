@@ -59,12 +59,6 @@ func SetCommitTemplate(path string) error {
 	return err
 }
 
-// UnsetCommitTemplate unset your global "commit.template"
-func UnsetCommitTemplate() error {
-	_, err := execGitConfig("--unset-all", commitTemplate)
-	return err
-}
-
 // GetRegexp git config --global --gex-regexp <pattern>
 func GetRegexp(pattern string) (map[string]string, error) {
 	return getRegexp(execGitConfig)(pattern)
