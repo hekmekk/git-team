@@ -26,7 +26,7 @@ func policy() disable.Policy {
 	return disable.Policy{
 		Deps: disable.Dependencies{
 			GitUnsetCommitTemplate: gitconfig.UnsetCommitTemplate,
-			GitUnsetHooksPath:      func() error { return gitconfig.UnsetAll("core.hooksPath") },
+			GitUnsetHooksPath:      func() error { return gitconfig.UnsetAll("core.hooksPath") }, // TODO: move this logic into the policy
 			LoadConfig:             config.Load,
 			StatFile:               os.Stat,
 			RemoveFile:             os.Remove,
