@@ -36,7 +36,7 @@ func policy(coauthors *[]string) enable.Policy {
 			WriteTemplateFile:             ioutil.WriteFile,
 			GitSetCommitTemplate:          func(path string) error { return gitconfig.ReplaceAll("commit.template", path) }, // TODO: move this logic into the policy
 			GitSetHooksPath:               func(path string) error { return gitconfig.ReplaceAll("core.hooksPath", path) },  // TODO: move this logic into the policy
-			GitResolveAliases:             gitconfig.ResolveAliases,
+			GitResolveAliases:             commandadapter.ResolveAliases,
 			StateRepositoryPersistEnabled: staterepository.PersistEnabled,
 			LoadConfig:                    config.Load,
 		},
