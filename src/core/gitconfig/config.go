@@ -53,12 +53,6 @@ func UnsetAll(key string) error {
 	return err
 }
 
-// SetCommitTemplate set your global "commit.template" globally
-func SetCommitTemplate(path string) error {
-	_, err := execGitConfig("--replace-all", commitTemplate, path)
-	return err
-}
-
 // GetRegexp git config --global --gex-regexp <pattern>
 func GetRegexp(pattern string) (map[string]string, error) {
 	return getRegexp(execGitConfig)(pattern)
