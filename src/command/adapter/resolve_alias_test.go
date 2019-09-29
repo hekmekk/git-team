@@ -1,4 +1,4 @@
-package gitconfig
+package commandadapter
 
 import (
 	"errors"
@@ -9,9 +9,9 @@ func TestShouldReturnTheAssignedCoAuthor(t *testing.T) {
 	mr := "mr"
 	mrNoujz := "Mr. Noujz <noujz@mr.se>"
 
-	execSucceeds := func(args ...string) ([]string, error) { return []string{mrNoujz}, nil }
+	gitconfigGet := func(args string) (string, error) { return mrNoujz, nil }
 
-	coauthor, err := resolveAlias(execSucceeds)(mr)
+	coauthor, err := resolveAlias(gitconfigGet)(mr)
 
 	if err != nil {
 		t.Error(err)
@@ -27,9 +27,9 @@ func TestShouldReturnTheAssignedCoAuthor(t *testing.T) {
 func TestShouldReturnErrorIfNoAssignmentIsFound(t *testing.T) {
 	mr := "mr"
 
-	execSucceeds := func(args ...string) ([]string, error) { return []string{}, nil }
+	gitconfigGet := func(alias string) (string, error) { return "", nil }
 
-	coauthor, err := resolveAlias(execSucceeds)(mr)
+	coauthor, err := resolveAlias(gitconfigGet)(mr)
 
 	if err == nil {
 		t.Error("expected an error")
@@ -45,9 +45,9 @@ func TestShouldReturnErrorIfNoAssignmentIsFound(t *testing.T) {
 func TestShouldReturnErrorIfResolvingFails(t *testing.T) {
 	mr := "mr"
 
-	execFails := func(args ...string) ([]string, error) { return nil, errors.New("git command failed") }
+	gitconfigGet := func(alias string) (string, error) { return "", errors.New("git command failed") }
 
-	coauthor, err := resolveAlias(execFails)(mr)
+	coauthor, err := resolveAlias(gitconfigGet)(mr)
 
 	if err == nil {
 		t.Error("expected an error")

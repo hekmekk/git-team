@@ -1,7 +1,6 @@
 package gitconfig
 
 import (
-	"fmt"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -74,50 +73,6 @@ func getRegexp(exec func(...string) ([]string, error)) func(string) (map[string]
 
 		return mapping, nil
 	}
-}
-
-// ResolveAliases convenience function to resolve multiple aliases and accumulate errors
-func ResolveAliases(aliases []string) ([]string, []error) {
-	return resolveAliases(ResolveAlias)(aliases)
-}
-
-func resolveAliases(resolveAlias func(string) (string, error)) func([]string) ([]string, []error) {
-	return func(aliases []string) ([]string, []error) {
-		var resolvedAliases []string
-		var resolveErrors []error
-
-		for _, alias := range aliases {
-			var resolvedCoauthor, err = resolveAlias(alias)
-			if err != nil {
-				resolveErrors = append(resolveErrors, err)
-			} else {
-				resolvedAliases = append(resolvedAliases, resolvedCoauthor)
-			}
-		}
-
-		return resolvedAliases, resolveErrors
-	}
-}
-
-// ResolveAlias lookup "team.alias.<alias>" globally
-func ResolveAlias(alias string) (string, error) {
-	return resolveAlias(execGitConfig)(alias)
-}
-
-func resolveAlias(exec func(...string) ([]string, error)) func(string) (string, error) {
-	return func(alias string) (string, error) {
-		aliasFullPath := getAliasFullPath(alias)
-		lines, err := exec("--get", aliasFullPath)
-		if err != nil || len(lines) == 0 {
-			return "", fmt.Errorf("Failed to resolve alias %s", aliasFullPath)
-		}
-
-		return lines[0], nil
-	}
-}
-
-func getAliasFullPath(alias string) string {
-	return fmt.Sprintf("%s.%s", teamAlias, alias)
 }
 
 // execute /usr/bin/env git config --global <args>

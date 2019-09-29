@@ -1,4 +1,4 @@
-package gitconfig
+package commandadapter
 
 import (
 	"errors"
