@@ -28,7 +28,7 @@ func policy(alias *string) remove.Policy {
 		},
 		Deps: remove.Dependencies{
 			GitRemoveAlias: func(alias string) error {
-				return gitconfig.UnsetAll(fmt.Sprintf("team.alias.%s", alias)) // TODO: move this logic into the policy
+				return gitconfig.UnsetAll(fmt.Sprintf("team.alias.%s", alias))
 			},
 		},
 	}
