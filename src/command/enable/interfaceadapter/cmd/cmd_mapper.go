@@ -34,8 +34,8 @@ func policy(coauthors *[]string) enable.Policy {
 			SanityCheckCoauthors:          validation.SanityCheckCoauthors,
 			CreateTemplateDir:             os.MkdirAll,
 			WriteTemplateFile:             ioutil.WriteFile,
-			GitSetCommitTemplate:          func(path string) error { return gitconfig.ReplaceAll("commit.template", path) }, // TODO: move this logic into the policy
-			GitSetHooksPath:               func(path string) error { return gitconfig.ReplaceAll("core.hooksPath", path) },  // TODO: move this logic into the policy
+			GitSetCommitTemplate:          func(path string) error { return gitconfig.ReplaceAll("commit.template", path) },
+			GitSetHooksPath:               func(path string) error { return gitconfig.ReplaceAll("core.hooksPath", path) },
 			GitResolveAliases:             commandadapter.ResolveAliases,
 			StateRepositoryPersistEnabled: staterepository.PersistEnabled,
 			LoadConfig:                    config.Load,

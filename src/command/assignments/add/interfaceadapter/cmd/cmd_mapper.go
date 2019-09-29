@@ -35,7 +35,7 @@ func policy(alias *string, coauthor *string) add.Policy {
 			SanityCheckCoauthor: validation.SanityCheckCoauthor,
 			GitResolveAlias:     commandadapter.ResolveAlias,
 			GitAddAlias: func(alias string, coauthor string) error {
-				return gitconfig.ReplaceAll(fmt.Sprintf("team.alias.%s", alias), coauthor) // TODO: move this logic into the policy
+				return gitconfig.ReplaceAll(fmt.Sprintf("team.alias.%s", alias), coauthor)
 			},
 			GetAnswerFromUser: func(question string) (string, error) {
 				_, err := os.Stdout.WriteString(question)
