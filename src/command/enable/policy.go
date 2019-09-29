@@ -43,19 +43,12 @@ func (policy Policy) Apply() events.Event {
 		return Aborted{}
 	}
 
-	coauthorCandidates, aliases := utils.Partition(aliasesAndCoauthors)
-
-	sanityCheckErrs := deps.SanityCheckCoauthors(coauthorCandidates)
-	if len(sanityCheckErrs) > 0 {
-		return Failed{Reason: sanityCheckErrs}
+	coauthors, errs := applyAdditionalGuards(deps, aliasesAndCoauthors)
+	if len(errs) > 0 {
+		return Failed{Reason: errs}
 	}
 
-	resolvedAliases, resolveErrs := deps.GitResolveAliases(aliases)
-	if len(resolveErrs) > 0 {
-		return Failed{Reason: resolveErrs}
-	}
-
-	uniqueCoauthors := removeDuplicates(append(coauthorCandidates, resolvedAliases...))
+	uniqueCoauthors := removeDuplicates(coauthors)
 
 	cfg := deps.LoadConfig()
 
@@ -72,6 +65,22 @@ func (policy Policy) Apply() events.Event {
 	}
 
 	return Succeeded{}
+}
+
+func applyAdditionalGuards(deps Dependencies, aliasesAndCoauthors []string) ([]string, []error) {
+	coauthorCandidates, aliases := utils.Partition(aliasesAndCoauthors)
+
+	sanityCheckErrs := deps.SanityCheckCoauthors(coauthorCandidates)
+	if len(sanityCheckErrs) > 0 {
+		return []string{}, sanityCheckErrs
+	}
+
+	resolvedAliases, resolveErrs := deps.GitResolveAliases(aliases)
+	if len(resolveErrs) > 0 {
+		return []string{}, resolveErrs
+	}
+
+	return append(coauthorCandidates, resolvedAliases...), []error{}
 }
 
 func removeDuplicates(coauthors []string) []string {
