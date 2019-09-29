@@ -68,25 +68,36 @@ func (policy Policy) Apply() events.Event {
 	}
 
 	cfg := deps.LoadConfig()
-	commitTemplatePath := cfg.GitTeamCommitTemplatePath
-	commitTemplateDir := path.Dir(commitTemplatePath)
 
-	// TODO: extract these 3 commit template functions into a method
-	if err := deps.CreateTemplateDir(commitTemplateDir, os.ModePerm); err != nil {
+	if err := setupTemplate(deps, cfg, uniqueCoauthors); err != nil {
 		return Failed{Reason: []error{err}}
 	}
 
-	if err := deps.WriteTemplateFile(commitTemplatePath, []byte(utils.PrepareForCommitMessage(uniqueCoauthors)), 0644); err != nil {
-		return Failed{Reason: []error{err}}
-	}
-	if err := deps.GitSetCommitTemplate(commitTemplatePath); err != nil {
-		return Failed{Reason: []error{err}}
-	}
 	if err := deps.GitSetHooksPath(cfg.GitTeamHooksPath); err != nil {
 		return Failed{Reason: []error{err}}
 	}
+
 	if err := deps.StateRepositoryPersistEnabled(uniqueCoauthors); err != nil {
 		return Failed{Reason: []error{err}}
 	}
+
 	return Succeeded{}
+}
+
+func setupTemplate(deps Dependencies, cfg config.Config, uniqueCoauthors []string) error {
+	commitTemplatePath := cfg.GitTeamCommitTemplatePath
+	commitTemplateDir := path.Dir(commitTemplatePath)
+
+	if err := deps.CreateTemplateDir(commitTemplateDir, os.ModePerm); err != nil {
+		return err
+	}
+
+	if err := deps.WriteTemplateFile(commitTemplatePath, []byte(utils.PrepareForCommitMessage(uniqueCoauthors)), 0644); err != nil {
+		return err
+	}
+	if err := deps.GitSetCommitTemplate(commitTemplatePath); err != nil {
+		return err
+	}
+
+	return nil
 }
