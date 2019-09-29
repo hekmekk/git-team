@@ -55,17 +55,7 @@ func (policy Policy) Apply() events.Event {
 		return Failed{Reason: resolveErrs}
 	}
 
-	coauthors := append(coauthorCandidates, resolvedAliases...)
-
-	var uniqueCoauthors []string
-	temp := make(map[string]bool)
-	for _, coauthor := range coauthors {
-		temp[coauthor] = true
-	}
-
-	for coauthor := range temp {
-		uniqueCoauthors = append(uniqueCoauthors, coauthor)
-	}
+	uniqueCoauthors := removeDuplicates(append(coauthorCandidates, resolvedAliases...))
 
 	cfg := deps.LoadConfig()
 
@@ -82,6 +72,20 @@ func (policy Policy) Apply() events.Event {
 	}
 
 	return Succeeded{}
+}
+
+func removeDuplicates(coauthors []string) []string {
+	var uniqueCoauthors []string
+	temp := make(map[string]bool)
+	for _, coauthor := range coauthors {
+		temp[coauthor] = true
+	}
+
+	for coauthor := range temp {
+		uniqueCoauthors = append(uniqueCoauthors, coauthor)
+	}
+
+	return uniqueCoauthors
 }
 
 func setupTemplate(deps Dependencies, cfg config.Config, uniqueCoauthors []string) error {
