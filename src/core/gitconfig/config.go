@@ -65,12 +65,6 @@ func UnsetCommitTemplate() error {
 	return err
 }
 
-// RemoveAlias remove "team.alias.<alias>"
-func RemoveAlias(alias string) error {
-	_, err := execGitConfig("--unset-all", getAliasFullPath(alias))
-	return err
-}
-
 // GetRegexp git config --global --gex-regexp <pattern>
 func GetRegexp(pattern string) (map[string]string, error) {
 	return getRegexp(execGitConfig)(pattern)
