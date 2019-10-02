@@ -51,7 +51,7 @@ func toString(assignments []assignment.Assignment) string {
 
 	buffer.WriteString(color.New(color.FgBlue).Add(color.Bold).Sprint("assignments"))
 	for _, assignment := range sorted {
-		buffer.WriteString(color.WhiteString("\n├── %-[1]*s →  %s", maxAliasLength, assignment.Alias, assignment.Coauthor))
+		buffer.WriteString(color.WhiteString("\n─ %-[1]*s →  %s", maxAliasLength, assignment.Alias, assignment.Coauthor))
 	}
 
 	return buffer.String()

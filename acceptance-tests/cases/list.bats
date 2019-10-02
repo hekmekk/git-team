@@ -19,9 +19,9 @@ load '/bats-libs/bats-assert/load.bash'
 	assert_success
 	assert_line --index 0 "warn: 'git team ls' has been deprecated and is going to be removed in a future major release, use 'git team assignments' instead"
 	assert_line --index 1 'assignments'
-	assert_line --index 2 '├── a  →  A <a@x.y>'
-	assert_line --index 3 '├── bb →  B <b@x.y>'
-	assert_line --index 4 '├── c  →  C <c@x.y>'
+	assert_line --index 2 '─ a  →  A <a@x.y>'
+	assert_line --index 3 '─ bb →  B <b@x.y>'
+	assert_line --index 4 '─ c  →  C <c@x.y>'
 
 	/usr/local/bin/git-team rm a
 	/usr/local/bin/git-team rm bb
@@ -37,9 +37,9 @@ load '/bats-libs/bats-assert/load.bash'
 	assert_success
 	assert_line --index 0 "warn: 'git team ls' has been deprecated and is going to be removed in a future major release, use 'git team assignments' instead"
 	assert_line --index 1 'assignments'
-	assert_line --index 2 '├── a  →  A <a@x.y>'
-	assert_line --index 3 '├── bb →  B <b@x.y>'
-	assert_line --index 4 '├── c  →  C <c@x.y>'
+	assert_line --index 2 '─ a  →  A <a@x.y>'
+	assert_line --index 3 '─ bb →  B <b@x.y>'
+	assert_line --index 4 '─ c  →  C <c@x.y>'
 
 	/usr/local/bin/git-team rm a
 	/usr/local/bin/git-team rm bb

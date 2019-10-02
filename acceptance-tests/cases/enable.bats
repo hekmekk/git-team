@@ -47,10 +47,10 @@ setup() {
 	assert_success
 	assert_line --index 0 'git-team enabled'
 	assert_line --index 1 'co-authors'
-	assert_line --index 2 '├── A <a@x.y>'
-	assert_line --index 3 '├── Ad-hoc <adhoc@tmp.se>'
-	assert_line --index 4 '├── B <b@x.y>'
-	assert_line --index 5 '├── C <c@x.y>'
+	assert_line --index 2 '─ A <a@x.y>'
+	assert_line --index 3 '─ Ad-hoc <adhoc@tmp.se>'
+	assert_line --index 4 '─ B <b@x.y>'
+	assert_line --index 5 '─ C <c@x.y>'
 }
 
 @test "git-team: enable should display the enabled co-authors in alphabetical order" {
@@ -58,10 +58,10 @@ setup() {
 	assert_success
 	assert_line --index 0 'git-team enabled'
 	assert_line --index 1 'co-authors'
-	assert_line --index 2 '├── A <a@x.y>'
-	assert_line --index 3 '├── Ad-hoc <adhoc@tmp.se>'
-	assert_line --index 4 '├── B <b@x.y>'
-	assert_line --index 5 '├── C <c@x.y>'
+	assert_line --index 2 '─ A <a@x.y>'
+	assert_line --index 3 '─ Ad-hoc <adhoc@tmp.se>'
+	assert_line --index 4 '─ B <b@x.y>'
+	assert_line --index 5 '─ C <c@x.y>'
 }
 
 @test "git-team: issuing enable should be idempotent" {
@@ -71,10 +71,10 @@ setup() {
 	assert_success
 	assert_line --index 0 'git-team enabled'
 	assert_line --index 1 'co-authors'
-	assert_line --index 2 '├── A <a@x.y>'
-	assert_line --index 3 '├── Ad-hoc <adhoc@tmp.se>'
-	assert_line --index 4 '├── B <b@x.y>'
-	assert_line --index 5 '├── C <c@x.y>'
+	assert_line --index 2 '─ A <a@x.y>'
+	assert_line --index 3 '─ Ad-hoc <adhoc@tmp.se>'
+	assert_line --index 4 '─ B <b@x.y>'
+	assert_line --index 5 '─ C <c@x.y>'
 	assert_line --index 6 ''
 	assert_line --index 7 ''
 	assert_line --index 8 ''
@@ -85,7 +85,7 @@ setup() {
 	assert_success
 	assert_line --index 0 'git-team enabled'
 	assert_line --index 1 'co-authors'
-	assert_line --index 2 '├── A <a@x.y>'
+	assert_line --index 2 '─ A <a@x.y>'
 	assert_line --index 3 ''
 }
 

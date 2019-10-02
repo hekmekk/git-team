@@ -16,9 +16,9 @@ load '/bats-libs/bats-assert/load.bash'
 	assert_success
 	assert_line --index 0 'git-team enabled'
 	assert_line --index 1 'co-authors'
-	assert_line --index 2 '├── A <a@x.y>'
-	assert_line --index 3 '├── B <b@x.y>'
-	assert_line --index 4 '├── C <c@x.y>'
+	assert_line --index 2 '─ A <a@x.y>'
+	assert_line --index 3 '─ B <b@x.y>'
+	assert_line --index 4 '─ C <c@x.y>'
 
 	/usr/local/bin/git-team disable
 }
