@@ -19,17 +19,19 @@ func Command(root commandadapter.CommandRoot) *kingpin.CmdClause {
 	add := root.Command("add", "Add a new or override an existing alias to co-author assignment")
 	alias := add.Arg("alias", "The alias to assign a co-author to").Required().String()
 	coauthor := add.Arg("coauthor", "The co-author").Required().String()
+	forceOverride := add.Flag("force-override", "force override").Short('f').Bool()
 
-	add.Action(commandadapter.Run(policy(alias, coauthor), addeventadapter.MapEventToEffects))
+	add.Action(commandadapter.Run(policy(alias, coauthor, forceOverride), addeventadapter.MapEventToEffects))
 
 	return add
 }
 
-func policy(alias *string, coauthor *string) add.Policy {
+func policy(alias *string, coauthor *string, forceOverride *bool) add.Policy {
 	return add.Policy{
 		Req: add.AssignmentRequest{
-			Alias:    alias,
-			Coauthor: coauthor,
+			Alias:         alias,
+			Coauthor:      coauthor,
+			ForceOverride: forceOverride,
 		},
 		Deps: add.Dependencies{
 			SanityCheckCoauthor: validation.SanityCheckCoauthor,

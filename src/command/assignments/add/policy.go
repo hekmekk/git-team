@@ -9,8 +9,9 @@ import (
 
 // AssignmentRequest which coauthor to assign to the alias
 type AssignmentRequest struct {
-	Alias    *string
-	Coauthor *string
+	Alias         *string
+	Coauthor      *string
+	ForceOverride *bool
 }
 
 // Dependencies the dependencies of the add Policy module
@@ -44,10 +45,18 @@ func (policy Policy) Apply() events.Event {
 		return AssignmentFailed{Reason: checkErr}
 	}
 
-	shouldAskForOverride, existingCoauthor := findExistingCoauthor(deps, alias)
+	isAssignmentExisting := false
+
+	existingCoauthor, resolveErr := deps.GitResolveAlias(alias)
+	if resolveErr == nil {
+		isAssignmentExisting = true
+	} else {
+		isAssignmentExisting = false
+	}
 
 	shouldAddAssignment := true
-	if shouldAskForOverride {
+
+	if isAssignmentExisting && !*req.ForceOverride {
 		choice, err := shouldAssignmentBeOverridden(deps, alias, existingCoauthor, coauthor)
 		if err != nil {
 			return AssignmentFailed{Reason: err}
@@ -86,13 +95,4 @@ func shouldAssignmentBeOverridden(deps Dependencies, alias, existingCoauthor, re
 	default:
 		return false, nil
 	}
-}
-
-func findExistingCoauthor(deps Dependencies, alias string) (bool, string) {
-	existingCoauthor, resolveErr := deps.GitResolveAlias(alias)
-	if resolveErr == nil {
-		return true, existingCoauthor
-	}
-
-	return false, ""
 }
