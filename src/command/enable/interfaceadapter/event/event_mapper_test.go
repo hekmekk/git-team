@@ -40,7 +40,7 @@ func TestFoldErrors(t *testing.T) {
 func TestMapEventToEffectsSucceeded(t *testing.T) {
 	coauthors := []string{"A Coauthor"}
 	expectedEffects := []effects.Effect{
-		effects.NewPrintMessage(fmt.Sprintf("git-team enabled\n\nco-authors\n├── A Coauthor")),
+		effects.NewPrintMessage(fmt.Sprintf("git-team enabled\n\nco-authors\n─ A Coauthor")),
 		effects.NewExitOk(),
 	}
 

@@ -18,7 +18,7 @@ func TestMapEventToEffectsRetrievalSucceededSorted(t *testing.T) {
 		assignment.Assignment{Alias: "alias3", Coauthor: "coauthor3"},
 	}
 
-	msg := fmt.Sprintf("assignments\n├── alias1   →  coauthor1\n├── alias200 →  coauthor2\n├── alias3   →  coauthor3")
+	msg := fmt.Sprintf("assignments\n─ alias1   →  coauthor1\n─ alias200 →  coauthor2\n─ alias3   →  coauthor3")
 
 	expectedEffects := []effects.Effect{
 		effects.NewPrintMessage(msg),

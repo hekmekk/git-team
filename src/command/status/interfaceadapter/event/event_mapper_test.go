@@ -11,7 +11,7 @@ import (
 )
 
 func TestMapEventToEffectsStateRetrievalSucceededEnabled(t *testing.T) {
-	msg := "git-team enabled\n\nco-authors\n├── Mr. Noujz <noujz@mr.se>\n├── Mrs. Noujz <noujz@mrs.se>"
+	msg := "git-team enabled\n\nco-authors\n─ Mr. Noujz <noujz@mr.se>\n─ Mrs. Noujz <noujz@mrs.se>"
 	state := state.NewStateEnabled([]string{"Mrs. Noujz <noujz@mrs.se>", "Mr. Noujz <noujz@mr.se>"})
 
 	expectedEffects := []effects.Effect{
