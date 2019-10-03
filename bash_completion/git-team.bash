@@ -9,15 +9,15 @@ _git_team() {
 
 	local cur=${COMP_WORDS[COMP_CWORD]}
 	local prev=${COMP_WORDS[COMP_CWORD-1]}
-	local aliases="$(/usr/bin/env git config --name-only --get-regexp 'team.alias' | awk -v FS='.' '{ print $3 }')"
+	local aliases="$(/usr/bin/env git config --global --name-only --get-regexp 'team.alias' | awk -v FS='.' '{ print $3 }')"
 
 	if [[ $prev == \"* ]]; then
-		__git_team_coauthor_completion
+		COMPREPLY=( $(compgen -W "${aliases}" -- $cur) )
 		return 0
 	fi
 	for i in $aliases; do
 		if [[ $prev == $i ]]; then
-			__git_team_coauthor_completion
+			COMPREPLY=( $(compgen -W "${aliases}" -- $cur) )
 			return 0
 		fi
 	done
@@ -27,7 +27,7 @@ _git_team() {
 			COMPREPLY=()
 			return 0
 			;;
-		--version)
+		-v | --version)
 			COMPREPLY=()
 			return 0
 			;;
@@ -36,18 +36,22 @@ _git_team() {
 			return 0
 			;;
 		enable)
-			__git_team_coauthor_completion
+			COMPREPLY=( $(compgen -W "${aliases}" -- $cur) )
 			return 0
 			;;
 		add)
+			COMPREPLY=( $(compgen -W "--force-override -f" -- $cur) )
+			return 0
+			;;
+		-f | --force-override)
 			COMPREPLY=()
 			return 0
 			;;
 		assignments)
-			COMPREPLY+=( $(compgen -W "add rm ls") )
+			COMPREPLY+=( $(compgen -W "add rm ls" -- $cur) )
 			;;
 		rm)
-			__git_team_coauthor_completion
+			COMPREPLY=( $(compgen -W "${aliases}" -- $cur) )
 			return 0
 			;;
 		list | ls)
@@ -55,7 +59,7 @@ _git_team() {
 			return 0
 			;;
 		*)
-			__git_team_coauthor_completion
+			COMPREPLY=( $(compgen -W "${aliases}" -- $cur) )
 			local show_flags=true
 			if [[ $cur == \"* ]]; then
 				show_flags=false
@@ -67,7 +71,7 @@ _git_team() {
 				fi
 			done
 			if [[ $show_flags == true ]]; then
-				local flags="add assignments enable disable ls rm status -h --help --version"
+				local flags="add assignments enable disable ls rm status -h --help -v --version"
 				COMPREPLY+=( $(compgen -W "$flags" -- $cur) )
 			fi
 			return 0
@@ -75,35 +79,3 @@ _git_team() {
 	esac
 }
 
-__git_team_coauthor_completion() {
-	if [ $(/usr/bin/env git rev-parse --is-inside-work-tree 2>/dev/null) ]; then
-		if [[ $(command -v git-authors) ]]; then
-			if [[ $cur == \"* ]]; then
-				local rev=$(/usr/bin/env git rev-parse HEAD)
-				if [[ $rev != $GIT_TEAM_CURRENT_REV ]]; then
-					GIT_TEAM_CURRENT_REV=$rev
-					GIT_TEAM_AUTHORS=$(${GIT_TEAM_AUTHORS_COMMAND-git authors -a -p})
-					GIT_TEAM_AUTHORS="${GIT_TEAM_AUTHORS//\\ /___}"
-				fi
-
-				for author in $GIT_TEAM_AUTHORS; do
-					if [[ $author =~ ^$cur ]]; then
-						COMPREPLY+=( "${author//___/ }" )
-					else
-						local cur_space_escaped="${cur// /___}"
-						if [[ $author =~ ^$cur_space_escaped ]]; then
-							COMPREPLY+=( "${author//___/ }" )
-						fi
-					fi
-				done
-				COMPREPLY+=( $(compgen -W "" -- $cur) )
-			else
-				COMPREPLY=( $(compgen -W "\\\"... ${aliases}" -- $cur) )
-			fi
-		else
-			COMPREPLY=( $(compgen -W "${aliases}" -- $cur) )
-		fi
-	else
-		COMPREPLY=()
-	fi
-}
