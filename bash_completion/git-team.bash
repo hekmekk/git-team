@@ -11,10 +11,6 @@ _git_team() {
 	local prev=${COMP_WORDS[COMP_CWORD-1]}
 	local aliases="$(/usr/bin/env git config --global --name-only --get-regexp 'team.alias' | awk -v FS='.' '{ print $3 }')"
 
-	if [[ $prev == \"* ]]; then
-		COMPREPLY=( $(compgen -W "${aliases}" -- $cur) )
-		return 0
-	fi
 	for i in $aliases; do
 		if [[ $prev == $i ]]; then
 			COMPREPLY=( $(compgen -W "${aliases}" -- $cur) )
@@ -61,9 +57,6 @@ _git_team() {
 		*)
 			COMPREPLY=( $(compgen -W "${aliases}" -- $cur) )
 			local show_flags=true
-			if [[ $cur == \"* ]]; then
-				show_flags=false
-			fi
 			for i in $aliases; do
 				if [[ $cur == $i ]]; then
 					show_flags=false
