@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	version = "v1.3.7-rc1"
+	version = "v1.3.7"
 	author  = "Rea Sand <hekmek@posteo.de>"
 )
 
