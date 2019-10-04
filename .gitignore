@@ -1,6 +1,6 @@
 ./git-team
 go.sum
 signing-key.asc
-pkg/target/
+target/
 acceptance-tests/src/
 acceptance-tests/git-hooks/
