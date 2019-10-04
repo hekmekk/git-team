@@ -20,7 +20,13 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
 RUN gem install --no-ri --no-rdoc fpm
 
 WORKDIR /src
-COPY src/ .
+COPY Makefile .
+COPY go.mod .
+COPY cmd/ ./cmd
+COPY src/ ./src
+COPY bash_completion/ ./bash_completion
+COPY git-hooks/ ./git-hooks
+
 RUN chown -R $UID:$GID .
 
 RUN mkdir -p /go && chown -R $UID:$GID /go && chmod -R 2750 /go

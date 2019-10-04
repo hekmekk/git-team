@@ -74,17 +74,10 @@ export-signing-key:
 ifndef GPG_SIGNING_KEY_ID
 	$(error GPG_SIGNING_KEY_ID is not set)
 endif
-	gpg --armor --export-secret-keys $(GPG_SIGNING_KEY_ID) > $(CURR_DIR)/pkg/signing-key.asc
+	gpg --armor --export-secret-keys $(GPG_SIGNING_KEY_ID) > $(CURR_DIR)/signing-key.asc
 
 package-build: clean export-signing-key
-	mkdir -p pkg/src/
-	cp Makefile pkg/src/
-	cp go.mod pkg/src/
-	cp -r cmd pkg/src/
-	cp -r src pkg/src/
-	cp -r bash_completion pkg/src/
-	cp -r git-hooks pkg/src/
-	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-pkg:v$(VERSION) pkg/
+	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-pkg:v$(VERSION) . -f pkg.Dockerfile
 
 deb rpm: package-build
 	mkdir -p pkg/target/$@
@@ -136,9 +129,8 @@ release: release-github
 
 clean:
 	rm -f $(CURR_DIR)/git-team
-	rm -f $(CURR_DIR)/pkg/signing-key.asc
-	rm -rf $(CURR_DIR)/pkg/src/
-	rm -rf $(CURR_DIR)/pkg/target/
+	rm -f $(CURR_DIR)/signing-key.asc
+	rm -rf $(CURR_DIR)/pkg/
 	rm -rf $(CURR_DIR)/acceptance-tests/src/
 	rm -rf $(CURR_DIR)/acceptance-tests/git-hooks/
 
