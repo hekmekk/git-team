@@ -23,11 +23,11 @@ COPY git-hooks/proxy.sh /bin/git-hook-proxy
 
 ENV GOPATH=/go
 
-COPY src/go.* ./
+COPY go.* ./
 RUN go mod download
 
-COPY src/src ./src
-COPY src/cmd ./cmd
+COPY src ./src
+COPY cmd ./cmd
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install ./cmd/...
 

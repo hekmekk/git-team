@@ -2,5 +2,3 @@
 go.sum
 signing-key.asc
 target/
-acceptance-tests/src/
-acceptance-tests/git-hooks/
