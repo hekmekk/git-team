@@ -144,11 +144,5 @@ docker-build: clean
 
 .PHONY: acceptance-tests
 acceptance-tests:
-	rm -rf $(CURR_DIR)/acceptance-tests/src
-	mkdir -p $(CURR_DIR)/acceptance-tests/src/
-	cp $(CURR_DIR)/go.* $(CURR_DIR)/acceptance-tests/src/
-	cp -r $(CURR_DIR)/cmd $(CURR_DIR)/acceptance-tests/src/
-	cp -r $(CURR_DIR)/src $(CURR_DIR)/acceptance-tests/src/
-	cp -r $(CURR_DIR)/git-hooks $(CURR_DIR)/acceptance-tests/git-hooks
-	docker build -t git-team-acceptance-tests $(CURR_DIR)/acceptance-tests
-	docker run -e "TERM=$(TERM)" --rm -v $(CURR_DIR)/acceptance-tests/cases:/acceptance-tests git-team-acceptance-tests --pretty /acceptance-tests/$(BATS_FILE) $(BATS_FILTER)
+	docker build -t git-team-acceptance-tests . -f acceptance-tests.Dockerfile
+	docker run -e "TERM=$(TERM)" --rm -v $(CURR_DIR)/acceptance-tests:/acceptance-tests git-team-acceptance-tests --pretty /acceptance-tests/$(BATS_FILE) $(BATS_FILTER)
