@@ -42,25 +42,25 @@ ifndef GOPATH
 	$(error GOPATH is not set)
 endif
 	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=amd64 go install ./cmd/...
-	mkdir -p $(CURR_DIR)/pkg/target/bin
-	mv $(GOPATH)/bin/git-team $(CURR_DIR)/pkg/target/bin/git-team
-	mv $(GOPATH)/bin/prepare-commit-msg $(CURR_DIR)/pkg/target/bin/prepare-commit-msg
+	mkdir -p $(CURR_DIR)/target/bin
+	mv $(GOPATH)/bin/git-team $(CURR_DIR)/target/bin/git-team
+	mv $(GOPATH)/bin/prepare-commit-msg $(CURR_DIR)/target/bin/prepare-commit-msg
 	@echo "[INFO] Successfully built git-team version v$(VERSION)"
 
 man-page:
-	mkdir -p $(CURR_DIR)/pkg/target/man/
-	go run $(CURR_DIR)/cmd/git-team/main.go --help-man > $(CURR_DIR)/pkg/target/man/git-team.1
-	gzip -f $(CURR_DIR)/pkg/target/man/git-team.1
+	mkdir -p $(CURR_DIR)/target/man/
+	go run $(CURR_DIR)/cmd/git-team/main.go --help-man > $(CURR_DIR)/target/man/git-team.1
+	gzip -f $(CURR_DIR)/target/man/git-team.1
 
 install:
 	@echo "[INFO] Installing into $(BIN_PREFIX)/bin/ ..."
-	install $(CURR_DIR)/pkg/target/bin/git-team $(BIN_PREFIX)/bin/git-team
+	install $(CURR_DIR)/target/bin/git-team $(BIN_PREFIX)/bin/git-team
 	mkdir -p $(HOOKS_DIR)
-	install $(CURR_DIR)/pkg/target/bin/prepare-commit-msg $(HOOKS_DIR)/prepare-commit-msg
+	install $(CURR_DIR)/target/bin/prepare-commit-msg $(HOOKS_DIR)/prepare-commit-msg
 	install $(CURR_DIR)/git-hooks/proxy.sh /usr/local/etc/git-team/hooks/proxy.sh
 	$(CURR_DIR)/git-hooks/install_symlinks.sh
 	mkdir -p /usr/local/share/man/man1
-	install -m "0644" pkg/target/man/git-team.1.gz /usr/local/share/man/man1/git-team.1.gz
+	install -m "0644" target/man/git-team.1.gz /usr/local/share/man/man1/git-team.1.gz
 	install -m "0644" bash_completion/git-team.bash $(BASH_COMPLETION_PREFIX)/etc/bash_completion.d/git-team
 	@echo "[INFO] Don't forget to source $(BASH_COMPLETION_PREFIX)/etc/bash_completion"
 
@@ -80,9 +80,9 @@ package-build: clean export-signing-key
 	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-pkg:v$(VERSION) . -f pkg.Dockerfile
 
 deb rpm: package-build
-	mkdir -p pkg/target/$@
-	chown -R $(shell id -u):$(shell id -g) pkg/target/$@
-	docker run --rm -h git-team-pkg -v $(CURR_DIR)/pkg/target/$@:/pkg-target git-team-pkg:v$(VERSION) fpm \
+	mkdir -p target/$@
+	chown -R $(shell id -u):$(shell id -g) target/$@
+	docker run --rm -h git-team-pkg -v $(CURR_DIR)/target/$@:/pkg-target git-team-pkg:v$(VERSION) fpm \
 		-f \
 		-s dir \
 		-t $@ \
@@ -99,20 +99,20 @@ deb rpm: package-build
 		--deb-no-default-config-files \
 		--rpm-sign \
 		-p /pkg-target \
-		pkg/target/bin/git-team=$(BIN_PREFIX)/bin/git-team \
-		pkg/target/bin/prepare-commit-msg=$(HOOKS_DIR)/prepare-commit-msg \
+		target/bin/git-team=$(BIN_PREFIX)/bin/git-team \
+		target/bin/prepare-commit-msg=$(HOOKS_DIR)/prepare-commit-msg \
 		git-hooks/proxy.sh=$(HOOKS_DIR)/proxy.sh \
 		bash_completion/git-team.bash=/etc/bash_completion.d/git-team \
-		pkg/target/man/git-team.1.gz=/usr/share/man/man1/git-team.1.gz
+		target/man/git-team.1.gz=/usr/share/man/man1/git-team.1.gz
 
 sign-deb:
 ifndef GPG_SIGNING_KEY_ID
 	$(error GPG_SIGNING_KEY_ID is not set)
 endif
-	dpkg-sig -s builder -k $(GPG_SIGNING_KEY_ID) $(CURR_DIR)/pkg/target/deb/git-team_$(VERSION)_amd64.deb
+	dpkg-sig -s builder -k $(GPG_SIGNING_KEY_ID) $(CURR_DIR)/target/deb/git-team_$(VERSION)_amd64.deb
 
 show-checksums:
-	find $(CURR_DIR)/pkg/target/ -type f -exec sha256sum {} \;
+	find $(CURR_DIR)/target/ -type f -exec sha256sum {} \;
 
 package: rpm deb sign-deb show-checksums
 
@@ -123,14 +123,14 @@ endif
 	lua scripts/release-github.lua \
 		--github-api-token $(GITHUB_API_TOKEN) \
 		--git-team-version v$(VERSION) \
-		--git-team-deb-path $(CURR_DIR)/pkg/target/deb/git-team_$(VERSION)_amd64.deb
+		--git-team-deb-path $(CURR_DIR)/target/deb/git-team_$(VERSION)_amd64.deb
 
 release: release-github
 
 clean:
 	rm -f $(CURR_DIR)/git-team
 	rm -f $(CURR_DIR)/signing-key.asc
-	rm -rf $(CURR_DIR)/pkg/
+	rm -rf $(CURR_DIR)/target
 	rm -rf $(CURR_DIR)/acceptance-tests/src/
 	rm -rf $(CURR_DIR)/acceptance-tests/git-hooks/
 
