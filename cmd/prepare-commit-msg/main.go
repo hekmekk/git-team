@@ -32,7 +32,7 @@ func main() {
 	commitMsgSource, commitTemplate := parseArgs()
 
 	switch commitMsgSource {
-	case message:
+	case message, merge, squash:
 		err := appendCoauthorsToCommitTemplate(commitTemplate, status.Coauthors)
 		if err != nil {
 			panic(err)
