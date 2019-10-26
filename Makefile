@@ -110,17 +110,6 @@ show-checksums:
 
 package: rpm deb show-checksums
 
-release-github: package
-ifndef GITHUB_API_TOKEN
-	$(error GITHUB_API_TOKEN is not set)
-endif
-	lua scripts/release-github.lua \
-		--github-api-token $(GITHUB_API_TOKEN) \
-		--git-team-version v$(VERSION) \
-		--git-team-deb-path $(CURR_DIR)/target/deb/git-team_$(VERSION)_amd64.deb
-
-release: release-github
-
 clean:
 	rm -f $(CURR_DIR)/git-team
 	rm -f $(CURR_DIR)/signing-key.asc
