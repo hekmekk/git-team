@@ -105,16 +105,10 @@ deb rpm: package-build
 		bash_completion/git-team.bash=/etc/bash_completion.d/git-team \
 		target/man/git-team.1.gz=/usr/share/man/man1/git-team.1.gz
 
-sign-deb:
-ifndef GPG_SIGNING_KEY_ID
-	$(error GPG_SIGNING_KEY_ID is not set)
-endif
-	dpkg-sig -s builder -k $(GPG_SIGNING_KEY_ID) $(CURR_DIR)/target/deb/git-team_$(VERSION)_amd64.deb
-
 show-checksums:
 	find $(CURR_DIR)/target/ -type f -exec sha256sum {} \;
 
-package: rpm deb sign-deb show-checksums
+package: rpm deb show-checksums
 
 release-github: package
 ifndef GITHUB_API_TOKEN
