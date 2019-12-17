@@ -97,6 +97,11 @@ sudo yum install git-team
 sudo rpm -i /path/to/downloaded/release.rpm
 ```
 
+## Void Linux
+```bash
+sudo xbps-install git-team
+```
+
 ## Build from source
 The latest version of git-team has been built against go version 1.12.
 ```bash
