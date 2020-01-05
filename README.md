@@ -39,6 +39,11 @@ git team disable
 git-team uses a `prepare-commit-msg` hook to inject co-authors into a commit message. This hook is installed into `/usr/local/etc/git-team/hooks`. When you `enable` git-team, the git config option `core.hooksPath` will be set to point to that directory. Along with the `prepare-commit-msg` hook come proxies for all the other git hooks, so that other existing repo-local hooks are still being triggered.
 
 ## TODOs
+- **internal quality:** refactor `src/command/adapter/alias_resolver` to `assignments_repository` residing in `core`
+- **internal quality:** consequently separate domain-specific from technological functionality
+- **internal quality:** consequently use domain-specific first and technology second packaging
+- **internal quality:** define public interfaces where they're missing
+- **internal quality:** introduce public interfaces package(s)
 - **internal quality:** refactor `Dockerfile`s and `Makefile` for a better development experience
 
 ## Similar projects
