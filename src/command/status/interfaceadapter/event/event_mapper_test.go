@@ -44,7 +44,7 @@ func TestMapEventToEffectsStateRetrievalSucceededDisabled(t *testing.T) {
 	}
 }
 
-func TestMapEventToEffectsAssignmentFailed(t *testing.T) {
+func TestMapEventToEffectsStateRetrievalFailed(t *testing.T) {
 	err := errors.New("failure")
 
 	expectedEffects := []effects.Effect{
