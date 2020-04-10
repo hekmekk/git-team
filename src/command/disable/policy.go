@@ -34,7 +34,7 @@ func (policy Policy) Apply() events.Event {
 		return Failed{Reason: err}
 	}
 
-	commitTemplatePath := deps.LoadConfig().GitTeamCommitTemplatePath
+	commitTemplatePath := deps.LoadConfig().Ro.GitTeamCommitTemplatePath
 
 	if _, err := deps.StatFile(commitTemplatePath); err == nil {
 		if err := deps.RemoveFile(commitTemplatePath); err != nil {

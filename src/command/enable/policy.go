@@ -56,7 +56,7 @@ func (policy Policy) Apply() events.Event {
 		return Failed{Reason: []error{err}}
 	}
 
-	if err := deps.GitSetHooksPath(cfg.GitTeamHooksPath); err != nil {
+	if err := deps.GitSetHooksPath(cfg.Ro.GitTeamHooksPath); err != nil {
 		return Failed{Reason: []error{err}}
 	}
 
@@ -98,7 +98,7 @@ func removeDuplicates(coauthors []string) []string {
 }
 
 func setupTemplate(deps Dependencies, cfg config.Config, uniqueCoauthors []string) error {
-	commitTemplatePath := cfg.GitTeamCommitTemplatePath
+	commitTemplatePath := cfg.Ro.GitTeamCommitTemplatePath
 	commitTemplateDir := path.Dir(commitTemplatePath)
 
 	if err := deps.CreateTemplateDir(commitTemplateDir, os.ModePerm); err != nil {

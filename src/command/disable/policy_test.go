@@ -12,7 +12,7 @@ import (
 var (
 	unsetCommitTemplate = func() error { return nil }
 	unsetHooksPath      = func() error { return nil }
-	cfg                 = config.Config{GitTeamCommitTemplatePath: "/path/to/TEMPLATE_FILE", GitTeamHooksPath: "/path/to/git-team/hooks"}
+	cfg                 = config.Config{Ro: config.ReadOnlyProperties{GitTeamCommitTemplatePath: "/path/to/TEMPLATE_FILE", GitTeamHooksPath: "/path/to/git-team/hooks"}}
 	loadConfig          = func() config.Config { return cfg }
 	fileInfo            os.FileInfo
 	statFile            = func(string) (os.FileInfo, error) { return fileInfo, nil }

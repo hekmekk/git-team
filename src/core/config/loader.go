@@ -5,10 +5,15 @@ import (
 	"os"
 )
 
-// Config currently static config for git-team
-type Config struct {
+// ReadOnlyProperties read only properties of the config
+type ReadOnlyProperties struct {
 	GitTeamCommitTemplatePath string
 	GitTeamHooksPath          string
+}
+
+// Config config for git-team
+type Config struct {
+	Ro ReadOnlyProperties
 }
 
 // Load loads the configuration file
@@ -23,8 +28,10 @@ type dependencies struct {
 func executorFactory(deps dependencies) func() Config {
 	return func() Config {
 		return Config{
-			GitTeamCommitTemplatePath: fmt.Sprintf("%s/.config/git-team/COMMIT_TEMPLATE", deps.getEnv("HOME")),
-			GitTeamHooksPath:          "/usr/local/etc/git-team/hooks",
+			Ro: ReadOnlyProperties{
+				GitTeamCommitTemplatePath: fmt.Sprintf("%s/.config/git-team/COMMIT_TEMPLATE", deps.getEnv("HOME")),
+				GitTeamHooksPath:          "/usr/local/etc/git-team/hooks",
+			},
 		}
 	}
 }

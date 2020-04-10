@@ -9,7 +9,7 @@ import (
 	"github.com/hekmekk/git-team/src/core/config"
 )
 
-var cfg = config.Config{GitTeamCommitTemplatePath: "/path/to/TEMPLATE_FILE", GitTeamHooksPath: "/path/to/git-team/hooks"}
+var cfg = config.Config{Ro: config.ReadOnlyProperties{GitTeamCommitTemplatePath: "/path/to/TEMPLATE_FILE", GitTeamHooksPath: "/path/to/git-team/hooks"}}
 
 func TestEnableAborted(t *testing.T) {
 	deps := Dependencies{}
