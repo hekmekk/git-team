@@ -12,9 +12,12 @@ func TestLoadSucceeds(t *testing.T) {
 	deps := dependencies{getEnv: func(variable string) string { return home }}
 
 	expectedCfg := Config{
-		ReadOnlyProperties{
+		Ro: ReadOnlyProperties{
 			GitTeamCommitTemplatePath: fmt.Sprintf("%s/.config/git-team/COMMIT_TEMPLATE", home),
 			GitTeamHooksPath:          "/usr/local/etc/git-team/hooks",
+		},
+		Rw: ReadWriteProperties{
+			ActivationScope: Global,
 		},
 	}
 
