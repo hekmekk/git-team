@@ -4,7 +4,7 @@ import (
 	"github.com/hekmekk/git-team/src/shared/internalconfig/entity"
 )
 
-// Reader reads the internal, static configuration
-type Reader interface {
+// ConfigReader reads the internal, static configuration
+type ConfigReader interface {
 	Read() entity.InternalConfig
 }
