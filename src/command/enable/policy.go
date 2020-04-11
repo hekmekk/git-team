@@ -5,14 +5,15 @@ import (
 	"path"
 
 	utils "github.com/hekmekk/git-team/src/command/enable/utils"
-	"github.com/hekmekk/git-team/src/core/config"
 	"github.com/hekmekk/git-team/src/core/events"
+	config "github.com/hekmekk/git-team/src/shared/internalconfig/entity"
+	internalconfig "github.com/hekmekk/git-team/src/shared/internalconfig/reader"
 )
 
 // Dependencies the dependencies of the enable Policy module
 type Dependencies struct {
 	SanityCheckCoauthors          func([]string) []error
-	LoadConfig                    func() config.Config
+	ConfigReader                  internalconfig.ConfigReader
 	CreateTemplateDir             func(path string, perm os.FileMode) error
 	WriteTemplateFile             func(path string, data []byte, mode os.FileMode) error
 	GitSetCommitTemplate          func(path string) error
@@ -50,13 +51,13 @@ func (policy Policy) Apply() events.Event {
 
 	uniqueCoauthors := removeDuplicates(coauthors)
 
-	cfg := deps.LoadConfig()
+	cfg := deps.ConfigReader.Read()
 
 	if err := setupTemplate(deps, cfg, uniqueCoauthors); err != nil {
 		return Failed{Reason: []error{err}}
 	}
 
-	if err := deps.GitSetHooksPath(cfg.Ro.GitTeamHooksPath); err != nil {
+	if err := deps.GitSetHooksPath(cfg.GitTeamHooksPath); err != nil {
 		return Failed{Reason: []error{err}}
 	}
 
@@ -97,8 +98,8 @@ func removeDuplicates(coauthors []string) []string {
 	return uniqueCoauthors
 }
 
-func setupTemplate(deps Dependencies, cfg config.Config, uniqueCoauthors []string) error {
-	commitTemplatePath := cfg.Ro.GitTeamCommitTemplatePath
+func setupTemplate(deps Dependencies, cfg config.InternalConfig, uniqueCoauthors []string) error {
+	commitTemplatePath := cfg.GitTeamCommitTemplatePath
 	commitTemplateDir := path.Dir(commitTemplatePath)
 
 	if err := deps.CreateTemplateDir(commitTemplateDir, os.ModePerm); err != nil {

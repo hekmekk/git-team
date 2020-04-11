@@ -6,13 +6,13 @@ import (
 
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/hekmekk/git-team/src/command/adapter"
+	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/enable"
-	"github.com/hekmekk/git-team/src/command/enable/interfaceadapter/event"
-	"github.com/hekmekk/git-team/src/core/config"
+	enableeventadapter "github.com/hekmekk/git-team/src/command/enable/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/core/gitconfig"
-	"github.com/hekmekk/git-team/src/core/state_repository"
+	staterepository "github.com/hekmekk/git-team/src/core/state_repository"
 	"github.com/hekmekk/git-team/src/core/validation"
+	internalconfigds "github.com/hekmekk/git-team/src/shared/internalconfig/datasource"
 )
 
 // Command the enable command
@@ -38,7 +38,7 @@ func policy(coauthors *[]string) enable.Policy {
 			GitSetHooksPath:               func(path string) error { return gitconfig.ReplaceAll("core.hooksPath", path) },
 			GitResolveAliases:             commandadapter.ResolveAliases,
 			StateRepositoryPersistEnabled: staterepository.PersistEnabled,
-			LoadConfig:                    config.Load,
+			ConfigReader:                  internalconfigds.NewStaticValueDataSource(),
 		},
 	}
 }

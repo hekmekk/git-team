@@ -6,10 +6,18 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hekmekk/git-team/src/core/config"
+	config "github.com/hekmekk/git-team/src/shared/internalconfig/entity"
 )
 
-var cfg = config.Config{Ro: config.ReadOnlyProperties{GitTeamCommitTemplatePath: "/path/to/TEMPLATE_FILE", GitTeamHooksPath: "/path/to/git-team/hooks"}}
+type internalConfigReaderMock struct {
+	read func() config.InternalConfig
+}
+
+func (mock internalConfigReaderMock) Read() config.InternalConfig {
+	return mock.read()
+}
+
+var cfg = config.InternalConfig{GitTeamCommitTemplatePath: "/path/to/TEMPLATE_FILE", GitTeamHooksPath: "/path/to/git-team/hooks"}
 
 func TestEnableAborted(t *testing.T) {
 	deps := Dependencies{}
@@ -48,7 +56,11 @@ func TestEnableSucceeds(t *testing.T) {
 		}
 		return nil
 	}
-	loadConfig := func() config.Config { return cfg }
+	configReader := internalConfigReaderMock{
+		read: func() config.InternalConfig {
+			return cfg
+		},
+	}
 
 	deps := Dependencies{
 		SanityCheckCoauthors:          func(coauthors []string) []error { return []error{} },
@@ -58,7 +70,7 @@ func TestEnableSucceeds(t *testing.T) {
 		GitSetCommitTemplate:          GitSetCommitTemplate,
 		GitResolveAliases:             resolveAliases,
 		StateRepositoryPersistEnabled: StateRepositoryPersistEnabled,
-		LoadConfig:                    loadConfig,
+		ConfigReader:                  configReader,
 	}
 	req := Request{AliasesAndCoauthors: coauthors}
 
@@ -95,7 +107,11 @@ func TestEnableDropsDuplicateEntries(t *testing.T) {
 		}
 		return nil
 	}
-	loadConfig := func() config.Config { return cfg }
+	configReader := internalConfigReaderMock{
+		read: func() config.InternalConfig {
+			return cfg
+		},
+	}
 
 	deps := Dependencies{
 		SanityCheckCoauthors:          func(coauthors []string) []error { return []error{} },
@@ -105,7 +121,7 @@ func TestEnableDropsDuplicateEntries(t *testing.T) {
 		GitSetCommitTemplate:          GitSetCommitTemplate,
 		GitResolveAliases:             resolveAliases,
 		StateRepositoryPersistEnabled: StateRepositoryPersistEnabled,
-		LoadConfig:                    loadConfig,
+		ConfigReader:                  configReader,
 	}
 	req := Request{AliasesAndCoauthors: &coauthors}
 
@@ -167,14 +183,18 @@ func TestEnableFailsDueToCreateTemplateDirErr(t *testing.T) {
 
 	sanityCheck := func([]string) []error { return []error{} }
 	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
-	loadConfig := func() config.Config { return cfg }
+	configReader := internalConfigReaderMock{
+		read: func() config.InternalConfig {
+			return cfg
+		},
+	}
 	CreateTemplateDir := func(string, os.FileMode) error { return expectedErr }
 
 	deps := Dependencies{
 		SanityCheckCoauthors: sanityCheck,
 		CreateTemplateDir:    CreateTemplateDir,
 		GitResolveAliases:    resolveAliases,
-		LoadConfig:           loadConfig,
+		ConfigReader:         configReader,
 	}
 	req := Request{AliasesAndCoauthors: &coauthors}
 
@@ -195,7 +215,11 @@ func TestEnableFailsDueToWriteTemplateFileErr(t *testing.T) {
 
 	sanityCheck := func([]string) []error { return []error{} }
 	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
-	loadConfig := func() config.Config { return cfg }
+	configReader := internalConfigReaderMock{
+		read: func() config.InternalConfig {
+			return cfg
+		},
+	}
 	CreateTemplateDir := func(string, os.FileMode) error { return nil }
 	WriteTemplateFile := func(string, []byte, os.FileMode) error { return expectedErr }
 
@@ -204,7 +228,7 @@ func TestEnableFailsDueToWriteTemplateFileErr(t *testing.T) {
 		CreateTemplateDir:    CreateTemplateDir,
 		WriteTemplateFile:    WriteTemplateFile,
 		GitResolveAliases:    resolveAliases,
-		LoadConfig:           loadConfig,
+		ConfigReader:         configReader,
 	}
 	req := Request{AliasesAndCoauthors: coauthors}
 
@@ -225,7 +249,11 @@ func TestEnableFailsDueToGitSetCommitTemplateErr(t *testing.T) {
 
 	sanityCheck := func([]string) []error { return []error{} }
 	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
-	loadConfig := func() config.Config { return cfg }
+	configReader := internalConfigReaderMock{
+		read: func() config.InternalConfig {
+			return cfg
+		},
+	}
 	CreateTemplateDir := func(string, os.FileMode) error { return nil }
 	WriteTemplateFile := func(string, []byte, os.FileMode) error { return nil }
 	GitSetCommitTemplate := func(string) error { return expectedErr }
@@ -236,7 +264,7 @@ func TestEnableFailsDueToGitSetCommitTemplateErr(t *testing.T) {
 		WriteTemplateFile:    WriteTemplateFile,
 		GitSetCommitTemplate: GitSetCommitTemplate,
 		GitResolveAliases:    resolveAliases,
-		LoadConfig:           loadConfig,
+		ConfigReader:         configReader,
 	}
 	req := Request{AliasesAndCoauthors: coauthors}
 
@@ -257,7 +285,11 @@ func TestEnableFailsDueToSetHooksPathErr(t *testing.T) {
 
 	sanityCheck := func([]string) []error { return []error{} }
 	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
-	loadConfig := func() config.Config { return cfg }
+	configReader := internalConfigReaderMock{
+		read: func() config.InternalConfig {
+			return cfg
+		},
+	}
 	CreateTemplateDir := func(string, os.FileMode) error { return nil }
 	WriteTemplateFile := func(string, []byte, os.FileMode) error { return nil }
 	GitSetCommitTemplate := func(string) error { return nil }
@@ -270,7 +302,7 @@ func TestEnableFailsDueToSetHooksPathErr(t *testing.T) {
 		GitSetHooksPath:      setHooksPath,
 		GitSetCommitTemplate: GitSetCommitTemplate,
 		GitResolveAliases:    resolveAliases,
-		LoadConfig:           loadConfig,
+		ConfigReader:         configReader,
 	}
 	req := Request{AliasesAndCoauthors: coauthors}
 
@@ -291,7 +323,11 @@ func TestEnableFailsDueToSaveStatusErr(t *testing.T) {
 
 	sanityCheck := func([]string) []error { return []error{} }
 	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
-	loadConfig := func() config.Config { return cfg }
+	configReader := internalConfigReaderMock{
+		read: func() config.InternalConfig {
+			return cfg
+		},
+	}
 	CreateTemplateDir := func(string, os.FileMode) error { return nil }
 	WriteTemplateFile := func(string, []byte, os.FileMode) error { return nil }
 	GitSetCommitTemplate := func(string) error { return nil }
@@ -304,7 +340,7 @@ func TestEnableFailsDueToSaveStatusErr(t *testing.T) {
 		GitSetHooksPath:               setHooksPath,
 		GitSetCommitTemplate:          GitSetCommitTemplate,
 		GitResolveAliases:             resolveAliases,
-		LoadConfig:                    loadConfig,
+		ConfigReader:                  configReader,
 		StateRepositoryPersistEnabled: func([]string) error { return expectedErr },
 	}
 
