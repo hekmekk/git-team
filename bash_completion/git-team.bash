@@ -54,6 +54,10 @@ _git_team() {
 			COMPREPLY=()
 			return 0
 			;;
+		config)
+			COMPREPLY+=( $(compgen -W "-h" -- $cur) )
+			return 0
+			;;
 		*)
 			COMPREPLY=( $(compgen -W "${aliases}" -- $cur) )
 			local show_flags=true
@@ -64,7 +68,7 @@ _git_team() {
 				fi
 			done
 			if [[ $show_flags == true ]]; then
-				local flags="add assignments enable disable ls rm status -h --help -v --version"
+				local flags="add assignments enable disable ls rm status config -h --help -v --version"
 				COMPREPLY+=( $(compgen -W "$flags" -- $cur) )
 			fi
 			return 0
