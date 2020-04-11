@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2020-??-??
+### Added
+- New command `config` has been introduced to view and edit the configuration
+- The **activation scope** can now be configured (options: `global`, `repo-local`; `global` is the default) via `git-team config`
+
 ## [1.3.8] - 2019-10-26
 ### Added
 - Co-authors are appended for `git merge [--squash]`
@@ -108,7 +113,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Append co-authors to a `git commit` message by means of a commit message template file
 
-[Unreleased]: https://github.com/hekmekk/git-team/compare/v1.3.8...HEAD
+[Unreleased]: https://github.com/hekmekk/git-team/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/hekmekk/git-team/compare/v1.3.8...v1.4.0
 [1.3.8]: https://github.com/hekmekk/git-team/compare/v1.3.7...v1.3.8
 [1.3.7]: https://github.com/hekmekk/git-team/compare/v1.3.6...v1.3.7
 [1.3.6]: https://github.com/hekmekk/git-team/compare/v1.3.5...v1.3.6

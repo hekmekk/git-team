@@ -5,18 +5,19 @@ import (
 
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/cmd"
-	"github.com/hekmekk/git-team/src/command/assignments/interfaceadapter/cmd"
-	"github.com/hekmekk/git-team/src/command/assignments/list/interfaceadapter/cmd"
-	"github.com/hekmekk/git-team/src/command/assignments/remove/interfaceadapter/cmd"
-	"github.com/hekmekk/git-team/src/command/disable/interfaceadapter/cmd"
-	"github.com/hekmekk/git-team/src/command/enable/interfaceadapter/cmd"
-	"github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
+	addcmdadapter "github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/cmd"
+	assignmentscmdadapter "github.com/hekmekk/git-team/src/command/assignments/interfaceadapter/cmd"
+	listcmdadapter "github.com/hekmekk/git-team/src/command/assignments/list/interfaceadapter/cmd"
+	removecmdadapter "github.com/hekmekk/git-team/src/command/assignments/remove/interfaceadapter/cmd"
+	configcmdadapter "github.com/hekmekk/git-team/src/command/config/interfaceadapter/cmd"
+	disablecmdadapter "github.com/hekmekk/git-team/src/command/disable/interfaceadapter/cmd"
+	enablecmdadapter "github.com/hekmekk/git-team/src/command/enable/interfaceadapter/cmd"
+	statuscmdadapter "github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/core/effects"
 )
 
 const (
-	version = "v1.3.8"
+	version = "v1.4.0"
 	author  = "Rea Sand <hekmek@posteo.de>"
 )
 
@@ -57,6 +58,7 @@ func newApplication(author string, version string) *kingpin.Application {
 	enablecmdadapter.Command(app)
 	disablecmdadapter.Command(app)
 	statuscmdadapter.Command(app)
+	configcmdadapter.Command(app)
 
 	return app
 }
