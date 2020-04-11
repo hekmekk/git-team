@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hekmekk/git-team/src/shared/internalconfig/entity"
+	"github.com/hekmekk/git-team/src/shared/commitsettings/entity"
 )
 
 type dependencies struct {
@@ -26,8 +26,8 @@ func newStaticValueDataSource(deps dependencies) StaticValueDataSource {
 	return StaticValueDataSource{deps: deps}
 }
 
-func (ds StaticValueDataSource) Read() entity.InternalConfig {
-	cfg := entity.InternalConfig{
+func (ds StaticValueDataSource) Read() entity.CommitSettings {
+	cfg := entity.CommitSettings{
 		GitTeamCommitTemplatePath: fmt.Sprintf("%s/.config/git-team/COMMIT_TEMPLATE", ds.deps.getEnv("HOME")),
 		GitTeamHooksPath:          "/usr/local/etc/git-team/hooks",
 	}

@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hekmekk/git-team/src/shared/internalconfig/entity"
+	"github.com/hekmekk/git-team/src/shared/commitsettings/entity"
 )
 
 func TestReadSucceeds(t *testing.T) {
@@ -13,15 +13,15 @@ func TestReadSucceeds(t *testing.T) {
 
 	deps := dependencies{getEnv: func(variable string) string { return home }}
 
-	expectedCfg := entity.InternalConfig{
+	expectedSettings := entity.CommitSettings{
 		GitTeamCommitTemplatePath: fmt.Sprintf("%s/.config/git-team/COMMIT_TEMPLATE", home),
 		GitTeamHooksPath:          "/usr/local/etc/git-team/hooks",
 	}
 
-	cfg := newStaticValueDataSource(deps).Read()
+	settings := newStaticValueDataSource(deps).Read()
 
-	if !reflect.DeepEqual(expectedCfg, cfg) {
-		t.Errorf("expected: %s, received %s", expectedCfg, cfg)
+	if !reflect.DeepEqual(expectedSettings, settings) {
+		t.Errorf("expected: %s, received %s", expectedSettings, settings)
 		t.Fail()
 	}
 }

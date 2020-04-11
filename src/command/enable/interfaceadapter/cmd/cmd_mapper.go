@@ -12,7 +12,7 @@ import (
 	"github.com/hekmekk/git-team/src/core/gitconfig"
 	staterepository "github.com/hekmekk/git-team/src/core/state_repository"
 	"github.com/hekmekk/git-team/src/core/validation"
-	internalconfigds "github.com/hekmekk/git-team/src/shared/internalconfig/datasource"
+	commitsettingsds "github.com/hekmekk/git-team/src/shared/commitsettings/datasource"
 )
 
 // Command the enable command
@@ -38,7 +38,7 @@ func policy(coauthors *[]string) enable.Policy {
 			GitSetHooksPath:               func(path string) error { return gitconfig.ReplaceAll("core.hooksPath", path) },
 			GitResolveAliases:             commandadapter.ResolveAliases,
 			StateRepositoryPersistEnabled: staterepository.PersistEnabled,
-			ConfigReader:                  internalconfigds.NewStaticValueDataSource(),
+			CommitSettingsReader:          commitsettingsds.NewStaticValueDataSource(),
 		},
 	}
 }
