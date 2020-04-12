@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/hekmekk/git-team/src/core/config"
+	config "github.com/hekmekk/git-team/src/command/config/entity/config"
 )
 
 // RetrievalSucceeded successfully got the current state

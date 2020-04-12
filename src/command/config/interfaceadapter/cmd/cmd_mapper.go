@@ -4,9 +4,9 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
+	configds "github.com/hekmekk/git-team/src/command/config/datasource"
 	configeventadapter "github.com/hekmekk/git-team/src/command/config/interfaceadapter/event"
 	configpolicy "github.com/hekmekk/git-team/src/command/config/policy"
-	configds "github.com/hekmekk/git-team/src/core/config"
 )
 
 // Command the config command
@@ -21,7 +21,7 @@ func Command(root commandadapter.CommandRoot) *kingpin.CmdClause {
 func policy() configpolicy.Policy {
 	return configpolicy.Policy{
 		Deps: configpolicy.Dependencies{
-			ConfigRepository: configds.NewStaticValueDataSource(),
+			ConfigReader: configds.NewGitconfigDataSource(),
 		},
 	}
 }

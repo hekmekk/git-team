@@ -5,22 +5,17 @@ import (
 	"reflect"
 	"testing"
 
+	activationscope "github.com/hekmekk/git-team/src/command/config/entity/activationscope"
+	config "github.com/hekmekk/git-team/src/command/config/entity/config"
 	configevents "github.com/hekmekk/git-team/src/command/config/events"
-	config "github.com/hekmekk/git-team/src/core/config"
 	"github.com/hekmekk/git-team/src/core/effects"
 )
 
 func TestMapEventToEffectsRetrievalSucceeded(t *testing.T) {
-	msg := "config\n─ [ro] commit-template-path: /home/some-user/.config/git-team/COMMIT_TEMPLATE\n─ [ro] hooks-path: /usr/local/etc/git-team/hooks\n─ [rw] activation-scope: global"
+	msg := "config\n─ activation-scope: global"
 
 	cfg := config.Config{
-		Ro: config.ReadOnlyProperties{
-			GitTeamCommitTemplatePath: "/home/some-user/.config/git-team/COMMIT_TEMPLATE",
-			GitTeamHooksPath:          "/usr/local/etc/git-team/hooks",
-		},
-		Rw: config.ReadWriteProperties{
-			ActivationScope: config.Global,
-		},
+		ActivationScope: activationscope.Global,
 	}
 
 	expectedEffects := []effects.Effect{

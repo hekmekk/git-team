@@ -2,13 +2,13 @@ package policy
 
 import (
 	configevents "github.com/hekmekk/git-team/src/command/config/events"
-	"github.com/hekmekk/git-team/src/core/config"
+	configreader "github.com/hekmekk/git-team/src/command/config/reader"
 	"github.com/hekmekk/git-team/src/core/events"
 )
 
 // Dependencies the dependencies of the config Policy module
 type Dependencies struct {
-	ConfigRepository config.Repository
+	ConfigReader configreader.ConfigReader
 }
 
 // Policy the policy to apply
@@ -20,7 +20,7 @@ type Policy struct {
 func (policy Policy) Apply() events.Event {
 	deps := policy.Deps
 
-	cfg, err := deps.ConfigRepository.Query()
+	cfg, err := deps.ConfigReader.Read()
 	if err != nil {
 		return configevents.RetrievalFailed{Reason: err}
 	}

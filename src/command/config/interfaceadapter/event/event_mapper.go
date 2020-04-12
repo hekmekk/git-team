@@ -6,8 +6,8 @@ import (
 	"sort"
 
 	"github.com/fatih/color"
+	config "github.com/hekmekk/git-team/src/command/config/entity/config"
 	configevents "github.com/hekmekk/git-team/src/command/config/events"
-	"github.com/hekmekk/git-team/src/core/config"
 	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/events"
 )
@@ -31,26 +31,20 @@ func MapEventToEffects(event events.Event) []effects.Effect {
 }
 
 func toString(cfg config.Config) string {
-	roProperties := make(map[string]string)
-	rwProperties := make(map[string]string)
-	roProperties["commit-template-path"] = cfg.Ro.GitTeamCommitTemplatePath
-	roProperties["hooks-path"] = cfg.Ro.GitTeamHooksPath
-	rwProperties["activation-scope"] = cfg.Rw.ActivationScope.String()
+	properties := make(map[string]string)
+	properties["activation-scope"] = cfg.ActivationScope.String()
 
-	var properties []string
-	for k, v := range roProperties {
-		properties = append(properties, fmt.Sprintf("[ro] %s: %s", k, v))
+	var propertyStrings []string
+
+	for k, v := range properties {
+		propertyStrings = append(propertyStrings, fmt.Sprintf("%s: %s", k, v))
 	}
 
-	for k, v := range rwProperties {
-		properties = append(properties, fmt.Sprintf("[rw] %s: %s", k, v))
-	}
-
-	sort.Strings(properties)
+	sort.Strings(propertyStrings)
 
 	var buffer bytes.Buffer
 	buffer.WriteString(color.New(color.FgBlue).Add(color.Bold).Sprint("config"))
-	for _, property := range properties {
+	for _, property := range propertyStrings {
 		buffer.WriteString(color.WhiteString("\n─ %s", property))
 	}
 
