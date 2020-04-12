@@ -6,7 +6,7 @@ import (
 	"sort"
 
 	"github.com/fatih/color"
-	configevent "github.com/hekmekk/git-team/src/command/config"
+	configevents "github.com/hekmekk/git-team/src/command/config/events"
 	"github.com/hekmekk/git-team/src/core/config"
 	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/events"
@@ -15,12 +15,12 @@ import (
 // MapEventToEffects convert config events to effects for the cli
 func MapEventToEffects(event events.Event) []effects.Effect {
 	switch evt := event.(type) {
-	case configevent.RetrievalSucceeded:
+	case configevents.RetrievalSucceeded:
 		return []effects.Effect{
 			effects.NewPrintMessage(toString(evt.Config)),
 			effects.NewExitOk(),
 		}
-	case configevent.RetrievalFailed:
+	case configevents.RetrievalFailed:
 		return []effects.Effect{
 			effects.NewPrintErr(evt.Reason),
 			effects.NewExitErr(),

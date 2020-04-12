@@ -1,6 +1,7 @@
-package config
+package policy
 
 import (
+	configevents "github.com/hekmekk/git-team/src/command/config/events"
 	"github.com/hekmekk/git-team/src/core/config"
 	"github.com/hekmekk/git-team/src/core/events"
 )
@@ -21,8 +22,8 @@ func (policy Policy) Apply() events.Event {
 
 	cfg, err := deps.ConfigRepository.Query()
 	if err != nil {
-		return RetrievalFailed{Reason: err}
+		return configevents.RetrievalFailed{Reason: err}
 	}
 
-	return RetrievalSucceeded{Config: cfg}
+	return configevents.RetrievalSucceeded{Config: cfg}
 }

@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	configevent "github.com/hekmekk/git-team/src/command/config"
+	configevents "github.com/hekmekk/git-team/src/command/config/events"
 	config "github.com/hekmekk/git-team/src/core/config"
 	"github.com/hekmekk/git-team/src/core/effects"
 )
@@ -28,7 +28,7 @@ func TestMapEventToEffectsRetrievalSucceeded(t *testing.T) {
 		effects.NewExitOk(),
 	}
 
-	effects := MapEventToEffects(configevent.RetrievalSucceeded{Config: cfg})
+	effects := MapEventToEffects(configevents.RetrievalSucceeded{Config: cfg})
 
 	if !reflect.DeepEqual(expectedEffects, effects) {
 		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
@@ -44,7 +44,7 @@ func TestMapEventToEffectsRetrievalFailed(t *testing.T) {
 		effects.NewExitErr(),
 	}
 
-	effects := MapEventToEffects(configevent.RetrievalFailed{Reason: err})
+	effects := MapEventToEffects(configevents.RetrievalFailed{Reason: err})
 
 	if !reflect.DeepEqual(expectedEffects, effects) {
 		t.Errorf("expected: %s, got: %s", expectedEffects, effects)

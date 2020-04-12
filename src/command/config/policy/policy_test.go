@@ -1,10 +1,11 @@
-package config
+package policy
 
 import (
 	"errors"
 	"reflect"
 	"testing"
 
+	configevents "github.com/hekmekk/git-team/src/command/config/events"
 	"github.com/hekmekk/git-team/src/core/config"
 )
 
@@ -37,7 +38,7 @@ func TestConfigShouldBeRetrieved(t *testing.T) {
 		ConfigRepository: repo,
 	}
 
-	expectedEvent := RetrievalSucceeded{Config: cfg}
+	expectedEvent := configevents.RetrievalSucceeded{Config: cfg}
 
 	event := Policy{deps}.Apply()
 
@@ -60,7 +61,7 @@ func TestStatusShouldNotBeRetrieved(t *testing.T) {
 		ConfigRepository: repo,
 	}
 
-	expectedEvent := RetrievalFailed{Reason: err}
+	expectedEvent := configevents.RetrievalFailed{Reason: err}
 
 	event := Policy{deps}.Apply()
 

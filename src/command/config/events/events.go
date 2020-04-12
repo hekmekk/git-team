@@ -1,4 +1,4 @@
-package config
+package events
 
 import (
 	"github.com/hekmekk/git-team/src/core/config"
