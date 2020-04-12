@@ -6,25 +6,38 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hekmekk/git-team/src/core/config"
+	"github.com/hekmekk/git-team/src/shared/commitsettings/entity"
+	commitsettingsentity "github.com/hekmekk/git-team/src/shared/commitsettings/entity"
 )
 
+type commitSettingsReaderMock struct {
+	read func() entity.CommitSettings
+}
+
+func (mock commitSettingsReaderMock) Read() entity.CommitSettings {
+	return mock.read()
+}
+
 var (
-	unsetCommitTemplate = func() error { return nil }
-	unsetHooksPath      = func() error { return nil }
-	cfg                 = config.Config{Ro: config.ReadOnlyProperties{GitTeamCommitTemplatePath: "/path/to/TEMPLATE_FILE", GitTeamHooksPath: "/path/to/git-team/hooks"}}
-	loadConfig          = func() config.Config { return cfg }
-	fileInfo            os.FileInfo
-	statFile            = func(string) (os.FileInfo, error) { return fileInfo, nil }
-	removeFile          = func(string) error { return nil }
-	persistDisabled     = func() error { return nil }
+	unsetCommitTemplate  = func() error { return nil }
+	unsetHooksPath       = func() error { return nil }
+	fileInfo             os.FileInfo
+	statFile             = func(string) (os.FileInfo, error) { return fileInfo, nil }
+	removeFile           = func(string) error { return nil }
+	persistDisabled      = func() error { return nil }
+	commitSettings       = commitsettingsentity.CommitSettings{GitTeamCommitTemplatePath: "/path/to/TEMPLATE_FILE", GitTeamHooksPath: "/path/to/git-team/hooks"}
+	commitSettingsReader = commitSettingsReaderMock{
+		read: func() entity.CommitSettings {
+			return commitSettings
+		},
+	}
 )
 
 func TestDisableSucceeds(t *testing.T) {
 	deps := Dependencies{
 		GitUnsetHooksPath:      unsetHooksPath,
 		GitUnsetCommitTemplate: unsetCommitTemplate,
-		LoadConfig:             loadConfig,
+		CommitSettingsReader:   commitSettingsReader,
 		StatFile:               statFile,
 		RemoveFile:             removeFile,
 		PersistDisabled:        persistDisabled,
@@ -45,7 +58,7 @@ func TestDisableShouldSucceedWhenUnsetHooksPathFailsBecauseTheOptionDoesntExist(
 	deps := Dependencies{
 		GitUnsetHooksPath:      func() error { return expectedErr },
 		GitUnsetCommitTemplate: unsetCommitTemplate,
-		LoadConfig:             loadConfig,
+		CommitSettingsReader:   commitSettingsReader,
 		StatFile:               statFile,
 		RemoveFile:             removeFile,
 		PersistDisabled:        persistDisabled,
@@ -84,7 +97,7 @@ func TestDisableShouldSucceedWhenUnsetCommitTemplateFailsBecauseItWasUnsetAlread
 	deps := Dependencies{
 		GitUnsetHooksPath:      unsetHooksPath,
 		GitUnsetCommitTemplate: func() error { return err },
-		LoadConfig:             loadConfig,
+		CommitSettingsReader:   commitSettingsReader,
 		StatFile:               statFile,
 		RemoveFile:             removeFile,
 		PersistDisabled:        persistDisabled,
@@ -124,7 +137,7 @@ func TestDisableShouldFailWhenRemoveFileFails(t *testing.T) {
 	deps := Dependencies{
 		GitUnsetHooksPath:      unsetHooksPath,
 		GitUnsetCommitTemplate: unsetCommitTemplate,
-		LoadConfig:             loadConfig,
+		CommitSettingsReader:   commitSettingsReader,
 		StatFile:               statFile,
 		RemoveFile:             func(string) error { return err },
 	}
@@ -143,7 +156,7 @@ func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenStatFileF
 	deps := Dependencies{
 		GitUnsetHooksPath:      unsetHooksPath,
 		GitUnsetCommitTemplate: unsetCommitTemplate,
-		LoadConfig:             loadConfig,
+		CommitSettingsReader:   commitSettingsReader,
 		StatFile:               func(string) (os.FileInfo, error) { return fileInfo, errors.New("failed to stat file") },
 		PersistDisabled:        persistDisabled,
 	}
@@ -164,7 +177,7 @@ func TestDisableShouldFailWhenpersistDisabledFails(t *testing.T) {
 	deps := Dependencies{
 		GitUnsetHooksPath:      unsetHooksPath,
 		GitUnsetCommitTemplate: unsetCommitTemplate,
-		LoadConfig:             loadConfig,
+		CommitSettingsReader:   commitSettingsReader,
 		StatFile:               statFile,
 		RemoveFile:             removeFile,
 		PersistDisabled:        func() error { return err },

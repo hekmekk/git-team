@@ -1,17 +1,18 @@
 package disable
 
 import (
-	"github.com/hekmekk/git-team/src/core/config"
+	"os"
+
 	"github.com/hekmekk/git-team/src/core/events"
 	giterror "github.com/hekmekk/git-team/src/core/gitconfig/error"
-	"os"
+	commitsettingsreader "github.com/hekmekk/git-team/src/shared/commitsettings/reader"
 )
 
 // Dependencies the dependencies of the disable Policy module
 type Dependencies struct {
 	GitUnsetCommitTemplate func() error
 	GitUnsetHooksPath      func() error
-	LoadConfig             func() config.Config
+	CommitSettingsReader   commitsettingsreader.CommitSettingsReader
 	StatFile               func(string) (os.FileInfo, error)
 	RemoveFile             func(string) error
 	PersistDisabled        func() error
@@ -34,7 +35,7 @@ func (policy Policy) Apply() events.Event {
 		return Failed{Reason: err}
 	}
 
-	commitTemplatePath := deps.LoadConfig().Ro.GitTeamCommitTemplatePath
+	commitTemplatePath := deps.CommitSettingsReader.Read().GitTeamCommitTemplatePath
 
 	if _, err := deps.StatFile(commitTemplatePath); err == nil {
 		if err := deps.RemoveFile(commitTemplatePath); err != nil {
