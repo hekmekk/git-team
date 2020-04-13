@@ -4,7 +4,8 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
-	configds "github.com/hekmekk/git-team/src/command/config/datasource"
+	configdatasink "github.com/hekmekk/git-team/src/command/config/datasink"
+	configdatasource "github.com/hekmekk/git-team/src/command/config/datasource"
 	configeventadapter "github.com/hekmekk/git-team/src/command/config/interfaceadapter/event"
 	configpolicy "github.com/hekmekk/git-team/src/command/config/policy"
 )
@@ -27,8 +28,8 @@ func policy(key *string, value *string) configpolicy.Policy {
 			Value: value,
 		},
 		Deps: configpolicy.Dependencies{
-			ConfigReader: configds.NewGitconfigDataSource(),
-			ConfigWriter: nil, // TODO: corresponding data sink needs to be implemented
+			ConfigReader: configdatasource.NewGitconfigDataSource(),
+			ConfigWriter: configdatasink.NewGitconfigDataSink(),
 		},
 	}
 }
