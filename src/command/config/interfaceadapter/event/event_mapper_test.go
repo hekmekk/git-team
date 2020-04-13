@@ -32,7 +32,7 @@ func TestMapEventToEffectsRetrievalSucceeded(t *testing.T) {
 }
 
 func TestMapEventToEffectsRetrievalFailed(t *testing.T) {
-	err := errors.New("failure")
+	err := errors.New("failed to retrieve config")
 
 	expectedEffects := []effects.Effect{
 		effects.NewPrintErr(err),
@@ -40,6 +40,38 @@ func TestMapEventToEffectsRetrievalFailed(t *testing.T) {
 	}
 
 	effects := MapEventToEffects(configevents.RetrievalFailed{Reason: err})
+
+	if !reflect.DeepEqual(expectedEffects, effects) {
+		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+		t.Fail()
+	}
+}
+
+func TestMapEventToEffectsSettingModificationFailed(t *testing.T) {
+	err := errors.New("failed to modify setting")
+
+	expectedEffects := []effects.Effect{
+		effects.NewPrintErr(err),
+		effects.NewExitErr(),
+	}
+
+	effects := MapEventToEffects(configevents.SettingModificationFailed{Reason: err})
+
+	if !reflect.DeepEqual(expectedEffects, effects) {
+		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+		t.Fail()
+	}
+}
+
+func TestMapEventToEffectsReadingSingleSettingNotYetImplemented(t *testing.T) {
+	err := errors.New("reading a single setting has not yet been implemented")
+
+	expectedEffects := []effects.Effect{
+		effects.NewPrintErr(err),
+		effects.NewExitErr(),
+	}
+
+	effects := MapEventToEffects(configevents.ReadingSingleSettingNotYetImplemented{})
 
 	if !reflect.DeepEqual(expectedEffects, effects) {
 		t.Errorf("expected: %s, got: %s", expectedEffects, effects)

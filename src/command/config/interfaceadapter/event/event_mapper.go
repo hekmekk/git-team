@@ -2,6 +2,7 @@ package configeventadapter
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"sort"
 
@@ -23,6 +24,16 @@ func MapEventToEffects(event events.Event) []effects.Effect {
 	case configevents.RetrievalFailed:
 		return []effects.Effect{
 			effects.NewPrintErr(evt.Reason),
+			effects.NewExitErr(),
+		}
+	case configevents.SettingModificationFailed:
+		return []effects.Effect{
+			effects.NewPrintErr(evt.Reason),
+			effects.NewExitErr(),
+		}
+	case configevents.ReadingSingleSettingNotYetImplemented:
+		return []effects.Effect{
+			effects.NewPrintErr(errors.New("reading a single setting has not yet been implemented")),
 			effects.NewExitErr(),
 		}
 	default:
