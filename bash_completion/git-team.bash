@@ -55,7 +55,11 @@ _git_team() {
 			return 0
 			;;
 		config)
-			COMPREPLY+=( $(compgen -W "-h" -- $cur) )
+			COMPREPLY+=( $(compgen -W "activation-scope -h" -- $cur) )
+			return 0
+			;;
+		activation-scope)
+			COMPREPLY+=( $(compgen -W "global repo-local" -- $cur) )
 			return 0
 			;;
 		*)
