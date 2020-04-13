@@ -55,11 +55,12 @@ func (policy Policy) Apply() events.Event {
 		return configevents.SettingModificationFailed{Reason: fmt.Errorf("Unknown setting '%s'", key)}
 	}
 
-	if !(value == "global" || value == "repo-local") {
+	desiredScope := activationscope.FromString(value)
+	if desiredScope == activationscope.Unknown {
 		return configevents.SettingModificationFailed{Reason: fmt.Errorf("Unknown activation-scope '%s'", value)}
 	}
 
-	if err := deps.ConfigWriter.SetActivationScope(activationscope.FromString(value)); err != nil {
+	if err := deps.ConfigWriter.SetActivationScope(desiredScope); err != nil {
 		return configevents.SettingModificationFailed{Reason: fmt.Errorf("Failed to modify setting 'activation-scope': %s", err)}
 	}
 
