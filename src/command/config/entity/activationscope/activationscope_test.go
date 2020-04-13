@@ -1,0 +1,35 @@
+package entity
+
+import (
+	"reflect"
+	"testing"
+)
+
+func TestFromString(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		candidateScope string
+		expectedScope  ActivationScope
+	}{
+		{"global", Global},
+		{"repo-local", RepoLocal},
+		{"unknown", Unknown},
+		{"some other string", Unknown},
+	}
+
+	for _, caseLoopVar := range cases {
+		candidate := caseLoopVar.candidateScope
+		expectedScope := caseLoopVar.expectedScope
+
+		t.Run(candidate, func(t *testing.T) {
+			t.Parallel()
+			scope := FromString(candidate)
+
+			if !reflect.DeepEqual(expectedScope, scope) {
+				t.Errorf("expected: %s, got: %s", expectedScope, scope)
+				t.Fail()
+			}
+		})
+	}
+}

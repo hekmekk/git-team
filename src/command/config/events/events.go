@@ -14,11 +14,17 @@ type RetrievalFailed struct {
 	Reason error
 }
 
-// SettingModificationFailed failed to modify the a setting
+// SettingModificationFailed failed to modify the setting
 type SettingModificationFailed struct {
 	Reason error
 }
 
 // ReadingSingleSettingNotYetImplemented trying to access a not yet implemented feature
 type ReadingSingleSettingNotYetImplemented struct {
+}
+
+// SettingModificationSucceeded suceesfully modified the setting
+type SettingModificationSucceeded struct {
+	Key   string
+	Value string
 }

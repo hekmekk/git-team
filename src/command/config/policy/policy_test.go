@@ -2,6 +2,7 @@ package policy
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -106,7 +107,7 @@ func TestFailIfOnlyOneArgumentIsProvided(t *testing.T) {
 }
 
 func TestFailOnUnknownSetting(t *testing.T) {
-	err := errors.New("unknown setting 'A'")
+	err := errors.New("Unknown setting 'A'")
 
 	expectedEvent := configevents.SettingModificationFailed{Reason: err}
 
@@ -121,7 +122,7 @@ func TestFailOnUnknownSetting(t *testing.T) {
 }
 
 func TestFailOnUnknownActivationScope(t *testing.T) {
-	err := errors.New("unknown activation-scope 'A'")
+	err := errors.New("Unknown activation-scope 'A'")
 
 	expectedEvent := configevents.SettingModificationFailed{Reason: err}
 
@@ -138,5 +139,61 @@ func TestFailOnUnknownActivationScope(t *testing.T) {
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
 		t.Fail()
+	}
+}
+
+func TestShouldFailWhenConfigWriterFails(t *testing.T) {
+	t.Parallel()
+
+	key := "activation-scope"
+
+	err := errors.New("unable to write to gitconfig")
+	expectedEvent := configevents.SettingModificationFailed{Reason: fmt.Errorf("Failed to modify setting 'activation-scope': %s", err)}
+
+	for _, loopValue := range []string{"global", "repo-local"} {
+		value := loopValue
+		t.Run(value, func(t *testing.T) {
+			t.Parallel()
+
+			configWriter := &configWriterMock{
+				setActivationScope: func(scope activationscope.ActivationScope) error {
+					return err
+				},
+			}
+
+			event := Policy{Req: Request{&key, &value}, Deps: Dependencies{nil, configWriter}}.Apply()
+
+			if !reflect.DeepEqual(expectedEvent, event) {
+				t.Errorf("expected: %s, got: %s", expectedEvent, event)
+				t.Fail()
+			}
+		})
+	}
+}
+
+func TestShouldModifyActivationScopeSetting(t *testing.T) {
+	t.Parallel()
+
+	key := "activation-scope"
+
+	for _, loopValue := range []string{"global", "repo-local"} {
+		value := loopValue
+		t.Run(value, func(t *testing.T) {
+			t.Parallel()
+			expectedEvent := configevents.SettingModificationSucceeded{Key: key, Value: value}
+
+			configWriter := &configWriterMock{
+				setActivationScope: func(scope activationscope.ActivationScope) error {
+					return nil
+				},
+			}
+
+			event := Policy{Req: Request{&key, &value}, Deps: Dependencies{nil, configWriter}}.Apply()
+
+			if !reflect.DeepEqual(expectedEvent, event) {
+				t.Errorf("expected: %s, got: %s", expectedEvent, event)
+				t.Fail()
+			}
+		})
 	}
 }

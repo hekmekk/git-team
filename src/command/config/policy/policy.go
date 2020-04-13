@@ -1,9 +1,9 @@
 package policy
 
 import (
-	"errors"
 	"fmt"
 
+	activationscope "github.com/hekmekk/git-team/src/command/config/entity/activationscope"
 	configevents "github.com/hekmekk/git-team/src/command/config/events"
 	configreader "github.com/hekmekk/git-team/src/command/config/reader"
 	configwriter "github.com/hekmekk/git-team/src/command/config/writer"
@@ -52,12 +52,16 @@ func (policy Policy) Apply() events.Event {
 	value := *valuePtr
 
 	if key != "activation-scope" {
-		return configevents.SettingModificationFailed{Reason: fmt.Errorf("unknown setting '%s'", key)}
+		return configevents.SettingModificationFailed{Reason: fmt.Errorf("Unknown setting '%s'", key)}
 	}
 
-	if value == "global" || value == "repo-local" {
-		return configevents.SettingModificationFailed{Reason: errors.New("not yet")}
+	if !(value == "global" || value == "repo-local") {
+		return configevents.SettingModificationFailed{Reason: fmt.Errorf("Unknown activation-scope '%s'", value)}
 	}
 
-	return configevents.SettingModificationFailed{Reason: fmt.Errorf("unknown activation-scope '%s'", value)}
+	if err := deps.ConfigWriter.SetActivationScope(activationscope.FromString(value)); err != nil {
+		return configevents.SettingModificationFailed{Reason: fmt.Errorf("Failed to modify setting 'activation-scope': %s", err)}
+	}
+
+	return configevents.SettingModificationSucceeded{Key: key, Value: value}
 }

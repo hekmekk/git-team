@@ -26,6 +26,11 @@ func MapEventToEffects(event events.Event) []effects.Effect {
 			effects.NewPrintErr(evt.Reason),
 			effects.NewExitErr(),
 		}
+	case configevents.SettingModificationSucceeded:
+		return []effects.Effect{
+			effects.NewPrintMessage(fmt.Sprintf("Configuration updated: '%s' → '%s'", evt.Key, evt.Value)),
+			effects.NewExitOk(),
+		}
 	case configevents.SettingModificationFailed:
 		return []effects.Effect{
 			effects.NewPrintErr(evt.Reason),
@@ -33,7 +38,7 @@ func MapEventToEffects(event events.Event) []effects.Effect {
 		}
 	case configevents.ReadingSingleSettingNotYetImplemented:
 		return []effects.Effect{
-			effects.NewPrintErr(errors.New("reading a single setting has not yet been implemented")),
+			effects.NewPrintErr(errors.New("Reading a single setting has not yet been implemented")),
 			effects.NewExitErr(),
 		}
 	default:

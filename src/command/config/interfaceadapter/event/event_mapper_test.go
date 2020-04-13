@@ -2,6 +2,7 @@ package configeventadapter
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -47,6 +48,25 @@ func TestMapEventToEffectsRetrievalFailed(t *testing.T) {
 	}
 }
 
+func TestMapEventToEffectsSettingModificationSucceeded(t *testing.T) {
+	key := "activation-scope"
+	value := "repo-local"
+
+	msg := fmt.Sprintf("Configuration updated: '%s' → '%s'", key, value)
+
+	expectedEffects := []effects.Effect{
+		effects.NewPrintMessage(msg),
+		effects.NewExitOk(),
+	}
+
+	effects := MapEventToEffects(configevents.SettingModificationSucceeded{Key: key, Value: value})
+
+	if !reflect.DeepEqual(expectedEffects, effects) {
+		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+		t.Fail()
+	}
+}
+
 func TestMapEventToEffectsSettingModificationFailed(t *testing.T) {
 	err := errors.New("failed to modify setting")
 
@@ -64,7 +84,7 @@ func TestMapEventToEffectsSettingModificationFailed(t *testing.T) {
 }
 
 func TestMapEventToEffectsReadingSingleSettingNotYetImplemented(t *testing.T) {
-	err := errors.New("reading a single setting has not yet been implemented")
+	err := errors.New("Reading a single setting has not yet been implemented")
 
 	expectedEffects := []effects.Effect{
 		effects.NewPrintErr(err),
