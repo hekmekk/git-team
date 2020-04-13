@@ -110,15 +110,9 @@ func TestFailOnUnknownSetting(t *testing.T) {
 
 	expectedEvent := configevents.SettingModificationFailed{Reason: err}
 
-	configWriter := &configWriterMock{
-		setActivationScope: func(scope activationscope.ActivationScope) error {
-			return err
-		},
-	}
-
 	key := "A"
 	value := "B"
-	event := Policy{Req: Request{&key, &value}, Deps: Dependencies{nil, configWriter}}.Apply()
+	event := Policy{Req: Request{&key, &value}, Deps: Dependencies{nil, nil}}.Apply()
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
