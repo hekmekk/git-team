@@ -7,6 +7,7 @@ import (
 	"sort"
 
 	"github.com/fatih/color"
+
 	config "github.com/hekmekk/git-team/src/command/config/entity/config"
 	configevents "github.com/hekmekk/git-team/src/command/config/events"
 	"github.com/hekmekk/git-team/src/core/effects"
@@ -28,7 +29,7 @@ func MapEventToEffects(event events.Event) []effects.Effect {
 		}
 	case configevents.SettingModificationSucceeded:
 		return []effects.Effect{
-			effects.NewPrintMessage(fmt.Sprintf("Configuration updated: '%s' → '%s'", evt.Key, evt.Value)),
+			effects.NewPrintMessage(color.CyanString(fmt.Sprintf("Configuration updated: '%s' → '%s'", evt.Key, evt.Value))),
 			effects.NewExitOk(),
 		}
 	case configevents.SettingModificationFailed:
