@@ -3,21 +3,14 @@
 load '/bats-libs/bats-support/load.bash'
 load '/bats-libs/bats-assert/load.bash'
 
-LOCAL_CONFIG_PATH=/root/.config/git-team
-HOOKS_PATH=/usr/local/etc/git-team/hooks
-REPO_PATH=/tmp/repo
+REPO_PATH=/tmp/repo/use-cases
 
 setup() {
-	mkdir -p $LOCAL_CONFIG_PATH
-	mkdir -p $HOOKS_PATH
-	cp /usr/local/bin/prepare-commit-msg $HOOKS_PATH/prepare-commit-msg
-
+	cp /usr/local/bin/prepare-commit-msg /usr/local/etc/git-team/hooks/prepare-commit-msg
 	mkdir -p $REPO_PATH
 }
 
 teardown() {
-	rm -rf $LOCAL_CONFIG_PATH
-	rm -rf $HOOKS_PATH
 	rm -rf $REPO_PATH
 }
 
@@ -34,7 +27,7 @@ teardown() {
 	echo -e "#!/bin/sh\necho 'pre-commit hook triggered'\nexit 1" > $REPO_PATH/.git/hooks/pre-commit
 	chmod +x $REPO_PATH/.git/hooks/pre-commit
 
-	cat /tmp/repo/.git/hooks/pre-commit
+	cat $REPO_PATH/.git/hooks/pre-commit
 
 	git add -A
 	run git commit -m "test"
