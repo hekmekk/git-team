@@ -3,11 +3,22 @@
 load '/bats-libs/bats-support/load.bash'
 load '/bats-libs/bats-assert/load.bash'
 
-@test "git-team: config should show the current configuration" {
+@test "git-team: config should show the current configuration (default: global)" {
 	run bash -c "git team config"
 	assert_success
 	assert_line --index 0 'config'
 	assert_line --index 1 '─ activation-scope: global'
+}
+
+@test "git-team: config should show the current configuration (changed: repo-local)" {
+	/usr/local/bin/git-team config activation-scope repo-local
+
+	run bash -c "git team config"
+	assert_success
+	assert_line --index 0 'config'
+	assert_line --index 1 '─ activation-scope: repo-local'
+
+	/usr/local/bin/git-team config activation-scope global
 }
 
 @test "git-team: config activation-scope non-existing-value should fail" {
@@ -20,6 +31,8 @@ load '/bats-libs/bats-assert/load.bash'
 	run bash -c "git team config activation-scope repo-local"
 	assert_success
 	assert_line --index 0 "Configuration updated: 'activation-scope' → 'repo-local'"
+
+	/usr/local/bin/git-team config activation-scope global
 }
 
 @test "git-team: config activation-scope repo-local should write the configuration to gitconfig" {
@@ -28,6 +41,8 @@ load '/bats-libs/bats-assert/load.bash'
 	run bash -c "git config --global --get-regexp team.config | sort"
 	assert_success
 	assert_line --index 0 'team.config.activation-scope repo-local'
+
+	/usr/local/bin/git-team config activation-scope global
 }
 
 @test "git-team: config activation-scope global should set the activation scope to 'global'" {
