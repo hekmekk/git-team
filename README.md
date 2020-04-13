@@ -42,7 +42,7 @@ git team disable
 ## Configuration
 See `git team config -h` on how to configure git team.
 
-| option           | values             | default | affected commands   |
+| setting          | values             | default | affected commands   |
 | ---------------- | ------------------ | ------- | ------------------- |
 | activation-scope | global, repo-local | global  | `enable`, `disable` |
 
