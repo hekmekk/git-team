@@ -1,11 +1,11 @@
 package gitconfig
 
-// RawReader read data from gitconfig
-type RawReader interface {
+// SettingsReader read git configuration settings
+type SettingsReader interface {
 	Get(key string) (string, error)
 }
 
-// RawWriter set data to gitconfig
-type RawWriter interface {
+// SettingsWriter modify git configuration settings
+type SettingsWriter interface {
 	Set(key string, value string) error
 }

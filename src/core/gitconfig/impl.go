@@ -1,29 +1,29 @@
 package gitconfig
 
-// RawDataSource read data directly from gitconfig
-type RawDataSource struct {
+// DataSource read data directly from gitconfig
+type DataSource struct {
 }
 
-// NewRawDataSource construct new RawDataSource
-func NewRawDataSource() RawDataSource {
-	return RawDataSource{}
+// NewDataSource construct new DataSource
+func NewDataSource() DataSource {
+	return DataSource{}
 }
 
 // Get read a setting
-func (ds RawDataSource) Get(key string) (string, error) {
+func (ds DataSource) Get(key string) (string, error) {
 	return Get(key)
 }
 
-// RawDataSink write data directly to gitconfig
-type RawDataSink struct {
+// DataSink write data directly to gitconfig
+type DataSink struct {
 }
 
-// NewRawDataSink construct new RawDataSink
-func NewRawDataSink() RawDataSink {
-	return RawDataSink{}
+// NewDataSink construct new DataSink
+func NewDataSink() DataSink {
+	return DataSink{}
 }
 
 // Set modify a setting
-func (ds RawDataSink) Set(key string, value string) error {
+func (ds DataSink) Set(key string, value string) error {
 	return ReplaceAll(key, value)
 }

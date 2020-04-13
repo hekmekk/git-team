@@ -7,20 +7,20 @@ import (
 
 // GitconfigDataSink writes configuration to gitconfig
 type GitconfigDataSink struct {
-	RawGitConfigWriter coregitconfig.RawWriter
+	GitSettingsWriter coregitconfig.SettingsWriter
 }
 
 // NewGitconfigDataSink constructs new GitconfigDataSink
 func NewGitconfigDataSink() GitconfigDataSink {
-	return newGitconfigDataSink(coregitconfig.NewRawDataSink())
+	return newGitconfigDataSink(coregitconfig.NewDataSink())
 }
 
 // for tests
-func newGitconfigDataSink(rawGitConfigWriter coregitconfig.RawWriter) GitconfigDataSink {
-	return GitconfigDataSink{RawGitConfigWriter: rawGitConfigWriter}
+func newGitconfigDataSink(gitSettingsWriter coregitconfig.SettingsWriter) GitconfigDataSink {
+	return GitconfigDataSink{GitSettingsWriter: gitSettingsWriter}
 }
 
 // SetActivationScope write activation-scope setting to gitconfig
 func (ds GitconfigDataSink) SetActivationScope(scope activationscope.ActivationScope) error {
-	return ds.RawGitConfigWriter.Set("team.config.activation-scope", scope.String())
+	return ds.GitSettingsWriter.Set("team.config.activation-scope", scope.String())
 }

@@ -11,21 +11,21 @@ import (
 
 // GitconfigDataSource reads configuration from git config
 type GitconfigDataSource struct {
-	RawGitConfigReader coregitconfig.RawReader
+	GitSettingsReader coregitconfig.SettingsReader
 }
 
 // NewGitconfigDataSource constructs new GitconfigDataSource
 func NewGitconfigDataSource() GitconfigDataSource {
-	return newGitconfigDataSource(coregitconfig.NewRawDataSource())
+	return newGitconfigDataSource(coregitconfig.NewDataSource())
 }
 
 // for tests
-func newGitconfigDataSource(reader coregitconfig.RawReader) GitconfigDataSource {
-	return GitconfigDataSource{reader}
+func newGitconfigDataSource(gitSettingsReader coregitconfig.SettingsReader) GitconfigDataSource {
+	return GitconfigDataSource{gitSettingsReader}
 }
 
 func (ds GitconfigDataSource) Read() (config.Config, error) {
-	rawScope, err := ds.RawGitConfigReader.Get("team.config.activation-scope")
+	rawScope, err := ds.GitSettingsReader.Get("team.config.activation-scope")
 
 	if err != nil && err.Error() == giterror.SectionOrKeyIsInvalid {
 		return config.Config{ActivationScope: activationscope.Global}, nil
