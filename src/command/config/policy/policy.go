@@ -6,8 +6,7 @@ import (
 	configevents "github.com/hekmekk/git-team/src/command/config/events"
 	"github.com/hekmekk/git-team/src/core/events"
 	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
-	configreader "github.com/hekmekk/git-team/src/shared/config/reader"
-	configwriter "github.com/hekmekk/git-team/src/shared/config/writer"
+	config "github.com/hekmekk/git-team/src/shared/config/interface"
 )
 
 // Request defines which config setting to modify or if the config should just be displayed
@@ -18,8 +17,8 @@ type Request struct {
 
 // Dependencies the dependencies of the config Policy module
 type Dependencies struct {
-	ConfigReader configreader.Reader
-	ConfigWriter configwriter.Writer
+	ConfigWriter config.Writer
+	ConfigReader config.Reader
 }
 
 // Policy the policy to apply

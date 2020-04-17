@@ -38,7 +38,7 @@ func TestConfigShouldBeRetrieved(t *testing.T) {
 		},
 	}
 
-	event := Policy{Req: Request{nil, nil}, Deps: Dependencies{configReader, nil}}.Apply()
+	event := Policy{Req: Request{nil, nil}, Deps: Dependencies{ConfigReader: configReader, ConfigWriter: nil}}.Apply()
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
@@ -59,8 +59,8 @@ func TestConfigShouldNotBeRetrieved(t *testing.T) {
 
 	emptyString := ""
 
-	eventNil := Policy{Req: Request{nil, nil}, Deps: Dependencies{configReader, nil}}.Apply()
-	eventEmptyString := Policy{Req: Request{&emptyString, &emptyString}, Deps: Dependencies{configReader, nil}}.Apply()
+	eventNil := Policy{Req: Request{nil, nil}, Deps: Dependencies{ConfigReader: configReader, ConfigWriter: nil}}.Apply()
+	eventEmptyString := Policy{Req: Request{&emptyString, &emptyString}, Deps: Dependencies{ConfigReader: configReader, ConfigWriter: nil}}.Apply()
 
 	if !reflect.DeepEqual(expectedEvent, eventNil) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, eventNil)
@@ -134,7 +134,7 @@ func TestFailOnUnknownActivationScope(t *testing.T) {
 
 	key := "activation-scope"
 	value := "A"
-	event := Policy{Req: Request{&key, &value}, Deps: Dependencies{nil, configWriter}}.Apply()
+	event := Policy{Req: Request{&key, &value}, Deps: Dependencies{ConfigReader: nil, ConfigWriter: configWriter}}.Apply()
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)
@@ -161,7 +161,7 @@ func TestShouldFailWhenConfigWriterFails(t *testing.T) {
 				},
 			}
 
-			event := Policy{Req: Request{&key, &value}, Deps: Dependencies{nil, configWriter}}.Apply()
+			event := Policy{Req: Request{&key, &value}, Deps: Dependencies{ConfigReader: nil, ConfigWriter: configWriter}}.Apply()
 
 			if !reflect.DeepEqual(expectedEvent, event) {
 				t.Errorf("expected: %s, got: %s", expectedEvent, event)
@@ -188,7 +188,7 @@ func TestShouldModifyActivationScopeSetting(t *testing.T) {
 				},
 			}
 
-			event := Policy{Req: Request{&key, &value}, Deps: Dependencies{nil, configWriter}}.Apply()
+			event := Policy{Req: Request{&key, &value}, Deps: Dependencies{ConfigReader: nil, ConfigWriter: configWriter}}.Apply()
 
 			if !reflect.DeepEqual(expectedEvent, event) {
 				t.Errorf("expected: %s, got: %s", expectedEvent, event)

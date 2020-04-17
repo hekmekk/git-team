@@ -1,4 +1,4 @@
-package reader
+package configinterface
 
 import (
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"

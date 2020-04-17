@@ -1,4 +1,4 @@
-package writer
+package configinterface
 
 import (
 	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
