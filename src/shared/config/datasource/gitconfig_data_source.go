@@ -3,10 +3,10 @@ package datasource
 import (
 	"fmt"
 
-	activationscope "github.com/hekmekk/git-team/src/command/config/entity/activationscope"
-	config "github.com/hekmekk/git-team/src/command/config/entity/config"
 	coregitconfig "github.com/hekmekk/git-team/src/core/gitconfig"
 	giterror "github.com/hekmekk/git-team/src/core/gitconfig/error"
+	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
 )
 
 // GitconfigDataSource reads configuration from git config

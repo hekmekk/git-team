@@ -4,10 +4,10 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
-	configdatasink "github.com/hekmekk/git-team/src/command/config/datasink"
-	configdatasource "github.com/hekmekk/git-team/src/command/config/datasource"
 	configeventadapter "github.com/hekmekk/git-team/src/command/config/interfaceadapter/event"
 	configpolicy "github.com/hekmekk/git-team/src/command/config/policy"
+	configdatasink "github.com/hekmekk/git-team/src/shared/config/datasink"
+	configdatasource "github.com/hekmekk/git-team/src/shared/config/datasource"
 )
 
 // Command the config command

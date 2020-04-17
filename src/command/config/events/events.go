@@ -1,7 +1,7 @@
 package events
 
 import (
-	config "github.com/hekmekk/git-team/src/command/config/entity/config"
+	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
 )
 
 // RetrievalSucceeded successfully got the configuration

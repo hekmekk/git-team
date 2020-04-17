@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"testing"
 
-	activationscope "github.com/hekmekk/git-team/src/command/config/entity/activationscope"
-	config "github.com/hekmekk/git-team/src/command/config/entity/config"
+	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
 )
 
 type gitconfigRawReaderMock struct {

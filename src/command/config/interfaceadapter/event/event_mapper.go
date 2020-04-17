@@ -8,10 +8,10 @@ import (
 
 	"github.com/fatih/color"
 
-	config "github.com/hekmekk/git-team/src/command/config/entity/config"
 	configevents "github.com/hekmekk/git-team/src/command/config/events"
 	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/events"
+	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
 )
 
 // MapEventToEffects convert config events to effects for the cli

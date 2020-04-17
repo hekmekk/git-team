@@ -1,8 +1,8 @@
 package datasink
 
 import (
-	activationscope "github.com/hekmekk/git-team/src/command/config/entity/activationscope"
 	coregitconfig "github.com/hekmekk/git-team/src/core/gitconfig"
+	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
 )
 
 // GitconfigDataSink writes configuration to gitconfig

@@ -3,11 +3,11 @@ package policy
 import (
 	"fmt"
 
-	activationscope "github.com/hekmekk/git-team/src/command/config/entity/activationscope"
 	configevents "github.com/hekmekk/git-team/src/command/config/events"
-	configreader "github.com/hekmekk/git-team/src/command/config/reader"
-	configwriter "github.com/hekmekk/git-team/src/command/config/writer"
 	"github.com/hekmekk/git-team/src/core/events"
+	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	configreader "github.com/hekmekk/git-team/src/shared/config/reader"
+	configwriter "github.com/hekmekk/git-team/src/shared/config/writer"
 )
 
 // Request defines which config setting to modify or if the config should just be displayed
@@ -18,8 +18,8 @@ type Request struct {
 
 // Dependencies the dependencies of the config Policy module
 type Dependencies struct {
-	ConfigReader configreader.ConfigReader
-	ConfigWriter configwriter.ConfigWriter
+	ConfigReader configreader.Reader
+	ConfigWriter configwriter.Writer
 }
 
 // Policy the policy to apply
