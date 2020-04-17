@@ -85,11 +85,14 @@ teardown() {
 @test "git-team: enable should set a global commit template" {
 	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && git config --global commit.template"
 	assert_success
-	assert_line '/root/.config/git-team/COMMIT_TEMPLATE'
+	assert_line '/root/.config/git-team/commit-templates/global/COMMIT_TEMPLATE'
 }
 
 @test "git-team: enable should set a repo-local commit template" {
 	/usr/local/bin/git-team config activation-scope repo-local
+
+	repoChecksum=$(echo $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
+
 	cd $REPO_PATH
 	git init
 	git config user.name git-team-acceptance-test
@@ -97,14 +100,14 @@ teardown() {
 
 	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && git config --local commit.template"
 	assert_success
-	assert_line "/root/.config/git-team/$REPO_PATH/COMMIT_TEMPLATE"
+	assert_line "/root/.config/git-team/commit-templates/$repoChecksum/COMMIT_TEMPLATE"
 
 	/usr/local/bin/git-team config activation-scope global
 	cd -
 }
 
 @test "git-team: enable should provision the global commit template" {
-	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && cat /root/.config/git-team/COMMIT_TEMPLATE"
+	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && cat /root/.config/git-team/commit-templates/global/COMMIT_TEMPLATE"
 	assert_success
 	assert_line --index 0 'Co-authored-by: A <a@x.y>'
 	assert_line --index 1 'Co-authored-by: Ad-hoc <adhoc@tmp.se>'
@@ -114,12 +117,15 @@ teardown() {
 
 @test "git-team: enable should provision the repo-local commit template" {
 	/usr/local/bin/git-team config activation-scope repo-local
+
+	repoChecksum=$(echo $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
+
 	cd $REPO_PATH
 	git init
 	git config user.name git-team-acceptance-test
 	git config user.email foo@bar.baz
 
-	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && cat /root/.config/git-team/$REPO_PATH/COMMIT_TEMPLATE"
+	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && cat /root/.config/git-team/commit-templates/$repoChecksum/COMMIT_TEMPLATE"
 	assert_success
 	assert_line --index 0 'Co-authored-by: A <a@x.y>'
 	assert_line --index 1 'Co-authored-by: Ad-hoc <adhoc@tmp.se>'
