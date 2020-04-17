@@ -5,14 +5,14 @@ import (
 
 	"github.com/hekmekk/git-team/src/core/events"
 	giterror "github.com/hekmekk/git-team/src/core/gitconfig/error"
-	commitsettingsreader "github.com/hekmekk/git-team/src/shared/commitsettings/reader"
+	commitsettings "github.com/hekmekk/git-team/src/shared/commitsettings/interface"
 )
 
 // Dependencies the dependencies of the disable Policy module
 type Dependencies struct {
 	GitUnsetCommitTemplate func() error
 	GitUnsetHooksPath      func() error
-	CommitSettingsReader   commitsettingsreader.CommitSettingsReader
+	CommitSettingsReader   commitsettings.Reader
 	StatFile               func(string) (os.FileInfo, error)
 	RemoveFile             func(string) error
 	PersistDisabled        func() error

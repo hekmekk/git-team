@@ -6,13 +6,13 @@ import (
 
 	utils "github.com/hekmekk/git-team/src/command/enable/utils"
 	"github.com/hekmekk/git-team/src/core/events"
-	settingsreader "github.com/hekmekk/git-team/src/shared/commitsettings/reader"
+	commitsettings "github.com/hekmekk/git-team/src/shared/commitsettings/interface"
 )
 
 // Dependencies the dependencies of the enable Policy module
 type Dependencies struct {
 	SanityCheckCoauthors          func([]string) []error
-	CommitSettingsReader          settingsreader.CommitSettingsReader
+	CommitSettingsReader          commitsettings.Reader
 	CreateTemplateDir             func(path string, perm os.FileMode) error
 	WriteTemplateFile             func(path string, data []byte, mode os.FileMode) error
 	GitSetCommitTemplate          func(path string) error
