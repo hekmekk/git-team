@@ -49,7 +49,7 @@ teardown() {
 
 	/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>'
 
-	run bash -c "git config --get-regexp team.state | sort"
+	run bash -c "git config --local --get-regexp team.state | sort"
 	assert_success
 	assert_line --index 0 'team.state.active-coauthors A <a@x.y>'
 	assert_line --index 1 'team.state.active-coauthors Ad-hoc <adhoc@tmp.se>'
@@ -74,7 +74,7 @@ teardown() {
 	git config user.name git-team-acceptance-test
 	git config user.email foo@bar.baz
 
-	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && git config core.hooksPath"
+	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && git config --local core.hooksPath"
 	assert_success
 	assert_line '/usr/local/etc/git-team/hooks'
 
@@ -95,7 +95,7 @@ teardown() {
 	git config user.name git-team-acceptance-test
 	git config user.email foo@bar.baz
 
-	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && git config commit.template"
+	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && git config --local commit.template"
 	assert_success
 	assert_line "/root/.config/git-team/$REPO_PATH/COMMIT_TEMPLATE"
 
