@@ -1,8 +1,8 @@
 package enable
 
 import (
+	"fmt"
 	"os"
-	"path"
 
 	utils "github.com/hekmekk/git-team/src/command/enable/utils"
 	"github.com/hekmekk/git-team/src/core/events"
@@ -59,11 +59,11 @@ func (policy Policy) Apply() events.Event {
 		return Failed{Reason: []error{err}}
 	}
 
-	if err := setupTemplate(deps, settings.GitTeamCommitTemplatePath, uniqueCoauthors); err != nil {
+	if err := setupTemplate(deps, settings.TemplatesBaseDir, uniqueCoauthors); err != nil {
 		return Failed{Reason: []error{err}}
 	}
 
-	if err := deps.GitSetHooksPath(settings.GitTeamHooksPath); err != nil {
+	if err := deps.GitSetHooksPath(settings.HooksDir); err != nil {
 		return Failed{Reason: []error{err}}
 	}
 
@@ -104,12 +104,14 @@ func removeDuplicates(coauthors []string) []string {
 	return uniqueCoauthors
 }
 
-func setupTemplate(deps Dependencies, commitTemplatePath string, uniqueCoauthors []string) error {
-	commitTemplateDir := path.Dir(commitTemplatePath)
+func setupTemplate(deps Dependencies, commitTemplateBaseDir string, uniqueCoauthors []string) error {
+	templateDir := fmt.Sprintf("%s/global", commitTemplateBaseDir)
 
-	if err := deps.CreateTemplateDir(commitTemplateDir, os.ModePerm); err != nil {
+	if err := deps.CreateTemplateDir(templateDir, os.ModePerm); err != nil {
 		return err
 	}
+
+	commitTemplatePath := fmt.Sprintf("%s/COMMIT_TEMPLATE", templateDir)
 
 	if err := deps.WriteTemplateFile(commitTemplatePath, []byte(utils.PrepareForCommitMessage(uniqueCoauthors)), 0644); err != nil {
 		return err

@@ -19,7 +19,7 @@ func (mock commitSettingsReaderMock) Read() commitsettings.CommitSettings {
 	return mock.read()
 }
 
-var commitSettings = commitsettings.CommitSettings{GitTeamCommitTemplatePath: "/path/to/TEMPLATE_FILE", GitTeamHooksPath: "/path/to/git-team/hooks"}
+var commitSettings = commitsettings.CommitSettings{TemplatesBaseDir: "/path/to/commit-templates", HooksDir: "/path/to/hooks"}
 
 var commitSettingsReader = commitSettingsReaderMock{
 	read: func() commitsettings.CommitSettings {

@@ -25,7 +25,7 @@ var (
 	statFile             = func(string) (os.FileInfo, error) { return fileInfo, nil }
 	removeFile           = func(string) error { return nil }
 	persistDisabled      = func() error { return nil }
-	commitSettings       = commitsettingsentity.CommitSettings{GitTeamCommitTemplatePath: "/path/to/TEMPLATE_FILE", GitTeamHooksPath: "/path/to/git-team/hooks"}
+	commitSettings       = commitsettingsentity.CommitSettings{TemplatesBaseDir: "/path/to/commit-templates", HooksDir: "/path/to/hooks"}
 	commitSettingsReader = commitSettingsReaderMock{
 		read: func() entity.CommitSettings {
 			return commitSettings

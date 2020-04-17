@@ -14,8 +14,8 @@ func TestReadSucceeds(t *testing.T) {
 	deps := dependencies{getEnv: func(variable string) string { return home }}
 
 	expectedSettings := entity.CommitSettings{
-		GitTeamCommitTemplatePath: fmt.Sprintf("%s/.config/git-team/COMMIT_TEMPLATE", home),
-		GitTeamHooksPath:          "/usr/local/etc/git-team/hooks",
+		TemplatesBaseDir: fmt.Sprintf("%s/.config/git-team/commit-templates", home),
+		HooksDir:         "/usr/local/etc/git-team/hooks",
 	}
 
 	settings := newStaticValueDataSource(deps).Read()

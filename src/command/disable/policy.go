@@ -1,6 +1,7 @@
 package disable
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/hekmekk/git-team/src/core/events"
@@ -35,7 +36,7 @@ func (policy Policy) Apply() events.Event {
 		return Failed{Reason: err}
 	}
 
-	commitTemplatePath := deps.CommitSettingsReader.Read().GitTeamCommitTemplatePath
+	commitTemplatePath := fmt.Sprintf("%s/global/COMMIT_TEMPLATE", deps.CommitSettingsReader.Read().TemplatesBaseDir)
 
 	if _, err := deps.StatFile(commitTemplatePath); err == nil {
 		if err := deps.RemoveFile(commitTemplatePath); err != nil {
