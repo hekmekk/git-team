@@ -13,6 +13,7 @@ import (
 	staterepository "github.com/hekmekk/git-team/src/core/state_repository"
 	"github.com/hekmekk/git-team/src/core/validation"
 	commitsettingsds "github.com/hekmekk/git-team/src/shared/commitsettings/datasource"
+	configds "github.com/hekmekk/git-team/src/shared/config/datasource"
 )
 
 // Command the enable command
@@ -39,6 +40,7 @@ func policy(coauthors *[]string) enable.Policy {
 			GitResolveAliases:             commandadapter.ResolveAliases,
 			StateRepositoryPersistEnabled: staterepository.PersistEnabled,
 			CommitSettingsReader:          commitsettingsds.NewStaticValueDataSource(),
+			ConfigReader:                  configds.NewGitconfigDataSource(),
 		},
 	}
 }

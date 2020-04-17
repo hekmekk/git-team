@@ -7,6 +7,7 @@ import (
 	utils "github.com/hekmekk/git-team/src/command/enable/utils"
 	"github.com/hekmekk/git-team/src/core/events"
 	commitsettings "github.com/hekmekk/git-team/src/shared/commitsettings/interface"
+	config "github.com/hekmekk/git-team/src/shared/config/interface"
 )
 
 // Dependencies the dependencies of the enable Policy module
@@ -19,6 +20,7 @@ type Dependencies struct {
 	GitSetHooksPath               func(path string) error
 	GitResolveAliases             func(aliases []string) ([]string, []error)
 	StateRepositoryPersistEnabled func(coauthors []string) error
+	ConfigReader                  config.Reader
 }
 
 // Request the coauthors with which to enable git-team
@@ -51,6 +53,11 @@ func (policy Policy) Apply() events.Event {
 	uniqueCoauthors := removeDuplicates(coauthors)
 
 	settings := deps.CommitSettingsReader.Read()
+
+	_, err := deps.ConfigReader.Read()
+	if err != nil {
+		return Failed{Reason: []error{err}}
+	}
 
 	if err := setupTemplate(deps, settings.GitTeamCommitTemplatePath, uniqueCoauthors); err != nil {
 		return Failed{Reason: []error{err}}

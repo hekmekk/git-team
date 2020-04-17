@@ -6,23 +6,33 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hekmekk/git-team/src/shared/commitsettings/entity"
+	commitsettings "github.com/hekmekk/git-team/src/shared/commitsettings/entity"
+	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
 )
 
 type commitSettingsReaderMock struct {
-	read func() entity.CommitSettings
+	read func() commitsettings.CommitSettings
 }
 
-func (mock commitSettingsReaderMock) Read() entity.CommitSettings {
+func (mock commitSettingsReaderMock) Read() commitsettings.CommitSettings {
 	return mock.read()
 }
 
-var commitSettings = entity.CommitSettings{GitTeamCommitTemplatePath: "/path/to/TEMPLATE_FILE", GitTeamHooksPath: "/path/to/git-team/hooks"}
+var commitSettings = commitsettings.CommitSettings{GitTeamCommitTemplatePath: "/path/to/TEMPLATE_FILE", GitTeamHooksPath: "/path/to/git-team/hooks"}
 
 var commitSettingsReader = commitSettingsReaderMock{
-	read: func() entity.CommitSettings {
+	read: func() commitsettings.CommitSettings {
 		return commitSettings
 	},
+}
+
+type configReaderMock struct {
+	read func() (config.Config, error)
+}
+
+func (mock configReaderMock) Read() (config.Config, error) {
+	return mock.read()
 }
 
 func TestEnableAborted(t *testing.T) {
@@ -40,6 +50,8 @@ func TestEnableAborted(t *testing.T) {
 }
 
 func TestEnableSucceeds(t *testing.T) {
+	t.Parallel()
+
 	coauthors := &[]string{"Mr. Noujz <noujz@mr.se>", "mrs"}
 	expectedStateRepositoryPersistEnabledCoauthors := []string{"Mr. Noujz <noujz@mr.se>", "Mrs. Noujz <noujz@mrs.se>"}
 	expectedCommitTemplateCoauthors := "\n\nCo-authored-by: Mr. Noujz <noujz@mr.se>\nCo-authored-by: Mrs. Noujz <noujz@mrs.se>"
@@ -63,6 +75,14 @@ func TestEnableSucceeds(t *testing.T) {
 		return nil
 	}
 
+	// TODO: add variable parts needing assertions to this
+	cases := []struct {
+		scope activationscope.ActivationScope
+	}{
+		{activationscope.Global},
+		{activationscope.RepoLocal},
+	}
+
 	deps := Dependencies{
 		SanityCheckCoauthors:          func(coauthors []string) []error { return []error{} },
 		CreateTemplateDir:             CreateTemplateDir,
@@ -73,15 +93,31 @@ func TestEnableSucceeds(t *testing.T) {
 		StateRepositoryPersistEnabled: StateRepositoryPersistEnabled,
 		CommitSettingsReader:          commitSettingsReader,
 	}
-	req := Request{AliasesAndCoauthors: coauthors}
 
-	expectedEvent := Succeeded{}
+	for _, caseLoopVar := range cases {
+		scope := caseLoopVar.scope
 
-	event := Policy{deps, req}.Apply()
+		t.Run(scope.String(), func(t *testing.T) {
+			t.Parallel()
 
-	if !reflect.DeepEqual(expectedEvent, event) {
-		t.Errorf("expected: %s, got: %s", expectedEvent, event)
-		t.Fail()
+			deps.ConfigReader = &configReaderMock{
+				read: func() (config.Config, error) {
+					return config.Config{ActivationScope: scope}, nil
+				},
+			}
+
+			// TODO: add assertions for functions depending on global or repo-local (see acceptance test assertions)
+			req := Request{AliasesAndCoauthors: coauthors}
+
+			expectedEvent := Succeeded{}
+
+			event := Policy{deps, req}.Apply()
+
+			if !reflect.DeepEqual(expectedEvent, event) {
+				t.Errorf("expected: %s, got: %s", expectedEvent, event)
+				t.Fail()
+			}
+		})
 	}
 }
 
@@ -108,6 +144,11 @@ func TestEnableDropsDuplicateEntries(t *testing.T) {
 		}
 		return nil
 	}
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
 
 	deps := Dependencies{
 		SanityCheckCoauthors:          func(coauthors []string) []error { return []error{} },
@@ -118,6 +159,7 @@ func TestEnableDropsDuplicateEntries(t *testing.T) {
 		GitResolveAliases:             resolveAliases,
 		StateRepositoryPersistEnabled: StateRepositoryPersistEnabled,
 		CommitSettingsReader:          commitSettingsReader,
+		ConfigReader:                  configReader,
 	}
 	req := Request{AliasesAndCoauthors: &coauthors}
 
@@ -172,6 +214,38 @@ func TestEnableFailsDueToResolveAliasesErr(t *testing.T) {
 	}
 }
 
+func TestEnableFailsDueToConfigReaderError(t *testing.T) {
+	coauthors := &[]string{"Mr. Noujz <noujz@mr.se>"}
+
+	expectedErr := errors.New("Failed to read from config")
+
+	sanityCheck := func([]string) []error { return []error{} }
+	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{}, expectedErr
+		},
+	}
+
+	deps := Dependencies{
+		SanityCheckCoauthors: sanityCheck,
+		GitResolveAliases:    resolveAliases,
+		CommitSettingsReader: commitSettingsReader,
+		ConfigReader:         configReader,
+	}
+
+	req := Request{AliasesAndCoauthors: coauthors}
+
+	expectedEvent := Failed{Reason: []error{expectedErr}}
+
+	event := Policy{deps, req}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
+	}
+}
+
 func TestEnableFailsDueToCreateTemplateDirErr(t *testing.T) {
 	coauthors := []string{"Mr. Noujz <noujz@mr.se>"}
 
@@ -180,12 +254,18 @@ func TestEnableFailsDueToCreateTemplateDirErr(t *testing.T) {
 	sanityCheck := func([]string) []error { return []error{} }
 	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
 	CreateTemplateDir := func(string, os.FileMode) error { return expectedErr }
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
 
 	deps := Dependencies{
 		SanityCheckCoauthors: sanityCheck,
 		CreateTemplateDir:    CreateTemplateDir,
 		GitResolveAliases:    resolveAliases,
 		CommitSettingsReader: commitSettingsReader,
+		ConfigReader:         configReader,
 	}
 	req := Request{AliasesAndCoauthors: &coauthors}
 
@@ -208,6 +288,11 @@ func TestEnableFailsDueToWriteTemplateFileErr(t *testing.T) {
 	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
 	CreateTemplateDir := func(string, os.FileMode) error { return nil }
 	WriteTemplateFile := func(string, []byte, os.FileMode) error { return expectedErr }
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
 
 	deps := Dependencies{
 		SanityCheckCoauthors: sanityCheck,
@@ -215,6 +300,7 @@ func TestEnableFailsDueToWriteTemplateFileErr(t *testing.T) {
 		WriteTemplateFile:    WriteTemplateFile,
 		GitResolveAliases:    resolveAliases,
 		CommitSettingsReader: commitSettingsReader,
+		ConfigReader:         configReader,
 	}
 	req := Request{AliasesAndCoauthors: coauthors}
 
@@ -238,6 +324,11 @@ func TestEnableFailsDueToGitSetCommitTemplateErr(t *testing.T) {
 	CreateTemplateDir := func(string, os.FileMode) error { return nil }
 	WriteTemplateFile := func(string, []byte, os.FileMode) error { return nil }
 	GitSetCommitTemplate := func(string) error { return expectedErr }
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
 
 	deps := Dependencies{
 		SanityCheckCoauthors: sanityCheck,
@@ -246,6 +337,7 @@ func TestEnableFailsDueToGitSetCommitTemplateErr(t *testing.T) {
 		GitSetCommitTemplate: GitSetCommitTemplate,
 		GitResolveAliases:    resolveAliases,
 		CommitSettingsReader: commitSettingsReader,
+		ConfigReader:         configReader,
 	}
 	req := Request{AliasesAndCoauthors: coauthors}
 
@@ -270,6 +362,11 @@ func TestEnableFailsDueToSetHooksPathErr(t *testing.T) {
 	WriteTemplateFile := func(string, []byte, os.FileMode) error { return nil }
 	GitSetCommitTemplate := func(string) error { return nil }
 	setHooksPath := func(string) error { return expectedErr }
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
 
 	deps := Dependencies{
 		SanityCheckCoauthors: sanityCheck,
@@ -279,6 +376,7 @@ func TestEnableFailsDueToSetHooksPathErr(t *testing.T) {
 		GitSetCommitTemplate: GitSetCommitTemplate,
 		GitResolveAliases:    resolveAliases,
 		CommitSettingsReader: commitSettingsReader,
+		ConfigReader:         configReader,
 	}
 	req := Request{AliasesAndCoauthors: coauthors}
 
@@ -303,6 +401,11 @@ func TestEnableFailsDueToSaveStatusErr(t *testing.T) {
 	WriteTemplateFile := func(string, []byte, os.FileMode) error { return nil }
 	GitSetCommitTemplate := func(string) error { return nil }
 	setHooksPath := func(string) error { return expectedErr }
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
 
 	deps := Dependencies{
 		SanityCheckCoauthors:          sanityCheck,
@@ -312,6 +415,7 @@ func TestEnableFailsDueToSaveStatusErr(t *testing.T) {
 		GitSetCommitTemplate:          GitSetCommitTemplate,
 		GitResolveAliases:             resolveAliases,
 		CommitSettingsReader:          commitSettingsReader,
+		ConfigReader:                  configReader,
 		StateRepositoryPersistEnabled: func([]string) error { return expectedErr },
 	}
 
