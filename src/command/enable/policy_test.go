@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	commitsettings "github.com/hekmekk/git-team/src/shared/commitsettings/entity"
+	commitsettings "github.com/hekmekk/git-team/src/command/enable/commitsettings/entity"
 	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
 )

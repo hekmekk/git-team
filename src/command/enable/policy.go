@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	commitsettings "github.com/hekmekk/git-team/src/command/enable/commitsettings/interface"
 	utils "github.com/hekmekk/git-team/src/command/enable/utils"
 	"github.com/hekmekk/git-team/src/core/events"
-	commitsettings "github.com/hekmekk/git-team/src/shared/commitsettings/interface"
 	config "github.com/hekmekk/git-team/src/shared/config/interface"
 )
 

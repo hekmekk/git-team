@@ -8,11 +8,11 @@ import (
 
 	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/enable"
+	commitsettingsds "github.com/hekmekk/git-team/src/command/enable/commitsettings/datasource"
 	enableeventadapter "github.com/hekmekk/git-team/src/command/enable/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/core/gitconfig"
 	staterepository "github.com/hekmekk/git-team/src/core/state_repository"
 	"github.com/hekmekk/git-team/src/core/validation"
-	commitsettingsds "github.com/hekmekk/git-team/src/shared/commitsettings/datasource"
 	configds "github.com/hekmekk/git-team/src/shared/config/datasource"
 )
 
