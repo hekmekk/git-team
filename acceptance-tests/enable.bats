@@ -100,7 +100,7 @@ teardown() {
 
 	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && git config --local commit.template"
 	assert_success
-	assert_line "/root/.config/git-team/commit-templates/$repoChecksum/COMMIT_TEMPLATE"
+	assert_line "/root/.config/git-team/commit-templates/repo-local/$repoChecksum/COMMIT_TEMPLATE"
 
 	/usr/local/bin/git-team config activation-scope global
 	cd -
@@ -125,7 +125,7 @@ teardown() {
 	git config user.name git-team-acceptance-test
 	git config user.email foo@bar.baz
 
-	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && cat /root/.config/git-team/commit-templates/$repoChecksum/COMMIT_TEMPLATE"
+	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && cat /root/.config/git-team/commit-templates/repo-local/$repoChecksum/COMMIT_TEMPLATE"
 	assert_success
 	assert_line --index 0 'Co-authored-by: A <a@x.y>'
 	assert_line --index 1 'Co-authored-by: Ad-hoc <adhoc@tmp.se>'
