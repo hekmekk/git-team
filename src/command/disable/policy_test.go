@@ -2,45 +2,73 @@ package disable
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"reflect"
 	"testing"
-
-	"github.com/hekmekk/git-team/src/shared/commitsettings/entity"
-	commitsettingsentity "github.com/hekmekk/git-team/src/shared/commitsettings/entity"
 )
 
-type commitSettingsReaderMock struct {
-	read func() entity.CommitSettings
+type gitSettingsReaderMock struct {
+	get func(key string) (string, error)
 }
 
-func (mock commitSettingsReaderMock) Read() entity.CommitSettings {
-	return mock.read()
+func (mock gitSettingsReaderMock) Get(key string) (string, error) {
+	return mock.get(key)
+}
+
+type gitSettingsWriterMock struct {
+	unset func(key string) error
+}
+
+func (mock gitSettingsWriterMock) Unset(key string) error {
+	return mock.unset(key)
+}
+
+func (mock gitSettingsWriterMock) Set(key string, value string) error {
+	return nil
 }
 
 var (
-	unsetCommitTemplate  = func() error { return nil }
-	unsetHooksPath       = func() error { return nil }
-	fileInfo             os.FileInfo
-	statFile             = func(string) (os.FileInfo, error) { return fileInfo, nil }
-	removeFile           = func(string) error { return nil }
-	persistDisabled      = func() error { return nil }
-	commitSettings       = commitsettingsentity.CommitSettings{TemplatesBaseDir: "/path/to/commit-templates", HooksDir: "/path/to/hooks"}
-	commitSettingsReader = commitSettingsReaderMock{
-		read: func() entity.CommitSettings {
-			return commitSettings
-		},
-	}
+	fileInfo        os.FileInfo
+	statFile        = func(string) (os.FileInfo, error) { return fileInfo, nil }
+	removeFile      = func(string) error { return nil }
+	persistDisabled = func() error { return nil }
 )
 
 func TestDisableSucceeds(t *testing.T) {
+	templatePath := "/path/to/template"
+
+	gitSettingsReader := &gitSettingsReaderMock{
+		get: func(key string) (string, error) {
+			return templatePath, nil
+		},
+	}
+
+	gitSettingsWriter := &gitSettingsWriterMock{
+		unset: func(key string) error {
+			switch key {
+			case "commit.template":
+				return nil
+			case "core.hooksPath":
+				return nil
+			default:
+				return fmt.Errorf("wrong key: %s", key)
+			}
+		},
+	}
+
 	deps := Dependencies{
-		GitUnsetHooksPath:      unsetHooksPath,
-		GitUnsetCommitTemplate: unsetCommitTemplate,
-		CommitSettingsReader:   commitSettingsReader,
-		StatFile:               statFile,
-		RemoveFile:             removeFile,
-		PersistDisabled:        persistDisabled,
+		GitSettingsReader: gitSettingsReader,
+		GitSettingsWriter: gitSettingsWriter,
+		StatFile:          statFile,
+		RemoveFile: func(path string) error {
+			if path != templatePath {
+				t.Errorf("trying to delete the wrong commit template file at path: %s", path)
+				t.Fail()
+			}
+			return nil
+		},
+		PersistDisabled: persistDisabled,
 	}
 
 	expectedEvent := Succeeded{}
@@ -54,14 +82,32 @@ func TestDisableSucceeds(t *testing.T) {
 }
 
 func TestDisableShouldSucceedWhenUnsetHooksPathFailsBecauseTheOptionDoesntExist(t *testing.T) {
+	gitSettingsReader := &gitSettingsReaderMock{
+		get: func(key string) (string, error) {
+			return "/path/to/template", nil
+		},
+	}
+
 	expectedErr := errors.New("exit status 5")
+	gitSettingsWriter := &gitSettingsWriterMock{
+		unset: func(key string) error {
+			switch key {
+			case "commit.template":
+				return nil
+			case "core.hooksPath":
+				return expectedErr
+			default:
+				return fmt.Errorf("wrong key: %s", key)
+			}
+		},
+	}
+
 	deps := Dependencies{
-		GitUnsetHooksPath:      func() error { return expectedErr },
-		GitUnsetCommitTemplate: unsetCommitTemplate,
-		CommitSettingsReader:   commitSettingsReader,
-		StatFile:               statFile,
-		RemoveFile:             removeFile,
-		PersistDisabled:        persistDisabled,
+		GitSettingsReader: gitSettingsReader,
+		GitSettingsWriter: gitSettingsWriter,
+		StatFile:          statFile,
+		RemoveFile:        removeFile,
+		PersistDisabled:   persistDisabled,
 	}
 
 	expectedEvent := Succeeded{}
@@ -75,13 +121,100 @@ func TestDisableShouldSucceedWhenUnsetHooksPathFailsBecauseTheOptionDoesntExist(
 }
 
 func TestDisableShouldFailWhenUnsetHooksPathFails(t *testing.T) {
-	err := errors.New("failed to unset hooks path")
-
-	deps := Dependencies{
-		GitUnsetHooksPath: func() error { return err },
+	expectedErr := errors.New("failed to unset hooks path")
+	gitSettingsWriter := &gitSettingsWriterMock{
+		unset: func(key string) error {
+			switch key {
+			case "commit.template":
+				return nil
+			case "core.hooksPath":
+				return expectedErr
+			default:
+				return fmt.Errorf("wrong key: %s", key)
+			}
+		},
 	}
 
-	expectedEvent := Failed{Reason: err}
+	deps := Dependencies{
+		GitSettingsWriter: gitSettingsWriter,
+	}
+
+	expectedEvent := Failed{Reason: expectedErr}
+
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
+	}
+}
+
+func TestDisableShouldSucceedWhenReadingCommitTemplateFailsBecauseItHasBeenUnsetAlready(t *testing.T) {
+	expectedErr := errors.New("exit status 1")
+	gitSettingsReader := &gitSettingsReaderMock{
+		get: func(key string) (string, error) {
+			return "", expectedErr
+		},
+	}
+
+	gitSettingsWriter := &gitSettingsWriterMock{
+		unset: func(key string) error {
+			switch key {
+			case "commit.template":
+				return nil
+			case "core.hooksPath":
+				return nil
+			default:
+				return fmt.Errorf("wrong key: %s", key)
+			}
+		},
+	}
+
+	deps := Dependencies{
+		GitSettingsReader: gitSettingsReader,
+		GitSettingsWriter: gitSettingsWriter,
+		StatFile:          statFile,
+		RemoveFile:        removeFile,
+		PersistDisabled:   persistDisabled,
+	}
+
+	expectedEvent := Succeeded{}
+
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
+	}
+}
+
+func TestDisableShouldFailWhenReadingCommitTemplatePathFails(t *testing.T) {
+	expectedErr := errors.New("failed to get commit.template")
+	gitSettingsReader := &gitSettingsReaderMock{
+		get: func(key string) (string, error) {
+			return "", expectedErr
+		},
+	}
+
+	gitSettingsWriter := &gitSettingsWriterMock{
+		unset: func(key string) error {
+			switch key {
+			case "commit.template":
+				return nil
+			case "core.hooksPath":
+				return nil
+			default:
+				return fmt.Errorf("wrong key: %s", key)
+			}
+		},
+	}
+
+	deps := Dependencies{
+		GitSettingsReader: gitSettingsReader,
+		GitSettingsWriter: gitSettingsWriter,
+	}
+
+	expectedEvent := Failed{Reason: expectedErr}
 
 	event := Policy{deps}.Apply()
 
@@ -92,15 +225,32 @@ func TestDisableShouldFailWhenUnsetHooksPathFails(t *testing.T) {
 }
 
 func TestDisableShouldSucceedWhenUnsetCommitTemplateFailsBecauseItWasUnsetAlready(t *testing.T) {
-	err := errors.New("exit status 5")
+	gitSettingsReader := &gitSettingsReaderMock{
+		get: func(key string) (string, error) {
+			return "/path/to/template", nil
+		},
+	}
+
+	expectedErr := errors.New("exit status 5")
+	gitSettingsWriter := &gitSettingsWriterMock{
+		unset: func(key string) error {
+			switch key {
+			case "commit.template":
+				return expectedErr
+			case "core.hooksPath":
+				return nil
+			default:
+				return fmt.Errorf("wrong key: %s", key)
+			}
+		},
+	}
 
 	deps := Dependencies{
-		GitUnsetHooksPath:      unsetHooksPath,
-		GitUnsetCommitTemplate: func() error { return err },
-		CommitSettingsReader:   commitSettingsReader,
-		StatFile:               statFile,
-		RemoveFile:             removeFile,
-		PersistDisabled:        persistDisabled,
+		GitSettingsReader: gitSettingsReader,
+		GitSettingsWriter: gitSettingsWriter,
+		StatFile:          statFile,
+		RemoveFile:        removeFile,
+		PersistDisabled:   persistDisabled,
 	}
 
 	expectedEvent := Succeeded{}
@@ -114,14 +264,32 @@ func TestDisableShouldSucceedWhenUnsetCommitTemplateFailsBecauseItWasUnsetAlread
 }
 
 func TestDisableShouldFailWhenUnsetCommitTemplateFails(t *testing.T) {
-	err := errors.New("failed to unset commit template")
-
-	deps := Dependencies{
-		GitUnsetHooksPath:      unsetHooksPath,
-		GitUnsetCommitTemplate: func() error { return err },
+	gitSettingsReader := &gitSettingsReaderMock{
+		get: func(key string) (string, error) {
+			return "/path/to/template", nil
+		},
 	}
 
-	expectedEvent := Failed{Reason: err}
+	expectedErr := errors.New("failed to unset commit template")
+	gitSettingsWriter := &gitSettingsWriterMock{
+		unset: func(key string) error {
+			switch key {
+			case "commit.template":
+				return expectedErr
+			case "core.hooksPath":
+				return nil
+			default:
+				return fmt.Errorf("wrong key: %s", key)
+			}
+		},
+	}
+
+	deps := Dependencies{
+		GitSettingsReader: gitSettingsReader,
+		GitSettingsWriter: gitSettingsWriter,
+	}
+
+	expectedEvent := Failed{Reason: expectedErr}
 
 	event := Policy{deps}.Apply()
 
@@ -132,14 +300,32 @@ func TestDisableShouldFailWhenUnsetCommitTemplateFails(t *testing.T) {
 }
 
 func TestDisableShouldFailWhenRemoveFileFails(t *testing.T) {
+	gitSettingsReader := &gitSettingsReaderMock{
+		get: func(key string) (string, error) {
+			return "/path/to/template", nil
+		},
+	}
+
+	gitSettingsWriter := &gitSettingsWriterMock{
+		unset: func(key string) error {
+			switch key {
+			case "commit.template":
+				return nil
+			case "core.hooksPath":
+				return nil
+			default:
+				return fmt.Errorf("wrong key: %s", key)
+			}
+		},
+	}
+
 	err := errors.New("failed to remove file")
 
 	deps := Dependencies{
-		GitUnsetHooksPath:      unsetHooksPath,
-		GitUnsetCommitTemplate: unsetCommitTemplate,
-		CommitSettingsReader:   commitSettingsReader,
-		StatFile:               statFile,
-		RemoveFile:             func(string) error { return err },
+		GitSettingsReader: gitSettingsReader,
+		GitSettingsWriter: gitSettingsWriter,
+		StatFile:          statFile,
+		RemoveFile:        func(string) error { return err },
 	}
 
 	expectedEvent := Failed{Reason: err}
@@ -153,12 +339,29 @@ func TestDisableShouldFailWhenRemoveFileFails(t *testing.T) {
 }
 
 func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenStatFileFails(t *testing.T) {
+	gitSettingsReader := &gitSettingsReaderMock{
+		get: func(key string) (string, error) {
+			return "/path/to/template", nil
+		},
+	}
+
+	gitSettingsWriter := &gitSettingsWriterMock{
+		unset: func(key string) error {
+			switch key {
+			case "commit.template":
+				return nil
+			case "core.hooksPath":
+				return nil
+			default:
+				return fmt.Errorf("wrong key: %s", key)
+			}
+		},
+	}
 	deps := Dependencies{
-		GitUnsetHooksPath:      unsetHooksPath,
-		GitUnsetCommitTemplate: unsetCommitTemplate,
-		CommitSettingsReader:   commitSettingsReader,
-		StatFile:               func(string) (os.FileInfo, error) { return fileInfo, errors.New("failed to stat file") },
-		PersistDisabled:        persistDisabled,
+		GitSettingsReader: gitSettingsReader,
+		GitSettingsWriter: gitSettingsWriter,
+		StatFile:          func(string) (os.FileInfo, error) { return fileInfo, errors.New("failed to stat file") },
+		PersistDisabled:   persistDisabled,
 	}
 
 	expectedEvent := Succeeded{}
@@ -172,18 +375,35 @@ func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenStatFileF
 }
 
 func TestDisableShouldFailWhenpersistDisabledFails(t *testing.T) {
-	err := errors.New("failed to save status")
-
-	deps := Dependencies{
-		GitUnsetHooksPath:      unsetHooksPath,
-		GitUnsetCommitTemplate: unsetCommitTemplate,
-		CommitSettingsReader:   commitSettingsReader,
-		StatFile:               statFile,
-		RemoveFile:             removeFile,
-		PersistDisabled:        func() error { return err },
+	gitSettingsReader := &gitSettingsReaderMock{
+		get: func(key string) (string, error) {
+			return "/path/to/template", nil
+		},
 	}
 
-	expectedEvent := Failed{Reason: err}
+	gitSettingsWriter := &gitSettingsWriterMock{
+		unset: func(key string) error {
+			switch key {
+			case "commit.template":
+				return nil
+			case "core.hooksPath":
+				return nil
+			default:
+				return fmt.Errorf("wrong key: %s", key)
+			}
+		},
+	}
+
+	expectedErr := errors.New("failed to save status")
+	deps := Dependencies{
+		GitSettingsReader: gitSettingsReader,
+		GitSettingsWriter: gitSettingsWriter,
+		StatFile:          statFile,
+		RemoveFile:        removeFile,
+		PersistDisabled:   func() error { return expectedErr },
+	}
+
+	expectedEvent := Failed{Reason: expectedErr}
 
 	event := Policy{deps}.Apply()
 

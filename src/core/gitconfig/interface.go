@@ -8,4 +8,5 @@ type SettingsReader interface {
 // SettingsWriter modify git configuration settings
 type SettingsWriter interface {
 	Set(key string, value string) error
+	Unset(key string) error
 }

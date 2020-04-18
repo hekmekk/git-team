@@ -16,6 +16,10 @@ func (mock gitconfigRawWriterMock) Set(key string, value string) error {
 	return mock.set(key, value)
 }
 
+func (mock gitconfigRawWriterMock) Unset(key string) error {
+	return nil
+}
+
 func TestSetActivationScopeSucceeds(t *testing.T) {
 	rawWriter := gitconfigRawWriterMock{
 		set: func(key string, value string) error {

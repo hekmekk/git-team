@@ -27,3 +27,8 @@ func NewDataSink() DataSink {
 func (ds DataSink) Set(key string, value string) error {
 	return ReplaceAll(key, value)
 }
+
+// Unset remove a setting
+func (ds DataSink) Unset(key string) error {
+	return UnsetAll(key)
+}
