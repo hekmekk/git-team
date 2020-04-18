@@ -400,7 +400,7 @@ func TestEnableFailsDueToSaveStatusErr(t *testing.T) {
 	CreateTemplateDir := func(string, os.FileMode) error { return nil }
 	WriteTemplateFile := func(string, []byte, os.FileMode) error { return nil }
 	GitSetCommitTemplate := func(string) error { return nil }
-	setHooksPath := func(string) error { return expectedErr }
+	setHooksPath := func(string) error { return nil }
 	configReader := &configReaderMock{
 		read: func() (config.Config, error) {
 			return config.Config{ActivationScope: activationscope.Global}, nil
