@@ -1,8 +1,7 @@
 package gitconfig
 
 // DataSource read data directly from gitconfig
-type DataSource struct {
-}
+type DataSource struct{}
 
 // NewDataSource construct new DataSource
 func NewDataSource() DataSource {
@@ -15,8 +14,7 @@ func (ds DataSource) Get(key string) (string, error) {
 }
 
 // DataSink write data directly to gitconfig
-type DataSink struct {
-}
+type DataSink struct{}
 
 // NewDataSink construct new DataSink
 func NewDataSink() DataSink {
