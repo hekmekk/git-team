@@ -6,9 +6,6 @@ import (
 	"strings"
 )
 
-const commitTemplate = "commit.template"
-const teamAlias = "team.alias"
-
 // Get git config --global --get <key>
 func Get(key string) (string, error) {
 	return get(execGitConfig)(key)
