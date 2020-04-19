@@ -8,20 +8,36 @@ import (
 )
 
 func TestShouldExecuteGitConfigWithTheExpectedCommandLineArguments(t *testing.T) {
-	staticArgs := []string{"config", "--global"}
-	providedArgs := []string{"--one", "--two"}
-	expectedArgs := append(staticArgs, providedArgs...)
+	t.Parallel()
 
-	executor := func(args ...string) ([]byte, error) {
-		if !reflect.DeepEqual(expectedArgs, args) {
-			t.Errorf("expected: %s, received: %s", expectedArgs, args)
-			t.Fail()
-		}
-
-		return nil, nil
+	cases := []struct {
+		scope             Scope
+		expectedScopeFlag string
+	}{
+		{Global, "--global"},
+		{Local, "--local"},
 	}
 
-	execGitConfigFactory(executor)(providedArgs...)
+	for _, caseLoopVar := range cases {
+		scope := caseLoopVar.scope
+		expectedScopeFlag := caseLoopVar.expectedScopeFlag
+
+		t.Run(scope.String(), func(t *testing.T) {
+			providedOptions := []string{"--one", "--two"}
+			expectedOptions := append([]string{expectedScopeFlag}, providedOptions...)
+
+			executor := func(args ...string) ([]byte, error) {
+				if !reflect.DeepEqual(expectedOptions, args) {
+					t.Errorf("expected: %s, received: %s", expectedOptions, args)
+					t.Fail()
+				}
+
+				return nil, nil
+			}
+
+			execGitConfigFactory(executor)(scope, providedOptions...)
+		})
+	}
 }
 
 func TestShouldReturnTheTwoLines(t *testing.T) {
@@ -32,7 +48,7 @@ func TestShouldReturnTheTwoLines(t *testing.T) {
 		return out, nil
 	}
 
-	lines, err := execGitConfigFactory(executor)("")
+	lines, err := execGitConfigFactory(executor)(Global, "")
 	if err != nil {
 		t.Error(err)
 		t.Fail()
@@ -51,7 +67,7 @@ func TestShouldReturnNoLines(t *testing.T) {
 		return []byte(""), nil
 	}
 
-	lines, err := execGitConfigFactory(executor)("")
+	lines, err := execGitConfigFactory(executor)(Global, "")
 	if err != nil {
 		t.Error(err)
 		t.Fail()
@@ -70,7 +86,7 @@ func TestShouldReturnAnError(t *testing.T) {
 		return nil, errors.New("executing the git config command failed")
 	}
 
-	lines, err := execGitConfigFactory(executor)("")
+	lines, err := execGitConfigFactory(executor)(Global, "")
 	if err == nil {
 		t.Error("expected an error")
 		t.Fail()

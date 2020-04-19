@@ -74,16 +74,16 @@ func getRegexp(exec func(...string) ([]string, error)) func(string) (map[string]
 
 // execute /usr/bin/env git config --global <args>
 func execGitConfig(args ...string) ([]string, error) {
-	exec := func(theArgs ...string) ([]byte, error) {
-		return exec.Command("/usr/bin/env", append([]string{"git"}, theArgs...)...).CombinedOutput()
+	gitConfigCommand := func(additionalArgs ...string) ([]byte, error) {
+		return exec.Command("/usr/bin/env", append([]string{"git", "config"}, additionalArgs...)...).CombinedOutput()
 	}
 
-	return execGitConfigFactory(exec)(args...)
+	return execGitConfigFactory(gitConfigCommand)(Global, args...)
 }
 
-func execGitConfigFactory(cmd func(...string) ([]byte, error)) func(...string) ([]string, error) {
-	return func(args ...string) ([]string, error) {
-		gitArgs := append([]string{"config", "--global"}, args...)
+func execGitConfigFactory(cmd func(...string) ([]byte, error)) func(Scope, ...string) ([]string, error) {
+	return func(scope Scope, args ...string) ([]string, error) {
+		gitArgs := append([]string{scope.Flag()}, args...)
 
 		out, err := cmd(gitArgs...)
 

@@ -17,3 +17,12 @@ func (scope Scope) String() string {
 
 	return names[scope]
 }
+
+// Flag translate the gitconfig scope to the respective flag
+func (scope Scope) Flag() string {
+	flags := [...]string{
+		"--global",
+		"--local"}
+
+	return flags[scope]
+}
