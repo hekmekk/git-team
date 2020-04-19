@@ -43,7 +43,7 @@ func TestLoadSucceeds(t *testing.T) {
 					return rawGitConfigScope, nil
 				},
 			}
-			cfg, _ := newGitconfigDataSource(rawReader).Read()
+			cfg, _ := NewGitconfigDataSource(rawReader).Read()
 
 			if !reflect.DeepEqual(expectedCfg, cfg) {
 				t.Errorf("expected: %s, received %s", expectedCfg, cfg)
@@ -67,7 +67,7 @@ func TestLoadSucceedsWhenActivationScopeIsUnsetInGitconfig(t *testing.T) {
 		},
 	}
 
-	cfg, err := newGitconfigDataSource(rawReader).Read()
+	cfg, err := NewGitconfigDataSource(rawReader).Read()
 
 	if err != nil {
 		t.Errorf("expected no error, received: %s", err)
@@ -90,7 +90,7 @@ func TestLoadFailsWhenReadingFromGitconfigFails(t *testing.T) {
 			return "", errors.New("reading from gitconfig failed")
 		},
 	}
-	cfg, err := newGitconfigDataSource(rawReader).Read()
+	cfg, err := NewGitconfigDataSource(rawReader).Read()
 
 	if err == nil {
 		t.Errorf("expected error, received %s", cfg)
@@ -108,7 +108,7 @@ func TestLoadFailsWhenActivationScopeFromGitconfigIsUnknown(t *testing.T) {
 			return "unknown", nil
 		},
 	}
-	cfg, err := newGitconfigDataSource(rawReader).Read()
+	cfg, err := NewGitconfigDataSource(rawReader).Read()
 
 	if err == nil {
 		t.Errorf("expected error, received %s", cfg)

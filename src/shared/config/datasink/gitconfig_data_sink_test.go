@@ -8,21 +8,21 @@ import (
 	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
 )
 
-type gitconfigRawWriterMock struct {
-	set func(key string, value string) error
+type gitConfigWriterMock struct {
+	replaceAll func(key string, value string) error
 }
 
-func (mock gitconfigRawWriterMock) Set(key string, value string) error {
-	return mock.set(key, value)
+func (mock gitConfigWriterMock) ReplaceAll(key string, value string) error {
+	return mock.replaceAll(key, value)
 }
 
-func (mock gitconfigRawWriterMock) Unset(key string) error {
+func (mock gitConfigWriterMock) UnsetAll(key string) error {
 	return nil
 }
 
 func TestSetActivationScopeSucceeds(t *testing.T) {
-	rawWriter := gitconfigRawWriterMock{
-		set: func(key string, value string) error {
+	gitConfigWriter := gitConfigWriterMock{
+		replaceAll: func(key string, value string) error {
 			if key != "team.config.activation-scope" {
 				return errors.New("wrong key")
 			}
@@ -30,7 +30,7 @@ func TestSetActivationScopeSucceeds(t *testing.T) {
 		},
 	}
 
-	err := newGitconfigDataSink(rawWriter).SetActivationScope(activationscope.RepoLocal)
+	err := NewGitconfigDataSink(gitConfigWriter).SetActivationScope(activationscope.RepoLocal)
 
 	if err != nil {
 		t.Errorf("expected: no error, received: '%s'", err)
@@ -41,8 +41,8 @@ func TestSetActivationScopeSucceeds(t *testing.T) {
 func TestSetActivationScopeFails(t *testing.T) {
 	expectedErr := errors.New("gitconfig failed")
 
-	rawWriter := gitconfigRawWriterMock{
-		set: func(key string, value string) error {
+	gitConfigWriter := gitConfigWriterMock{
+		replaceAll: func(key string, value string) error {
 			if key != "team.config.activation-scope" {
 				return errors.New("wrong key")
 			}
@@ -50,7 +50,7 @@ func TestSetActivationScopeFails(t *testing.T) {
 		},
 	}
 
-	err := newGitconfigDataSink(rawWriter).SetActivationScope(activationscope.RepoLocal)
+	err := NewGitconfigDataSink(gitConfigWriter).SetActivationScope(activationscope.RepoLocal)
 
 	if !reflect.DeepEqual(expectedErr, err) {
 		t.Errorf("expected: '%s', received: '%s'", expectedErr, err)

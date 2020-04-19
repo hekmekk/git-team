@@ -8,6 +8,7 @@ import (
 	configpolicy "github.com/hekmekk/git-team/src/command/config/policy"
 	configdatasink "github.com/hekmekk/git-team/src/shared/config/datasink"
 	configdatasource "github.com/hekmekk/git-team/src/shared/config/datasource"
+	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
 )
 
 // Command the config command
@@ -28,8 +29,8 @@ func policy(key *string, value *string) configpolicy.Policy {
 			Value: value,
 		},
 		Deps: configpolicy.Dependencies{
-			ConfigReader: configdatasource.NewGitconfigDataSource(),
-			ConfigWriter: configdatasink.NewGitconfigDataSink(),
+			ConfigReader: configdatasource.NewGitconfigDataSource(gitconfig.NewDataSource()),
+			ConfigWriter: configdatasink.NewGitconfigDataSink(gitconfig.NewDataSink()),
 		},
 	}
 }

@@ -1,26 +1,21 @@
 package datasink
 
 import (
-	coregitconfig "github.com/hekmekk/git-team/src/core/gitconfig"
 	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
 )
 
 // GitconfigDataSink writes configuration to gitconfig
 type GitconfigDataSink struct {
-	GitSettingsWriter coregitconfig.SettingsWriter
+	GitConfigWriter gitconfig.Writer
 }
 
 // NewGitconfigDataSink constructs new GitconfigDataSink
-func NewGitconfigDataSink() GitconfigDataSink {
-	return newGitconfigDataSink(coregitconfig.NewDataSink())
-}
-
-// for tests
-func newGitconfigDataSink(gitSettingsWriter coregitconfig.SettingsWriter) GitconfigDataSink {
-	return GitconfigDataSink{GitSettingsWriter: gitSettingsWriter}
+func NewGitconfigDataSink(gitConfigWriter gitconfig.Writer) GitconfigDataSink {
+	return GitconfigDataSink{GitConfigWriter: gitConfigWriter}
 }
 
 // SetActivationScope write activation-scope setting to gitconfig
 func (ds GitconfigDataSink) SetActivationScope(scope activationscope.ActivationScope) error {
-	return ds.GitSettingsWriter.Set("team.config.activation-scope", scope.String())
+	return ds.GitConfigWriter.ReplaceAll("team.config.activation-scope", scope.String())
 }

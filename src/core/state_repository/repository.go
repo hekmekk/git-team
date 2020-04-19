@@ -4,8 +4,8 @@ import (
 	"errors"
 
 	"github.com/hekmekk/git-team/src/core/gitconfig"
-	giterror "github.com/hekmekk/git-team/src/core/gitconfig/error"
 	"github.com/hekmekk/git-team/src/core/state"
+	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 )
 
 // Query read the current state from file

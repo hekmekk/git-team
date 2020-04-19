@@ -5,7 +5,7 @@ import (
 
 	"github.com/hekmekk/git-team/src/core/assignment"
 	"github.com/hekmekk/git-team/src/core/events"
-	"github.com/hekmekk/git-team/src/core/gitconfig/error"
+	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 )
 
 // Dependencies the dependencies of the list Policy module
@@ -23,7 +23,7 @@ func (policy Policy) Apply() events.Event {
 	deps := policy.Deps
 
 	aliasCoauthorMap, err := deps.GitGetAssignments()
-	if err != nil && err.Error() != gitconfigerror.SectionOrKeyIsInvalid {
+	if err != nil && err.Error() != giterror.SectionOrKeyIsInvalid {
 		return RetrievalFailed{Reason: err}
 	}
 

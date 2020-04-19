@@ -3,29 +3,24 @@ package datasource
 import (
 	"fmt"
 
-	coregitconfig "github.com/hekmekk/git-team/src/core/gitconfig"
-	giterror "github.com/hekmekk/git-team/src/core/gitconfig/error"
 	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
+	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
+	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
 )
 
 // GitconfigDataSource reads configuration from git config
 type GitconfigDataSource struct {
-	GitSettingsReader coregitconfig.SettingsReader
+	GitConfigReader gitconfig.Reader
 }
 
 // NewGitconfigDataSource constructs new GitconfigDataSource
-func NewGitconfigDataSource() GitconfigDataSource {
-	return newGitconfigDataSource(coregitconfig.NewDataSource())
-}
-
-// for tests
-func newGitconfigDataSource(gitSettingsReader coregitconfig.SettingsReader) GitconfigDataSource {
+func NewGitconfigDataSource(gitSettingsReader gitconfig.Reader) GitconfigDataSource {
 	return GitconfigDataSource{gitSettingsReader}
 }
 
 func (ds GitconfigDataSource) Read() (config.Config, error) {
-	rawScope, err := ds.GitSettingsReader.Get("team.config.activation-scope")
+	rawScope, err := ds.GitConfigReader.Get("team.config.activation-scope")
 
 	if err != nil && err.Error() == giterror.SectionOrKeyIsInvalid {
 		return config.Config{ActivationScope: activationscope.Global}, nil

@@ -8,6 +8,7 @@ import (
 	statuseventadapter "github.com/hekmekk/git-team/src/command/status/interfaceadapter/event"
 	staterepository "github.com/hekmekk/git-team/src/core/state_repository"
 	config "github.com/hekmekk/git-team/src/shared/config/datasource"
+	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
 )
 
 // Command the status command
@@ -24,7 +25,7 @@ func Policy() status.Policy {
 	return status.Policy{
 		Deps: status.Dependencies{
 			StateRepositoryQuery: staterepository.Query,
-			ConfigReader:         config.NewGitconfigDataSource(),
+			ConfigReader:         config.NewGitconfigDataSource(gitconfig.NewDataSource()),
 		},
 	}
 }

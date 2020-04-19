@@ -8,23 +8,23 @@ import (
 	"testing"
 )
 
-type gitSettingsReaderMock struct {
+type gitConfigReaderMock struct {
 	get func(key string) (string, error)
 }
 
-func (mock gitSettingsReaderMock) Get(key string) (string, error) {
+func (mock gitConfigReaderMock) Get(key string) (string, error) {
 	return mock.get(key)
 }
 
-type gitSettingsWriterMock struct {
-	unset func(key string) error
+type gitConfigWriterMock struct {
+	unsetAll func(key string) error
 }
 
-func (mock gitSettingsWriterMock) Unset(key string) error {
-	return mock.unset(key)
+func (mock gitConfigWriterMock) UnsetAll(key string) error {
+	return mock.unsetAll(key)
 }
 
-func (mock gitSettingsWriterMock) Set(key string, value string) error {
+func (mock gitConfigWriterMock) ReplaceAll(key string, value string) error {
 	return nil
 }
 
@@ -38,14 +38,14 @@ var (
 func TestDisableSucceeds(t *testing.T) {
 	templatePath := "/path/to/template"
 
-	gitSettingsReader := &gitSettingsReaderMock{
+	gitConfigReader := &gitConfigReaderMock{
 		get: func(key string) (string, error) {
 			return templatePath, nil
 		},
 	}
 
-	gitSettingsWriter := &gitSettingsWriterMock{
-		unset: func(key string) error {
+	gitConfigWriter := &gitConfigWriterMock{
+		unsetAll: func(key string) error {
 			switch key {
 			case "commit.template":
 				return nil
@@ -58,9 +58,9 @@ func TestDisableSucceeds(t *testing.T) {
 	}
 
 	deps := Dependencies{
-		GitSettingsReader: gitSettingsReader,
-		GitSettingsWriter: gitSettingsWriter,
-		StatFile:          statFile,
+		GitConfigReader: gitConfigReader,
+		GitConfigWriter: gitConfigWriter,
+		StatFile:        statFile,
 		RemoveFile: func(path string) error {
 			if path != templatePath {
 				t.Errorf("trying to delete the wrong commit template file at path: %s", path)
@@ -82,15 +82,15 @@ func TestDisableSucceeds(t *testing.T) {
 }
 
 func TestDisableShouldSucceedWhenUnsetHooksPathFailsBecauseTheOptionDoesntExist(t *testing.T) {
-	gitSettingsReader := &gitSettingsReaderMock{
+	gitConfigReader := &gitConfigReaderMock{
 		get: func(key string) (string, error) {
 			return "/path/to/template", nil
 		},
 	}
 
 	expectedErr := errors.New("exit status 5")
-	gitSettingsWriter := &gitSettingsWriterMock{
-		unset: func(key string) error {
+	gitConfigWriter := &gitConfigWriterMock{
+		unsetAll: func(key string) error {
 			switch key {
 			case "commit.template":
 				return nil
@@ -103,11 +103,11 @@ func TestDisableShouldSucceedWhenUnsetHooksPathFailsBecauseTheOptionDoesntExist(
 	}
 
 	deps := Dependencies{
-		GitSettingsReader: gitSettingsReader,
-		GitSettingsWriter: gitSettingsWriter,
-		StatFile:          statFile,
-		RemoveFile:        removeFile,
-		PersistDisabled:   persistDisabled,
+		GitConfigReader: gitConfigReader,
+		GitConfigWriter: gitConfigWriter,
+		StatFile:        statFile,
+		RemoveFile:      removeFile,
+		PersistDisabled: persistDisabled,
 	}
 
 	expectedEvent := Succeeded{}
@@ -122,8 +122,8 @@ func TestDisableShouldSucceedWhenUnsetHooksPathFailsBecauseTheOptionDoesntExist(
 
 func TestDisableShouldFailWhenUnsetHooksPathFails(t *testing.T) {
 	expectedErr := errors.New("failed to unset hooks path")
-	gitSettingsWriter := &gitSettingsWriterMock{
-		unset: func(key string) error {
+	gitConfigWriter := &gitConfigWriterMock{
+		unsetAll: func(key string) error {
 			switch key {
 			case "commit.template":
 				return nil
@@ -136,7 +136,7 @@ func TestDisableShouldFailWhenUnsetHooksPathFails(t *testing.T) {
 	}
 
 	deps := Dependencies{
-		GitSettingsWriter: gitSettingsWriter,
+		GitConfigWriter: gitConfigWriter,
 	}
 
 	expectedEvent := Failed{Reason: expectedErr}
@@ -151,14 +151,14 @@ func TestDisableShouldFailWhenUnsetHooksPathFails(t *testing.T) {
 
 func TestDisableShouldSucceedWhenReadingCommitTemplateFailsBecauseItHasBeenUnsetAlready(t *testing.T) {
 	expectedErr := errors.New("exit status 1")
-	gitSettingsReader := &gitSettingsReaderMock{
+	gitConfigReader := &gitConfigReaderMock{
 		get: func(key string) (string, error) {
 			return "", expectedErr
 		},
 	}
 
-	gitSettingsWriter := &gitSettingsWriterMock{
-		unset: func(key string) error {
+	gitConfigWriter := &gitConfigWriterMock{
+		unsetAll: func(key string) error {
 			switch key {
 			case "commit.template":
 				return nil
@@ -171,11 +171,11 @@ func TestDisableShouldSucceedWhenReadingCommitTemplateFailsBecauseItHasBeenUnset
 	}
 
 	deps := Dependencies{
-		GitSettingsReader: gitSettingsReader,
-		GitSettingsWriter: gitSettingsWriter,
-		StatFile:          statFile,
-		RemoveFile:        removeFile,
-		PersistDisabled:   persistDisabled,
+		GitConfigReader: gitConfigReader,
+		GitConfigWriter: gitConfigWriter,
+		StatFile:        statFile,
+		RemoveFile:      removeFile,
+		PersistDisabled: persistDisabled,
 	}
 
 	expectedEvent := Succeeded{}
@@ -190,14 +190,14 @@ func TestDisableShouldSucceedWhenReadingCommitTemplateFailsBecauseItHasBeenUnset
 
 func TestDisableShouldFailWhenReadingCommitTemplatePathFails(t *testing.T) {
 	expectedErr := errors.New("failed to get commit.template")
-	gitSettingsReader := &gitSettingsReaderMock{
+	gitConfigReader := &gitConfigReaderMock{
 		get: func(key string) (string, error) {
 			return "", expectedErr
 		},
 	}
 
-	gitSettingsWriter := &gitSettingsWriterMock{
-		unset: func(key string) error {
+	gitConfigWriter := &gitConfigWriterMock{
+		unsetAll: func(key string) error {
 			switch key {
 			case "commit.template":
 				return nil
@@ -210,8 +210,8 @@ func TestDisableShouldFailWhenReadingCommitTemplatePathFails(t *testing.T) {
 	}
 
 	deps := Dependencies{
-		GitSettingsReader: gitSettingsReader,
-		GitSettingsWriter: gitSettingsWriter,
+		GitConfigReader: gitConfigReader,
+		GitConfigWriter: gitConfigWriter,
 	}
 
 	expectedEvent := Failed{Reason: expectedErr}
@@ -225,15 +225,15 @@ func TestDisableShouldFailWhenReadingCommitTemplatePathFails(t *testing.T) {
 }
 
 func TestDisableShouldSucceedWhenUnsetCommitTemplateFailsBecauseItWasUnsetAlready(t *testing.T) {
-	gitSettingsReader := &gitSettingsReaderMock{
+	gitConfigReader := &gitConfigReaderMock{
 		get: func(key string) (string, error) {
 			return "/path/to/template", nil
 		},
 	}
 
 	expectedErr := errors.New("exit status 5")
-	gitSettingsWriter := &gitSettingsWriterMock{
-		unset: func(key string) error {
+	gitConfigWriter := &gitConfigWriterMock{
+		unsetAll: func(key string) error {
 			switch key {
 			case "commit.template":
 				return expectedErr
@@ -246,11 +246,11 @@ func TestDisableShouldSucceedWhenUnsetCommitTemplateFailsBecauseItWasUnsetAlread
 	}
 
 	deps := Dependencies{
-		GitSettingsReader: gitSettingsReader,
-		GitSettingsWriter: gitSettingsWriter,
-		StatFile:          statFile,
-		RemoveFile:        removeFile,
-		PersistDisabled:   persistDisabled,
+		GitConfigReader: gitConfigReader,
+		GitConfigWriter: gitConfigWriter,
+		StatFile:        statFile,
+		RemoveFile:      removeFile,
+		PersistDisabled: persistDisabled,
 	}
 
 	expectedEvent := Succeeded{}
@@ -264,15 +264,15 @@ func TestDisableShouldSucceedWhenUnsetCommitTemplateFailsBecauseItWasUnsetAlread
 }
 
 func TestDisableShouldFailWhenUnsetCommitTemplateFails(t *testing.T) {
-	gitSettingsReader := &gitSettingsReaderMock{
+	gitConfigReader := &gitConfigReaderMock{
 		get: func(key string) (string, error) {
 			return "/path/to/template", nil
 		},
 	}
 
 	expectedErr := errors.New("failed to unset commit template")
-	gitSettingsWriter := &gitSettingsWriterMock{
-		unset: func(key string) error {
+	gitConfigWriter := &gitConfigWriterMock{
+		unsetAll: func(key string) error {
 			switch key {
 			case "commit.template":
 				return expectedErr
@@ -285,8 +285,8 @@ func TestDisableShouldFailWhenUnsetCommitTemplateFails(t *testing.T) {
 	}
 
 	deps := Dependencies{
-		GitSettingsReader: gitSettingsReader,
-		GitSettingsWriter: gitSettingsWriter,
+		GitConfigReader: gitConfigReader,
+		GitConfigWriter: gitConfigWriter,
 	}
 
 	expectedEvent := Failed{Reason: expectedErr}
@@ -300,14 +300,14 @@ func TestDisableShouldFailWhenUnsetCommitTemplateFails(t *testing.T) {
 }
 
 func TestDisableShouldFailWhenRemoveFileFails(t *testing.T) {
-	gitSettingsReader := &gitSettingsReaderMock{
+	gitConfigReader := &gitConfigReaderMock{
 		get: func(key string) (string, error) {
 			return "/path/to/template", nil
 		},
 	}
 
-	gitSettingsWriter := &gitSettingsWriterMock{
-		unset: func(key string) error {
+	gitConfigWriter := &gitConfigWriterMock{
+		unsetAll: func(key string) error {
 			switch key {
 			case "commit.template":
 				return nil
@@ -322,10 +322,10 @@ func TestDisableShouldFailWhenRemoveFileFails(t *testing.T) {
 	err := errors.New("failed to remove file")
 
 	deps := Dependencies{
-		GitSettingsReader: gitSettingsReader,
-		GitSettingsWriter: gitSettingsWriter,
-		StatFile:          statFile,
-		RemoveFile:        func(string) error { return err },
+		GitConfigReader: gitConfigReader,
+		GitConfigWriter: gitConfigWriter,
+		StatFile:        statFile,
+		RemoveFile:      func(string) error { return err },
 	}
 
 	expectedEvent := Failed{Reason: err}
@@ -339,14 +339,14 @@ func TestDisableShouldFailWhenRemoveFileFails(t *testing.T) {
 }
 
 func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenStatFileFails(t *testing.T) {
-	gitSettingsReader := &gitSettingsReaderMock{
+	gitConfigReader := &gitConfigReaderMock{
 		get: func(key string) (string, error) {
 			return "/path/to/template", nil
 		},
 	}
 
-	gitSettingsWriter := &gitSettingsWriterMock{
-		unset: func(key string) error {
+	gitConfigWriter := &gitConfigWriterMock{
+		unsetAll: func(key string) error {
 			switch key {
 			case "commit.template":
 				return nil
@@ -358,10 +358,10 @@ func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenStatFileF
 		},
 	}
 	deps := Dependencies{
-		GitSettingsReader: gitSettingsReader,
-		GitSettingsWriter: gitSettingsWriter,
-		StatFile:          func(string) (os.FileInfo, error) { return fileInfo, errors.New("failed to stat file") },
-		PersistDisabled:   persistDisabled,
+		GitConfigReader: gitConfigReader,
+		GitConfigWriter: gitConfigWriter,
+		StatFile:        func(string) (os.FileInfo, error) { return fileInfo, errors.New("failed to stat file") },
+		PersistDisabled: persistDisabled,
 	}
 
 	expectedEvent := Succeeded{}
@@ -375,14 +375,14 @@ func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenStatFileF
 }
 
 func TestDisableShouldFailWhenpersistDisabledFails(t *testing.T) {
-	gitSettingsReader := &gitSettingsReaderMock{
+	gitConfigReader := &gitConfigReaderMock{
 		get: func(key string) (string, error) {
 			return "/path/to/template", nil
 		},
 	}
 
-	gitSettingsWriter := &gitSettingsWriterMock{
-		unset: func(key string) error {
+	gitConfigWriter := &gitConfigWriterMock{
+		unsetAll: func(key string) error {
 			switch key {
 			case "commit.template":
 				return nil
@@ -396,11 +396,11 @@ func TestDisableShouldFailWhenpersistDisabledFails(t *testing.T) {
 
 	expectedErr := errors.New("failed to save status")
 	deps := Dependencies{
-		GitSettingsReader: gitSettingsReader,
-		GitSettingsWriter: gitSettingsWriter,
-		StatFile:          statFile,
-		RemoveFile:        removeFile,
-		PersistDisabled:   func() error { return expectedErr },
+		GitConfigReader: gitConfigReader,
+		GitConfigWriter: gitConfigWriter,
+		StatFile:        statFile,
+		RemoveFile:      removeFile,
+		PersistDisabled: func() error { return expectedErr },
 	}
 
 	expectedEvent := Failed{Reason: expectedErr}

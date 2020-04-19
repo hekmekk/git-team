@@ -1,5 +1,7 @@
 package commandadapter
 
+// TODO: this should live somewhere else...
+
 import (
 	"fmt"
 
