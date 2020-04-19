@@ -3,10 +3,11 @@ package statuscmdadapter
 import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/hekmekk/git-team/src/command/adapter"
+	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/status"
-	"github.com/hekmekk/git-team/src/command/status/interfaceadapter/event"
-	"github.com/hekmekk/git-team/src/core/state_repository"
+	statuseventadapter "github.com/hekmekk/git-team/src/command/status/interfaceadapter/event"
+	staterepository "github.com/hekmekk/git-team/src/core/state_repository"
+	config "github.com/hekmekk/git-team/src/shared/config/datasource"
 )
 
 // Command the status command
@@ -23,6 +24,7 @@ func Policy() status.Policy {
 	return status.Policy{
 		Deps: status.Dependencies{
 			StateRepositoryQuery: staterepository.Query,
+			ConfigReader:         config.NewGitconfigDataSource(),
 		},
 	}
 }
