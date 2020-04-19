@@ -13,12 +13,13 @@ import (
 func Command(root commandadapter.CommandRoot) *kingpin.CmdClause {
 	status := root.Command("status", "Print the current status")
 
-	status.Action(commandadapter.Run(policy(), statuseventadapter.MapEventToEffects))
+	status.Action(commandadapter.Run(Policy(), statuseventadapter.MapEventToEffects))
 
 	return status
 }
 
-func policy() status.Policy {
+// Policy the status policy constructor
+func Policy() status.Policy {
 	return status.Policy{
 		Deps: status.Dependencies{
 			StateRepositoryQuery: staterepository.Query,

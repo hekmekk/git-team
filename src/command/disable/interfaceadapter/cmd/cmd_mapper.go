@@ -8,6 +8,7 @@ import (
 	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/disable"
 	disableeventadapter "github.com/hekmekk/git-team/src/command/disable/interfaceadapter/event"
+	statuscmdmapper "github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
 	gitconfig "github.com/hekmekk/git-team/src/core/gitconfig"
 	staterepository "github.com/hekmekk/git-team/src/core/state_repository"
 )
@@ -16,7 +17,7 @@ import (
 func Command(root commandadapter.CommandRoot) *kingpin.CmdClause {
 	disable := root.Command("disable", "Use default commit template and remove prepare-commit-msg hook")
 
-	disable.Action(commandadapter.Run(policy(), disableeventadapter.MapEventToEffectsFactory(staterepository.Query)))
+	disable.Action(commandadapter.Run(policy(), disableeventadapter.MapEventToEffectsFactory(statuscmdmapper.Policy())))
 
 	return disable
 }

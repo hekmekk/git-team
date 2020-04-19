@@ -9,9 +9,19 @@ import (
 	"testing/quick"
 
 	"github.com/hekmekk/git-team/src/command/enable"
+	status "github.com/hekmekk/git-team/src/command/status"
 	"github.com/hekmekk/git-team/src/core/effects"
+	"github.com/hekmekk/git-team/src/core/events"
 	"github.com/hekmekk/git-team/src/core/state"
 )
+
+type statusPolicyMock struct {
+	apply func() events.Event
+}
+
+func (mock statusPolicyMock) Apply() events.Event {
+	return mock.apply()
+}
 
 func TestFoldErrors(t *testing.T) {
 	errPrefix := errors.New("_prefix_")
@@ -44,11 +54,13 @@ func TestMapEventToEffectsSucceeded(t *testing.T) {
 		effects.NewExitOk(),
 	}
 
-	queryStatus := func() (state.State, error) {
-		return state.NewStateEnabled(coauthors), nil
+	statusPolicy := &statusPolicyMock{
+		apply: func() events.Event {
+			return status.StateRetrievalSucceeded{State: state.NewStateEnabled(coauthors)}
+		},
 	}
 
-	effects := MapEventToEffectsFactory(queryStatus)(enable.Succeeded{})
+	effects := MapEventToEffectsFactory(statusPolicy)(enable.Succeeded{})
 
 	if !reflect.DeepEqual(expectedEffects, effects) {
 		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
@@ -62,11 +74,13 @@ func TestMapEventToEffectsAborted(t *testing.T) {
 		effects.NewExitOk(),
 	}
 
-	queryStatus := func() (state.State, error) {
-		return state.NewStateDisabled(), nil
+	statusPolicy := &statusPolicyMock{
+		apply: func() events.Event {
+			return status.StateRetrievalSucceeded{State: state.NewStateDisabled()}
+		},
 	}
 
-	effects := MapEventToEffectsFactory(queryStatus)(enable.Aborted{})
+	effects := MapEventToEffectsFactory(statusPolicy)(enable.Aborted{})
 
 	if !reflect.DeepEqual(expectedEffects, effects) {
 		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
@@ -82,11 +96,13 @@ func TestMapEventToEffectsSucceededButQueryStatusFailed(t *testing.T) {
 		effects.NewExitErr(),
 	}
 
-	queryStatus := func() (state.State, error) {
-		return state.State{}, err
+	statusPolicy := &statusPolicyMock{
+		apply: func() events.Event {
+			return status.StateRetrievalFailed{Reason: err}
+		},
 	}
 
-	effects := MapEventToEffectsFactory(queryStatus)(enable.Succeeded{})
+	effects := MapEventToEffectsFactory(statusPolicy)(enable.Succeeded{})
 
 	if !reflect.DeepEqual(expectedEffects, effects) {
 		t.Errorf("expected: %s, got: %s", expectedEffects, effects)

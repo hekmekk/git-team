@@ -10,6 +10,7 @@ import (
 	"github.com/hekmekk/git-team/src/command/enable"
 	commitsettingsds "github.com/hekmekk/git-team/src/command/enable/commitsettings/datasource"
 	enableeventadapter "github.com/hekmekk/git-team/src/command/enable/interfaceadapter/event"
+	statuscmdmapper "github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/core/gitconfig"
 	staterepository "github.com/hekmekk/git-team/src/core/state_repository"
 	"github.com/hekmekk/git-team/src/core/validation"
@@ -21,7 +22,7 @@ func Command(root commandadapter.CommandRoot) *kingpin.CmdClause {
 	enable := root.Command("enable", "Enables injection of the provided co-authors whenever `git-commit` is used").Default()
 	coauthors := enable.Arg("co-authors", "The co-authors for the next commit(s). A co-author must either be an alias or of the shape \"Name <email>\"").Strings()
 
-	enable.Action(commandadapter.Run(policy(coauthors), enableeventadapter.MapEventToEffectsFactory(staterepository.Query)))
+	enable.Action(commandadapter.Run(policy(coauthors), enableeventadapter.MapEventToEffectsFactory(statuscmdmapper.Policy())))
 
 	return enable
 }
