@@ -1,4 +1,4 @@
-package gitconfig
+package scope
 
 // Scope scope of gitconfig
 type Scope int

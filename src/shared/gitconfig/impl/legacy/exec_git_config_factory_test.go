@@ -5,17 +5,19 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+
+	scope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
 func TestShouldExecuteGitConfigWithTheExpectedCommandLineArguments(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct {
-		scope             Scope
+		scope             scope.Scope
 		expectedScopeFlag string
 	}{
-		{Global, "--global"},
-		{Local, "--local"},
+		{scope.Global, "--global"},
+		{scope.Local, "--local"},
 	}
 
 	for _, caseLoopVar := range cases {
@@ -48,7 +50,7 @@ func TestShouldReturnTheTwoLines(t *testing.T) {
 		return out, nil
 	}
 
-	lines, err := execGitConfigFactory(executor)(Global, "")
+	lines, err := execGitConfigFactory(executor)(scope.Global, "")
 	if err != nil {
 		t.Error(err)
 		t.Fail()
@@ -67,7 +69,7 @@ func TestShouldReturnNoLines(t *testing.T) {
 		return []byte(""), nil
 	}
 
-	lines, err := execGitConfigFactory(executor)(Global, "")
+	lines, err := execGitConfigFactory(executor)(scope.Global, "")
 	if err != nil {
 		t.Error(err)
 		t.Fail()
@@ -86,7 +88,7 @@ func TestShouldReturnAnError(t *testing.T) {
 		return nil, errors.New("executing the git config command failed")
 	}
 
-	lines, err := execGitConfigFactory(executor)(Global, "")
+	lines, err := execGitConfigFactory(executor)(scope.Global, "")
 	if err == nil {
 		t.Error("expected an error")
 		t.Fail()

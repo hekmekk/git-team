@@ -1,7 +1,7 @@
 package gitconfigimpl
 
 import (
-	coregitconfig "github.com/hekmekk/git-team/src/core/gitconfig"
+	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
 )
 
 // DataSink write data directly to gitconfig
@@ -14,10 +14,10 @@ func NewDataSink() DataSink {
 
 // ReplaceAll modify a setting
 func (ds DataSink) ReplaceAll(key string, value string) error {
-	return coregitconfig.ReplaceAll(key, value)
+	return gitconfiglegacy.ReplaceAll(key, value)
 }
 
 // UnsetAll remove a setting
 func (ds DataSink) UnsetAll(key string) error {
-	return coregitconfig.UnsetAll(key)
+	return gitconfiglegacy.UnsetAll(key)
 }

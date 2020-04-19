@@ -3,16 +3,16 @@ package staterepository
 import (
 	"errors"
 
-	"github.com/hekmekk/git-team/src/core/gitconfig"
 	"github.com/hekmekk/git-team/src/core/state"
 	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
+	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
 )
 
 // Query read the current state from file
 func Query() (state.State, error) {
 	deps := queryDependencies{
-		gitconfigGet:    gitconfig.Get,
-		gitconfigGetAll: gitconfig.GetAll,
+		gitconfigGet:    gitconfiglegacy.Get,
+		gitconfigGetAll: gitconfiglegacy.GetAll,
 	}
 	return query(deps)
 }
@@ -54,9 +54,9 @@ func PersistDisabled() error {
 // Persist persist the current state
 func Persist(state state.State) error {
 	deps := persistDependencies{
-		gitconfigAdd:        gitconfig.Add,
-		gitconfigReplaceAll: gitconfig.ReplaceAll,
-		gitconfigUnsetAll:   gitconfig.UnsetAll,
+		gitconfigAdd:        gitconfiglegacy.Add,
+		gitconfigReplaceAll: gitconfiglegacy.ReplaceAll,
+		gitconfigUnsetAll:   gitconfiglegacy.UnsetAll,
 	}
 	return persist(deps, state)
 }

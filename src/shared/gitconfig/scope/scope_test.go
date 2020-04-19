@@ -1,4 +1,4 @@
-package gitconfig
+package scope
 
 import (
 	"reflect"

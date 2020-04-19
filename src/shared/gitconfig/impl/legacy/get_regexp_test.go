@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+
+	scope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
 func TestShouldReturnTheKeyValueMap(t *testing.T) {
@@ -21,9 +23,9 @@ func TestShouldReturnTheKeyValueMap(t *testing.T) {
 	lines = append(lines, fmt.Sprintf("%s %s", key1, val1))
 	lines = append(lines, fmt.Sprintf("%s %s", key2, val2))
 
-	execSucceeds := func(Scope, ...string) ([]string, error) { return lines, nil }
+	execSucceeds := func(scope.Scope, ...string) ([]string, error) { return lines, nil }
 
-	aliasMap, _ := getRegexp(execSucceeds)(Global, "pattern")
+	aliasMap, _ := getRegexp(execSucceeds)(scope.Global, "pattern")
 
 	if !reflect.DeepEqual(aliasMap, expectedMap) {
 		t.Errorf("expected: %s, got: %s", expectedMap, aliasMap)
@@ -33,9 +35,9 @@ func TestShouldReturnTheKeyValueMap(t *testing.T) {
 
 func TestShouldReturnEmptyMapIfEmptyReturnFromGitConfigCommand(t *testing.T) {
 	expectedMap := make(map[string]string, 0)
-	execSucceedsEmpty := func(Scope, ...string) ([]string, error) { return nil, nil }
+	execSucceedsEmpty := func(scope.Scope, ...string) ([]string, error) { return nil, nil }
 
-	aliasMap, _ := getRegexp(execSucceedsEmpty)(Global, "pattern")
+	aliasMap, _ := getRegexp(execSucceedsEmpty)(scope.Global, "pattern")
 
 	if !reflect.DeepEqual(expectedMap, aliasMap) {
 		t.Errorf("expected: %s, got: %s", expectedMap, aliasMap)
@@ -47,9 +49,9 @@ func TestShouldFailIfGitConfigCommandFails(t *testing.T) {
 	expectedMap := make(map[string]string, 0)
 	expectedErr := errors.New("failed to exec git config command")
 
-	execFails := func(Scope, ...string) ([]string, error) { return nil, expectedErr }
+	execFails := func(scope.Scope, ...string) ([]string, error) { return nil, expectedErr }
 
-	aliasMap, err := getRegexp(execFails)(Global, "pattern")
+	aliasMap, err := getRegexp(execFails)(scope.Global, "pattern")
 
 	if !reflect.DeepEqual(expectedMap, aliasMap) {
 		t.Errorf("expected: %s, got: %s", expectedMap, aliasMap)

@@ -7,11 +7,11 @@ import (
 
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/hekmekk/git-team/src/command/adapter"
+	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/assignments/add"
-	"github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/event"
-	"github.com/hekmekk/git-team/src/core/gitconfig"
+	addeventadapter "github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/core/validation"
+	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
 )
 
 // Command the add command
@@ -37,7 +37,7 @@ func policy(alias *string, coauthor *string, forceOverride *bool) add.Policy {
 			SanityCheckCoauthor: validation.SanityCheckCoauthor,
 			GitResolveAlias:     commandadapter.ResolveAlias,
 			GitAddAlias: func(alias string, coauthor string) error {
-				return gitconfig.ReplaceAll(fmt.Sprintf("team.alias.%s", alias), coauthor)
+				return gitconfiglegacy.ReplaceAll(fmt.Sprintf("team.alias.%s", alias), coauthor)
 			},
 			GetAnswerFromUser: func(question string) (string, error) {
 				_, err := os.Stdout.WriteString(question)

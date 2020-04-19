@@ -5,10 +5,10 @@ import (
 
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/hekmekk/git-team/src/command/adapter"
+	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/assignments/remove"
-	"github.com/hekmekk/git-team/src/command/assignments/remove/interfaceadapter/event"
-	"github.com/hekmekk/git-team/src/core/gitconfig"
+	removeeventadapter "github.com/hekmekk/git-team/src/command/assignments/remove/interfaceadapter/event"
+	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
 )
 
 // Command the rm command
@@ -28,7 +28,7 @@ func policy(alias *string) remove.Policy {
 		},
 		Deps: remove.Dependencies{
 			GitRemoveAlias: func(alias string) error {
-				return gitconfig.UnsetAll(fmt.Sprintf("team.alias.%s", alias))
+				return gitconfiglegacy.UnsetAll(fmt.Sprintf("team.alias.%s", alias))
 			},
 		},
 	}

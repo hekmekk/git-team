@@ -11,11 +11,11 @@ import (
 	commitsettingsds "github.com/hekmekk/git-team/src/command/enable/commitsettings/datasource"
 	enableeventadapter "github.com/hekmekk/git-team/src/command/enable/interfaceadapter/event"
 	statuscmdmapper "github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
-	coregitconfig "github.com/hekmekk/git-team/src/core/gitconfig"
 	staterepository "github.com/hekmekk/git-team/src/core/state_repository"
 	"github.com/hekmekk/git-team/src/core/validation"
 	configds "github.com/hekmekk/git-team/src/shared/config/datasource"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
+	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
 )
 
 // Command the enable command
@@ -37,8 +37,8 @@ func policy(coauthors *[]string) enable.Policy {
 			SanityCheckCoauthors:          validation.SanityCheckCoauthors,
 			CreateTemplateDir:             os.MkdirAll,
 			WriteTemplateFile:             ioutil.WriteFile,
-			GitSetCommitTemplate:          func(path string) error { return coregitconfig.ReplaceAll("commit.template", path) },
-			GitSetHooksPath:               func(path string) error { return coregitconfig.ReplaceAll("core.hooksPath", path) },
+			GitSetCommitTemplate:          func(path string) error { return gitconfiglegacy.ReplaceAll("commit.template", path) },
+			GitSetHooksPath:               func(path string) error { return gitconfiglegacy.ReplaceAll("core.hooksPath", path) },
 			GitResolveAliases:             commandadapter.ResolveAliases,
 			StateRepositoryPersistEnabled: staterepository.PersistEnabled,
 			CommitSettingsReader:          commitsettingsds.NewStaticValueDataSource(),

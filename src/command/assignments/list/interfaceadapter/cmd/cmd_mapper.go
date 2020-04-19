@@ -3,10 +3,10 @@ package listcmdadapter
 import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/hekmekk/git-team/src/command/adapter"
+	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/assignments/list"
-	"github.com/hekmekk/git-team/src/command/assignments/list/interfaceadapter/event"
-	"github.com/hekmekk/git-team/src/core/gitconfig"
+	listeventadapter "github.com/hekmekk/git-team/src/command/assignments/list/interfaceadapter/event"
+	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
 )
 
 // Command the ls command
@@ -22,7 +22,7 @@ func Command(root commandadapter.CommandRoot) *kingpin.CmdClause {
 func policy() list.Policy {
 	return list.Policy{
 		Deps: list.Dependencies{
-			GitGetAssignments: func() (map[string]string, error) { return gitconfig.GetRegexp("team.alias") },
+			GitGetAssignments: func() (map[string]string, error) { return gitconfiglegacy.GetRegexp("team.alias") },
 		},
 	}
 }

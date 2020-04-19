@@ -1,11 +1,12 @@
 package commandadapter
 
 // TODO: this should live somewhere else...
+// TODO: this should depend on the interface only as well
 
 import (
 	"fmt"
 
-	"github.com/hekmekk/git-team/src/core/gitconfig"
+	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
 )
 
 // ResolveAliases convenience function to resolve multiple aliases and accumulate errors
@@ -33,7 +34,7 @@ func resolveAliases(resolveAlias func(string) (string, error)) func([]string) ([
 
 // ResolveAlias lookup "team.alias.<alias>" globally
 func ResolveAlias(alias string) (string, error) {
-	return resolveAlias(gitconfig.Get)(alias)
+	return resolveAlias(gitconfiglegacy.Get)(alias)
 }
 
 func resolveAlias(gitconfigGet func(string) (string, error)) func(string) (string, error) {

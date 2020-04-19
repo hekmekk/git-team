@@ -1,7 +1,7 @@
 package gitconfigimpl
 
 import (
-	coregitconfig "github.com/hekmekk/git-team/src/core/gitconfig"
+	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
 )
 
 // DataSource read data directly from gitconfig
@@ -14,5 +14,5 @@ func NewDataSource() DataSource {
 
 // Get read a setting
 func (ds DataSource) Get(key string) (string, error) {
-	return coregitconfig.Get(key)
+	return gitconfiglegacy.Get(key)
 }
