@@ -8,12 +8,12 @@ import (
 
 // Get git config --global --get <key>
 func Get(key string) (string, error) {
-	return get(execGitConfig)(key)
+	return get(execGitConfig)(Global, key)
 }
 
-func get(exec func(...string) ([]string, error)) func(string) (string, error) {
-	return func(key string) (string, error) {
-		lines, err := exec("--get", key)
+func get(exec func(Scope, ...string) ([]string, error)) func(Scope, string) (string, error) {
+	return func(scope Scope, key string) (string, error) {
+		lines, err := exec(scope, "--get", key)
 		if err != nil {
 			return "", err
 		}
@@ -28,37 +28,37 @@ func get(exec func(...string) ([]string, error)) func(string) (string, error) {
 
 // GetAll git config --global --get-all <key>
 func GetAll(key string) ([]string, error) {
-	return execGitConfig("--get-all", key)
+	return execGitConfig(Global, "--get-all", key)
 }
 
 // Add git config --global --add <key> <value>
 func Add(key string, value string) error {
-	_, err := execGitConfig("--add", key, value)
+	_, err := execGitConfig(Global, "--add", key, value)
 	return err
 }
 
 // ReplaceAll git config --global --replace-all <key> <value>
 func ReplaceAll(key string, value string) error {
-	_, err := execGitConfig("--replace-all", key, value)
+	_, err := execGitConfig(Global, "--replace-all", key, value)
 	return err
 }
 
 // UnsetAll git config --global --unset-all <key>
 func UnsetAll(key string) error {
-	_, err := execGitConfig("--unset-all", key)
+	_, err := execGitConfig(Global, "--unset-all", key)
 	return err
 }
 
 // GetRegexp git config --global --gex-regexp <pattern>
 func GetRegexp(pattern string) (map[string]string, error) {
-	return getRegexp(execGitConfig)(pattern)
+	return getRegexp(execGitConfig)(Global, pattern)
 }
 
-func getRegexp(exec func(...string) ([]string, error)) func(string) (map[string]string, error) {
-	return func(pattern string) (map[string]string, error) {
+func getRegexp(exec func(Scope, ...string) ([]string, error)) func(Scope, string) (map[string]string, error) {
+	return func(scope Scope, pattern string) (map[string]string, error) {
 		mapping := make(map[string]string, 0)
 
-		lines, err := exec("--get-regexp", pattern)
+		lines, err := exec(scope, "--get-regexp", pattern)
 		if err != nil {
 			return mapping, err
 		}
@@ -72,13 +72,13 @@ func getRegexp(exec func(...string) ([]string, error)) func(string) (map[string]
 	}
 }
 
-// execute /usr/bin/env git config --global <args>
-func execGitConfig(args ...string) ([]string, error) {
-	gitConfigCommand := func(additionalArgs ...string) ([]byte, error) {
-		return exec.Command("/usr/bin/env", append([]string{"git", "config"}, additionalArgs...)...).CombinedOutput()
+// execute /usr/bin/env git config --<scope> <options>
+func execGitConfig(scope Scope, options ...string) ([]string, error) {
+	gitConfigCommand := func(additionalOptions ...string) ([]byte, error) {
+		return exec.Command("/usr/bin/env", append([]string{"git", "config"}, additionalOptions...)...).CombinedOutput()
 	}
 
-	return execGitConfigFactory(gitConfigCommand)(Global, args...)
+	return execGitConfigFactory(gitConfigCommand)(scope, options...)
 }
 
 func execGitConfigFactory(cmd func(...string) ([]byte, error)) func(Scope, ...string) ([]string, error) {

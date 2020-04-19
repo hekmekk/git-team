@@ -7,9 +7,9 @@ import (
 
 func TestShouldReturnTheValue(t *testing.T) {
 	expectedValue := "value"
-	execSucceeds := func(args ...string) ([]string, error) { return []string{expectedValue}, nil }
+	execSucceeds := func(Scope, ...string) ([]string, error) { return []string{expectedValue}, nil }
 
-	value, err := get(execSucceeds)("key")
+	value, err := get(execSucceeds)(Global, "key")
 
 	if err != nil {
 		t.Errorf("expected err: %s, got err: %s", "[no err]", err)
@@ -23,9 +23,9 @@ func TestShouldReturnTheValue(t *testing.T) {
 }
 
 func TestShouldReturnEmptyStringIfNoValueIsFound(t *testing.T) {
-	execSucceedsEmpty := func(args ...string) ([]string, error) { return []string{}, nil }
+	execSucceedsEmpty := func(Scope, ...string) ([]string, error) { return []string{}, nil }
 
-	value, err := get(execSucceedsEmpty)("key")
+	value, err := get(execSucceedsEmpty)(Global, "key")
 
 	if err != nil {
 		t.Errorf("expected err: %s, got err: %s", "[no err]", err)
@@ -40,9 +40,9 @@ func TestShouldReturnEmptyStringIfNoValueIsFound(t *testing.T) {
 
 func TestShouldReturnTheErrorIfAnErrorOccurs(t *testing.T) {
 	expectedErr := errors.New("git command failed")
-	execFails := func(args ...string) ([]string, error) { return nil, expectedErr }
+	execFails := func(Scope, ...string) ([]string, error) { return nil, expectedErr }
 
-	value, err := get(execFails)("key")
+	value, err := get(execFails)(Global, "key")
 
 	if expectedErr != err {
 		t.Errorf("expected err: %s, got err: %s", expectedErr, err)
