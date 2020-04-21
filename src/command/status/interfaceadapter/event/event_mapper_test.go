@@ -7,7 +7,7 @@ import (
 
 	"github.com/hekmekk/git-team/src/command/status"
 	"github.com/hekmekk/git-team/src/core/effects"
-	"github.com/hekmekk/git-team/src/core/state"
+	state "github.com/hekmekk/git-team/src/shared/state/entity"
 )
 
 func TestMapEventToEffectsStateRetrievalSucceededEnabled(t *testing.T) {

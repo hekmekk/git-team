@@ -12,6 +12,7 @@ import (
 	addeventadapter "github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/core/validation"
 	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
+	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
 // Command the add command
@@ -37,7 +38,7 @@ func policy(alias *string, coauthor *string, forceOverride *bool) add.Policy {
 			SanityCheckCoauthor: validation.SanityCheckCoauthor,
 			GitResolveAlias:     commandadapter.ResolveAlias,
 			GitAddAlias: func(alias string, coauthor string) error {
-				return gitconfiglegacy.ReplaceAll(fmt.Sprintf("team.alias.%s", alias), coauthor)
+				return gitconfiglegacy.ReplaceAll(gitconfigscope.Global, fmt.Sprintf("team.alias.%s", alias), coauthor)
 			},
 			GetAnswerFromUser: func(question string) (string, error) {
 				_, err := os.Stdout.WriteString(question)

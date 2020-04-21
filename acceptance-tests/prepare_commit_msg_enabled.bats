@@ -13,6 +13,8 @@ teardown() {
 	rm /tmp/COMMIT_MSG
 }
 
+# TODO: Add activation scope based tests
+
 @test "prepare-commit-msg: git-team enabled - message" {
 	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG message && cat /tmp/COMMIT_MSG"
 	assert_success

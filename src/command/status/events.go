@@ -1,7 +1,7 @@
 package status
 
 import (
-	"github.com/hekmekk/git-team/src/core/state"
+	state "github.com/hekmekk/git-team/src/shared/state/entity"
 )
 
 // StateRetrievalSucceeded successfully got the current state

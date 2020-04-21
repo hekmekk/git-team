@@ -1,12 +1,13 @@
 package commandadapter
 
 // TODO: this should live somewhere else...
-// TODO: this should depend on the interface only as well
+// TODO: this should depend on the gitconfig interface only as well
 
 import (
 	"fmt"
 
 	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
+	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
 // ResolveAliases convenience function to resolve multiple aliases and accumulate errors
@@ -37,9 +38,9 @@ func ResolveAlias(alias string) (string, error) {
 	return resolveAlias(gitconfiglegacy.Get)(alias)
 }
 
-func resolveAlias(gitconfigGet func(string) (string, error)) func(string) (string, error) {
+func resolveAlias(gitconfigGet func(gitconfigscope.Scope, string) (string, error)) func(string) (string, error) {
 	return func(alias string) (string, error) {
-		coauthor, err := gitconfigGet(fmt.Sprintf("team.alias.%s", alias))
+		coauthor, err := gitconfigGet(gitconfigscope.Global, fmt.Sprintf("team.alias.%s", alias))
 		if err != nil || coauthor == "" {
 			return "", fmt.Errorf("Failed to resolve alias team.alias.%s", alias)
 		}

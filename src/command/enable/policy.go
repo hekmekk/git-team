@@ -8,19 +8,21 @@ import (
 	utils "github.com/hekmekk/git-team/src/command/enable/utils"
 	"github.com/hekmekk/git-team/src/core/events"
 	config "github.com/hekmekk/git-team/src/shared/config/interface"
+	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
+	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	state "github.com/hekmekk/git-team/src/shared/state/interface"
 )
 
 // Dependencies the dependencies of the enable Policy module
 type Dependencies struct {
-	SanityCheckCoauthors          func([]string) []error
-	CommitSettingsReader          commitsettings.Reader
-	CreateTemplateDir             func(path string, perm os.FileMode) error
-	WriteTemplateFile             func(path string, data []byte, mode os.FileMode) error
-	GitSetCommitTemplate          func(path string) error
-	GitSetHooksPath               func(path string) error
-	GitResolveAliases             func(aliases []string) ([]string, []error)
-	StateRepositoryPersistEnabled func(coauthors []string) error
-	ConfigReader                  config.Reader
+	SanityCheckCoauthors func([]string) []error
+	CommitSettingsReader commitsettings.Reader
+	CreateTemplateDir    func(path string, perm os.FileMode) error
+	WriteTemplateFile    func(path string, data []byte, mode os.FileMode) error
+	GitResolveAliases    func(aliases []string) ([]string, []error)
+	ConfigReader         config.Reader
+	GitConfigWriter      gitconfig.Writer
+	StateWriter          state.Writer
 }
 
 // Request the coauthors with which to enable git-team
@@ -63,11 +65,11 @@ func (policy Policy) Apply() events.Event {
 		return Failed{Reason: []error{err}}
 	}
 
-	if err := deps.GitSetHooksPath(settings.HooksDir); err != nil {
+	if err := deps.GitConfigWriter.ReplaceAll(gitconfigscope.Global, "core.hooksPath", settings.HooksDir); err != nil {
 		return Failed{Reason: []error{err}}
 	}
 
-	if err := deps.StateRepositoryPersistEnabled(uniqueCoauthors); err != nil {
+	if err := deps.StateWriter.PersistEnabled(gitconfigscope.Global, uniqueCoauthors); err != nil {
 		return Failed{Reason: []error{err}}
 	}
 
@@ -116,7 +118,8 @@ func setupTemplate(deps Dependencies, commitTemplateBaseDir string, uniqueCoauth
 	if err := deps.WriteTemplateFile(commitTemplatePath, []byte(utils.PrepareForCommitMessage(uniqueCoauthors)), 0644); err != nil {
 		return err
 	}
-	if err := deps.GitSetCommitTemplate(commitTemplatePath); err != nil {
+
+	if err := deps.GitConfigWriter.ReplaceAll(gitconfigscope.Global, "commit.template", commitTemplatePath); err != nil {
 		return err
 	}
 

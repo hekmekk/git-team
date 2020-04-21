@@ -11,11 +11,10 @@ import (
 	commitsettingsds "github.com/hekmekk/git-team/src/command/enable/commitsettings/datasource"
 	enableeventadapter "github.com/hekmekk/git-team/src/command/enable/interfaceadapter/event"
 	statuscmdmapper "github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
-	staterepository "github.com/hekmekk/git-team/src/core/state_repository"
 	"github.com/hekmekk/git-team/src/core/validation"
 	configds "github.com/hekmekk/git-team/src/shared/config/datasource"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
-	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
+	state "github.com/hekmekk/git-team/src/shared/state/impl"
 )
 
 // Command the enable command
@@ -34,15 +33,14 @@ func policy(coauthors *[]string) enable.Policy {
 			AliasesAndCoauthors: coauthors,
 		},
 		Deps: enable.Dependencies{
-			SanityCheckCoauthors:          validation.SanityCheckCoauthors,
-			CreateTemplateDir:             os.MkdirAll,
-			WriteTemplateFile:             ioutil.WriteFile,
-			GitSetCommitTemplate:          func(path string) error { return gitconfiglegacy.ReplaceAll("commit.template", path) },
-			GitSetHooksPath:               func(path string) error { return gitconfiglegacy.ReplaceAll("core.hooksPath", path) },
-			GitResolveAliases:             commandadapter.ResolveAliases,
-			StateRepositoryPersistEnabled: staterepository.PersistEnabled,
-			CommitSettingsReader:          commitsettingsds.NewStaticValueDataSource(),
-			ConfigReader:                  configds.NewGitconfigDataSource(gitconfig.NewDataSource()),
+			SanityCheckCoauthors: validation.SanityCheckCoauthors,
+			CreateTemplateDir:    os.MkdirAll,
+			WriteTemplateFile:    ioutil.WriteFile,
+			GitConfigWriter:      gitconfig.NewDataSink(),
+			GitResolveAliases:    commandadapter.ResolveAliases,
+			CommitSettingsReader: commitsettingsds.NewStaticValueDataSource(),
+			ConfigReader:         configds.NewGitconfigDataSource(gitconfig.NewDataSource()),
+			StateWriter:          state.NewGitConfigDataSink(gitconfig.NewDataSink()),
 		},
 	}
 }

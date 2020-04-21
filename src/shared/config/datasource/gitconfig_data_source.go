@@ -7,6 +7,7 @@ import (
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
 	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
+	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
 // GitconfigDataSource reads configuration from git config
@@ -20,7 +21,7 @@ func NewGitconfigDataSource(gitSettingsReader gitconfig.Reader) GitconfigDataSou
 }
 
 func (ds GitconfigDataSource) Read() (config.Config, error) {
-	rawScope, err := ds.GitConfigReader.Get("team.config.activation-scope")
+	rawScope, err := ds.GitConfigReader.Get(gitconfigscope.Global, "team.config.activation-scope")
 
 	if err != nil && err.Error() == giterror.SectionOrKeyIsInvalid {
 		return config.Config{ActivationScope: activationscope.Global}, nil

@@ -8,9 +8,9 @@ import (
 	scope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
-// Get git config --global --get <key>
-func Get(key string) (string, error) {
-	return get(execGitConfig)(scope.Global, key)
+// Get git config --<scope> --get <key>
+func Get(scope scope.Scope, key string) (string, error) {
+	return get(execGitConfig)(scope, key)
 }
 
 func get(exec func(scope.Scope, ...string) ([]string, error)) func(scope.Scope, string) (string, error) {
@@ -28,26 +28,26 @@ func get(exec func(scope.Scope, ...string) ([]string, error)) func(scope.Scope, 
 	}
 }
 
-// GetAll git config --global --get-all <key>
-func GetAll(key string) ([]string, error) {
-	return execGitConfig(scope.Global, "--get-all", key)
+// GetAll git config --<scope> --get-all <key>
+func GetAll(scope scope.Scope, key string) ([]string, error) {
+	return execGitConfig(scope, "--get-all", key)
 }
 
-// Add git config --global --add <key> <value>
-func Add(key string, value string) error {
-	_, err := execGitConfig(scope.Global, "--add", key, value)
+// Add git config --<scope> --add <key> <value>
+func Add(scope scope.Scope, key string, value string) error {
+	_, err := execGitConfig(scope, "--add", key, value)
 	return err
 }
 
-// ReplaceAll git config --global --replace-all <key> <value>
-func ReplaceAll(key string, value string) error {
-	_, err := execGitConfig(scope.Global, "--replace-all", key, value)
+// ReplaceAll git config --<scope> --replace-all <key> <value>
+func ReplaceAll(scope scope.Scope, key string, value string) error {
+	_, err := execGitConfig(scope, "--replace-all", key, value)
 	return err
 }
 
-// UnsetAll git config --global --unset-all <key>
-func UnsetAll(key string) error {
-	_, err := execGitConfig(scope.Global, "--unset-all", key)
+// UnsetAll git config --<scope> --unset-all <key>
+func UnsetAll(scope scope.Scope, key string) error {
+	_, err := execGitConfig(scope, "--unset-all", key)
 	return err
 }
 

@@ -2,14 +2,15 @@ package status
 
 import (
 	"github.com/hekmekk/git-team/src/core/events"
-	"github.com/hekmekk/git-team/src/core/state"
+	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
 	config "github.com/hekmekk/git-team/src/shared/config/interface"
+	state "github.com/hekmekk/git-team/src/shared/state/interface"
 )
 
 // Dependencies the dependencies of the status Policy module
 type Dependencies struct {
-	StateRepositoryQuery func() (state.State, error)
-	ConfigReader         config.Reader
+	StateReader  state.Reader
+	ConfigReader config.Reader
 }
 
 // Policy the policy to apply
@@ -26,7 +27,7 @@ func (policy Policy) Apply() events.Event {
 		return StateRetrievalFailed{Reason: cfgReadErr}
 	}
 
-	state, stateRepositoryQueryErr := deps.StateRepositoryQuery()
+	state, stateRepositoryQueryErr := deps.StateReader.Query(activationscope.Global)
 	if stateRepositoryQueryErr != nil {
 		return StateRetrievalFailed{Reason: stateRepositoryQueryErr}
 	}

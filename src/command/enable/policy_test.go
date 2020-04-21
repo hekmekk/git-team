@@ -2,6 +2,7 @@ package enable
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"reflect"
 	"testing"
@@ -9,6 +10,7 @@ import (
 	commitsettings "github.com/hekmekk/git-team/src/command/enable/commitsettings/entity"
 	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
+	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
 type commitSettingsReaderMock struct {
@@ -75,12 +77,13 @@ func TestEnableSucceeds(t *testing.T) {
 		return nil
 	}
 
-	// TODO: add variable parts needing assertions to this
 	cases := []struct {
-		scope activationscope.ActivationScope
+		activationScope activationscope.ActivationScope
+		templateDir     string
+		gitconfigScope  gitconfigscope.Scope
 	}{
-		{activationscope.Global},
-		{activationscope.RepoLocal},
+		{activationscope.Global, fmt.Sprintf("%s/global", commitSettings.TemplatesBaseDir), gitconfigscope.Global},
+		{activationscope.RepoLocal, fmt.Sprintf("%s/repo-local/<hash>", commitSettings.TemplatesBaseDir), gitconfigscope.Local},
 	}
 
 	deps := Dependencies{
@@ -95,14 +98,16 @@ func TestEnableSucceeds(t *testing.T) {
 	}
 
 	for _, caseLoopVar := range cases {
-		scope := caseLoopVar.scope
+		activationScope := caseLoopVar.activationScope
+		// templateDir := caseLoopVar.templateDir
+		// gitconfigScope := caseLoopVar.gitconfigScope
 
-		t.Run(scope.String(), func(t *testing.T) {
+		t.Run(activationScope.String(), func(t *testing.T) {
 			t.Parallel()
 
 			deps.ConfigReader = &configReaderMock{
 				read: func() (config.Config, error) {
-					return config.Config{ActivationScope: scope}, nil
+					return config.Config{ActivationScope: activationScope}, nil
 				},
 			}
 

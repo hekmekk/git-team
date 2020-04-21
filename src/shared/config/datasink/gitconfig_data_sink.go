@@ -3,6 +3,7 @@ package datasink
 import (
 	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
+	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
 // GitconfigDataSink writes configuration to gitconfig
@@ -17,5 +18,5 @@ func NewGitconfigDataSink(gitConfigWriter gitconfig.Writer) GitconfigDataSink {
 
 // SetActivationScope write activation-scope setting to gitconfig
 func (ds GitconfigDataSink) SetActivationScope(scope activationscope.ActivationScope) error {
-	return ds.GitConfigWriter.ReplaceAll("team.config.activation-scope", scope.String())
+	return ds.GitConfigWriter.ReplaceAll(gitconfigscope.Global, "team.config.activation-scope", scope.String())
 }

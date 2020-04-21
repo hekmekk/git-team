@@ -6,6 +6,8 @@ import (
 	"os"
 	"reflect"
 	"testing"
+
+	"github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
 type gitConfigReaderMock struct {
@@ -17,14 +19,18 @@ func (mock gitConfigReaderMock) Get(key string) (string, error) {
 }
 
 type gitConfigWriterMock struct {
-	unsetAll func(key string) error
+	unsetAll func(scope.Scope, string) error
 }
 
-func (mock gitConfigWriterMock) UnsetAll(key string) error {
-	return mock.unsetAll(key)
+func (mock gitConfigWriterMock) UnsetAll(scope scope.Scope, key string) error {
+	return mock.unsetAll(scope, key)
 }
 
-func (mock gitConfigWriterMock) ReplaceAll(key string, value string) error {
+func (mock gitConfigWriterMock) ReplaceAll(scope scope.Scope, key string, value string) error {
+	return nil
+}
+
+func (mock gitConfigWriterMock) Add(scope scope.Scope, key string, value string) error {
 	return nil
 }
 
@@ -35,6 +41,7 @@ var (
 	persistDisabled = func() error { return nil }
 )
 
+// TODO: parameterize over ActivationScope
 func TestDisableSucceeds(t *testing.T) {
 	templatePath := "/path/to/template"
 
@@ -45,7 +52,7 @@ func TestDisableSucceeds(t *testing.T) {
 	}
 
 	gitConfigWriter := &gitConfigWriterMock{
-		unsetAll: func(key string) error {
+		unsetAll: func(scope scope.Scope, key string) error {
 			switch key {
 			case "commit.template":
 				return nil
@@ -90,7 +97,7 @@ func TestDisableShouldSucceedWhenUnsetHooksPathFailsBecauseTheOptionDoesntExist(
 
 	expectedErr := errors.New("exit status 5")
 	gitConfigWriter := &gitConfigWriterMock{
-		unsetAll: func(key string) error {
+		unsetAll: func(scope scope.Scope, key string) error {
 			switch key {
 			case "commit.template":
 				return nil
@@ -123,7 +130,7 @@ func TestDisableShouldSucceedWhenUnsetHooksPathFailsBecauseTheOptionDoesntExist(
 func TestDisableShouldFailWhenUnsetHooksPathFails(t *testing.T) {
 	expectedErr := errors.New("failed to unset hooks path")
 	gitConfigWriter := &gitConfigWriterMock{
-		unsetAll: func(key string) error {
+		unsetAll: func(scope scope.Scope, key string) error {
 			switch key {
 			case "commit.template":
 				return nil
@@ -158,7 +165,7 @@ func TestDisableShouldSucceedWhenReadingCommitTemplateFailsBecauseItHasBeenUnset
 	}
 
 	gitConfigWriter := &gitConfigWriterMock{
-		unsetAll: func(key string) error {
+		unsetAll: func(scope scope.Scope, key string) error {
 			switch key {
 			case "commit.template":
 				return nil
@@ -197,7 +204,7 @@ func TestDisableShouldFailWhenReadingCommitTemplatePathFails(t *testing.T) {
 	}
 
 	gitConfigWriter := &gitConfigWriterMock{
-		unsetAll: func(key string) error {
+		unsetAll: func(scope scope.Scope, key string) error {
 			switch key {
 			case "commit.template":
 				return nil
@@ -233,7 +240,7 @@ func TestDisableShouldSucceedWhenUnsetCommitTemplateFailsBecauseItWasUnsetAlread
 
 	expectedErr := errors.New("exit status 5")
 	gitConfigWriter := &gitConfigWriterMock{
-		unsetAll: func(key string) error {
+		unsetAll: func(scope scope.Scope, key string) error {
 			switch key {
 			case "commit.template":
 				return expectedErr
@@ -272,7 +279,7 @@ func TestDisableShouldFailWhenUnsetCommitTemplateFails(t *testing.T) {
 
 	expectedErr := errors.New("failed to unset commit template")
 	gitConfigWriter := &gitConfigWriterMock{
-		unsetAll: func(key string) error {
+		unsetAll: func(scope scope.Scope, key string) error {
 			switch key {
 			case "commit.template":
 				return expectedErr
@@ -307,7 +314,7 @@ func TestDisableShouldFailWhenRemoveFileFails(t *testing.T) {
 	}
 
 	gitConfigWriter := &gitConfigWriterMock{
-		unsetAll: func(key string) error {
+		unsetAll: func(scope scope.Scope, key string) error {
 			switch key {
 			case "commit.template":
 				return nil
@@ -346,7 +353,7 @@ func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenStatFileF
 	}
 
 	gitConfigWriter := &gitConfigWriterMock{
-		unsetAll: func(key string) error {
+		unsetAll: func(scope scope.Scope, key string) error {
 			switch key {
 			case "commit.template":
 				return nil
@@ -382,7 +389,7 @@ func TestDisableShouldFailWhenpersistDisabledFails(t *testing.T) {
 	}
 
 	gitConfigWriter := &gitConfigWriterMock{
-		unsetAll: func(key string) error {
+		unsetAll: func(scope scope.Scope, key string) error {
 			switch key {
 			case "commit.template":
 				return nil

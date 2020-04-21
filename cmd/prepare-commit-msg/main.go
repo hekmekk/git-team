@@ -4,8 +4,10 @@ import (
 	"flag"
 	"os"
 
-	"github.com/hekmekk/git-team/src/command/enable/utils"
-	"github.com/hekmekk/git-team/src/core/state_repository"
+	enableutils "github.com/hekmekk/git-team/src/command/enable/utils"
+	config "github.com/hekmekk/git-team/src/shared/config/datasource"
+	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
+	state "github.com/hekmekk/git-team/src/shared/state/impl"
 )
 
 type commitMsgSourceT string
@@ -20,9 +22,17 @@ const (
 )
 
 func main() {
-	status, err := staterepository.Query()
-	if err != nil {
-		panic(err)
+	configReader := config.NewGitconfigDataSource(gitconfig.NewDataSource())
+	stateReader := state.NewGitConfigDataSource(gitconfig.NewDataSource())
+
+	cfg, cfgReadErr := configReader.Read()
+	if cfgReadErr != nil {
+		panic(cfgReadErr)
+	}
+
+	status, statusQueryErr := stateReader.Query(cfg.ActivationScope)
+	if statusQueryErr != nil {
+		panic(statusQueryErr)
 	}
 
 	if !status.IsEnabled() {

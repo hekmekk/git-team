@@ -1,7 +1,12 @@
 package gitconfiginterface
 
+import (
+	"github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+)
+
 // Writer modify git configuration settings
 type Writer interface {
-	ReplaceAll(key string, value string) error
-	UnsetAll(key string) error
+	Add(scope scope.Scope, key string, value string) error
+	ReplaceAll(scope scope.Scope, key string, value string) error
+	UnsetAll(scope scope.Scope, key string) error
 }

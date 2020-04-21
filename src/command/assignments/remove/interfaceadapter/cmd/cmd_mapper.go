@@ -9,6 +9,7 @@ import (
 	"github.com/hekmekk/git-team/src/command/assignments/remove"
 	removeeventadapter "github.com/hekmekk/git-team/src/command/assignments/remove/interfaceadapter/event"
 	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
+	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
 // Command the rm command
@@ -28,7 +29,7 @@ func policy(alias *string) remove.Policy {
 		},
 		Deps: remove.Dependencies{
 			GitRemoveAlias: func(alias string) error {
-				return gitconfiglegacy.UnsetAll(fmt.Sprintf("team.alias.%s", alias))
+				return gitconfiglegacy.UnsetAll(gitconfigscope.Global, fmt.Sprintf("team.alias.%s", alias))
 			},
 		},
 	}

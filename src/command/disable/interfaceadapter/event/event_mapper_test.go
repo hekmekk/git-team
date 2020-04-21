@@ -9,7 +9,7 @@ import (
 	status "github.com/hekmekk/git-team/src/command/status"
 	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/events"
-	"github.com/hekmekk/git-team/src/core/state"
+	state "github.com/hekmekk/git-team/src/shared/state/entity"
 )
 
 type statusPolicyMock struct {
