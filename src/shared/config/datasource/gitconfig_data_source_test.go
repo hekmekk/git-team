@@ -2,19 +2,25 @@ package datasource
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 
 	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
+	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
-type gitconfigRawReaderMock struct {
-	get func(key string) (string, error)
+type gitConfigReaderMock struct {
+	get func(gitconfigscope.Scope, string) (string, error)
 }
 
-func (mock gitconfigRawReaderMock) Get(key string) (string, error) {
-	return mock.get(key)
+func (mock gitConfigReaderMock) Get(scope gitconfigscope.Scope, key string) (string, error) {
+	return mock.get(scope, key)
+}
+
+func (mock gitConfigReaderMock) GetAll(scope gitconfigscope.Scope, key string) ([]string, error) {
+	return []string{}, nil
 }
 
 func TestLoadSucceeds(t *testing.T) {
@@ -35,15 +41,18 @@ func TestLoadSucceeds(t *testing.T) {
 		t.Run(rawGitConfigScope, func(t *testing.T) {
 			t.Parallel()
 
-			rawReader := gitconfigRawReaderMock{
-				get: func(key string) (string, error) {
+			gitConfigReader := gitConfigReaderMock{
+				get: func(scope gitconfigscope.Scope, key string) (string, error) {
+					if scope != gitconfigscope.Global {
+						return "", fmt.Errorf("wrong scope: %s", scope)
+					}
 					if key != "team.config.activation-scope" {
-						return "", errors.New("wrong key")
+						return "", fmt.Errorf("wrong key: %s", key)
 					}
 					return rawGitConfigScope, nil
 				},
 			}
-			cfg, _ := NewGitconfigDataSource(rawReader).Read()
+			cfg, _ := NewGitconfigDataSource(gitConfigReader).Read()
 
 			if !reflect.DeepEqual(expectedCfg, cfg) {
 				t.Errorf("expected: %s, received %s", expectedCfg, cfg)
@@ -58,16 +67,19 @@ func TestLoadSucceedsWhenActivationScopeIsUnsetInGitconfig(t *testing.T) {
 
 	expectedCfg := config.Config{ActivationScope: activationscope.Global}
 
-	rawReader := gitconfigRawReaderMock{
-		get: func(key string) (string, error) {
+	gitConfigReader := gitConfigReaderMock{
+		get: func(scope gitconfigscope.Scope, key string) (string, error) {
+			if scope != gitconfigscope.Global {
+				return "", fmt.Errorf("wrong scope: %s", scope)
+			}
 			if key != "team.config.activation-scope" {
-				return "", errors.New("wrong key")
+				return "", fmt.Errorf("wrong key: %s", key)
 			}
 			return "", errors.New("exit status 1")
 		},
 	}
 
-	cfg, err := NewGitconfigDataSource(rawReader).Read()
+	cfg, err := NewGitconfigDataSource(gitConfigReader).Read()
 
 	if err != nil {
 		t.Errorf("expected no error, received: %s", err)
@@ -82,15 +94,18 @@ func TestLoadSucceedsWhenActivationScopeIsUnsetInGitconfig(t *testing.T) {
 
 func TestLoadFailsWhenReadingFromGitconfigFails(t *testing.T) {
 	t.Parallel()
-	rawReader := gitconfigRawReaderMock{
-		get: func(key string) (string, error) {
+	gitConfigReader := gitConfigReaderMock{
+		get: func(scope gitconfigscope.Scope, key string) (string, error) {
+			if scope != gitconfigscope.Global {
+				return "", fmt.Errorf("wrong scope: %s", scope)
+			}
 			if key != "team.config.activation-scope" {
-				return "", errors.New("wrong key")
+				return "", fmt.Errorf("wrong key: %s", key)
 			}
 			return "", errors.New("reading from gitconfig failed")
 		},
 	}
-	cfg, err := NewGitconfigDataSource(rawReader).Read()
+	cfg, err := NewGitconfigDataSource(gitConfigReader).Read()
 
 	if err == nil {
 		t.Errorf("expected error, received %s", cfg)
@@ -100,15 +115,18 @@ func TestLoadFailsWhenReadingFromGitconfigFails(t *testing.T) {
 
 func TestLoadFailsWhenActivationScopeFromGitconfigIsUnknown(t *testing.T) {
 	t.Parallel()
-	rawReader := gitconfigRawReaderMock{
-		get: func(key string) (string, error) {
+	gitConfigReader := gitConfigReaderMock{
+		get: func(scope gitconfigscope.Scope, key string) (string, error) {
+			if scope != gitconfigscope.Global {
+				return "", fmt.Errorf("wrong scope: %s", scope)
+			}
 			if key != "team.config.activation-scope" {
-				return "", errors.New("wrong key")
+				return "", fmt.Errorf("wrong key: %s", key)
 			}
 			return "unknown", nil
 		},
 	}
-	cfg, err := NewGitconfigDataSource(rawReader).Read()
+	cfg, err := NewGitconfigDataSource(gitConfigReader).Read()
 
 	if err == nil {
 		t.Errorf("expected error, received %s", cfg)
