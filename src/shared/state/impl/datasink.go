@@ -7,6 +7,8 @@ import (
 	state "github.com/hekmekk/git-team/src/shared/state/entity"
 )
 
+// TODO: when writer acccepts acitvationsscope, a test is needed to check the activationscope -> gitconfig.Scope translation
+
 // GitConfigDataSink write data directly to gitconfig
 type GitConfigDataSink struct {
 	GitConfigWriter gitconfig.Writer
