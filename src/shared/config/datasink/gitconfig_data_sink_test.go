@@ -6,23 +6,31 @@ import (
 	"testing"
 
 	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
 type gitConfigWriterMock struct {
-	replaceAll func(key string, value string) error
+	replaceAll func(scope gitconfigscope.Scope, key string, value string) error
 }
 
-func (mock gitConfigWriterMock) ReplaceAll(key string, value string) error {
-	return mock.replaceAll(key, value)
+func (mock gitConfigWriterMock) Add(scope gitconfigscope.Scope, key string, value string) error {
+	return nil
 }
 
-func (mock gitConfigWriterMock) UnsetAll(key string) error {
+func (mock gitConfigWriterMock) ReplaceAll(scope gitconfigscope.Scope, key string, value string) error {
+	return mock.replaceAll(scope, key, value)
+}
+
+func (mock gitConfigWriterMock) UnsetAll(scope gitconfigscope.Scope, key string) error {
 	return nil
 }
 
 func TestSetActivationScopeSucceeds(t *testing.T) {
 	gitConfigWriter := gitConfigWriterMock{
-		replaceAll: func(key string, value string) error {
+		replaceAll: func(scope gitconfigscope.Scope, key string, value string) error {
+			if scope != gitconfigscope.Global {
+				return errors.New("wrong scope")
+			}
 			if key != "team.config.activation-scope" {
 				return errors.New("wrong key")
 			}
@@ -42,7 +50,10 @@ func TestSetActivationScopeFails(t *testing.T) {
 	expectedErr := errors.New("gitconfig failed")
 
 	gitConfigWriter := gitConfigWriterMock{
-		replaceAll: func(key string, value string) error {
+		replaceAll: func(scope gitconfigscope.Scope, key string, value string) error {
+			if scope != gitconfigscope.Global {
+				return errors.New("wrong scope")
+			}
 			if key != "team.config.activation-scope" {
 				return errors.New("wrong key")
 			}
