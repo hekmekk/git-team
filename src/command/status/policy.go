@@ -2,7 +2,6 @@ package status
 
 import (
 	"github.com/hekmekk/git-team/src/core/events"
-	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
 	config "github.com/hekmekk/git-team/src/shared/config/interface"
 	state "github.com/hekmekk/git-team/src/shared/state/interface"
 )
@@ -22,12 +21,12 @@ type Policy struct {
 func (policy Policy) Apply() events.Event {
 	deps := policy.Deps
 
-	_, cfgReadErr := deps.ConfigReader.Read()
+	cfg, cfgReadErr := deps.ConfigReader.Read()
 	if cfgReadErr != nil {
 		return StateRetrievalFailed{Reason: cfgReadErr}
 	}
 
-	state, stateRepositoryQueryErr := deps.StateReader.Query(activationscope.Global)
+	state, stateRepositoryQueryErr := deps.StateReader.Query(cfg.ActivationScope)
 	if stateRepositoryQueryErr != nil {
 		return StateRetrievalFailed{Reason: stateRepositoryQueryErr}
 	}
