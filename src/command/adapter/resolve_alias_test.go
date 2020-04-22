@@ -3,13 +3,20 @@ package commandadapter
 import (
 	"errors"
 	"testing"
+
+	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
 func TestShouldReturnTheAssignedCoAuthor(t *testing.T) {
 	mr := "mr"
 	mrNoujz := "Mr. Noujz <noujz@mr.se>"
 
-	gitconfigGet := func(args string) (string, error) { return mrNoujz, nil }
+	gitconfigGet := func(scope gitconfigscope.Scope, args string) (string, error) {
+		if scope != gitconfigscope.Global {
+			return "", errors.New("wrong scope")
+		}
+		return mrNoujz, nil
+	}
 
 	coauthor, err := resolveAlias(gitconfigGet)(mr)
 
@@ -27,7 +34,12 @@ func TestShouldReturnTheAssignedCoAuthor(t *testing.T) {
 func TestShouldReturnErrorIfNoAssignmentIsFound(t *testing.T) {
 	mr := "mr"
 
-	gitconfigGet := func(alias string) (string, error) { return "", nil }
+	gitconfigGet := func(scope gitconfigscope.Scope, alias string) (string, error) {
+		if scope != gitconfigscope.Global {
+			return "", errors.New("wrong scope")
+		}
+		return "", nil
+	}
 
 	coauthor, err := resolveAlias(gitconfigGet)(mr)
 
@@ -44,13 +56,19 @@ func TestShouldReturnErrorIfNoAssignmentIsFound(t *testing.T) {
 
 func TestShouldReturnErrorIfResolvingFails(t *testing.T) {
 	mr := "mr"
+	expectedErr := errors.New("Failed to resolve alias team.alias.mr")
 
-	gitconfigGet := func(alias string) (string, error) { return "", errors.New("git command failed") }
+	gitconfigGet := func(scope gitconfigscope.Scope, alias string) (string, error) {
+		if scope != gitconfigscope.Global {
+			return "", errors.New("wrong scope")
+		}
+		return "", errors.New("git command failed")
+	}
 
 	coauthor, err := resolveAlias(gitconfigGet)(mr)
 
-	if err == nil {
-		t.Error("expected an error")
+	if err.Error() != expectedErr.Error() {
+		t.Errorf("expected: %s, received: %s", expectedErr, err)
 		t.Fail()
 	}
 
