@@ -41,6 +41,8 @@ func policy(coauthors *[]string) enable.Policy {
 			CommitSettingsReader: commitsettingsds.NewStaticValueDataSource(),
 			ConfigReader:         configds.NewGitconfigDataSource(gitconfig.NewDataSource()),
 			StateWriter:          state.NewGitConfigDataSink(gitconfig.NewDataSink()),
+			GetEnv:               os.Getenv,
+			GetWd:                os.Getwd,
 		},
 	}
 }

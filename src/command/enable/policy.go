@@ -1,6 +1,8 @@
 package enable
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"os"
 
@@ -24,6 +26,8 @@ type Dependencies struct {
 	ConfigReader         config.Reader
 	GitConfigWriter      gitconfig.Writer
 	StateWriter          state.Writer
+	GetEnv               func(string) string
+	GetWd                func() (string, error)
 }
 
 // Request the coauthors with which to enable git-team
@@ -125,4 +129,10 @@ func setupTemplate(deps Dependencies, commitTemplateBaseDir string, uniqueCoauth
 	}
 
 	return nil
+}
+
+func determineRepoChecksum(user string, repoPath string) string {
+	hasher := md5.New()
+	hasher.Write([]byte(fmt.Sprintf("%s:%s", user, repoPath)))
+	return hex.EncodeToString(hasher.Sum(nil))
 }

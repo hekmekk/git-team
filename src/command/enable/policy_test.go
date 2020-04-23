@@ -73,6 +73,10 @@ func (mock stateWriterMock) PersistDisabled(scope activationscope.ActivationScop
 	return nil
 }
 
+// TODO: add case where we try to enable in repo-local scope without being in a git repository
+
+// TODO: add case where GetWd fails
+
 func TestEnableAborted(t *testing.T) {
 	deps := Dependencies{}
 	req := Request{AliasesAndCoauthors: &[]string{}}
@@ -103,13 +107,17 @@ func TestEnableSucceeds(t *testing.T) {
 	}
 	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
 
+	user := "someone"
+	pathToRepo := "/path/to/repo"
+	repoChecksum := "c3db2532300240f7460c0ffa99fff888" // echo <user>:<pathToRepo> | md5sum | awk '{ print $1 }'
+
 	cases := []struct {
 		activationScope activationscope.ActivationScope
 		templateDir     string
 		gitconfigScope  gitconfigscope.Scope
 	}{
 		{activationscope.Global, fmt.Sprintf("%s/global", commitSettings.TemplatesBaseDir), gitconfigscope.Global},
-		{activationscope.RepoLocal, fmt.Sprintf("%s/repo-local/<hash>", commitSettings.TemplatesBaseDir), gitconfigscope.Local},
+		{activationscope.RepoLocal, fmt.Sprintf("%s/repo-local/%s", commitSettings.TemplatesBaseDir, repoChecksum), gitconfigscope.Local},
 	}
 
 	deps := Dependencies{
@@ -117,6 +125,12 @@ func TestEnableSucceeds(t *testing.T) {
 		WriteTemplateFile:    WriteTemplateFile,
 		GitResolveAliases:    resolveAliases,
 		CommitSettingsReader: commitSettingsReader,
+		GetEnv: func(string) string {
+			return user
+		},
+		GetWd: func() (string, error) {
+			return pathToRepo, nil
+		},
 	}
 
 	for _, caseLoopVar := range cases {
