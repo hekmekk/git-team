@@ -1,6 +1,7 @@
 package entity
 
 // TODO: should this live in its own module?
+// TODO: rename to Scope -> activationscope.Scope
 
 // ActivationScope the scope of git team
 type ActivationScope int
