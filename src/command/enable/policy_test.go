@@ -75,8 +75,6 @@ func (mock stateWriterMock) PersistDisabled(scope activationscope.ActivationScop
 
 // TODO: add case where we try to enable in repo-local scope without being in a git repository
 
-// TODO: add case where GetWd fails
-
 // TODO: add parameterized case to ensure diff commit template folders for diff users and repos each
 
 func TestEnableAborted(t *testing.T) {
@@ -320,6 +318,45 @@ func TestEnableFailsDueToConfigReaderError(t *testing.T) {
 	}
 
 	req := Request{AliasesAndCoauthors: coauthors}
+
+	expectedEvent := Failed{Reason: []error{expectedErr}}
+
+	event := Policy{deps, req}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
+	}
+}
+
+func TestEnableFailsDueToGetWdErr(t *testing.T) {
+	coauthors := []string{"Mr. Noujz <noujz@mr.se>"}
+
+	expectedErr := errors.New("Failed to get working dir")
+
+	sanityCheck := func([]string) []error { return []error{} }
+	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
+	CreateTemplateDir := func(string, os.FileMode) error { return nil }
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.RepoLocal}, nil
+		},
+	}
+
+	deps := Dependencies{
+		SanityCheckCoauthors: sanityCheck,
+		CreateTemplateDir:    CreateTemplateDir,
+		GitResolveAliases:    resolveAliases,
+		CommitSettingsReader: commitSettingsReader,
+		ConfigReader:         configReader,
+		GetEnv: func(string) string {
+			return "USER"
+		},
+		GetWd: func() (string, error) {
+			return "", expectedErr
+		},
+	}
+	req := Request{AliasesAndCoauthors: &coauthors}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
 
