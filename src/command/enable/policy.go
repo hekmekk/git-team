@@ -122,7 +122,10 @@ func setupTemplate(gitConfigScope gitconfigscope.Scope, deps Dependencies, commi
 	var templateDir string
 
 	if gitConfigScope == gitconfigscope.Local {
-		templateDir = fmt.Sprintf("%s/repo-local/%s", commitTemplateBaseDir, determineRepoChecksum("someone", "/path/to/repo"))
+		user := deps.GetEnv("USER")
+		workingDir, _ := deps.GetWd() // TODO: handle error
+		// TODO: check if workingDir is actually a git repository
+		templateDir = fmt.Sprintf("%s/repo-local/%s", commitTemplateBaseDir, determineRepoChecksum(user, workingDir))
 	} else {
 		templateDir = fmt.Sprintf("%s/global", commitTemplateBaseDir)
 	}
