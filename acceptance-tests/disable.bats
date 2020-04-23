@@ -3,6 +3,8 @@
 load '/bats-libs/bats-support/load.bash'
 load '/bats-libs/bats-assert/load.bash'
 
+# TODO: add cases based on activation scope
+
 @test "git-team: disable should disable a previously enabled git-team" {
 	mkdir -p /root/.config/git-team/
 

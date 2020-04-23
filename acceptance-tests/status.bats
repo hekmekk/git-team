@@ -3,6 +3,8 @@
 load '/bats-libs/bats-support/load.bash'
 load '/bats-libs/bats-assert/load.bash'
 
+# TODO: add cases based on activation scope
+
 @test 'git-team: status should properly display a disabled status' {
 	run /usr/local/bin/git-team status
 	assert_success
