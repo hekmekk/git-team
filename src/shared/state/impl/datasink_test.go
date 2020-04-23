@@ -43,7 +43,7 @@ func TestPersistSucceeds(t *testing.T) {
 
 func TestPersistSucceedsWhenTryingToRemoveNonExistingActiveCoauthorsFromGitConfig(t *testing.T) {
 	gitConfigWriter := &gitConfigWriterMock{
-		unsetAll:   func(gitconfigscope.Scope, string) error { return errors.New("exec status 5") },
+		unsetAll:   func(gitconfigscope.Scope, string) error { return errors.New("exit status 5") },
 		add:        func(gitconfigscope.Scope, string, string) error { return nil },
 		replaceAll: func(gitconfigscope.Scope, string, string) error { return nil },
 	}
