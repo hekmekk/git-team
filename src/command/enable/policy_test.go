@@ -77,6 +77,8 @@ func (mock stateWriterMock) PersistDisabled(scope activationscope.ActivationScop
 
 // TODO: add case where GetWd fails
 
+// TODO: add parameterized case to ensure diff commit template folders for diff users and repos each
+
 func TestEnableAborted(t *testing.T) {
 	deps := Dependencies{}
 	req := Request{AliasesAndCoauthors: &[]string{}}
@@ -150,10 +152,12 @@ func TestEnableSucceeds(t *testing.T) {
 			deps.GitConfigWriter = &gitConfigWriterMock{
 				replaceAll: func(scope scope.Scope, key string, value string) error {
 					if key != "commit.template" && key != "core.hooksPath" {
-						return fmt.Errorf("wrong key: %s", key)
+						t.Errorf("wrong key: %s", key)
+						t.Fail()
 					}
 					if scope != expectedGitConfigScope {
-						return fmt.Errorf("wrong scope, expected: %s, got: %s", expectedGitConfigScope, scope)
+						t.Errorf("wrong scope, expected: %s, got: %s", expectedGitConfigScope, scope)
+						t.Fail()
 					}
 					return nil
 				},
@@ -162,7 +166,8 @@ func TestEnableSucceeds(t *testing.T) {
 			deps.StateWriter = &stateWriterMock{
 				persistEnabled: func(scope activationscope.ActivationScope, coauthors []string) error {
 					if scope != activationScope {
-						return fmt.Errorf("wrong scope, expected: %s, got: %s", activationScope, scope)
+						t.Errorf("wrong scope, expected: %s, got: %s", activationScope, scope)
+						t.Fail()
 					}
 					if !reflect.DeepEqual(expectedStateRepositoryPersistEnabledCoauthors, coauthors) {
 						t.Errorf("expected: %s, got: %s", expectedStateRepositoryPersistEnabledCoauthors, coauthors)
@@ -174,7 +179,8 @@ func TestEnableSucceeds(t *testing.T) {
 
 			deps.CreateTemplateDir = func(path string, _ os.FileMode) error {
 				if path != expectedTemplateDir {
-					return fmt.Errorf("wrong path to template dir, expected: %s, got: %s", expectedTemplateDir, path)
+					t.Errorf("wrong path to template dir, expected: %s, got: %s", expectedTemplateDir, path)
+					t.Fail()
 				}
 				return nil
 			}

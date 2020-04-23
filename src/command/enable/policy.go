@@ -61,20 +61,27 @@ func (policy Policy) Apply() events.Event {
 
 	settings := deps.CommitSettingsReader.Read()
 
-	_, err := deps.ConfigReader.Read()
+	cfg, err := deps.ConfigReader.Read()
 	if err != nil {
 		return Failed{Reason: []error{err}}
 	}
 
-	if err := setupTemplate(deps, settings.TemplatesBaseDir, uniqueCoauthors); err != nil {
+	var gitConfigScope gitconfigscope.Scope
+	if cfg.ActivationScope == activationscope.Global {
+		gitConfigScope = gitconfigscope.Global
+	} else {
+		gitConfigScope = gitconfigscope.Local
+	}
+
+	if err := setupTemplate(gitConfigScope, deps, settings.TemplatesBaseDir, uniqueCoauthors); err != nil {
 		return Failed{Reason: []error{err}}
 	}
 
-	if err := deps.GitConfigWriter.ReplaceAll(gitconfigscope.Global, "core.hooksPath", settings.HooksDir); err != nil {
+	if err := deps.GitConfigWriter.ReplaceAll(gitConfigScope, "core.hooksPath", settings.HooksDir); err != nil {
 		return Failed{Reason: []error{err}}
 	}
 
-	if err := deps.StateWriter.PersistEnabled(activationscope.Global, uniqueCoauthors); err != nil {
+	if err := deps.StateWriter.PersistEnabled(cfg.ActivationScope, uniqueCoauthors); err != nil {
 		return Failed{Reason: []error{err}}
 	}
 
@@ -111,8 +118,14 @@ func removeDuplicates(coauthors []string) []string {
 	return uniqueCoauthors
 }
 
-func setupTemplate(deps Dependencies, commitTemplateBaseDir string, uniqueCoauthors []string) error {
-	templateDir := fmt.Sprintf("%s/global", commitTemplateBaseDir)
+func setupTemplate(gitConfigScope gitconfigscope.Scope, deps Dependencies, commitTemplateBaseDir string, uniqueCoauthors []string) error {
+	var templateDir string
+
+	if gitConfigScope == gitconfigscope.Local {
+		templateDir = fmt.Sprintf("%s/repo-local/%s", commitTemplateBaseDir, determineRepoChecksum("someone", "/path/to/repo"))
+	} else {
+		templateDir = fmt.Sprintf("%s/global", commitTemplateBaseDir)
+	}
 
 	if err := deps.CreateTemplateDir(templateDir, os.ModePerm); err != nil {
 		return err
@@ -124,7 +137,7 @@ func setupTemplate(deps Dependencies, commitTemplateBaseDir string, uniqueCoauth
 		return err
 	}
 
-	if err := deps.GitConfigWriter.ReplaceAll(gitconfigscope.Global, "commit.template", commitTemplatePath); err != nil {
+	if err := deps.GitConfigWriter.ReplaceAll(gitConfigScope, "commit.template", commitTemplatePath); err != nil {
 		return err
 	}
 
