@@ -109,7 +109,7 @@ func TestEnableSucceeds(t *testing.T) {
 
 	user := "someone"
 	pathToRepo := "/path/to/repo"
-	repoChecksum := "c3db2532300240f7460c0ffa99fff888" // echo <user>:<pathToRepo> | md5sum | awk '{ print $1 }'
+	repoChecksum := "a05b508ef212dc640aced4037a66021d" // echo -n <user>:<pathToRepo> | md5sum | awk '{ print $1 }'
 
 	cases := []struct {
 		activationScope activationscope.ActivationScope

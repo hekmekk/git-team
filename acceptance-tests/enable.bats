@@ -91,7 +91,7 @@ teardown() {
 @test "git-team: enable should set a repo-local commit template" {
 	/usr/local/bin/git-team config activation-scope repo-local
 
-	repoChecksum=$(echo $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
+	repoChecksum=$(echo -n $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
 
 	cd $REPO_PATH
 	git init
@@ -118,7 +118,7 @@ teardown() {
 @test "git-team: enable should provision the repo-local commit template" {
 	/usr/local/bin/git-team config activation-scope repo-local
 
-	repoChecksum=$(echo $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
+	repoChecksum=$(echo -n $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
 
 	cd $REPO_PATH
 	git init
