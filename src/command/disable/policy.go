@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/hekmekk/git-team/src/core/events"
+	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
 	config "github.com/hekmekk/git-team/src/shared/config/interface"
 	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
@@ -50,7 +51,7 @@ func (policy Policy) Apply() events.Event {
 		}
 	}
 
-	if err := deps.StateWriter.PersistDisabled(gitconfigscope.Global); err != nil {
+	if err := deps.StateWriter.PersistDisabled(activationscope.Global); err != nil {
 		return Failed{Reason: err}
 	}
 

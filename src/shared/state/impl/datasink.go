@@ -1,13 +1,12 @@
 package stateimpl
 
 import (
+	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
 	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
-	scope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 	state "github.com/hekmekk/git-team/src/shared/state/entity"
 )
-
-// TODO: when writer acccepts acitvationsscope, a test is needed to check the activationscope -> gitconfig.Scope translation
 
 // GitConfigDataSink write data directly to gitconfig
 type GitConfigDataSink struct {
@@ -20,29 +19,36 @@ func NewGitConfigDataSink(gitConfigWriter gitconfig.Writer) GitConfigDataSink {
 }
 
 // PersistEnabled persist the current state as enabled
-func (ds GitConfigDataSink) PersistEnabled(scope scope.Scope, coauthors []string) error {
+func (ds GitConfigDataSink) PersistEnabled(scope activationscope.ActivationScope, coauthors []string) error {
 	return ds.persist(scope, state.NewStateEnabled(coauthors))
 }
 
 // PersistDisabled persist the current state as disabled
-func (ds GitConfigDataSink) PersistDisabled(scope scope.Scope) error {
+func (ds GitConfigDataSink) PersistDisabled(scope activationscope.ActivationScope) error {
 	return ds.persist(scope, state.NewStateDisabled())
 }
 
-func (ds GitConfigDataSink) persist(scope scope.Scope, state state.State) error {
+func (ds GitConfigDataSink) persist(activationScope activationscope.ActivationScope, state state.State) error {
 	gitConfigWriter := ds.GitConfigWriter
 
-	if err := gitConfigWriter.UnsetAll(scope, "team.state.active-coauthors"); err != nil && err.Error() != giterror.UnsetOptionWhichDoesNotExist {
+	var gitConfigScope gitconfigscope.Scope
+	if activationScope == activationscope.Global {
+		gitConfigScope = gitconfigscope.Global
+	} else {
+		gitConfigScope = gitconfigscope.Local
+	}
+
+	if err := gitConfigWriter.UnsetAll(gitConfigScope, "team.state.active-coauthors"); err != nil && err.Error() != giterror.UnsetOptionWhichDoesNotExist {
 		return err
 	}
 
 	for _, coauthor := range state.Coauthors {
-		if err := gitConfigWriter.Add(scope, "team.state.active-coauthors", coauthor); err != nil {
+		if err := gitConfigWriter.Add(gitConfigScope, "team.state.active-coauthors", coauthor); err != nil {
 			return err
 		}
 	}
 
-	if err := gitConfigWriter.ReplaceAll(scope, "team.state.status", string(state.Status)); err != nil {
+	if err := gitConfigWriter.ReplaceAll(gitConfigScope, "team.state.status", string(state.Status)); err != nil {
 		return err
 	}
 

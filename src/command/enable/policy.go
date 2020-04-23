@@ -7,6 +7,7 @@ import (
 	commitsettings "github.com/hekmekk/git-team/src/command/enable/commitsettings/interface"
 	utils "github.com/hekmekk/git-team/src/command/enable/utils"
 	"github.com/hekmekk/git-team/src/core/events"
+	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
 	config "github.com/hekmekk/git-team/src/shared/config/interface"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
@@ -69,7 +70,7 @@ func (policy Policy) Apply() events.Event {
 		return Failed{Reason: []error{err}}
 	}
 
-	if err := deps.StateWriter.PersistEnabled(gitconfigscope.Global, uniqueCoauthors); err != nil {
+	if err := deps.StateWriter.PersistEnabled(activationscope.Global, uniqueCoauthors); err != nil {
 		return Failed{Reason: []error{err}}
 	}
 
