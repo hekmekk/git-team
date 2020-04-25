@@ -4,6 +4,7 @@ load '/bats-libs/bats-support/load.bash'
 load '/bats-libs/bats-assert/load.bash'
 
 REPO_PATH=/tmp/repo/enable-tests
+REPO_CHECKSUM=$(echo -n $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
 
 setup() {
 	cp /usr/local/bin/prepare-commit-msg /usr/local/etc/git-team/hooks/prepare-commit-msg
@@ -23,7 +24,6 @@ teardown() {
 	/usr/local/bin/git-team rm c
 
 	rm -rf $REPO_PATH
-
 }
 
 @test "git-team: enable should persist the current status to global gitconfig" {
@@ -91,8 +91,6 @@ teardown() {
 @test "git-team: enable should set a repo-local commit template" {
 	/usr/local/bin/git-team config activation-scope repo-local
 
-	repoChecksum=$(echo -n $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
-
 	cd $REPO_PATH
 	git init
 	git config user.name git-team-acceptance-test
@@ -100,7 +98,7 @@ teardown() {
 
 	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && git config --local commit.template"
 	assert_success
-	assert_line "/root/.config/git-team/commit-templates/repo-local/$repoChecksum/COMMIT_TEMPLATE"
+	assert_line "/root/.config/git-team/commit-templates/repo-local/$REPO_CHECKSUM/COMMIT_TEMPLATE"
 
 	/usr/local/bin/git-team config activation-scope global
 	cd -
@@ -118,14 +116,12 @@ teardown() {
 @test "git-team: enable should provision the repo-local commit template" {
 	/usr/local/bin/git-team config activation-scope repo-local
 
-	repoChecksum=$(echo -n $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
-
 	cd $REPO_PATH
 	git init
 	git config user.name git-team-acceptance-test
 	git config user.email foo@bar.baz
 
-	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && cat /root/.config/git-team/commit-templates/repo-local/$repoChecksum/COMMIT_TEMPLATE"
+	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && cat /root/.config/git-team/commit-templates/repo-local/$REPO_CHECKSUM/COMMIT_TEMPLATE"
 	assert_success
 	assert_line --index 0 'Co-authored-by: A <a@x.y>'
 	assert_line --index 1 'Co-authored-by: Ad-hoc <adhoc@tmp.se>'
