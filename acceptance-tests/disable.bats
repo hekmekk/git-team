@@ -204,7 +204,7 @@ teardown() {
 
 	run /usr/local/bin/git-team disable
 	assert_failure 255
-	assert_line 'error: Failed to disable with scope=repo-local: not inside a git repository'
+	assert_line 'error: Failed to disable with activation-scope=repo-local: not inside a git repository'
 
 	/usr/local/bin/git-team config activation-scope global
 	rm -rf /root/.config/git-team/

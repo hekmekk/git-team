@@ -80,7 +80,7 @@ teardown() {
 
 	run /usr/local/bin/git-team status
 	assert_failure 255
-	assert_line 'error: Failed to get status with scope=repo-local: not inside a git repository'
+	assert_line 'error: Failed to get status with activation-scope=repo-local: not inside a git repository'
 
 	/usr/local/bin/git-team config activation-scope global
 }

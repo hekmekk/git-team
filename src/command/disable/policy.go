@@ -44,7 +44,7 @@ func (policy Policy) Apply() events.Event {
 	activationScope := cfg.ActivationScope
 
 	if activationScope == activationscope.RepoLocal && !deps.ActivationValidator.IsInsideAGitRepository() {
-		return Failed{Reason: fmt.Errorf("Failed to disable with scope=%s: not inside a git repository", activationScope)}
+		return Failed{Reason: fmt.Errorf("Failed to disable with activation-scope=%s: not inside a git repository", activationScope)}
 	}
 
 	var gitConfigScope gitconfigscope.Scope

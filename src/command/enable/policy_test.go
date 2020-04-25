@@ -415,7 +415,7 @@ func TestEnableFailsDueToConfigReaderError(t *testing.T) {
 func TestEnableFailsWhenNotInsideAGitRepository(t *testing.T) {
 	coauthors := &[]string{"Mr. Noujz <noujz@mr.se>"}
 
-	expectedErr := errors.New("Failed to enable with scope=repo-local: not inside a git repository")
+	expectedErr := errors.New("Failed to enable with activation-scope=repo-local: not inside a git repository")
 
 	sanityCheck := func([]string) []error { return []error{} }
 	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }

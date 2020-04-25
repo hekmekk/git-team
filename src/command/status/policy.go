@@ -34,7 +34,7 @@ func (policy Policy) Apply() events.Event {
 	activationScope := cfg.ActivationScope
 
 	if activationScope == activationscope.RepoLocal && !deps.ActivationValidator.IsInsideAGitRepository() {
-		return StateRetrievalFailed{Reason: fmt.Errorf("Failed to get status with scope=%s: not inside a git repository", activationScope)}
+		return StateRetrievalFailed{Reason: fmt.Errorf("Failed to get status with activation-scope=%s: not inside a git repository", activationScope)}
 	}
 
 	state, stateRepositoryQueryErr := deps.StateReader.Query(cfg.ActivationScope)

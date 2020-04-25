@@ -256,7 +256,7 @@ func TestDisableShouldFailWhenNotInsideAGitRepository(t *testing.T) {
 		},
 	}
 
-	expectedErr := errors.New("Failed to disable with scope=repo-local: not inside a git repository")
+	expectedErr := errors.New("Failed to disable with activation-scope=repo-local: not inside a git repository")
 
 	expectedEvent := Failed{Reason: expectedErr}
 

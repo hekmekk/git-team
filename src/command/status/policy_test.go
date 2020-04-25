@@ -115,7 +115,7 @@ func TestStatusShouldFailWhenNotInsideAGitRepository(t *testing.T) {
 		},
 	}
 
-	expectedErr := errors.New("Failed to get status with scope=repo-local: not inside a git repository")
+	expectedErr := errors.New("Failed to get status with activation-scope=repo-local: not inside a git repository")
 
 	expectedEvent := StateRetrievalFailed{Reason: expectedErr}
 
