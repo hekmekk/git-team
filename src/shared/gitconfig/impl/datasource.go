@@ -22,3 +22,8 @@ func (ds DataSource) Get(scope scope.Scope, key string) (string, error) {
 func (ds DataSource) GetAll(scope scope.Scope, key string) ([]string, error) {
 	return gitconfiglegacy.GetAll(scope, key)
 }
+
+// List show the entire config
+func (ds DataSource) List(scope scope.Scope) (map[string]string, error) {
+	return gitconfiglegacy.List(scope)
+}

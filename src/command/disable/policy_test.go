@@ -23,6 +23,10 @@ func (mock gitConfigReaderMock) GetAll(scope gitconfigscope.Scope, key string) (
 	return []string{}, nil
 }
 
+func (mock gitConfigReaderMock) List(scope gitconfigscope.Scope) (map[string]string, error) {
+	return nil, nil
+}
+
 type gitConfigWriterMock struct {
 	unsetAll func(gitconfigscope.Scope, string) error
 }

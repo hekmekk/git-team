@@ -74,6 +74,29 @@ func getRegexp(exec func(scope.Scope, ...string) ([]string, error)) func(scope.S
 	}
 }
 
+// List git config --<scope> --list
+func List(scope scope.Scope) (map[string]string, error) {
+	return list(execGitConfig)(scope)
+}
+
+func list(exec func(scope.Scope, ...string) ([]string, error)) func(scope.Scope) (map[string]string, error) {
+	return func(scope scope.Scope) (map[string]string, error) {
+		mapping := make(map[string]string, 0)
+
+		lines, err := exec(scope, "--list")
+		if err != nil {
+			return mapping, err
+		}
+
+		for _, line := range lines {
+			keyAndValue := regexp.MustCompile("=").Split(line, 2)
+			mapping[keyAndValue[0]] = keyAndValue[1]
+		}
+
+		return mapping, nil
+	}
+}
+
 // execute /usr/bin/env git config --<scope> <options>
 func execGitConfig(scope scope.Scope, options ...string) ([]string, error) {
 	gitConfigCommand := func(additionalOptions ...string) ([]byte, error) {

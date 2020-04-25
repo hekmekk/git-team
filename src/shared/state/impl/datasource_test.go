@@ -22,6 +22,10 @@ func (mock gitConfigReaderMock) GetAll(scope gitconfigscope.Scope, key string) (
 	return mock.getAll(scope, key)
 }
 
+func (mock gitConfigReaderMock) List(scope gitconfigscope.Scope) (map[string]string, error) {
+	return nil, nil
+}
+
 // TODO: Add test for correct activationscope -> gitconfig.Scope translation
 
 func TestQueryDisabled(t *testing.T) {
