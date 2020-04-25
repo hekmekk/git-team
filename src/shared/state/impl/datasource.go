@@ -20,13 +20,20 @@ func NewGitConfigDataSource(gitConfigReader gitconfig.Reader) GitConfigDataSourc
 }
 
 // Query read the current state from gitconfig
-func (ds GitConfigDataSource) Query(scope activationscope.ActivationScope) (state.State, error) {
-	status, err := ds.GitConfigReader.Get(gitconfigscope.Global, "team.state.status")
+func (ds GitConfigDataSource) Query(activationScope activationscope.ActivationScope) (state.State, error) {
+	var gitConfigScope gitconfigscope.Scope
+	if activationScope == activationscope.Global {
+		gitConfigScope = gitconfigscope.Global
+	} else {
+		gitConfigScope = gitconfigscope.Local
+	}
+
+	status, err := ds.GitConfigReader.Get(gitConfigScope, "team.state.status")
 	if err != nil || "disabled" == status || "" == status {
 		return state.NewStateDisabled(), nil
 	}
 
-	activeCoauthors, err := ds.GitConfigReader.GetAll(gitconfigscope.Global, "team.state.active-coauthors")
+	activeCoauthors, err := ds.GitConfigReader.GetAll(gitConfigScope, "team.state.active-coauthors")
 	if err != nil {
 		return state.State{}, errors.New("no active co-authors found")
 	}

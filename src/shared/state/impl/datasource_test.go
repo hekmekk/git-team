@@ -26,8 +26,6 @@ func (mock gitConfigReaderMock) List(scope gitconfigscope.Scope) (map[string]str
 	return nil, nil
 }
 
-// TODO: Add test for correct activationscope -> gitconfig.Scope translation
-
 func TestQueryDisabled(t *testing.T) {
 	expectedState := state.State{Status: "disabled", Coauthors: []string{}}
 
@@ -101,5 +99,45 @@ func TestQueryDisabledWhenStatusUnset(t *testing.T) {
 	if !reflect.DeepEqual(expectedState, state) {
 		t.Errorf("expected: %s, got: %s", expectedState, state)
 		t.Fail()
+	}
+}
+
+func TestQueryTranslatesActivationScopeToGitconfigScopeCorrectly(t *testing.T) {
+	t.Parallel()
+
+	properties := []struct {
+		activationScope activationscope.ActivationScope
+		gitConfigScope  gitconfigscope.Scope
+	}{
+		{activationscope.Global, gitconfigscope.Global},
+		{activationscope.RepoLocal, gitconfigscope.Local},
+	}
+
+	for _, caseLoopVar := range properties {
+		activationScope := caseLoopVar.activationScope
+		gitConfigScope := caseLoopVar.gitConfigScope
+
+		t.Run(activationScope.String(), func(t *testing.T) {
+			t.Parallel()
+
+			gitConfigReader := &gitConfigReaderMock{
+				get: func(scope gitconfigscope.Scope, key string) (string, error) {
+					if scope != gitConfigScope {
+						t.Errorf("wrong scope, expected: %s, got: %s", gitConfigScope, scope)
+						t.Fail()
+					}
+					return "enabled", nil
+				},
+				getAll: func(scope gitconfigscope.Scope, key string) ([]string, error) {
+					if scope != gitConfigScope {
+						t.Errorf("wrong scope, expected: %s, got: %s", gitConfigScope, scope)
+						t.Fail()
+					}
+					return []string{"Mr. Noujz <noujz@mr.se>"}, nil
+				},
+			}
+
+			NewGitConfigDataSource(gitConfigReader).Query(activationScope)
+		})
 	}
 }
