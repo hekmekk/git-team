@@ -73,8 +73,6 @@ func (mock activationValidatorMock) IsInsideAGitRepository() bool {
 	return mock.isInsideAGitRepository()
 }
 
-// TODO: add parameterized case to ensure diff commit template folders for diff users and repos each
-
 func TestEnableAborted(t *testing.T) {
 	deps := Dependencies{}
 	req := Request{AliasesAndCoauthors: &[]string{}}
@@ -196,6 +194,81 @@ func TestEnableSucceeds(t *testing.T) {
 				t.Errorf("expected: %s, got: %s", expectedEvent, event)
 				t.Fail()
 			}
+		})
+	}
+}
+
+func TestEnableKeepsSeparateCommitTemplatesPerUserAndRepository(t *testing.T) {
+	t.Parallel()
+
+	deps := Dependencies{
+		SanityCheckCoauthors: func(coauthors []string) []error { return []error{} },
+		WriteTemplateFile: func(_ string, data []byte, _ os.FileMode) error {
+			return nil
+		},
+		GitResolveAliases:    func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} },
+		CommitSettingsReader: commitSettingsReader,
+		ConfigReader: &configReaderMock{
+			read: func() (config.Config, error) {
+				return config.Config{ActivationScope: activationscope.RepoLocal}, nil
+			},
+		},
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
+			},
+		},
+		GitConfigWriter: &gitConfigWriterMock{
+			replaceAll: func(scope.Scope, string, string) error {
+				return nil
+			},
+		},
+		StateWriter: &stateWriterMock{
+			persistEnabled: func(activationscope.ActivationScope, []string) error {
+				return nil
+			},
+		},
+	}
+
+	properties := []struct {
+		user             string
+		pathToRepo       string
+		expectedChecksum string // echo -n <user>:<pathToRepo> | md5sum | awk '{ print $1 }'
+	}{
+		{"someone", "/path/to/repo", "a05b508ef212dc640aced4037a66021d"},
+		{"someone", "/path/to/another/repo", "0e272adf29c65b982f85ba4c034b5e3a"},
+		{"someone-else", "/path/to/repo", "35e7efa80c9f6db4637267a1b03e2131"},
+		{"someone-else", "/path/to/another/repo", "70271fa3dc8450ff89b0cc66ccf76411"},
+	}
+
+	for _, caseLoopVar := range properties {
+		user := caseLoopVar.user
+		pathToRepo := caseLoopVar.pathToRepo
+		expectedChecksum := caseLoopVar.expectedChecksum
+
+		t.Run(fmt.Sprintf("%s:%s", user, pathToRepo), func(t *testing.T) {
+			t.Parallel()
+
+			deps.GetEnv = func(string) string {
+				return user
+			}
+			deps.GetWd = func() (string, error) {
+				return pathToRepo, nil
+			}
+
+			expectedTemplateDir := fmt.Sprintf("/path/to/commit-templates/repo-local/%s", expectedChecksum)
+
+			deps.CreateTemplateDir = func(path string, _ os.FileMode) error {
+				if path != expectedTemplateDir {
+					t.Errorf("wrong path to template dir, expected: %s, got: %s", expectedTemplateDir, path)
+					t.Fail()
+				}
+				return nil
+			}
+
+			req := Request{AliasesAndCoauthors: &[]string{"Mr. Noujz <noujz@mr.se>", "mrs"}}
+
+			Policy{deps, req}.Apply()
 		})
 	}
 }
