@@ -3,8 +3,6 @@
 load '/bats-libs/bats-support/load.bash'
 load '/bats-libs/bats-assert/load.bash'
 
-# TODO: add cases based on activation scope
-
 REPO_PATH=/tmp/repo/disable-tests
 REPO_CHECKSUM=$(echo -n $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
 
@@ -196,6 +194,18 @@ teardown() {
 	assert_success
 	assert_line "git-team disabled"
 
+	rm -rf /root/.config/git-team/
+}
+
+@test "git-team: disable should fail when trying to disable with activation-scope repo-local when not in a git repository directory" {
+	mkdir -p /root/.config/git-team/
+	/usr/local/bin/git-team config activation-scope repo-local
+
+	run /usr/local/bin/git-team disable
+	assert_failure 255
+	assert_line 'error: Failed to disable with scope=repo-local: not inside a git repository'
+
+	/usr/local/bin/git-team config activation-scope global
 	rm -rf /root/.config/git-team/
 }
 

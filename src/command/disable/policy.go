@@ -1,10 +1,12 @@
 package disable
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/hekmekk/git-team/src/core/events"
+	activation "github.com/hekmekk/git-team/src/shared/activation/interface"
 	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
 	config "github.com/hekmekk/git-team/src/shared/config/interface"
 	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
@@ -15,12 +17,13 @@ import (
 
 // Dependencies the dependencies of the disable Policy module
 type Dependencies struct {
-	GitConfigReader gitconfig.Reader
-	GitConfigWriter gitconfig.Writer
-	StatFile        func(string) (os.FileInfo, error)
-	RemoveFile      func(string) error
-	StateWriter     state.Writer
-	ConfigReader    config.Reader
+	GitConfigReader     gitconfig.Reader
+	GitConfigWriter     gitconfig.Writer
+	StatFile            func(string) (os.FileInfo, error)
+	RemoveFile          func(string) error
+	StateWriter         state.Writer
+	ConfigReader        config.Reader
+	ActivationValidator activation.Validator
 }
 
 // Policy the policy to apply
@@ -39,7 +42,10 @@ func (policy Policy) Apply() events.Event {
 	}
 
 	activationScope := cfg.ActivationScope
-	// TODO: check if we're in a git repository in case of repo-local
+
+	if activationScope == activationscope.RepoLocal && !deps.ActivationValidator.IsInsideAGitRepository() {
+		return Failed{Reason: fmt.Errorf("Failed to disable with scope=%s: not inside a git repository", activationScope)}
+	}
 
 	var gitConfigScope gitconfigscope.Scope
 	if activationScope == activationscope.Global {

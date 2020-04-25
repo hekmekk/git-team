@@ -63,6 +63,14 @@ func (mock configReaderMock) Read() (config.Config, error) {
 	return mock.read()
 }
 
+type activationValidatorMock struct {
+	isInsideAGitRepository func() bool
+}
+
+func (mock activationValidatorMock) IsInsideAGitRepository() bool {
+	return mock.isInsideAGitRepository()
+}
+
 var (
 	fileInfo        os.FileInfo
 	statFile        = func(string) (os.FileInfo, error) { return fileInfo, nil }
@@ -77,6 +85,11 @@ func TestDisableSucceeds(t *testing.T) {
 
 	deps := Dependencies{
 		StatFile: statFile,
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
+			},
+		},
 	}
 
 	expectedEvent := Succeeded{}
@@ -196,9 +209,56 @@ func TestDisableShouldSucceedWhenUnsetHooksPathFailsBecauseTheOptionDoesntExist(
 		RemoveFile:      removeFile,
 		StateWriter:     stateWriter,
 		ConfigReader:    configReader,
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
+			},
+		},
 	}
 
 	expectedEvent := Succeeded{}
+
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
+	}
+}
+
+func TestDisableShouldFailWhenNotInsideAGitRepository(t *testing.T) {
+	gitConfigWriter := &gitConfigWriterMock{
+		unsetAll: func(scope gitconfigscope.Scope, key string) error {
+			switch key {
+			case "commit.template":
+				return nil
+			case "core.hooksPath":
+				return nil
+			default:
+				return fmt.Errorf("wrong key: %s", key)
+			}
+		},
+	}
+
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.RepoLocal}, nil
+		},
+	}
+
+	deps := Dependencies{
+		ConfigReader:    configReader,
+		GitConfigWriter: gitConfigWriter,
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return false
+			},
+		},
+	}
+
+	expectedErr := errors.New("Failed to disable with scope=repo-local: not inside a git repository")
+
+	expectedEvent := Failed{Reason: expectedErr}
 
 	event := Policy{deps}.Apply()
 
@@ -232,6 +292,11 @@ func TestDisableShouldFailWhenReadConfigFails(t *testing.T) {
 	deps := Dependencies{
 		ConfigReader:    configReader,
 		GitConfigWriter: gitConfigWriter,
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
+			},
+		},
 	}
 
 	expectedEvent := Failed{Reason: expectedErr}
@@ -268,6 +333,11 @@ func TestDisableShouldFailWhenUnsetHooksPathFails(t *testing.T) {
 	deps := Dependencies{
 		ConfigReader:    configReader,
 		GitConfigWriter: gitConfigWriter,
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
+			},
+		},
 	}
 
 	expectedEvent := Failed{Reason: expectedErr}
@@ -320,6 +390,11 @@ func TestDisableShouldSucceedWhenReadingCommitTemplateFailsBecauseItHasBeenUnset
 		RemoveFile:      removeFile,
 		StateWriter:     stateWriter,
 		ConfigReader:    configReader,
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
+			},
+		},
 	}
 
 	expectedEvent := Succeeded{}
@@ -363,6 +438,11 @@ func TestDisableShouldFailWhenReadingCommitTemplatePathFails(t *testing.T) {
 		ConfigReader:    configReader,
 		GitConfigReader: gitConfigReader,
 		GitConfigWriter: gitConfigWriter,
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
+			},
+		},
 	}
 
 	expectedEvent := Failed{Reason: expectedErr}
@@ -415,6 +495,11 @@ func TestDisableShouldSucceedWhenUnsetCommitTemplateFailsBecauseItWasUnsetAlread
 		StatFile:        statFile,
 		RemoveFile:      removeFile,
 		StateWriter:     stateWriter,
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
+			},
+		},
 	}
 
 	expectedEvent := Succeeded{}
@@ -458,6 +543,11 @@ func TestDisableShouldFailWhenUnsetCommitTemplateFails(t *testing.T) {
 		ConfigReader:    configReader,
 		GitConfigReader: gitConfigReader,
 		GitConfigWriter: gitConfigWriter,
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
+			},
+		},
 	}
 
 	expectedEvent := Failed{Reason: expectedErr}
@@ -504,6 +594,11 @@ func TestDisableShouldFailWhenRemoveFileFails(t *testing.T) {
 		GitConfigWriter: gitConfigWriter,
 		StatFile:        statFile,
 		RemoveFile:      func(string) error { return err },
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
+			},
+		},
 	}
 
 	expectedEvent := Failed{Reason: err}
@@ -554,6 +649,11 @@ func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenStatFileF
 		GitConfigWriter: gitConfigWriter,
 		StatFile:        func(string) (os.FileInfo, error) { return fileInfo, errors.New("failed to stat file") },
 		StateWriter:     stateWriter,
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
+			},
+		},
 	}
 
 	expectedEvent := Succeeded{}
@@ -607,6 +707,11 @@ func TestDisableShouldFailWhenpersistDisabledFails(t *testing.T) {
 		StatFile:        statFile,
 		RemoveFile:      removeFile,
 		StateWriter:     stateWriter,
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
+			},
+		},
 	}
 
 	expectedEvent := Failed{Reason: expectedErr}

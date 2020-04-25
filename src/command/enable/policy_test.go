@@ -339,7 +339,7 @@ func TestEnableFailsDueToConfigReaderError(t *testing.T) {
 	}
 }
 
-func TestEnableFailsWhileTryingToEnableOutsideOfAGitRepository(t *testing.T) {
+func TestEnableFailsWhenNotInsideAGitRepository(t *testing.T) {
 	coauthors := &[]string{"Mr. Noujz <noujz@mr.se>"}
 
 	expectedErr := errors.New("Failed to enable with scope=repo-local: not inside a git repository")
