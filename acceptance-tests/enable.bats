@@ -194,7 +194,7 @@ teardown() {
 
 	run /usr/local/bin/git-team enable a
 	assert_failure 255
-	assert_line 'error: Failed to activate for repo-local scope while not in a git repository'
+	assert_line 'error: Failed to enable with scope=repo-local: not inside a git repository'
 
 	/usr/local/bin/git-team config activation-scope global
 }

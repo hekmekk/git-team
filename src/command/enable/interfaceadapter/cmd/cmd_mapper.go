@@ -12,6 +12,7 @@ import (
 	enableeventadapter "github.com/hekmekk/git-team/src/command/enable/interfaceadapter/event"
 	statuscmdmapper "github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
 	"github.com/hekmekk/git-team/src/core/validation"
+	activation "github.com/hekmekk/git-team/src/shared/activation/impl"
 	configds "github.com/hekmekk/git-team/src/shared/config/datasource"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
 	state "github.com/hekmekk/git-team/src/shared/state/impl"
@@ -43,6 +44,7 @@ func policy(coauthors *[]string) enable.Policy {
 			StateWriter:          state.NewGitConfigDataSink(gitconfig.NewDataSink()),
 			GetEnv:               os.Getenv,
 			GetWd:                os.Getwd,
+			ActivationValidator:  activation.NewGitConfigDataSource(gitconfig.NewDataSource()),
 		},
 	}
 }

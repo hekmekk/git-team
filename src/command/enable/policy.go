@@ -9,6 +9,7 @@ import (
 	commitsettings "github.com/hekmekk/git-team/src/command/enable/commitsettings/interface"
 	utils "github.com/hekmekk/git-team/src/command/enable/utils"
 	"github.com/hekmekk/git-team/src/core/events"
+	activation "github.com/hekmekk/git-team/src/shared/activation/interface"
 	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
 	config "github.com/hekmekk/git-team/src/shared/config/interface"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
@@ -28,6 +29,7 @@ type Dependencies struct {
 	StateWriter          state.Writer
 	GetEnv               func(string) string
 	GetWd                func() (string, error)
+	ActivationValidator  activation.Validator
 }
 
 // Request the coauthors with which to enable git-team
@@ -66,8 +68,14 @@ func (policy Policy) Apply() events.Event {
 		return Failed{Reason: []error{err}}
 	}
 
+	activationScope := cfg.ActivationScope
+
+	if activationScope == activationscope.RepoLocal && !deps.ActivationValidator.IsInsideAGitRepository() {
+		return Failed{Reason: []error{fmt.Errorf("Failed to enable with scope=%s: not inside a git repository", activationScope)}}
+	}
+
 	var gitConfigScope gitconfigscope.Scope
-	if cfg.ActivationScope == activationscope.Global {
+	if activationScope == activationscope.Global {
 		gitConfigScope = gitconfigscope.Global
 	} else {
 		gitConfigScope = gitconfigscope.Local
@@ -127,7 +135,6 @@ func setupTemplate(gitConfigScope gitconfigscope.Scope, deps Dependencies, commi
 		if err != nil {
 			return err
 		}
-		// TODO: check if workingDir is actually a git repository
 		templateDir = fmt.Sprintf("%s/repo-local/%s", commitTemplateBaseDir, determineRepoChecksum(user, workingDir))
 	} else {
 		templateDir = fmt.Sprintf("%s/global", commitTemplateBaseDir)

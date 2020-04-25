@@ -65,7 +65,13 @@ func (mock stateWriterMock) PersistDisabled(scope activationscope.ActivationScop
 	return nil
 }
 
-// TODO: add case where we try to enable in repo-local scope without being in a git repository
+type activationValidatorMock struct {
+	isInsideAGitRepository func() bool
+}
+
+func (mock activationValidatorMock) IsInsideAGitRepository() bool {
+	return mock.isInsideAGitRepository()
+}
 
 // TODO: add parameterized case to ensure diff commit template folders for diff users and repos each
 
@@ -122,6 +128,11 @@ func TestEnableSucceeds(t *testing.T) {
 		},
 		GetWd: func() (string, error) {
 			return pathToRepo, nil
+		},
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
+			},
 		},
 	}
 
@@ -226,6 +237,12 @@ func TestEnableDropsDuplicateEntries(t *testing.T) {
 		},
 	}
 
+	activationValidator := &activationValidatorMock{
+		isInsideAGitRepository: func() bool {
+			return true
+		},
+	}
+
 	deps := Dependencies{
 		SanityCheckCoauthors: func(coauthors []string) []error { return []error{} },
 		CreateTemplateDir:    CreateTemplateDir,
@@ -235,6 +252,7 @@ func TestEnableDropsDuplicateEntries(t *testing.T) {
 		CommitSettingsReader: commitSettingsReader,
 		ConfigReader:         configReader,
 		GitConfigWriter:      gitConfigWriter,
+		ActivationValidator:  activationValidator,
 	}
 	req := Request{AliasesAndCoauthors: &coauthors}
 
@@ -321,6 +339,56 @@ func TestEnableFailsDueToConfigReaderError(t *testing.T) {
 	}
 }
 
+func TestEnableFailsWhileTryingToEnableOutsideOfAGitRepository(t *testing.T) {
+	coauthors := &[]string{"Mr. Noujz <noujz@mr.se>"}
+
+	expectedErr := errors.New("Failed to enable with scope=repo-local: not inside a git repository")
+
+	sanityCheck := func([]string) []error { return []error{} }
+	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
+	CreateTemplateDir := func(string, os.FileMode) error { return nil }
+	WriteTemplateFile := func(string, []byte, os.FileMode) error { return nil }
+
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.RepoLocal}, nil
+		},
+	}
+
+	gitConfigWriter := &gitConfigWriterMock{
+		replaceAll: func(_ gitconfigscope.Scope, key string, _ string) error {
+			return nil
+		},
+	}
+
+	activationValidator := &activationValidatorMock{
+		isInsideAGitRepository: func() bool {
+			return false
+		},
+	}
+
+	deps := Dependencies{
+		SanityCheckCoauthors: sanityCheck,
+		CreateTemplateDir:    CreateTemplateDir,
+		WriteTemplateFile:    WriteTemplateFile,
+		GitResolveAliases:    resolveAliases,
+		CommitSettingsReader: commitSettingsReader,
+		ConfigReader:         configReader,
+		GitConfigWriter:      gitConfigWriter,
+		ActivationValidator:  activationValidator,
+	}
+	req := Request{AliasesAndCoauthors: coauthors}
+
+	expectedEvent := Failed{Reason: []error{expectedErr}}
+
+	event := Policy{deps, req}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
+	}
+}
+
 func TestEnableFailsDueToGetWdErr(t *testing.T) {
 	coauthors := []string{"Mr. Noujz <noujz@mr.se>"}
 
@@ -332,6 +400,11 @@ func TestEnableFailsDueToGetWdErr(t *testing.T) {
 	configReader := &configReaderMock{
 		read: func() (config.Config, error) {
 			return config.Config{ActivationScope: activationscope.RepoLocal}, nil
+		},
+	}
+	activationValidator := &activationValidatorMock{
+		isInsideAGitRepository: func() bool {
+			return true
 		},
 	}
 
@@ -347,6 +420,7 @@ func TestEnableFailsDueToGetWdErr(t *testing.T) {
 		GetWd: func() (string, error) {
 			return "", expectedErr
 		},
+		ActivationValidator: activationValidator,
 	}
 	req := Request{AliasesAndCoauthors: &coauthors}
 
@@ -373,6 +447,11 @@ func TestEnableFailsDueToCreateTemplateDirErr(t *testing.T) {
 			return config.Config{ActivationScope: activationscope.Global}, nil
 		},
 	}
+	activationValidator := &activationValidatorMock{
+		isInsideAGitRepository: func() bool {
+			return true
+		},
+	}
 
 	deps := Dependencies{
 		SanityCheckCoauthors: sanityCheck,
@@ -380,6 +459,7 @@ func TestEnableFailsDueToCreateTemplateDirErr(t *testing.T) {
 		GitResolveAliases:    resolveAliases,
 		CommitSettingsReader: commitSettingsReader,
 		ConfigReader:         configReader,
+		ActivationValidator:  activationValidator,
 	}
 	req := Request{AliasesAndCoauthors: &coauthors}
 
@@ -407,6 +487,11 @@ func TestEnableFailsDueToWriteTemplateFileErr(t *testing.T) {
 			return config.Config{ActivationScope: activationscope.Global}, nil
 		},
 	}
+	activationValidator := &activationValidatorMock{
+		isInsideAGitRepository: func() bool {
+			return true
+		},
+	}
 
 	deps := Dependencies{
 		SanityCheckCoauthors: sanityCheck,
@@ -415,6 +500,7 @@ func TestEnableFailsDueToWriteTemplateFileErr(t *testing.T) {
 		GitResolveAliases:    resolveAliases,
 		CommitSettingsReader: commitSettingsReader,
 		ConfigReader:         configReader,
+		ActivationValidator:  activationValidator,
 	}
 	req := Request{AliasesAndCoauthors: coauthors}
 
@@ -453,6 +539,12 @@ func TestEnableFailsDueToGitSetCommitTemplateErr(t *testing.T) {
 		},
 	}
 
+	activationValidator := &activationValidatorMock{
+		isInsideAGitRepository: func() bool {
+			return true
+		},
+	}
+
 	deps := Dependencies{
 		SanityCheckCoauthors: sanityCheck,
 		CreateTemplateDir:    CreateTemplateDir,
@@ -461,6 +553,7 @@ func TestEnableFailsDueToGitSetCommitTemplateErr(t *testing.T) {
 		CommitSettingsReader: commitSettingsReader,
 		ConfigReader:         configReader,
 		GitConfigWriter:      gitConfigWriter,
+		ActivationValidator:  activationValidator,
 	}
 	req := Request{AliasesAndCoauthors: coauthors}
 
@@ -498,6 +591,12 @@ func TestEnableFailsDueToSetHooksPathErr(t *testing.T) {
 		},
 	}
 
+	activationValidator := &activationValidatorMock{
+		isInsideAGitRepository: func() bool {
+			return true
+		},
+	}
+
 	deps := Dependencies{
 		SanityCheckCoauthors: sanityCheck,
 		CreateTemplateDir:    CreateTemplateDir,
@@ -506,6 +605,7 @@ func TestEnableFailsDueToSetHooksPathErr(t *testing.T) {
 		CommitSettingsReader: commitSettingsReader,
 		ConfigReader:         configReader,
 		GitConfigWriter:      gitConfigWriter,
+		ActivationValidator:  activationValidator,
 	}
 	req := Request{AliasesAndCoauthors: coauthors}
 
@@ -547,6 +647,12 @@ func TestEnableFailsDueToSaveStatusErr(t *testing.T) {
 		},
 	}
 
+	activationValidator := &activationValidatorMock{
+		isInsideAGitRepository: func() bool {
+			return true
+		},
+	}
+
 	deps := Dependencies{
 		SanityCheckCoauthors: sanityCheck,
 		CreateTemplateDir:    CreateTemplateDir,
@@ -556,6 +662,7 @@ func TestEnableFailsDueToSaveStatusErr(t *testing.T) {
 		ConfigReader:         configReader,
 		GitConfigWriter:      gitConfigWriter,
 		StateWriter:          stateWriter,
+		ActivationValidator:  activationValidator,
 	}
 
 	req := Request{AliasesAndCoauthors: coauthors}
