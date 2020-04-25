@@ -38,14 +38,6 @@ func (mock configReaderMock) Read() (config.Config, error) {
 	return mock.read()
 }
 
-type gitConfigReaderMock struct {
-	get func(key string) (string, error)
-}
-
-func (mock gitConfigReaderMock) Get(key string) (string, error) {
-	return mock.get(key)
-}
-
 type gitConfigWriterMock struct {
 	replaceAll func(scope.Scope, string, string) error
 }
