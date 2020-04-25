@@ -9,6 +9,7 @@ import (
 	"github.com/hekmekk/git-team/src/command/disable"
 	disableeventadapter "github.com/hekmekk/git-team/src/command/disable/interfaceadapter/event"
 	statuscmdmapper "github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
+	configds "github.com/hekmekk/git-team/src/shared/config/datasource"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
 	state "github.com/hekmekk/git-team/src/shared/state/impl"
 )
@@ -25,10 +26,11 @@ func Command(root commandadapter.CommandRoot) *kingpin.CmdClause {
 func policy() disable.Policy {
 	return disable.Policy{
 		Deps: disable.Dependencies{
+			ConfigReader:    configds.NewGitconfigDataSource(gitconfig.NewDataSource()),
 			GitConfigReader: gitconfig.NewDataSource(),
 			GitConfigWriter: gitconfig.NewDataSink(),
 			StatFile:        os.Stat,
-			RemoveFile:      os.Remove,
+			RemoveFile:      os.RemoveAll,
 			StateWriter:     state.NewGitConfigDataSink(gitconfig.NewDataSink()),
 		},
 	}

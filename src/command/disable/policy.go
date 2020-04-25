@@ -2,6 +2,7 @@ package disable
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/hekmekk/git-team/src/core/events"
 	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
@@ -32,26 +33,48 @@ func (policy Policy) Apply() events.Event {
 	deps := policy.Deps
 	gitConfigWriter := deps.GitConfigWriter
 
-	if err := gitConfigWriter.UnsetAll(gitconfigscope.Global, "core.hooksPath"); err != nil && err.Error() != giterror.UnsetOptionWhichDoesNotExist {
+	cfg, err := deps.ConfigReader.Read()
+	if err != nil {
 		return Failed{Reason: err}
 	}
 
-	commitTemplatePath, err := deps.GitConfigReader.Get(gitconfigscope.Global, "commit.template")
+	activationScope := cfg.ActivationScope
+	// TODO: check if we're in a git repository in case of repo-local
+
+	var gitConfigScope gitconfigscope.Scope
+	if activationScope == activationscope.Global {
+		gitConfigScope = gitconfigscope.Global
+	} else {
+		gitConfigScope = gitconfigscope.Local
+	}
+
+	if err := gitConfigWriter.UnsetAll(gitConfigScope, "core.hooksPath"); err != nil && err.Error() != giterror.UnsetOptionWhichDoesNotExist {
+		return Failed{Reason: err}
+	}
+
+	commitTemplatePath, err := deps.GitConfigReader.Get(gitConfigScope, "commit.template")
 	if err != nil && err.Error() != giterror.SectionOrKeyIsInvalid {
 		return Failed{Reason: err}
 	}
 
-	if err := gitConfigWriter.UnsetAll(gitconfigscope.Global, "commit.template"); err != nil && err.Error() != giterror.UnsetOptionWhichDoesNotExist {
+	if err := gitConfigWriter.UnsetAll(gitConfigScope, "commit.template"); err != nil && err.Error() != giterror.UnsetOptionWhichDoesNotExist {
 		return Failed{Reason: err}
 	}
 
-	if _, err := deps.StatFile(commitTemplatePath); err == nil {
-		if err := deps.RemoveFile(commitTemplatePath); err != nil {
+	var templatePathToDelete string
+	if activationScope == activationscope.Global {
+		templatePathToDelete = commitTemplatePath
+	} else {
+		templatePathToDelete = filepath.Dir(commitTemplatePath)
+	}
+
+	if _, err := deps.StatFile(templatePathToDelete); err == nil {
+		if err := deps.RemoveFile(templatePathToDelete); err != nil {
 			return Failed{Reason: err}
 		}
 	}
 
-	if err := deps.StateWriter.PersistDisabled(activationscope.Global); err != nil {
+	if err := deps.StateWriter.PersistDisabled(activationScope); err != nil {
 		return Failed{Reason: err}
 	}
 

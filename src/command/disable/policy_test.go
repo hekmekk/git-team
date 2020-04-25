@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
@@ -54,6 +55,14 @@ func (mock stateWriterMock) PersistDisabled(scope activationscope.ActivationScop
 	return mock.persistDisabled(scope)
 }
 
+type configReaderMock struct {
+	read func() (config.Config, error)
+}
+
+func (mock configReaderMock) Read() (config.Config, error) {
+	return mock.read()
+}
+
 var (
 	fileInfo        os.FileInfo
 	statFile        = func(string) (os.FileInfo, error) { return fileInfo, nil }
@@ -61,56 +70,89 @@ var (
 	persistDisabled = func() error { return nil }
 )
 
-// TODO: parameterize over ActivationScope
 func TestDisableSucceeds(t *testing.T) {
+	t.Parallel()
+
 	templatePath := "/path/to/template"
 
-	gitConfigReader := &gitConfigReaderMock{
-		get: func(_ gitconfigscope.Scope, key string) (string, error) {
-			return templatePath, nil
-		},
-	}
-
-	gitConfigWriter := &gitConfigWriterMock{
-		unsetAll: func(scope gitconfigscope.Scope, key string) error {
-			switch key {
-			case "commit.template":
-				return nil
-			case "core.hooksPath":
-				return nil
-			default:
-				return fmt.Errorf("wrong key: %s", key)
-			}
-		},
-	}
-
-	stateWriter := &stateWriterMock{
-		persistDisabled: func(scope activationscope.ActivationScope) error {
-			return nil
-		},
-	}
-
 	deps := Dependencies{
-		GitConfigReader: gitConfigReader,
-		GitConfigWriter: gitConfigWriter,
-		StatFile:        statFile,
-		RemoveFile: func(path string) error {
-			if path != templatePath {
-				t.Errorf("trying to delete the wrong commit template file at path: %s", path)
-				t.Fail()
-			}
-			return nil
-		},
-		StateWriter: stateWriter,
+		StatFile: statFile,
 	}
 
 	expectedEvent := Succeeded{}
 
-	event := Policy{deps}.Apply()
+	cases := []struct {
+		activationScope      activationscope.ActivationScope
+		gitconfigScope       gitconfigscope.Scope
+		deletionTemplatePath string
+	}{
+		{activationscope.Global, gitconfigscope.Global, "/path/to/template"},
+		{activationscope.RepoLocal, gitconfigscope.Local, "/path/to"},
+	}
 
-	if !reflect.DeepEqual(expectedEvent, event) {
-		t.Errorf("expected: %s, got: %s", expectedEvent, event)
-		t.Fail()
+	for _, caseLoopVar := range cases {
+		activationScope := caseLoopVar.activationScope
+		expectedGitConfigScope := caseLoopVar.gitconfigScope
+		expectedPathToDelete := caseLoopVar.deletionTemplatePath
+
+		t.Run(activationScope.String(), func(t *testing.T) {
+			t.Parallel()
+
+			deps.ConfigReader = &configReaderMock{
+				read: func() (config.Config, error) {
+					return config.Config{ActivationScope: activationScope}, nil
+				},
+			}
+
+			deps.GitConfigReader = &gitConfigReaderMock{
+				get: func(scope gitconfigscope.Scope, key string) (string, error) {
+					if scope != expectedGitConfigScope {
+						t.Errorf("wrong scope, expected: %s, got: %s", expectedGitConfigScope, scope)
+						t.Fail()
+					}
+					return templatePath, nil
+				},
+			}
+
+			deps.GitConfigWriter = &gitConfigWriterMock{
+				unsetAll: func(scope gitconfigscope.Scope, key string) error {
+					if key != "commit.template" && key != "core.hooksPath" {
+						t.Errorf("wrong key: %s", key)
+						t.Fail()
+					}
+					if scope != expectedGitConfigScope {
+						t.Errorf("wrong scope, expected: %s, got: %s", expectedGitConfigScope, scope)
+						t.Fail()
+					}
+					return nil
+				},
+			}
+
+			deps.StateWriter = &stateWriterMock{
+				persistDisabled: func(scope activationscope.ActivationScope) error {
+					if scope != activationScope {
+						t.Errorf("wrong scope, expected: %s, got: %s", activationScope, scope)
+						t.Fail()
+					}
+					return nil
+				},
+			}
+
+			deps.RemoveFile = func(path string) error {
+				if path != expectedPathToDelete {
+					t.Errorf("trying to delete the wrong commit template file, expected: %s, got: %s", expectedPathToDelete, path)
+					t.Fail()
+				}
+				return nil
+			}
+
+			event := Policy{deps}.Apply()
+
+			if !reflect.DeepEqual(expectedEvent, event) {
+				t.Errorf("expected: %s, got: %s", expectedEvent, event)
+				t.Fail()
+			}
+		})
 	}
 }
 
@@ -141,15 +183,58 @@ func TestDisableShouldSucceedWhenUnsetHooksPathFailsBecauseTheOptionDoesntExist(
 		},
 	}
 
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
+
 	deps := Dependencies{
 		GitConfigReader: gitConfigReader,
 		GitConfigWriter: gitConfigWriter,
 		StatFile:        statFile,
 		RemoveFile:      removeFile,
 		StateWriter:     stateWriter,
+		ConfigReader:    configReader,
 	}
 
 	expectedEvent := Succeeded{}
+
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
+	}
+}
+
+func TestDisableShouldFailWhenReadConfigFails(t *testing.T) {
+	expectedErr := errors.New("failed to read config")
+	gitConfigWriter := &gitConfigWriterMock{
+		unsetAll: func(scope gitconfigscope.Scope, key string) error {
+			switch key {
+			case "commit.template":
+				return nil
+			case "core.hooksPath":
+				return nil
+			default:
+				return fmt.Errorf("wrong key: %s", key)
+			}
+		},
+	}
+
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{}, expectedErr
+		},
+	}
+
+	deps := Dependencies{
+		ConfigReader:    configReader,
+		GitConfigWriter: gitConfigWriter,
+	}
+
+	expectedEvent := Failed{Reason: expectedErr}
 
 	event := Policy{deps}.Apply()
 
@@ -174,7 +259,14 @@ func TestDisableShouldFailWhenUnsetHooksPathFails(t *testing.T) {
 		},
 	}
 
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
+
 	deps := Dependencies{
+		ConfigReader:    configReader,
 		GitConfigWriter: gitConfigWriter,
 	}
 
@@ -215,12 +307,19 @@ func TestDisableShouldSucceedWhenReadingCommitTemplateFailsBecauseItHasBeenUnset
 		},
 	}
 
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
+
 	deps := Dependencies{
 		GitConfigReader: gitConfigReader,
 		GitConfigWriter: gitConfigWriter,
 		StatFile:        statFile,
 		RemoveFile:      removeFile,
 		StateWriter:     stateWriter,
+		ConfigReader:    configReader,
 	}
 
 	expectedEvent := Succeeded{}
@@ -254,7 +353,14 @@ func TestDisableShouldFailWhenReadingCommitTemplatePathFails(t *testing.T) {
 		},
 	}
 
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
+
 	deps := Dependencies{
+		ConfigReader:    configReader,
 		GitConfigReader: gitConfigReader,
 		GitConfigWriter: gitConfigWriter,
 	}
@@ -296,7 +402,14 @@ func TestDisableShouldSucceedWhenUnsetCommitTemplateFailsBecauseItWasUnsetAlread
 		},
 	}
 
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
+
 	deps := Dependencies{
+		ConfigReader:    configReader,
 		GitConfigReader: gitConfigReader,
 		GitConfigWriter: gitConfigWriter,
 		StatFile:        statFile,
@@ -335,7 +448,14 @@ func TestDisableShouldFailWhenUnsetCommitTemplateFails(t *testing.T) {
 		},
 	}
 
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
+
 	deps := Dependencies{
+		ConfigReader:    configReader,
 		GitConfigReader: gitConfigReader,
 		GitConfigWriter: gitConfigWriter,
 	}
@@ -370,9 +490,16 @@ func TestDisableShouldFailWhenRemoveFileFails(t *testing.T) {
 		},
 	}
 
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
+
 	err := errors.New("failed to remove file")
 
 	deps := Dependencies{
+		ConfigReader:    configReader,
 		GitConfigReader: gitConfigReader,
 		GitConfigWriter: gitConfigWriter,
 		StatFile:        statFile,
@@ -415,7 +542,14 @@ func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenStatFileF
 		},
 	}
 
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
+
 	deps := Dependencies{
+		ConfigReader:    configReader,
 		GitConfigReader: gitConfigReader,
 		GitConfigWriter: gitConfigWriter,
 		StatFile:        func(string) (os.FileInfo, error) { return fileInfo, errors.New("failed to stat file") },
@@ -460,7 +594,14 @@ func TestDisableShouldFailWhenpersistDisabledFails(t *testing.T) {
 		},
 	}
 
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
+
 	deps := Dependencies{
+		ConfigReader:    configReader,
 		GitConfigReader: gitConfigReader,
 		GitConfigWriter: gitConfigWriter,
 		StatFile:        statFile,
