@@ -1,15 +1,20 @@
 package status
 
 import (
+	"fmt"
+
 	"github.com/hekmekk/git-team/src/core/events"
+	activation "github.com/hekmekk/git-team/src/shared/activation/interface"
+	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
 	config "github.com/hekmekk/git-team/src/shared/config/interface"
 	state "github.com/hekmekk/git-team/src/shared/state/interface"
 )
 
 // Dependencies the dependencies of the status Policy module
 type Dependencies struct {
-	StateReader  state.Reader
-	ConfigReader config.Reader
+	StateReader         state.Reader
+	ConfigReader        config.Reader
+	ActivationValidator activation.Validator
 }
 
 // Policy the policy to apply
@@ -24,6 +29,12 @@ func (policy Policy) Apply() events.Event {
 	cfg, cfgReadErr := deps.ConfigReader.Read()
 	if cfgReadErr != nil {
 		return StateRetrievalFailed{Reason: cfgReadErr}
+	}
+
+	activationScope := cfg.ActivationScope
+
+	if activationScope == activationscope.RepoLocal && !deps.ActivationValidator.IsInsideAGitRepository() {
+		return StateRetrievalFailed{Reason: fmt.Errorf("Failed to get status with scope=%s: not inside a git repository", activationScope)}
 	}
 
 	state, stateRepositoryQueryErr := deps.StateReader.Query(cfg.ActivationScope)

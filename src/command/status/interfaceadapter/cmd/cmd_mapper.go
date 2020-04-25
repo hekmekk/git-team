@@ -6,6 +6,7 @@ import (
 	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/status"
 	statuseventadapter "github.com/hekmekk/git-team/src/command/status/interfaceadapter/event"
+	activation "github.com/hekmekk/git-team/src/shared/activation/impl"
 	config "github.com/hekmekk/git-team/src/shared/config/datasource"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
 	state "github.com/hekmekk/git-team/src/shared/state/impl"
@@ -24,8 +25,9 @@ func Command(root commandadapter.CommandRoot) *kingpin.CmdClause {
 func Policy() status.Policy {
 	return status.Policy{
 		Deps: status.Dependencies{
-			ConfigReader: config.NewGitconfigDataSource(gitconfig.NewDataSource()),
-			StateReader:  state.NewGitConfigDataSource(gitconfig.NewDataSource()),
+			ConfigReader:        config.NewGitconfigDataSource(gitconfig.NewDataSource()),
+			StateReader:         state.NewGitConfigDataSource(gitconfig.NewDataSource()),
+			ActivationValidator: activation.NewGitConfigDataSource(gitconfig.NewDataSource()),
 		},
 	}
 }

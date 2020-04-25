@@ -26,6 +26,14 @@ func (mock stateReaderMock) Query(scope activationscope.ActivationScope) (state.
 	return mock.query(scope)
 }
 
+type activationValidatorMock struct {
+	isInsideAGitRepository func() bool
+}
+
+func (mock activationValidatorMock) IsInsideAGitRepository() bool {
+	return mock.isInsideAGitRepository()
+}
+
 func TestStatusShouldBeRetrieved(t *testing.T) {
 	t.Parallel()
 
@@ -43,6 +51,11 @@ func TestStatusShouldBeRetrieved(t *testing.T) {
 				ConfigReader: &configReaderMock{
 					read: func() (config.Config, error) {
 						return config.Config{ActivationScope: activationScope}, nil
+					},
+				},
+				ActivationValidator: &activationValidatorMock{
+					isInsideAGitRepository: func() bool {
+						return true
 					},
 				},
 				StateReader: &stateReaderMock{
@@ -88,6 +101,32 @@ func TestStatusShouldNotBeRetrievedDueToConfigReaderError(t *testing.T) {
 	}
 }
 
+func TestStatusShouldFailWhenNotInsideAGitRepository(t *testing.T) {
+	deps := Dependencies{
+		ConfigReader: &configReaderMock{
+			read: func() (config.Config, error) {
+				return config.Config{ActivationScope: activationscope.RepoLocal}, nil
+			},
+		},
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return false
+			},
+		},
+	}
+
+	expectedErr := errors.New("Failed to get status with scope=repo-local: not inside a git repository")
+
+	expectedEvent := StateRetrievalFailed{Reason: expectedErr}
+
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
+	}
+}
+
 func TestStatusShouldNotBeRetrievedDueToStateRetrievalError(t *testing.T) {
 	err := errors.New("failed to retrieve state")
 
@@ -95,6 +134,11 @@ func TestStatusShouldNotBeRetrievedDueToStateRetrievalError(t *testing.T) {
 		ConfigReader: &configReaderMock{
 			read: func() (config.Config, error) {
 				return config.Config{ActivationScope: activationscope.Global}, nil
+			},
+		},
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
 			},
 		},
 		StateReader: &stateReaderMock{

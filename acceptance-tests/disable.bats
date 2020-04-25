@@ -11,6 +11,7 @@ setup() {
 }
 
 teardown() {
+	/usr/local/bin/git-team config activation-scope global
 	rm -rf $REPO_PATH
 }
 
