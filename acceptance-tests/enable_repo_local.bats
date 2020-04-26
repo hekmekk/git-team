@@ -8,7 +8,15 @@ REPO_CHECKSUM=$(echo -n $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
 
 setup() {
 	cp /usr/local/bin/prepare-commit-msg /usr/local/etc/git-team/hooks/prepare-commit-msg
+
+	/usr/local/bin/git-team config activation-scope repo-local
+
 	mkdir -p $REPO_PATH
+	cd $REPO_PATH
+
+	git init
+	git config user.name git-team-acceptance-test
+	git config user.email foo@bar.baz
 
 	/usr/local/bin/git-team add a 'A <a@x.y>'
 	/usr/local/bin/git-team add b 'B <b@x.y>'
@@ -16,37 +24,19 @@ setup() {
 }
 
 teardown() {
-	/usr/local/bin/git-team config activation-scope global
 	/usr/local/bin/git-team disable
+
+	/usr/local/bin/git-team config activation-scope global
 
 	/usr/local/bin/git-team rm a
 	/usr/local/bin/git-team rm b
 	/usr/local/bin/git-team rm c
 
+	cd -
 	rm -rf $REPO_PATH
 }
 
-@test "git-team: enable should persist the current status to global gitconfig" {
-	/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>'
-
-	run bash -c "git config --global --get-regexp team.state | sort"
-	assert_success
-	assert_line --index 0 'team.state.active-coauthors A <a@x.y>'
-	assert_line --index 1 'team.state.active-coauthors Ad-hoc <adhoc@tmp.se>'
-	assert_line --index 2 'team.state.active-coauthors B <b@x.y>'
-	assert_line --index 3 'team.state.active-coauthors C <c@x.y>'
-	assert_line --index 4 'team.state.status enabled'
-
-	/usr/local/bin/git-team disable
-}
-
-@test "git-team: enable should persist the current status to repo-local gitconfig" {
-	/usr/local/bin/git-team config activation-scope repo-local
-	cd $REPO_PATH
-	git init
-	git config user.name git-team-acceptance-test
-	git config user.email foo@bar.baz
-
+@test "git-team: (scope: repo-local) enable should persist the current status" {
 	/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>'
 
 	run bash -c "git config --local --get-regexp team.state | sort"
@@ -56,83 +46,30 @@ teardown() {
 	assert_line --index 2 'team.state.active-coauthors B <b@x.y>'
 	assert_line --index 3 'team.state.active-coauthors C <c@x.y>'
 	assert_line --index 4 'team.state.status enabled'
-
-	/usr/local/bin/git-team config activation-scope global
-	cd -
 }
 
-@test "git-team: enable should enable the global prepare-commit-msg hook" {
-	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && git config --global core.hooksPath"
-	assert_success
-	assert_line '/usr/local/etc/git-team/hooks'
-}
-
-@test "git-team: enable should enable the repo-local prepare-commit-msg hook" {
-	/usr/local/bin/git-team config activation-scope repo-local
-	cd $REPO_PATH
-	git init
-	git config user.name git-team-acceptance-test
-	git config user.email foo@bar.baz
-
+@test "git-team: (scope: repo-local) enable should set the prepare-commit-msg hook" {
 	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && git config --local core.hooksPath"
 	assert_success
 	assert_line '/usr/local/etc/git-team/hooks'
-
-	/usr/local/bin/git-team config activation-scope global
-	cd -
 }
 
-@test "git-team: enable should set a global commit template" {
-	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && git config --global commit.template"
-	assert_success
-	assert_line '/root/.config/git-team/commit-templates/global/COMMIT_TEMPLATE'
-}
-
-@test "git-team: enable should set a repo-local commit template" {
-	/usr/local/bin/git-team config activation-scope repo-local
-
-	cd $REPO_PATH
-	git init
-	git config user.name git-team-acceptance-test
-	git config user.email foo@bar.baz
-
+@test "git-team: (scope: repo-local) enable should set the commit template" {
 	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && git config --local commit.template"
 	assert_success
 	assert_line "/root/.config/git-team/commit-templates/repo-local/$REPO_CHECKSUM/COMMIT_TEMPLATE"
-
-	/usr/local/bin/git-team config activation-scope global
-	cd -
 }
 
-@test "git-team: enable should provision the global commit template" {
-	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && cat /root/.config/git-team/commit-templates/global/COMMIT_TEMPLATE"
-	assert_success
-	assert_line --index 0 'Co-authored-by: A <a@x.y>'
-	assert_line --index 1 'Co-authored-by: Ad-hoc <adhoc@tmp.se>'
-	assert_line --index 2 'Co-authored-by: B <b@x.y>'
-	assert_line --index 3 'Co-authored-by: C <c@x.y>'
-}
-
-@test "git-team: enable should provision the repo-local commit template" {
-	/usr/local/bin/git-team config activation-scope repo-local
-
-	cd $REPO_PATH
-	git init
-	git config user.name git-team-acceptance-test
-	git config user.email foo@bar.baz
-
+@test "git-team: (scope: repo-local) enable should provision the commit template" {
 	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && cat /root/.config/git-team/commit-templates/repo-local/$REPO_CHECKSUM/COMMIT_TEMPLATE"
 	assert_success
 	assert_line --index 0 'Co-authored-by: A <a@x.y>'
 	assert_line --index 1 'Co-authored-by: Ad-hoc <adhoc@tmp.se>'
 	assert_line --index 2 'Co-authored-by: B <b@x.y>'
 	assert_line --index 3 'Co-authored-by: C <c@x.y>'
-
-	/usr/local/bin/git-team config activation-scope global
-	cd -
 }
 
-@test "git-team: enable shorthand should display the enabled co-authors in alphabetical order" {
+@test "git-team: (scope: repo-local) enable shorthand should display the enabled co-authors in alphabetical order" {
 	run /usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>'
 	assert_success
 	assert_line --index 0 'git-team enabled'
@@ -143,7 +80,7 @@ teardown() {
 	assert_line --index 5 '─ C <c@x.y>'
 }
 
-@test "git-team: enable should display the enabled co-authors in alphabetical order" {
+@test "git-team: (scope: repo-local) should display the enabled co-authors in alphabetical order" {
 	run /usr/local/bin/git-team enable b a c 'Ad-hoc <adhoc@tmp.se>'
 	assert_success
 	assert_line --index 0 'git-team enabled'
@@ -154,7 +91,7 @@ teardown() {
 	assert_line --index 5 '─ C <c@x.y>'
 }
 
-@test "git-team: issuing enable should be idempotent" {
+@test "git-team: (scope: repo-local) issuing enable should be idempotent" {
 	/usr/local/bin/git-team enable b a c 'Ad-hoc <adhoc@tmp.se>'
 	/usr/local/bin/git-team enable b a c 'Ad-hoc <adhoc@tmp.se>'
 	run /usr/local/bin/git-team enable b a c 'Ad-hoc <adhoc@tmp.se>'
@@ -170,7 +107,7 @@ teardown() {
 	assert_line --index 8 ''
 }
 
-@test "git-team: enable should ignore duplicates" {
+@test "git-team: (scope: repo-local) enable should ignore duplicates" {
 	run /usr/local/bin/git-team enable a a 'A <a@x.y>'
 	assert_success
 	assert_line --index 0 'git-team enabled'
@@ -179,19 +116,16 @@ teardown() {
 	assert_line --index 3 ''
 }
 
-@test "git-team: enable should fail when trying to enable with a non-existing alias" {
+@test "git-team: (scope: repo-local) enable should fail when trying to enable with a non-existing alias" {
 	run /usr/local/bin/git-team enable non-existing-alias
 	assert_failure 255
 	assert_line 'error: Failed to resolve alias team.alias.non-existing-alias'
 }
 
-@test "git-team: enable should fail when trying to enable with activation-scope repo-local when not in a git repository directory" {
-	/usr/local/bin/git-team config activation-scope repo-local
-
+@test "git-team: (scope: repo-local) enable should fail when trying to enable while not inside a git repository" {
+	cd /tmp
 	run /usr/local/bin/git-team enable a
 	assert_failure 255
 	assert_line 'error: Failed to enable with activation-scope=repo-local: not inside a git repository'
-
-	/usr/local/bin/git-team config activation-scope global
 }
 
