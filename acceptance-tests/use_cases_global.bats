@@ -3,20 +3,12 @@
 load '/bats-libs/bats-support/load.bash'
 load '/bats-libs/bats-assert/load.bash'
 
-REPO_PATH=/tmp/repo/use-cases
+REPO_PATH=/tmp/repo/use-cases-global
 
 setup() {
 	cp /usr/local/bin/prepare-commit-msg /usr/local/etc/git-team/hooks/prepare-commit-msg
+
 	mkdir -p $REPO_PATH
-}
-
-teardown() {
-	rm -rf $REPO_PATH
-}
-
-@test "use case: an existing repo-local git hook should be respected" {
-	/usr/local/bin/git-team enable 'A <a@x.y>'
-
 	cd $REPO_PATH
 	touch THE_FILE
 
@@ -24,30 +16,31 @@ teardown() {
 	git config user.name git-team-acceptance-test
 	git config user.email foo@bar.baz
 
+	/usr/local/bin/git-team config activation-scope global
+}
+
+teardown() {
+	/usr/local/bin/git-team disable
+
+	cd -
+	rm -rf $REPO_PATH
+}
+
+@test "use case: (scope: global) an existing repo-local git hook should be respected" {
 	echo -e "#!/bin/sh\necho 'pre-commit hook triggered'\nexit 1" > $REPO_PATH/.git/hooks/pre-commit
 	chmod +x $REPO_PATH/.git/hooks/pre-commit
 
-	cat $REPO_PATH/.git/hooks/pre-commit
+	/usr/local/bin/git-team enable 'A <a@x.y>'
 
 	git add -A
 	run git commit -m "test"
 
 	assert_failure
 	assert_line --index 0 'pre-commit hook triggered'
-
-	cd -
-	/usr/local/bin/git-team disable
 }
 
-@test "use case: when git-team is enabled then 'git commit -m' should have the respective co-authors injected" {
+@test "use case: (scope: global) when git-team is enabled then 'git commit -m' should have the respective co-authors injected" {
 	/usr/local/bin/git-team enable 'B <b@x.y>' 'A <a@x.y>' 'C <c@x.y>'
-
-	cd $REPO_PATH
-	touch THE_FILE
-
-	git init
-	git config user.name git-team-acceptance-test
-	git config user.email foo@bar.baz
 
 	git add -A
 	git commit -m "test"
@@ -63,20 +56,10 @@ teardown() {
 	assert_line --index 6 --regexp '\s+Co-authored-by: B <b@x.y>'
 	assert_line --index 7 --regexp '\s+Co-authored-by: C <c@x.y>'
 	assert_line --index 8 'THE_FILE'
-
-	cd -
-	/usr/local/bin/git-team disable
 }
 
-@test "use case: when git-team is disabled then 'git commit -m' should not have any co-authors injected" {
+@test "use case: (scope: global) when git-team is disabled then 'git commit -m' should not have any co-authors injected" {
 	/usr/local/bin/git-team disable
-
-	cd $REPO_PATH
-	touch THE_FILE
-
-	git init
-	git config user.name git-team-acceptance-test
-	git config user.email foo@bar.baz
 
 	git add -A
 	git commit -m "test"
@@ -89,6 +72,4 @@ teardown() {
 	assert_line --index 3 --regexp '\s+test'
 	assert_line --index 4 'THE_FILE'
 	refute_output --partial 'Co-authored-by:'
-
-	cd -
 }
