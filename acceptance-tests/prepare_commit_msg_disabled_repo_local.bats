@@ -3,7 +3,7 @@
 load '/bats-libs/bats-support/load.bash'
 load '/bats-libs/bats-assert/load.bash'
 
-REPO_PATH=/tmp/repo/prepare-commit-msg-disabled
+REPO_PATH=/tmp/repo/prepare-commit-msg-disabled-repo-local
 REPO_CHECKSUM=$(echo -n $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
 
 setup() {
@@ -24,37 +24,37 @@ teardown() {
 	rm /tmp/COMMIT_MSG
 }
 
-@test "prepare-commit-msg: git-team disabled: repo-local - message" {
+@test "prepare-commit-msg: git-team disabled: (scope: repo-local) - message" {
 	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG message && cat /tmp/COMMIT_MSG"
 	assert_success
 	refute_output --regexp '\w+'
 }
 
-@test "prepare-commit-msg: git-team disabled: repo-local - none" {
+@test "prepare-commit-msg: git-team disabled: (scope: repo-local) - none" {
 	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG && cat /tmp/COMMIT_MSG"
 	assert_success
 	refute_output --regexp '\w+'
 }
 
-@test "prepare-commit-msg: git-team disabled: repo-local - commit" {
+@test "prepare-commit-msg: git-team disabled: (scope: repo-local) - commit" {
 	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG commit && cat /tmp/COMMIT_MSG"
 	assert_success
 	refute_output --regexp '\w+'
 }
 
-@test "prepare-commit-msg: git-team disabled: repo-local - template" {
+@test "prepare-commit-msg: git-team disabled: (scope: repo-local) - template" {
 	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG template && cat /tmp/COMMIT_MSG"
 	assert_success
 	refute_output --regexp '\w+'
 }
 
-@test "prepare-commit-msg: git-team disabled: repo-local - merge" {
+@test "prepare-commit-msg: git-team disabled: (scope: repo-local) - merge" {
 	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG merge && cat /tmp/COMMIT_MSG"
 	assert_success
 	refute_output --regexp '\w+'
 }
 
-@test "prepare-commit-msg: git-team disabled: repo-local - squash" {
+@test "prepare-commit-msg: git-team disabled: (scope: repo-local) - squash" {
 	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG squash && cat /tmp/COMMIT_MSG"
 	assert_success
 	refute_output --regexp '\w+'
