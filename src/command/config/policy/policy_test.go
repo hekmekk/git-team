@@ -22,10 +22,10 @@ func (mock configReaderMock) Read() (config.Config, error) {
 var cfg = config.Config{ActivationScope: activationscope.Global}
 
 type configWriterMock struct {
-	setActivationScope func(scope activationscope.ActivationScope) error
+	setActivationScope func(scope activationscope.Scope) error
 }
 
-func (mock configWriterMock) SetActivationScope(scope activationscope.ActivationScope) error {
+func (mock configWriterMock) SetActivationScope(scope activationscope.Scope) error {
 	return mock.setActivationScope(scope)
 }
 
@@ -127,7 +127,7 @@ func TestFailOnUnknownActivationScope(t *testing.T) {
 	expectedEvent := configevents.SettingModificationFailed{Reason: err}
 
 	configWriter := &configWriterMock{
-		setActivationScope: func(scope activationscope.ActivationScope) error {
+		setActivationScope: func(scope activationscope.Scope) error {
 			return err
 		},
 	}
@@ -156,7 +156,7 @@ func TestShouldFailWhenConfigWriterFails(t *testing.T) {
 			t.Parallel()
 
 			configWriter := &configWriterMock{
-				setActivationScope: func(scope activationscope.ActivationScope) error {
+				setActivationScope: func(scope activationscope.Scope) error {
 					return err
 				},
 			}
@@ -183,7 +183,7 @@ func TestShouldModifyActivationScopeSetting(t *testing.T) {
 			expectedEvent := configevents.SettingModificationSucceeded{Key: key, Value: value}
 
 			configWriter := &configWriterMock{
-				setActivationScope: func(scope activationscope.ActivationScope) error {
+				setActivationScope: func(scope activationscope.Scope) error {
 					return nil
 				},
 			}

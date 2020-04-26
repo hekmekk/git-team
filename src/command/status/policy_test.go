@@ -19,10 +19,10 @@ func (mock configReaderMock) Read() (config.Config, error) {
 }
 
 type stateReaderMock struct {
-	query func(scope activationscope.ActivationScope) (state.State, error)
+	query func(scope activationscope.Scope) (state.State, error)
 }
 
-func (mock stateReaderMock) Query(scope activationscope.ActivationScope) (state.State, error) {
+func (mock stateReaderMock) Query(scope activationscope.Scope) (state.State, error) {
 	return mock.query(scope)
 }
 
@@ -39,7 +39,7 @@ func TestStatusShouldBeRetrieved(t *testing.T) {
 
 	currState := state.NewStateDisabled()
 
-	cases := []activationscope.ActivationScope{activationscope.Global, activationscope.RepoLocal}
+	cases := []activationscope.Scope{activationscope.Global, activationscope.RepoLocal}
 
 	for _, caseLoopVar := range cases {
 		activationScope := caseLoopVar
@@ -59,7 +59,7 @@ func TestStatusShouldBeRetrieved(t *testing.T) {
 					},
 				},
 				StateReader: &stateReaderMock{
-					query: func(scope activationscope.ActivationScope) (state.State, error) {
+					query: func(scope activationscope.Scope) (state.State, error) {
 						if scope != activationScope {
 							return state.State{}, errors.New("wrong scope")
 						}
@@ -142,7 +142,7 @@ func TestStatusShouldNotBeRetrievedDueToStateRetrievalError(t *testing.T) {
 			},
 		},
 		StateReader: &stateReaderMock{
-			query: func(scope activationscope.ActivationScope) (state.State, error) {
+			query: func(scope activationscope.Scope) (state.State, error) {
 				if scope != activationscope.Global {
 					return state.State{}, errors.New("wrong scope")
 				}

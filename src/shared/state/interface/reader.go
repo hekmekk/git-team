@@ -7,5 +7,5 @@ import (
 
 // Reader retrive the current state
 type Reader interface {
-	Query(scope activationscope.ActivationScope) (state.State, error)
+	Query(scope activationscope.Scope) (state.State, error)
 }

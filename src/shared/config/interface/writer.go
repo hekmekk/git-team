@@ -6,5 +6,5 @@ import (
 
 // Writer write a single property
 type Writer interface {
-	SetActivationScope(scope activationscope.ActivationScope) error
+	SetActivationScope(scope activationscope.Scope) error
 }

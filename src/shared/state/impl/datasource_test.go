@@ -106,7 +106,7 @@ func TestQueryTranslatesActivationScopeToGitconfigScopeCorrectly(t *testing.T) {
 	t.Parallel()
 
 	properties := []struct {
-		activationScope activationscope.ActivationScope
+		activationScope activationscope.Scope
 		gitConfigScope  gitconfigscope.Scope
 	}{
 		{activationscope.Global, gitconfigscope.Global},

@@ -1,21 +1,18 @@
 package entity
 
-// TODO: should this live in its own module?
-// TODO: rename to Scope -> activationscope.Scope
-
-// ActivationScope the scope of git team
-type ActivationScope int
+// Scope the scope of git team
+type Scope int
 
 const (
 	// Global git team will be enabled and disabled globally
-	Global ActivationScope = iota
+	Global Scope = iota
 	// RepoLocal git team will be enabled and disabled for the current repository
 	RepoLocal
 	// Unknown no idea what to do with this value
 	Unknown
 )
 
-func (scope ActivationScope) String() string {
+func (scope Scope) String() string {
 	names := [...]string{
 		"global",
 		"repo-local"}
@@ -27,8 +24,8 @@ func (scope ActivationScope) String() string {
 	return names[scope]
 }
 
-// FromString factory method for ActivationScope
-func FromString(candidate string) ActivationScope {
+// FromString factory method for Scope
+func FromString(candidate string) Scope {
 	switch candidate {
 	case "global":
 		return Global

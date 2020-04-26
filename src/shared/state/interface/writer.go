@@ -6,6 +6,6 @@ import (
 
 // Writer persist the current state
 type Writer interface {
-	PersistEnabled(scope activationscope.ActivationScope, coauthors []string) error
-	PersistDisabled(scope activationscope.ActivationScope) error
+	PersistEnabled(scope activationscope.Scope, coauthors []string) error
+	PersistDisabled(scope activationscope.Scope) error
 }

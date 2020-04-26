@@ -10,7 +10,7 @@ func TestFromString(t *testing.T) {
 
 	cases := []struct {
 		candidateScope string
-		expectedScope  ActivationScope
+		expectedScope  Scope
 	}{
 		{"global", Global},
 		{"repo-local", RepoLocal},

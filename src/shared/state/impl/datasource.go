@@ -20,7 +20,7 @@ func NewGitConfigDataSource(gitConfigReader gitconfig.Reader) GitConfigDataSourc
 }
 
 // Query read the current state from gitconfig
-func (ds GitConfigDataSource) Query(activationScope activationscope.ActivationScope) (state.State, error) {
+func (ds GitConfigDataSource) Query(activationScope activationscope.Scope) (state.State, error) {
 	var gitConfigScope gitconfigscope.Scope
 	if activationScope == activationscope.Global {
 		gitConfigScope = gitconfigscope.Global

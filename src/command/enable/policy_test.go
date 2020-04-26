@@ -55,13 +55,13 @@ func (mock gitConfigWriterMock) Add(scope scope.Scope, key string, value string)
 }
 
 type stateWriterMock struct {
-	persistEnabled func(activationscope.ActivationScope, []string) error
+	persistEnabled func(activationscope.Scope, []string) error
 }
 
-func (mock stateWriterMock) PersistEnabled(scope activationscope.ActivationScope, coauthors []string) error {
+func (mock stateWriterMock) PersistEnabled(scope activationscope.Scope, coauthors []string) error {
 	return mock.persistEnabled(scope, coauthors)
 }
-func (mock stateWriterMock) PersistDisabled(scope activationscope.ActivationScope) error {
+func (mock stateWriterMock) PersistDisabled(scope activationscope.Scope) error {
 	return nil
 }
 
@@ -108,7 +108,7 @@ func TestEnableSucceeds(t *testing.T) {
 	repoChecksum := "a05b508ef212dc640aced4037a66021d" // echo -n <user>:<pathToRepo> | md5sum | awk '{ print $1 }'
 
 	cases := []struct {
-		activationScope activationscope.ActivationScope
+		activationScope activationscope.Scope
 		templateDir     string
 		gitconfigScope  gitconfigscope.Scope
 	}{
@@ -163,7 +163,7 @@ func TestEnableSucceeds(t *testing.T) {
 			}
 
 			deps.StateWriter = &stateWriterMock{
-				persistEnabled: func(scope activationscope.ActivationScope, coauthors []string) error {
+				persistEnabled: func(scope activationscope.Scope, coauthors []string) error {
 					if scope != activationScope {
 						t.Errorf("wrong scope, expected: %s, got: %s", activationScope, scope)
 						t.Fail()
@@ -224,7 +224,7 @@ func TestEnableKeepsSeparateCommitTemplatesPerUserAndRepository(t *testing.T) {
 			},
 		},
 		StateWriter: &stateWriterMock{
-			persistEnabled: func(activationscope.ActivationScope, []string) error {
+			persistEnabled: func(activationscope.Scope, []string) error {
 				return nil
 			},
 		},
@@ -301,7 +301,7 @@ func TestEnableDropsDuplicateEntries(t *testing.T) {
 	}
 
 	stateWriter := &stateWriterMock{
-		persistEnabled: func(_ activationscope.ActivationScope, coauthors []string) error {
+		persistEnabled: func(_ activationscope.Scope, coauthors []string) error {
 			if !reflect.DeepEqual(expectedStateRepositoryPersistEnabledCoauthors, coauthors) {
 				t.Errorf("expected: %s, got: %s", expectedStateRepositoryPersistEnabledCoauthors, coauthors)
 				t.Fail()
@@ -715,7 +715,7 @@ func TestEnableFailsDueToSaveStatusErr(t *testing.T) {
 	}
 
 	stateWriter := &stateWriterMock{
-		persistEnabled: func(_ activationscope.ActivationScope, _ []string) error {
+		persistEnabled: func(_ activationscope.Scope, _ []string) error {
 			return expectedErr
 		},
 	}

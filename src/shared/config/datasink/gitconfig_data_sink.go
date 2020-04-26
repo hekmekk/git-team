@@ -17,6 +17,6 @@ func NewGitconfigDataSink(gitConfigWriter gitconfig.Writer) GitconfigDataSink {
 }
 
 // SetActivationScope write activation-scope setting to gitconfig
-func (ds GitconfigDataSink) SetActivationScope(scope activationscope.ActivationScope) error {
+func (ds GitconfigDataSink) SetActivationScope(scope activationscope.Scope) error {
 	return ds.GitConfigWriter.ReplaceAll(gitconfigscope.Global, "team.config.activation-scope", scope.String())
 }

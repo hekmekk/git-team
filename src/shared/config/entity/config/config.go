@@ -6,5 +6,5 @@ import (
 
 // Config config for git-team
 type Config struct {
-	ActivationScope activationscope.ActivationScope
+	ActivationScope activationscope.Scope
 }

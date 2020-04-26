@@ -108,7 +108,7 @@ func TestPersistPassesThroughTheCorrectScope(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct {
-		activationScope activationscope.ActivationScope
+		activationScope activationscope.Scope
 		gitConfigScope  gitconfigscope.Scope
 	}{
 		{activationscope.Global, gitconfigscope.Global},

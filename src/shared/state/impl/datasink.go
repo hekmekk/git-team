@@ -19,16 +19,16 @@ func NewGitConfigDataSink(gitConfigWriter gitconfig.Writer) GitConfigDataSink {
 }
 
 // PersistEnabled persist the current state as enabled
-func (ds GitConfigDataSink) PersistEnabled(scope activationscope.ActivationScope, coauthors []string) error {
+func (ds GitConfigDataSink) PersistEnabled(scope activationscope.Scope, coauthors []string) error {
 	return ds.persist(scope, state.NewStateEnabled(coauthors))
 }
 
 // PersistDisabled persist the current state as disabled
-func (ds GitConfigDataSink) PersistDisabled(scope activationscope.ActivationScope) error {
+func (ds GitConfigDataSink) PersistDisabled(scope activationscope.Scope) error {
 	return ds.persist(scope, state.NewStateDisabled())
 }
 
-func (ds GitConfigDataSink) persist(activationScope activationscope.ActivationScope, state state.State) error {
+func (ds GitConfigDataSink) persist(activationScope activationscope.Scope, state state.State) error {
 	gitConfigWriter := ds.GitConfigWriter
 
 	var gitConfigScope gitconfigscope.Scope

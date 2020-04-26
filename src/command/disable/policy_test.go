@@ -45,13 +45,13 @@ func (mock gitConfigWriterMock) Add(scope gitconfigscope.Scope, key string, valu
 }
 
 type stateWriterMock struct {
-	persistDisabled func(activationscope.ActivationScope) error
+	persistDisabled func(activationscope.Scope) error
 }
 
-func (mock stateWriterMock) PersistEnabled(scope activationscope.ActivationScope, coauthors []string) error {
+func (mock stateWriterMock) PersistEnabled(scope activationscope.Scope, coauthors []string) error {
 	return nil
 }
-func (mock stateWriterMock) PersistDisabled(scope activationscope.ActivationScope) error {
+func (mock stateWriterMock) PersistDisabled(scope activationscope.Scope) error {
 	return mock.persistDisabled(scope)
 }
 
@@ -95,7 +95,7 @@ func TestDisableSucceeds(t *testing.T) {
 	expectedEvent := Succeeded{}
 
 	cases := []struct {
-		activationScope      activationscope.ActivationScope
+		activationScope      activationscope.Scope
 		gitconfigScope       gitconfigscope.Scope
 		deletionTemplatePath string
 	}{
@@ -142,7 +142,7 @@ func TestDisableSucceeds(t *testing.T) {
 			}
 
 			deps.StateWriter = &stateWriterMock{
-				persistDisabled: func(scope activationscope.ActivationScope) error {
+				persistDisabled: func(scope activationscope.Scope) error {
 					if scope != activationScope {
 						t.Errorf("wrong scope, expected: %s, got: %s", activationScope, scope)
 						t.Fail()
@@ -191,7 +191,7 @@ func TestDisableShouldSucceedWhenUnsetHooksPathFailsBecauseTheOptionDoesntExist(
 	}
 
 	stateWriter := &stateWriterMock{
-		persistDisabled: func(scope activationscope.ActivationScope) error {
+		persistDisabled: func(scope activationscope.Scope) error {
 			return nil
 		},
 	}
@@ -372,7 +372,7 @@ func TestDisableShouldSucceedWhenReadingCommitTemplateFailsBecauseItHasBeenUnset
 	}
 
 	stateWriter := &stateWriterMock{
-		persistDisabled: func(scope activationscope.ActivationScope) error {
+		persistDisabled: func(scope activationscope.Scope) error {
 			return nil
 		},
 	}
@@ -477,7 +477,7 @@ func TestDisableShouldSucceedWhenUnsetCommitTemplateFailsBecauseItWasUnsetAlread
 	}
 
 	stateWriter := &stateWriterMock{
-		persistDisabled: func(scope activationscope.ActivationScope) error {
+		persistDisabled: func(scope activationscope.Scope) error {
 			return nil
 		},
 	}
@@ -632,7 +632,7 @@ func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenTheRespec
 	}
 
 	stateWriter := &stateWriterMock{
-		persistDisabled: func(scope activationscope.ActivationScope) error {
+		persistDisabled: func(scope activationscope.Scope) error {
 			return nil
 		},
 	}
@@ -687,7 +687,7 @@ func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenStatFileF
 	}
 
 	stateWriter := &stateWriterMock{
-		persistDisabled: func(scope activationscope.ActivationScope) error {
+		persistDisabled: func(scope activationscope.Scope) error {
 			return nil
 		},
 	}
@@ -744,7 +744,7 @@ func TestDisableShouldFailWhenpersistDisabledFails(t *testing.T) {
 	expectedErr := errors.New("failed to save status")
 
 	stateWriter := &stateWriterMock{
-		persistDisabled: func(scope activationscope.ActivationScope) error {
+		persistDisabled: func(scope activationscope.Scope) error {
 			return expectedErr
 		},
 	}
