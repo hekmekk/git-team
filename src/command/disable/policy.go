@@ -67,16 +67,18 @@ func (policy Policy) Apply() events.Event {
 		return Failed{Reason: err}
 	}
 
-	var templatePathToDelete string
-	if activationScope == activationscope.Global {
-		templatePathToDelete = commitTemplatePath
-	} else {
-		templatePathToDelete = filepath.Dir(commitTemplatePath)
-	}
+	if commitTemplatePath != "" {
+		var templatePathToDelete string
+		if activationScope == activationscope.Global {
+			templatePathToDelete = commitTemplatePath
+		} else {
+			templatePathToDelete = filepath.Dir(commitTemplatePath)
+		}
 
-	if _, err := deps.StatFile(templatePathToDelete); err == nil {
-		if err := deps.RemoveFile(templatePathToDelete); err != nil {
-			return Failed{Reason: err}
+		if _, err := deps.StatFile(templatePathToDelete); err == nil {
+			if err := deps.RemoveFile(templatePathToDelete); err != nil {
+				return Failed{Reason: err}
+			}
 		}
 	}
 

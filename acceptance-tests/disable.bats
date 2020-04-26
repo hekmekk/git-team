@@ -188,7 +188,7 @@ teardown() {
 	cd -
 }
 
-@test "git-team: disable should treat a previously disabled git-team idempotently" {
+@test "git-team: disable should treat a previously disabled git-team idempotently with activation-scope global" {
 	mkdir -p /root/.config/git-team/
 
 	run /usr/local/bin/git-team disable
@@ -196,6 +196,24 @@ teardown() {
 	assert_line "git-team disabled"
 
 	rm -rf /root/.config/git-team/
+}
+
+@test "git-team: disable should treat a previously disabled git-team idempotently with activation-scope repo-local" {
+	mkdir -p /root/.config/git-team/
+
+	/usr/local/bin/git-team config activation-scope repo-local
+
+	cd $REPO_PATH
+	git init
+	git config user.name git-team-acceptance-test
+	git config user.email foo@bar.baz
+
+	run /usr/local/bin/git-team disable
+	assert_success
+	assert_line "git-team disabled"
+
+	rm -rf /root/.config/git-team/
+	cd -
 }
 
 @test "git-team: disable should fail when trying to disable with activation-scope repo-local when not in a git repository directory" {

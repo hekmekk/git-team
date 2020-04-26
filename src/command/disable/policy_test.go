@@ -611,6 +611,61 @@ func TestDisableShouldFailWhenRemoveFileFails(t *testing.T) {
 	}
 }
 
+func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenTheRespectivePathIsEmpty(t *testing.T) {
+	gitConfigReader := &gitConfigReaderMock{
+		get: func(_ gitconfigscope.Scope, key string) (string, error) {
+			return "", nil
+		},
+	}
+
+	gitConfigWriter := &gitConfigWriterMock{
+		unsetAll: func(scope gitconfigscope.Scope, key string) error {
+			switch key {
+			case "commit.template":
+				return nil
+			case "core.hooksPath":
+				return nil
+			default:
+				return fmt.Errorf("wrong key: %s", key)
+			}
+		},
+	}
+
+	stateWriter := &stateWriterMock{
+		persistDisabled: func(scope activationscope.ActivationScope) error {
+			return nil
+		},
+	}
+
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
+
+	deps := Dependencies{
+		ConfigReader:    configReader,
+		GitConfigReader: gitConfigReader,
+		GitConfigWriter: gitConfigWriter,
+		StatFile:        func(string) (os.FileInfo, error) { return fileInfo, nil },
+		StateWriter:     stateWriter,
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
+			},
+		},
+	}
+
+	expectedEvent := Succeeded{}
+
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
+	}
+}
+
 func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenStatFileFails(t *testing.T) {
 	gitConfigReader := &gitConfigReaderMock{
 		get: func(_ gitconfigscope.Scope, key string) (string, error) {
