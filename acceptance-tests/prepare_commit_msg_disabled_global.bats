@@ -12,39 +12,37 @@ teardown() {
 	rm /tmp/COMMIT_MSG
 }
 
-# TODO: Add activation scope based tests
-
-@test "prepare-commit-msg: git-team disabled - message" {
+@test "prepare-commit-msg: git-team disabled: global - message" {
 	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG message && cat /tmp/COMMIT_MSG"
 	assert_success
 	refute_output --regexp '\w+'
 }
 
-@test "prepare-commit-msg: git-team disabled - none" {
+@test "prepare-commit-msg: git-team disabled: global - none" {
 	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG && cat /tmp/COMMIT_MSG"
 	assert_success
 	refute_output --regexp '\w+'
 }
 
-@test "prepare-commit-msg: git-team disabled - commit" {
+@test "prepare-commit-msg: git-team disabled: global - commit" {
 	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG commit && cat /tmp/COMMIT_MSG"
 	assert_success
 	refute_output --regexp '\w+'
 }
 
-@test "prepare-commit-msg: git-team disabled - template" {
+@test "prepare-commit-msg: git-team disabled: global - template" {
 	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG template && cat /tmp/COMMIT_MSG"
 	assert_success
 	refute_output --regexp '\w+'
 }
 
-@test "prepare-commit-msg: git-team disabled - merge" {
+@test "prepare-commit-msg: git-team disabled: global - merge" {
 	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG merge && cat /tmp/COMMIT_MSG"
 	assert_success
 	refute_output --regexp '\w+'
 }
 
-@test "prepare-commit-msg: git-team disabled - squash" {
+@test "prepare-commit-msg: git-team disabled: global - squash" {
 	run bash -c "/usr/local/bin/prepare-commit-msg /tmp/COMMIT_MSG squash && cat /tmp/COMMIT_MSG"
 	assert_success
 	refute_output --regexp '\w+'
