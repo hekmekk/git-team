@@ -1,7 +1,7 @@
 package stateinterface
 
 import (
-	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 )
 
 // Writer persist the current state

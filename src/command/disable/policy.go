@@ -7,7 +7,7 @@ import (
 
 	"github.com/hekmekk/git-team/src/core/events"
 	activation "github.com/hekmekk/git-team/src/shared/activation/interface"
-	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	config "github.com/hekmekk/git-team/src/shared/config/interface"
 	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"

@@ -3,7 +3,7 @@ package stateimpl
 import (
 	"errors"
 
-	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 	state "github.com/hekmekk/git-team/src/shared/state/entity"

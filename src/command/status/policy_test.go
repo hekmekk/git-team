@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
 	state "github.com/hekmekk/git-team/src/shared/state/entity"
 )

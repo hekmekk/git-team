@@ -5,7 +5,7 @@ import (
 
 	configevents "github.com/hekmekk/git-team/src/command/config/events"
 	"github.com/hekmekk/git-team/src/core/events"
-	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	config "github.com/hekmekk/git-team/src/shared/config/interface"
 )
 

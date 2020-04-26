@@ -8,7 +8,7 @@ import (
 
 	configevents "github.com/hekmekk/git-team/src/command/config/events"
 	"github.com/hekmekk/git-team/src/core/effects"
-	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
 )
 

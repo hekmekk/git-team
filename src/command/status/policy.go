@@ -5,7 +5,7 @@ import (
 
 	"github.com/hekmekk/git-team/src/core/events"
 	activation "github.com/hekmekk/git-team/src/shared/activation/interface"
-	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	config "github.com/hekmekk/git-team/src/shared/config/interface"
 	state "github.com/hekmekk/git-team/src/shared/state/interface"
 )

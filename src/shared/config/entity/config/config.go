@@ -1,7 +1,7 @@
 package entity
 
 import (
-	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 )
 
 // Config config for git-team

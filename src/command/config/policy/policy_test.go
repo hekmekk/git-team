@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	configevents "github.com/hekmekk/git-team/src/command/config/events"
-	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
 )
 

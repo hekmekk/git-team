@@ -10,7 +10,7 @@ import (
 	utils "github.com/hekmekk/git-team/src/command/enable/utils"
 	"github.com/hekmekk/git-team/src/core/events"
 	activation "github.com/hekmekk/git-team/src/shared/activation/interface"
-	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	config "github.com/hekmekk/git-team/src/shared/config/interface"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"

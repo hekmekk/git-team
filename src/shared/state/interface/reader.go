@@ -1,7 +1,7 @@
 package stateinterface
 
 import (
-	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	state "github.com/hekmekk/git-team/src/shared/state/entity"
 )
 

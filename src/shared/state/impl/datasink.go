@@ -1,7 +1,7 @@
 package stateimpl
 
 import (
-	activationscope "github.com/hekmekk/git-team/src/shared/config/entity/activationscope"
+	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
