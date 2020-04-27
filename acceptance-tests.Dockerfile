@@ -3,7 +3,7 @@ FROM golang:1.12-stretch as bats
 LABEL maintainer Rea Sand <hekmek@posteo.de>
 
 RUN mkdir /bats-source
-RUN git clone https://github.com/bats-core/bats-core.git /bats-source
+RUN git clone https://github.com/bats-core/bats-core.git --branch v1.2.0 --single-branch /bats-source
 WORKDIR /bats-source
 RUN ./install.sh /usr/local
 
