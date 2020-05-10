@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.4.0] - 2020-??-??
+## [1.4.0] - 2020-05-10
 ### Added
 - New command `config` has been introduced to view and edit the configuration
 - The `activation-scope` can now be configured (options: `global` (default), `repo-local`) via `git-team config`
