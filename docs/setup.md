@@ -102,6 +102,12 @@ sudo rpm -i /path/to/downloaded/release.rpm
 sudo xbps-install git-team
 ```
 
+## Arch Linux
+Install from the [AUR](https://aur.archlinux.org/packages/git-team-git/)
+```bash
+yay git-team-git
+```
+
 ## Build from source
 The latest version of git-team has been built against go version 1.12.
 ```bash
