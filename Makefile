@@ -61,8 +61,10 @@ install:
 	$(CURR_DIR)/git-hooks/install_symlinks.sh
 	mkdir -p /usr/local/share/man/man1
 	install -m "0644" target/man/git-team.1.gz /usr/local/share/man/man1/git-team.1.gz
-	install -m "0644" bash_completion/git-team.bash $(BASH_COMPLETION_PREFIX)/etc/bash_completion.d/git-team
-	@echo "[INFO] Don't forget to source $(BASH_COMPLETION_PREFIX)/etc/bash_completion"
+	@if [ -d "$(BASH_COMPLETION_PREFIX)/etc/bash_completion.d" ]; then \
+		install -m "0644" bash_completion/git-team.bash $(BASH_COMPLETION_PREFIX)/etc/bash_completion.d/git-team; \
+		echo "[INFO] Don't forget to source $(BASH_COMPLETION_PREFIX)/etc/bash_completion"; \
+	fi
 
 uninstall:
 	rm -f $(BIN_PREFIX)/bin/git-team
