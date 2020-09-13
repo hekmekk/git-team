@@ -47,7 +47,7 @@ endif
 	mv $(GOPATH)/bin/prepare-commit-msg $(CURR_DIR)/target/bin/prepare-commit-msg
 	@echo "[INFO] Successfully built git-team version v$(VERSION)"
 
-man-page:
+man-page: clean deps
 	mkdir -p $(CURR_DIR)/target/man/
 	go run $(CURR_DIR)/cmd/git-team/main.go --help-man > $(CURR_DIR)/target/man/git-team.1
 	gzip -f $(CURR_DIR)/target/man/git-team.1
