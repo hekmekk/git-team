@@ -21,7 +21,7 @@ ifdef FILTER
 	BATS_FILTER=--filter $(FILTER)
 endif
 
-all: deps fmt build man-page
+all: fmt build man-page
 
 tidy:
 	go mod tidy
