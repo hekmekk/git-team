@@ -2,7 +2,9 @@ package main
 
 import (
 	"flag"
+	"io/ioutil"
 	"os"
+	"strings"
 
 	enableutils "github.com/hekmekk/git-team/src/command/enable/utils"
 	config "github.com/hekmekk/git-team/src/shared/config/datasource"
@@ -43,9 +45,18 @@ func main() {
 
 	switch commitMsgSource {
 	case message, merge, squash:
-		err := appendCoauthorsToCommitTemplate(commitTemplate, status.Coauthors)
-		if err != nil {
-			panic(err)
+		commitMessageContainsCoauthors, checkMessageErr := commitMessageContainsCoauthors(commitTemplate)
+		if checkMessageErr != nil {
+			panic(checkMessageErr)
+		}
+
+		if commitMessageContainsCoauthors {
+			os.Exit(0)
+		}
+
+		appendErr := appendCoauthorsToCommitTemplate(commitTemplate, status.Coauthors)
+		if appendErr != nil {
+			panic(appendErr)
 		}
 	}
 
@@ -64,6 +75,16 @@ func parseArgs() (commitMsgSourceT, string) {
 	}
 
 	return commitMsgSource, commitTemplate
+}
+
+func commitMessageContainsCoauthors(commitTemplatePath string) (bool, error) {
+	// slurp should be fine as commit messages are usually small
+	commitMessage, err := ioutil.ReadFile(commitTemplatePath)
+	if err != nil {
+		return false, err
+	}
+
+	return strings.Contains(string(commitMessage), "Co-authored-by: "), nil
 }
 
 func appendCoauthorsToCommitTemplate(commitTemplate string, coauthors []string) error {

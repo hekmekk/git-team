@@ -58,6 +58,27 @@ teardown() {
 	assert_line --index 8 'THE_FILE'
 }
 
+@test "use case: (scope: repo-local) when git-team is enabled then 'git commit -m' should not result in interference with existing co-authors" {
+	/usr/local/bin/git-team enable 'B <b@x.y>' 'A <a@x.y>' 'C <c@x.y>'
+
+	git add -A
+	git commit -F- <<EOF
+test
+
+Co-authored-by: D <d@x.y>
+EOF
+
+	run git show --name-only
+	assert_success
+	assert_line --index 0 --regexp '^commit\s\w+'
+	assert_line --index 1 'Author: git-team-acceptance-test <foo@bar.baz>'
+	assert_line --index 2 --regexp '^Date:.+'
+	assert_line --index 3 --regexp '\s+test'
+	refute_line --index 4 --regexp '\w+'
+	assert_line --index 5 --regexp '\s+Co-authored-by: D <d@x.y>'
+	assert_line --index 6 'THE_FILE'
+}
+
 @test "use case: (scope: repo-local) when git-team is disabled then 'git commit -m' should not have any co-authors injected" {
 	/usr/local/bin/git-team disable
 

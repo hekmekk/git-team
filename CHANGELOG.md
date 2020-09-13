@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.1] - 2020-09-13
+### Fixed
+- Don't append co-authors to a commit message if they are part of it already. This may happen when co-authors have been added manually or when both the commit template as well as the `prepare-commit-msg` hook take effect (e.g.: IDEs reading from the commit template and writing the entire content (including co-authors) back as a single commit message).
+
 ## [1.4.0] - 2020-05-10
 ### Added
 - New command `config` has been introduced to view and edit the configuration
@@ -114,6 +118,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Append co-authors to a `git commit` message by means of a commit message template file
 
 [Unreleased]: https://github.com/hekmekk/git-team/compare/v1.4.0...HEAD
+[1.4.1]: https://github.com/hekmekk/git-team/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/hekmekk/git-team/compare/v1.3.8...v1.4.0
 [1.3.8]: https://github.com/hekmekk/git-team/compare/v1.3.7...v1.3.8
 [1.3.7]: https://github.com/hekmekk/git-team/compare/v1.3.6...v1.3.7
