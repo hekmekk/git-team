@@ -63,7 +63,7 @@ install:
 	install -m "0644" target/man/git-team.1.gz /usr/local/share/man/man1/git-team.1.gz
 	@if [ -d "$(BASH_COMPLETION_PREFIX)/etc/bash_completion.d" ]; then \
 		install -m "0644" bash_completion/git-team.bash $(BASH_COMPLETION_PREFIX)/etc/bash_completion.d/git-team; \
-		echo "[INFO] Don't forget to source $(BASH_COMPLETION_PREFIX)/etc/bash_completion"; \
+		echo "[INFO] Don't forget to source $(BASH_COMPLETION_PREFIX)/etc/bash_completion.d/*"; \
 	fi
 
 uninstall:
