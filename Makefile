@@ -72,16 +72,16 @@ uninstall:
 	rm -f /usr/share/man/man1/git-team.1.gz
 	rm -rf $(HOOKS_DIR)
 
-export-signing-key:
+export-signing-key: clean
 ifndef GPG_SIGNING_KEY_ID
 	$(error GPG_SIGNING_KEY_ID is not set)
 endif
 	gpg --armor --export-secret-keys $(GPG_SIGNING_KEY_ID) > $(CURR_DIR)/signing-key.asc
 
-package-build: clean export-signing-key
+package-build: export-signing-key
 	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-pkg:v$(VERSION) . -f pkg.Dockerfile
 
-deb rpm: package-build
+deb rpm: clean package-build
 	mkdir -p target/$@
 	chown -R $(shell id -u):$(shell id -g) target/$@
 	docker run --rm -h git-team-pkg -v $(CURR_DIR)/target/$@:/pkg-target git-team-pkg:v$(VERSION) fpm \
@@ -107,7 +107,7 @@ deb rpm: package-build
 		bash_completion/git-team.bash=/etc/bash_completion.d/git-team \
 		target/man/git-team.1.gz=/usr/share/man/man1/git-team.1.gz
 
-show-checksums:
+show-checksums: package-build
 	find $(CURR_DIR)/target/ -type f -exec sha256sum {} \;
 
 package: rpm deb show-checksums
