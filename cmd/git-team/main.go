@@ -54,8 +54,20 @@ func newApplication(author string, version string) *kingpin.Application {
 		return nil
 	})
 
+	enable := enablecmdadapter.Command(app).Default()
+	enable.PreAction(func(c *kingpin.ParseContext) error {
+		index := c.Peek().Index
+		numElements := len(c.Elements)
+		if index == 1 && numElements == 1 {
+			effects.NewDeprecationWarning("git team enable (without aliases)", "git team [status]").Run()
+		}
+		if index >= 1 && numElements == index+1 {
+			effects.NewDeprecationWarning("git team (without further sub-command specification)", "git team enable").Run()
+		}
+		return nil
+	})
+
 	assignmentscmdadapter.Command(app)
-	enablecmdadapter.Command(app)
 	disablecmdadapter.Command(app)
 	statuscmdadapter.Command(app)
 	configcmdadapter.Command(app)

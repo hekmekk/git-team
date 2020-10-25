@@ -72,12 +72,13 @@ teardown() {
 @test "git-team: (scope: repo-local) enable shorthand should display the enabled co-authors in alphabetical order" {
 	run /usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>'
 	assert_success
-	assert_line --index 0 'git-team enabled'
-	assert_line --index 1 'co-authors'
-	assert_line --index 2 '─ A <a@x.y>'
-	assert_line --index 3 '─ Ad-hoc <adhoc@tmp.se>'
-	assert_line --index 4 '─ B <b@x.y>'
-	assert_line --index 5 '─ C <c@x.y>'
+	assert_line --index 0 "warn: 'git team (without further sub-command specification)' has been deprecated and is going to be removed in a future major release, use 'git team enable' instead"
+	assert_line --index 1 'git-team enabled'
+	assert_line --index 2 'co-authors'
+	assert_line --index 3 '─ A <a@x.y>'
+	assert_line --index 4 '─ Ad-hoc <adhoc@tmp.se>'
+	assert_line --index 5 '─ B <b@x.y>'
+	assert_line --index 6 '─ C <c@x.y>'
 }
 
 @test "git-team: (scope: repo-local) should display the enabled co-authors in alphabetical order" {
