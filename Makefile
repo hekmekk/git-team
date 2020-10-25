@@ -60,15 +60,15 @@ install:
 	install $(CURR_DIR)/git-hooks/proxy.sh /usr/local/etc/git-team/hooks/proxy.sh
 	$(CURR_DIR)/git-hooks/install_symlinks.sh
 	mkdir -p /usr/local/share/man/man1
-	install -m "0644" target/man/git-team.1.gz /usr/local/share/man/man1/git-team.1.gz
+	install -m "0644" $(CURR_DIR)/target/man/git-team.1.gz /usr/local/share/man/man1/git-team.1.gz
 	@if [ -d "$(BASH_COMPLETION_PREFIX)/etc/bash_completion.d" ]; then \
-		install -m "0644" bash_completion/git-team.bash $(BASH_COMPLETION_PREFIX)/etc/bash_completion.d/git-team; \
+		install -m "0644" $(CURR_DIR)/bash_completion/git-team.bash $(BASH_COMPLETION_PREFIX)/etc/bash_completion.d/git-team; \
 		echo "[INFO] Don't forget to source $(BASH_COMPLETION_PREFIX)/etc/bash_completion.d/*"; \
 	fi
 
 uninstall:
 	rm -f $(BIN_PREFIX)/bin/git-team
-	rm -f /etc/bash_completion.d/git-team
+	rm -f $(BASH_COMPLETION_PREFIX)/etc/bash_completion.d/git-team
 	rm -f /usr/share/man/man1/git-team.1.gz
 	rm -rf $(HOOKS_DIR)
 
