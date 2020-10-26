@@ -69,6 +69,22 @@ teardown() {
 	assert_line --index 3 'Co-authored-by: C <c@x.y>'
 }
 
+@test "git-team: (scope: repo-local) enable 'all via -A' should provision the commit template" {
+	run bash -c "/usr/local/bin/git-team enable -A &>/dev/null && cat /root/.config/git-team/commit-templates/repo-local/$REPO_CHECKSUM/COMMIT_TEMPLATE"
+	assert_success
+	assert_line --index 0 'Co-authored-by: A <a@x.y>'
+	assert_line --index 1 'Co-authored-by: B <b@x.y>'
+	assert_line --index 2 'Co-authored-by: C <c@x.y>'
+}
+
+@test "git-team: (scope: repo-local) enable 'all via --all' should provision the commit template" {
+	run bash -c "/usr/local/bin/git-team enable --all &>/dev/null && cat /root/.config/git-team/commit-templates/repo-local/$REPO_CHECKSUM/COMMIT_TEMPLATE"
+	assert_success
+	assert_line --index 0 'Co-authored-by: A <a@x.y>'
+	assert_line --index 1 'Co-authored-by: B <b@x.y>'
+	assert_line --index 2 'Co-authored-by: C <c@x.y>'
+}
+
 @test "git-team: (scope: repo-local) enable shorthand should display the enabled co-authors in alphabetical order" {
 	run /usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>'
 	assert_success

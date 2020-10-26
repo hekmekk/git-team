@@ -12,6 +12,7 @@ import (
 	activation "github.com/hekmekk/git-team/src/shared/activation/interface"
 	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	config "github.com/hekmekk/git-team/src/shared/config/interface"
+	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 	state "github.com/hekmekk/git-team/src/shared/state/interface"
@@ -24,6 +25,7 @@ type Dependencies struct {
 	CreateTemplateDir    func(path string, perm os.FileMode) error
 	WriteTemplateFile    func(path string, data []byte, mode os.FileMode) error
 	GitResolveAliases    func(aliases []string) ([]string, []error)
+	GitGetAssignments    func() (map[string]string, error)
 	ConfigReader         config.Reader
 	GitConfigWriter      gitconfig.Writer
 	StateWriter          state.Writer
@@ -35,6 +37,7 @@ type Dependencies struct {
 // Request the coauthors with which to enable git-team
 type Request struct {
 	AliasesAndCoauthors *[]string
+	UseAll              *bool
 }
 
 // Policy add a <Coauthor> under "team.alias.<Alias>"
@@ -48,18 +51,34 @@ func (policy Policy) Apply() events.Event {
 	deps := policy.Deps
 	req := policy.Req
 
-	aliasesAndCoauthors := append(*req.AliasesAndCoauthors) // should be == *req.AliasesAndCoauthors
+	var coAuthors []string
+	if *req.UseAll {
+		availableCoauthors, err := lookupAllCoauthors(deps)
 
-	if len(aliasesAndCoauthors) == 0 {
-		return Aborted{}
+		if err != nil {
+			return Failed{Reason: []error{err}}
+		}
+
+		if len(availableCoauthors) == 0 {
+			return Aborted{}
+		}
+
+		coAuthors = availableCoauthors
+
+	} else {
+		aliasesAndCoauthors := append(*req.AliasesAndCoauthors) // should be == *req.AliasesAndCoauthors
+
+		if len(aliasesAndCoauthors) == 0 {
+			return Aborted{}
+		}
+
+		coauthors, errs := applyAdditionalGuards(deps, aliasesAndCoauthors)
+		if len(errs) > 0 {
+			return Failed{Reason: errs}
+		}
+
+		coAuthors = removeDuplicates(coauthors)
 	}
-
-	coauthors, errs := applyAdditionalGuards(deps, aliasesAndCoauthors)
-	if len(errs) > 0 {
-		return Failed{Reason: errs}
-	}
-
-	uniqueCoauthors := removeDuplicates(coauthors)
 
 	settings := deps.CommitSettingsReader.Read()
 
@@ -81,7 +100,7 @@ func (policy Policy) Apply() events.Event {
 		gitConfigScope = gitconfigscope.Local
 	}
 
-	if err := setupTemplate(gitConfigScope, deps, settings.TemplatesBaseDir, uniqueCoauthors); err != nil {
+	if err := setupTemplate(gitConfigScope, deps, settings.TemplatesBaseDir, coAuthors); err != nil {
 		return Failed{Reason: []error{err}}
 	}
 
@@ -89,11 +108,26 @@ func (policy Policy) Apply() events.Event {
 		return Failed{Reason: []error{err}}
 	}
 
-	if err := deps.StateWriter.PersistEnabled(cfg.ActivationScope, uniqueCoauthors); err != nil {
+	if err := deps.StateWriter.PersistEnabled(cfg.ActivationScope, coAuthors); err != nil {
 		return Failed{Reason: []error{err}}
 	}
 
 	return Succeeded{}
+}
+
+func lookupAllCoauthors(deps Dependencies) ([]string, error) {
+	aliasCoauthorMap, err := deps.GitGetAssignments()
+	if err != nil && err.Error() != giterror.SectionOrKeyIsInvalid {
+		return []string{}, err
+	}
+
+	coAuthors := []string{}
+
+	for _, coauthor := range aliasCoauthorMap {
+		coAuthors = append(coAuthors, coauthor)
+	}
+
+	return coAuthors, nil
 }
 
 func applyAdditionalGuards(deps Dependencies, aliasesAndCoauthors []string) ([]string, []error) {

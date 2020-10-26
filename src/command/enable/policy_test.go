@@ -75,7 +75,7 @@ func (mock activationValidatorMock) IsInsideAGitRepository() bool {
 
 func TestEnableAborted(t *testing.T) {
 	deps := Dependencies{}
-	req := Request{AliasesAndCoauthors: &[]string{}}
+	req := Request{AliasesAndCoauthors: &[]string{}, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Aborted{}
 
@@ -184,7 +184,7 @@ func TestEnableSucceeds(t *testing.T) {
 				return nil
 			}
 
-			req := Request{AliasesAndCoauthors: coauthors}
+			req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
 			expectedEvent := Succeeded{}
 
@@ -195,6 +195,114 @@ func TestEnableSucceeds(t *testing.T) {
 				t.Fail()
 			}
 		})
+	}
+}
+
+func TestEnableAllShouldSucceed(t *testing.T) {
+	coauthors := &[]string{}
+	expectedStateRepositoryPersistEnabledCoauthors := []string{"Mr. Noujz <noujz@mr.se>", "Mrs. Noujz <noujz@mrs.se>"}
+
+	WriteTemplateFile := func(_ string, data []byte, _ os.FileMode) error {
+		return nil
+	}
+
+	deps := Dependencies{
+		GitGetAssignments: func() (map[string]string, error) {
+			return map[string]string{
+				"team.alias.alias1": "Mr. Noujz <noujz@mr.se>",
+				"team.alias.alias2": "Mrs. Noujz <noujz@mrs.se>",
+			}, nil
+		},
+		WriteTemplateFile:    WriteTemplateFile,
+		CommitSettingsReader: commitSettingsReader,
+		GetEnv: func(string) string {
+			return "someone"
+		},
+		GetWd: func() (string, error) {
+			return "/path/to/repo", nil
+		},
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
+			},
+		},
+	}
+
+	deps.ConfigReader = &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
+
+	deps.GitConfigWriter = &gitConfigWriterMock{
+		replaceAll: func(scope scope.Scope, key string, value string) error {
+			return nil
+		},
+	}
+
+	deps.StateWriter = &stateWriterMock{
+		persistEnabled: func(scope activationscope.Scope, coauthors []string) error {
+			if !reflect.DeepEqual(expectedStateRepositoryPersistEnabledCoauthors, coauthors) {
+				t.Errorf("expected: %s, got: %s", expectedStateRepositoryPersistEnabledCoauthors, coauthors)
+				t.Fail()
+			}
+			return nil
+		},
+	}
+
+	deps.CreateTemplateDir = func(path string, _ os.FileMode) error {
+		return nil
+	}
+
+	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{true}[0]}
+
+	expectedEvent := Succeeded{}
+
+	event := Policy{deps, req}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
+	}
+}
+
+func testEnableAllShouldFailWhenLookingUpCoauthorsReturnsAnError(t *testing.T) {
+	err := errors.New("exit status 1")
+
+	deps := Dependencies{
+		GitGetAssignments: func() (map[string]string, error) {
+			return map[string]string{}, err
+		},
+	}
+
+	req := Request{AliasesAndCoauthors: &[]string{}, UseAll: &[]bool{true}[0]}
+
+	expectedEvent := Failed{Reason: []error{err}}
+
+	event := Policy{deps, req}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
+	}
+}
+
+func TestEnableAllShouldAbortWhenNoCoauthorsCouldBeFound(t *testing.T) {
+	deps := Dependencies{
+		GitGetAssignments: func() (map[string]string, error) {
+			return map[string]string{}, nil
+		},
+	}
+
+	req := Request{AliasesAndCoauthors: &[]string{}, UseAll: &[]bool{true}[0]}
+
+	expectedEvent := Aborted{}
+
+	event := Policy{deps, req}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
 	}
 }
 
@@ -266,7 +374,7 @@ func TestEnableKeepsSeparateCommitTemplatesPerUserAndRepository(t *testing.T) {
 				return nil
 			}
 
-			req := Request{AliasesAndCoauthors: &[]string{"Mr. Noujz <noujz@mr.se>", "mrs"}}
+			req := Request{AliasesAndCoauthors: &[]string{"Mr. Noujz <noujz@mr.se>", "mrs"}, UseAll: &[]bool{false}[0]}
 
 			Policy{deps, req}.Apply()
 		})
@@ -327,7 +435,7 @@ func TestEnableDropsDuplicateEntries(t *testing.T) {
 		GitConfigWriter:      gitConfigWriter,
 		ActivationValidator:  activationValidator,
 	}
-	req := Request{AliasesAndCoauthors: &coauthors}
+	req := Request{AliasesAndCoauthors: &coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Succeeded{}
 
@@ -347,7 +455,7 @@ func TestEnableFailsDueToSanityCheckErr(t *testing.T) {
 	deps := Dependencies{
 		SanityCheckCoauthors: func(coauthors []string) []error { return []error{expectedErr} },
 	}
-	req := Request{AliasesAndCoauthors: &coauthors}
+	req := Request{AliasesAndCoauthors: &coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
 
@@ -368,7 +476,7 @@ func TestEnableFailsDueToResolveAliasesErr(t *testing.T) {
 		SanityCheckCoauthors: func(coauthors []string) []error { return []error{} },
 		GitResolveAliases:    func([]string) ([]string, []error) { return []string{}, []error{expectedErr} },
 	}
-	req := Request{AliasesAndCoauthors: &coauthors}
+	req := Request{AliasesAndCoauthors: &coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
 
@@ -400,7 +508,7 @@ func TestEnableFailsDueToConfigReaderError(t *testing.T) {
 		ConfigReader:         configReader,
 	}
 
-	req := Request{AliasesAndCoauthors: coauthors}
+	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
 
@@ -450,7 +558,7 @@ func TestEnableFailsWhenNotInsideAGitRepository(t *testing.T) {
 		GitConfigWriter:      gitConfigWriter,
 		ActivationValidator:  activationValidator,
 	}
-	req := Request{AliasesAndCoauthors: coauthors}
+	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
 
@@ -495,7 +603,7 @@ func TestEnableFailsDueToGetWdErr(t *testing.T) {
 		},
 		ActivationValidator: activationValidator,
 	}
-	req := Request{AliasesAndCoauthors: &coauthors}
+	req := Request{AliasesAndCoauthors: &coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
 
@@ -534,7 +642,7 @@ func TestEnableFailsDueToCreateTemplateDirErr(t *testing.T) {
 		ConfigReader:         configReader,
 		ActivationValidator:  activationValidator,
 	}
-	req := Request{AliasesAndCoauthors: &coauthors}
+	req := Request{AliasesAndCoauthors: &coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
 
@@ -575,7 +683,7 @@ func TestEnableFailsDueToWriteTemplateFileErr(t *testing.T) {
 		ConfigReader:         configReader,
 		ActivationValidator:  activationValidator,
 	}
-	req := Request{AliasesAndCoauthors: coauthors}
+	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
 
@@ -628,7 +736,7 @@ func TestEnableFailsDueToGitSetCommitTemplateErr(t *testing.T) {
 		GitConfigWriter:      gitConfigWriter,
 		ActivationValidator:  activationValidator,
 	}
-	req := Request{AliasesAndCoauthors: coauthors}
+	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
 
@@ -680,7 +788,7 @@ func TestEnableFailsDueToSetHooksPathErr(t *testing.T) {
 		GitConfigWriter:      gitConfigWriter,
 		ActivationValidator:  activationValidator,
 	}
-	req := Request{AliasesAndCoauthors: coauthors}
+	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
 
@@ -738,7 +846,7 @@ func TestEnableFailsDueToSaveStatusErr(t *testing.T) {
 		ActivationValidator:  activationValidator,
 	}
 
-	req := Request{AliasesAndCoauthors: coauthors}
+	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
 

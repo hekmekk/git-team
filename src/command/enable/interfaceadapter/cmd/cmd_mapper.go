@@ -15,6 +15,7 @@ import (
 	activation "github.com/hekmekk/git-team/src/shared/activation/impl"
 	configds "github.com/hekmekk/git-team/src/shared/config/datasource"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
+	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
 	state "github.com/hekmekk/git-team/src/shared/state/impl"
 )
 
@@ -22,16 +23,18 @@ import (
 func Command(root commandadapter.CommandRoot) *kingpin.CmdClause {
 	enable := root.Command("enable", "Enables injection of the provided co-authors whenever `git-commit` is used")
 	coauthors := enable.Arg("co-authors", "The co-authors for the next commit(s). A co-author must either be an alias or of the shape \"Name <email>\"").Strings()
+	useAll := enable.Flag("all", "Use all known co-authors").Short('A').Bool()
 
-	enable.Action(commandadapter.Run(policy(coauthors), enableeventadapter.MapEventToEffectsFactory(statuscmdmapper.Policy())))
+	enable.Action(commandadapter.Run(policy(coauthors, useAll), enableeventadapter.MapEventToEffectsFactory(statuscmdmapper.Policy())))
 
 	return enable
 }
 
-func policy(coauthors *[]string) enable.Policy {
+func policy(coauthors *[]string, useAll *bool) enable.Policy {
 	return enable.Policy{
 		Req: enable.Request{
 			AliasesAndCoauthors: coauthors,
+			UseAll:              useAll,
 		},
 		Deps: enable.Dependencies{
 			SanityCheckCoauthors: validation.SanityCheckCoauthors,
@@ -39,6 +42,7 @@ func policy(coauthors *[]string) enable.Policy {
 			WriteTemplateFile:    ioutil.WriteFile,
 			GitConfigWriter:      gitconfig.NewDataSink(),
 			GitResolveAliases:    commandadapter.ResolveAliases,
+			GitGetAssignments:    func() (map[string]string, error) { return gitconfiglegacy.GetRegexp("team.alias") },
 			CommitSettingsReader: commitsettingsds.NewStaticValueDataSource(),
 			ConfigReader:         configds.NewGitconfigDataSource(gitconfig.NewDataSource()),
 			StateWriter:          state.NewGitConfigDataSink(gitconfig.NewDataSink()),
