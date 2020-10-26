@@ -10,6 +10,7 @@ require (
 	github.com/mattn/go-colorable v0.1.1 // indirect
 	github.com/mattn/go-isatty v0.0.7 // indirect
 	github.com/stretchr/testify v1.3.0 // indirect
+	github.com/urfave/cli/v2 v2.2.0
 	golang.org/x/sys v0.0.0-20190422165155-953cdadca894 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
