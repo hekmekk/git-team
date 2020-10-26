@@ -51,7 +51,7 @@ _git_team() {
 			return 0
 			;;
 		enable)
-			COMPREPLY=( $(compgen -W "${remainingAliases[*]}" -- $cur) )
+			COMPREPLY=( $(compgen -W "--all -A ${remainingAliases[*]}" -- $cur) )
 			return 0
 			;;
 		add)
