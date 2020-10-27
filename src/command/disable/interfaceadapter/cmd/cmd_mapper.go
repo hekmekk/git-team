@@ -3,7 +3,7 @@ package disablecmdadapter
 import (
 	"os"
 
-	"gopkg.in/alecthomas/kingpin.v2"
+	"github.com/urfave/cli/v2"
 
 	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/disable"
@@ -16,12 +16,14 @@ import (
 )
 
 // Command the disable command
-func Command(root commandadapter.CommandRoot) *kingpin.CmdClause {
-	disable := root.Command("disable", "Use default commit template and remove prepare-commit-msg hook")
-
-	disable.Action(commandadapter.Run(policy(), disableeventadapter.MapEventToEffectsFactory(statuscmdmapper.Policy())))
-
-	return disable
+func Command() *cli.Command {
+	return &cli.Command{
+		Name:  "disable",
+		Usage: "Use default commit template and remove prepare-commit-msg hook",
+		Action: func(c *cli.Context) error {
+			return commandadapter.RunUrFave(policy(), disableeventadapter.MapEventToEffectsFactory(statuscmdmapper.Policy()))(c)
+		},
+	}
 }
 
 func policy() disable.Policy {
