@@ -11,6 +11,7 @@ import (
 	commitsettingsds "github.com/hekmekk/git-team/src/command/enable/commitsettings/datasource"
 	enableeventadapter "github.com/hekmekk/git-team/src/command/enable/interfaceadapter/event"
 	statuscmdmapper "github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
+	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/validation"
 	activation "github.com/hekmekk/git-team/src/shared/activation/impl"
 	configds "github.com/hekmekk/git-team/src/shared/config/datasource"
@@ -25,17 +26,9 @@ func Command() *cli.Command {
 		Name:  "enable",
 		Usage: "Enables injection of the provided co-authors whenever `git-commit` is used",
 		Before: func(c *cli.Context) error {
-			// enable.PreAction(func(c *kingpin.ParseContext) error {
-			// index := c.Peek().Index
-			// numElements := len(c.Elements)
-			// if index == 1 && numElements == 1 {
-			// effects.NewDeprecationWarning("git team enable (without aliases)", "git team [status]").Run()
-			// }
-			// if index >= 1 && numElements == index+1 {
-			// effects.NewDeprecationWarning("git team (without further sub-command specification)", "git team enable").Run()
-			// }
-			// return nil
-			// })
+			if !c.Args().Present() {
+				effects.NewDeprecationWarning("git team enable (without aliases)", "git team [status]").Run()
+			}
 			return nil
 		},
 		ArgsUsage: "co-authors - The co-authors for the next commit(s). A co-author must either be an alias or of the shape \"Name <email>\"",
