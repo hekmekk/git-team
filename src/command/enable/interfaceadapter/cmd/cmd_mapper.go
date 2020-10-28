@@ -1,6 +1,7 @@
 package enablecmdadapter
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/validation"
 	activation "github.com/hekmekk/git-team/src/shared/activation/impl"
+	aliascompletion "github.com/hekmekk/git-team/src/shared/completion"
 	configds "github.com/hekmekk/git-team/src/shared/config/datasource"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
 	state "github.com/hekmekk/git-team/src/shared/state/impl"
@@ -38,6 +40,12 @@ func Command() *cli.Command {
 			coauthors := c.Args().Slice()
 			useAll := c.Bool("all")
 			return commandadapter.RunUrFave(policy(&coauthors, &useAll), enableeventadapter.MapEventToEffectsFactory(statuscmdmapper.Policy()))(c)
+		},
+		BashComplete: func(c *cli.Context) {
+			remainingAliases := aliascompletion.NewAliasShellCompletion(gitconfig.NewDataSource()).Complete(c.Args().Slice())
+			for _, alias := range remainingAliases {
+				fmt.Println(alias)
+			}
 		},
 	}
 }
