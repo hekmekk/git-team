@@ -54,9 +54,6 @@ func newApplication() *cli.App {
 		},
 	}
 
-	// app.HelpFlag.Short('h')
-	// app.VersionFlag.Short('v')
-
 	// ls := listcmdadapter.Command(app)
 	// ls.PreAction(func(c *kingpin.ParseContext) error {
 	// effects.NewDeprecationWarning("git team ls", "git team assignments").Run()
