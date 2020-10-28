@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
@@ -17,6 +18,10 @@ func (mock gitConfigReaderMock) Get(scope gitconfigscope.Scope, key string) (str
 
 func (mock gitConfigReaderMock) GetAll(scope gitconfigscope.Scope, key string) ([]string, error) {
 	return []string{}, nil
+}
+
+func (mock gitConfigReaderMock) GetRegexp(scope scope.Scope, pattern string) (map[string]string, error) {
+	return nil, nil
 }
 
 func (mock gitConfigReaderMock) List(scope gitconfigscope.Scope) (map[string]string, error) {

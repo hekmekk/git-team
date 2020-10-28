@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
+	"github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 	state "github.com/hekmekk/git-team/src/shared/state/entity"
 )
@@ -20,6 +21,10 @@ func (mock gitConfigReaderMock) Get(scope gitconfigscope.Scope, key string) (str
 
 func (mock gitConfigReaderMock) GetAll(scope gitconfigscope.Scope, key string) ([]string, error) {
 	return mock.getAll(scope, key)
+}
+
+func (mock gitConfigReaderMock) GetRegexp(scope scope.Scope, pattern string) (map[string]string, error) {
+	return nil, nil
 }
 
 func (mock gitConfigReaderMock) List(scope gitconfigscope.Scope) (map[string]string, error) {

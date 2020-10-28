@@ -17,6 +17,7 @@ import (
 	configds "github.com/hekmekk/git-team/src/shared/config/datasource"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
 	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
+	"github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 	state "github.com/hekmekk/git-team/src/shared/state/impl"
 )
 
@@ -55,7 +56,7 @@ func policy(coauthors *[]string, useAll *bool) enable.Policy {
 			WriteTemplateFile:    ioutil.WriteFile,
 			GitConfigWriter:      gitconfig.NewDataSink(),
 			GitResolveAliases:    commandadapter.ResolveAliases,
-			GitGetAssignments:    func() (map[string]string, error) { return gitconfiglegacy.GetRegexp("team.alias") },
+			GitGetAssignments:    func() (map[string]string, error) { return gitconfiglegacy.GetRegexp(scope.Global, "team.alias") },
 			CommitSettingsReader: commitsettingsds.NewStaticValueDataSource(),
 			ConfigReader:         configds.NewGitconfigDataSource(gitconfig.NewDataSource()),
 			StateWriter:          state.NewGitConfigDataSink(gitconfig.NewDataSink()),

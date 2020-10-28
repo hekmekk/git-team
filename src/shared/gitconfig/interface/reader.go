@@ -8,5 +8,6 @@ import (
 type Reader interface {
 	Get(scope scope.Scope, key string) (string, error)
 	GetAll(scope scope.Scope, key string) ([]string, error)
+	GetRegexp(scope scope.Scope, pattern string) (map[string]string, error)
 	List(scope scope.Scope) (map[string]string, error)
 }

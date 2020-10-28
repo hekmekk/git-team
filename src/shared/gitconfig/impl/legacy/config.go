@@ -51,9 +51,9 @@ func UnsetAll(scope scope.Scope, key string) error {
 	return err
 }
 
-// GetRegexp git config --global --gex-regexp <pattern>
-func GetRegexp(pattern string) (map[string]string, error) {
-	return getRegexp(execGitConfig)(scope.Global, pattern)
+// GetRegexp git config --<scope> --gex-regexp <pattern>
+func GetRegexp(scope scope.Scope, pattern string) (map[string]string, error) {
+	return getRegexp(execGitConfig)(scope, pattern)
 }
 
 func getRegexp(exec func(scope.Scope, ...string) ([]string, error)) func(scope.Scope, string) (map[string]string, error) {
