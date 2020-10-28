@@ -1,7 +1,9 @@
 package configcmdadapter
 
 import (
-	"gopkg.in/alecthomas/kingpin.v2"
+	"fmt"
+
+	"github.com/urfave/cli/v2"
 
 	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	configeventadapter "github.com/hekmekk/git-team/src/command/config/interfaceadapter/event"
@@ -12,14 +14,39 @@ import (
 )
 
 // Command the config command
-func Command(root commandadapter.CommandRoot) *kingpin.CmdClause {
-	config := root.Command("config", "Edit configuration")
-	key := config.Arg("key", "the key of the setting").String()
-	value := config.Arg("value", "the value of the setting").String()
+func Command() *cli.Command {
+	return &cli.Command{
+		Name:      "config",
+		Usage:     "Edit configuration",
+		ArgsUsage: "key - the key of the setting\nvalue - the value of the setting",
+		Action: func(c *cli.Context) error {
+			args := c.Args()
+			key := args.First()
+			value := args.Get(1)
+			return commandadapter.RunUrFave(policy(&key, &value), configeventadapter.MapEventToEffects)(c)
+		},
+		BashComplete: func(c *cli.Context) {
+			options := map[string][]string{
+				"activation-scope": []string{"repo-local", "global"},
+			}
 
-	config.Action(commandadapter.Run(policy(key, value), configeventadapter.MapEventToEffects))
+			args := c.Args()
+			argsLen := args.Len()
 
-	return config
+			if argsLen == 0 {
+				for key := range options {
+					fmt.Println(key)
+				}
+			}
+
+			if argsLen == 1 {
+				values := options[args.First()]
+				for _, value := range values {
+					fmt.Println(value)
+				}
+			}
+		},
+	}
 }
 
 func policy(key *string, value *string) configpolicy.Policy {
