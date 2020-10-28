@@ -1,7 +1,7 @@
 package statuscmdadapter
 
 import (
-	"gopkg.in/alecthomas/kingpin.v2"
+	"github.com/urfave/cli/v2"
 
 	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/status"
@@ -13,12 +13,14 @@ import (
 )
 
 // Command the status command
-func Command(root commandadapter.CommandRoot) *kingpin.CmdClause {
-	status := root.Command("status", "Print the current status")
-
-	status.Action(commandadapter.Run(Policy(), statuseventadapter.MapEventToEffects))
-
-	return status
+func Command() *cli.Command {
+	return &cli.Command{
+		Name:  "status",
+		Usage: "Print the current status",
+		Action: func(c *cli.Context) error {
+			return commandadapter.RunUrFave(Policy(), statuseventadapter.MapEventToEffects)(c)
+		},
+	}
 }
 
 // Policy the status policy constructor

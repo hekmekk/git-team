@@ -14,7 +14,7 @@ import (
 	// configcmdadapter "github.com/hekmekk/git-team/src/command/config/interfaceadapter/cmd"
 	disablecmdadapter "github.com/hekmekk/git-team/src/command/disable/interfaceadapter/cmd"
 	enablecmdadapter "github.com/hekmekk/git-team/src/command/enable/interfaceadapter/cmd"
-	// statuscmdadapter "github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
+	statuscmdadapter "github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
 	// "github.com/hekmekk/git-team/src/core/effects"
 )
 
@@ -50,6 +50,7 @@ func newApplication() *cli.App {
 		Commands: []*cli.Command{
 			enablecmdadapter.Command(),
 			disablecmdadapter.Command(),
+			statuscmdadapter.Command(),
 		},
 	}
 
@@ -75,7 +76,6 @@ func newApplication() *cli.App {
 	// })
 
 	// assignmentscmdadapter.Command(app)
-	// statuscmdadapter.Command(app)
 	// configcmdadapter.Command(app)
 
 	sort.Sort(cli.FlagsByName(app.Flags))
