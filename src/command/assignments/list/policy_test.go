@@ -6,7 +6,29 @@ import (
 	"testing"
 
 	"github.com/hekmekk/git-team/src/core/assignment"
+	"github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
+
+type gitConfigReaderMock struct {
+	getRegexp func(gitconfigscope.Scope, string) (map[string]string, error)
+}
+
+func (mock gitConfigReaderMock) Get(scope gitconfigscope.Scope, key string) (string, error) {
+	return "", nil
+}
+
+func (mock gitConfigReaderMock) GetAll(scope gitconfigscope.Scope, key string) ([]string, error) {
+	return []string{}, nil
+}
+
+func (mock gitConfigReaderMock) GetRegexp(scope scope.Scope, pattern string) (map[string]string, error) {
+	return mock.getRegexp(scope, pattern)
+}
+
+func (mock gitConfigReaderMock) List(scope gitconfigscope.Scope) (map[string]string, error) {
+	return nil, nil
+}
 
 func TestListShouldReturnTheAvailableAssignments(t *testing.T) {
 	aliasCoauthorMap := map[string]string{
@@ -14,8 +36,14 @@ func TestListShouldReturnTheAvailableAssignments(t *testing.T) {
 		"team.alias.alias2": "coauthor2",
 	}
 
+	gitConfigReader := &gitConfigReaderMock{
+		getRegexp: func(_ gitconfigscope.Scope, pattern string) (map[string]string, error) {
+			return aliasCoauthorMap, nil
+		},
+	}
+
 	deps := Dependencies{
-		GitGetAssignments: func() (map[string]string, error) { return aliasCoauthorMap, nil },
+		GitConfigReader: gitConfigReader,
 	}
 
 	assignmentsA := []assignment.Assignment{
@@ -41,8 +69,14 @@ func TestListShouldReturnTheAvailableAssignments(t *testing.T) {
 func TestListShouldReturnAnEmptyListIfGitConfigSectionIsEmpty(t *testing.T) {
 	err := errors.New("exit status 1")
 
+	gitConfigReader := &gitConfigReaderMock{
+		getRegexp: func(_ gitconfigscope.Scope, pattern string) (map[string]string, error) {
+			return map[string]string{}, err
+		},
+	}
+
 	deps := Dependencies{
-		GitGetAssignments: func() (map[string]string, error) { return map[string]string{}, err },
+		GitConfigReader: gitConfigReader,
 	}
 
 	expectedEvent := RetrievalSucceeded{Assignments: []assignment.Assignment{}}
@@ -58,8 +92,14 @@ func TestListShouldReturnAnEmptyListIfGitConfigSectionIsEmpty(t *testing.T) {
 func TestListShouldReturnFailure(t *testing.T) {
 	err := errors.New("failed to get assignments")
 
+	gitConfigReader := &gitConfigReaderMock{
+		getRegexp: func(_ gitconfigscope.Scope, pattern string) (map[string]string, error) {
+			return map[string]string{}, err
+		},
+	}
+
 	deps := Dependencies{
-		GitGetAssignments: func() (map[string]string, error) { return map[string]string{}, err },
+		GitConfigReader: gitConfigReader,
 	}
 
 	expectedEvent := RetrievalFailed{Reason: err}

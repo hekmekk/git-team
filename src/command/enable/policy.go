@@ -14,6 +14,7 @@ import (
 	config "github.com/hekmekk/git-team/src/shared/config/interface"
 	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
+	"github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 	state "github.com/hekmekk/git-team/src/shared/state/interface"
 )
@@ -25,9 +26,9 @@ type Dependencies struct {
 	CreateTemplateDir    func(path string, perm os.FileMode) error
 	WriteTemplateFile    func(path string, data []byte, mode os.FileMode) error
 	GitResolveAliases    func(aliases []string) ([]string, []error)
-	GitGetAssignments    func() (map[string]string, error)
 	ConfigReader         config.Reader
 	GitConfigWriter      gitconfig.Writer
+	GitConfigReader      gitconfig.Reader
 	StateWriter          state.Writer
 	GetEnv               func(string) string
 	GetWd                func() (string, error)
@@ -116,7 +117,7 @@ func (policy Policy) Apply() events.Event {
 }
 
 func lookupAllCoauthors(deps Dependencies) ([]string, error) {
-	aliasCoauthorMap, err := deps.GitGetAssignments()
+	aliasCoauthorMap, err := deps.GitConfigReader.GetRegexp(scope.Global, "team.alias")
 	if err != nil && err.Error() != giterror.SectionOrKeyIsInvalid {
 		return []string{}, err
 	}

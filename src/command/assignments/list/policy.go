@@ -6,11 +6,13 @@ import (
 	"github.com/hekmekk/git-team/src/core/assignment"
 	"github.com/hekmekk/git-team/src/core/events"
 	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
+	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
+	"github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
 // Dependencies the dependencies of the list Policy module
 type Dependencies struct {
-	GitGetAssignments func() (map[string]string, error)
+	GitConfigReader gitconfig.Reader
 }
 
 // Policy the policy to apply
@@ -22,7 +24,7 @@ type Policy struct {
 func (policy Policy) Apply() events.Event {
 	deps := policy.Deps
 
-	aliasCoauthorMap, err := deps.GitGetAssignments()
+	aliasCoauthorMap, err := deps.GitConfigReader.GetRegexp(scope.Global, "team.alias")
 	if err != nil && err.Error() != giterror.SectionOrKeyIsInvalid {
 		return RetrievalFailed{Reason: err}
 	}

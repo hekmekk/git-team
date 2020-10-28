@@ -14,6 +14,26 @@ import (
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
+type gitConfigReaderMock struct {
+	getRegexp func(gitconfigscope.Scope, string) (map[string]string, error)
+}
+
+func (mock gitConfigReaderMock) Get(scope gitconfigscope.Scope, key string) (string, error) {
+	return "", nil
+}
+
+func (mock gitConfigReaderMock) GetAll(scope gitconfigscope.Scope, key string) ([]string, error) {
+	return []string{}, nil
+}
+
+func (mock gitConfigReaderMock) GetRegexp(scope scope.Scope, pattern string) (map[string]string, error) {
+	return mock.getRegexp(scope, pattern)
+}
+
+func (mock gitConfigReaderMock) List(scope gitconfigscope.Scope) (map[string]string, error) {
+	return nil, nil
+}
+
 type commitSettingsReaderMock struct {
 	read func() commitsettings.CommitSettings
 }
@@ -207,12 +227,15 @@ func TestEnableAllShouldSucceed(t *testing.T) {
 	}
 
 	deps := Dependencies{
-		GitGetAssignments: func() (map[string]string, error) {
-			return map[string]string{
-				"team.alias.alias1": "Mr. Noujz <noujz@mr.se>",
-				"team.alias.alias2": "Mrs. Noujz <noujz@mrs.se>",
-			}, nil
+		GitConfigReader: &gitConfigReaderMock{
+			getRegexp: func(_ gitconfigscope.Scope, pattern string) (map[string]string, error) {
+				return map[string]string{
+					"team.alias.alias1": "Mr. Noujz <noujz@mr.se>",
+					"team.alias.alias2": "Mrs. Noujz <noujz@mrs.se>",
+				}, nil
+			},
 		},
+
 		WriteTemplateFile:    WriteTemplateFile,
 		CommitSettingsReader: commitSettingsReader,
 		GetEnv: func(string) string {
@@ -270,8 +293,10 @@ func testEnableAllShouldFailWhenLookingUpCoauthorsReturnsAnError(t *testing.T) {
 	err := errors.New("exit status 1")
 
 	deps := Dependencies{
-		GitGetAssignments: func() (map[string]string, error) {
-			return map[string]string{}, err
+		GitConfigReader: &gitConfigReaderMock{
+			getRegexp: func(_ gitconfigscope.Scope, pattern string) (map[string]string, error) {
+				return map[string]string{}, err
+			},
 		},
 	}
 
@@ -289,8 +314,10 @@ func testEnableAllShouldFailWhenLookingUpCoauthorsReturnsAnError(t *testing.T) {
 
 func TestEnableAllShouldAbortWhenNoCoauthorsCouldBeFound(t *testing.T) {
 	deps := Dependencies{
-		GitGetAssignments: func() (map[string]string, error) {
-			return map[string]string{}, nil
+		GitConfigReader: &gitConfigReaderMock{
+			getRegexp: func(_ gitconfigscope.Scope, pattern string) (map[string]string, error) {
+				return map[string]string{}, nil
+			},
 		},
 	}
 
