@@ -7,15 +7,18 @@ import (
 	"time"
 
 	"github.com/urfave/cli/v2"
-	// addcmdadapter "github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/cmd"
+
+	"github.com/hekmekk/git-team/src/core/effects"
+
+	addcmdadapter "github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/cmd"
 	assignmentscmdadapter "github.com/hekmekk/git-team/src/command/assignments/interfaceadapter/cmd"
-	// listcmdadapter "github.com/hekmekk/git-team/src/command/assignments/list/interfaceadapter/cmd"
-	// removecmdadapter "github.com/hekmekk/git-team/src/command/assignments/remove/interfaceadapter/cmd"
+	listcmdadapter "github.com/hekmekk/git-team/src/command/assignments/list/interfaceadapter/cmd"
+
+	removecmdadapter "github.com/hekmekk/git-team/src/command/assignments/remove/interfaceadapter/cmd"
 	// configcmdadapter "github.com/hekmekk/git-team/src/command/config/interfaceadapter/cmd"
 	disablecmdadapter "github.com/hekmekk/git-team/src/command/disable/interfaceadapter/cmd"
 	enablecmdadapter "github.com/hekmekk/git-team/src/command/enable/interfaceadapter/cmd"
 	statuscmdadapter "github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
-	// "github.com/hekmekk/git-team/src/core/effects"
 )
 
 const (
@@ -33,6 +36,24 @@ func main() {
 }
 
 func newApplication() *cli.App {
+	ls := listcmdadapter.Command()
+	ls.Before = func(c *cli.Context) error {
+		effects.NewDeprecationWarning("git team ls", "git team assignments").Run()
+		return nil
+	}
+
+	add := addcmdadapter.Command()
+	add.Before = func(c *cli.Context) error {
+		effects.NewDeprecationWarning("git team add", "git team assignments add").Run()
+		return nil
+	}
+
+	rm := removecmdadapter.Command()
+	rm.Before = func(c *cli.Context) error {
+		effects.NewDeprecationWarning("git team rm", "git team assignments rm").Run()
+		return nil
+	}
+
 	app := &cli.App{
 		Name:     "git-team",
 		Compiled: time.Now(),
@@ -52,27 +73,12 @@ func newApplication() *cli.App {
 			disablecmdadapter.Command(),
 			statuscmdadapter.Command(),
 			assignmentscmdadapter.Command(),
+			add,
+			ls,
+			rm,
 		},
 		Action: statuscmdadapter.Command().Action,
 	}
-
-	// ls := listcmdadapter.Command(app)
-	// ls.PreAction(func(c *kingpin.ParseContext) error {
-	// effects.NewDeprecationWarning("git team ls", "git team assignments").Run()
-	// return nil
-	// })
-
-	// add := addcmdadapter.Command(app)
-	// add.PreAction(func(c *kingpin.ParseContext) error {
-	// effects.NewDeprecationWarning("git team add", "git team assignments add").Run()
-	// return nil
-	// })
-
-	// rm := removecmdadapter.Command(app)
-	// rm.PreAction(func(c *kingpin.ParseContext) error {
-	// effects.NewDeprecationWarning("git team rm", "git team assignments rm").Run()
-	// return nil
-	// })
 
 	// configcmdadapter.Command(app)
 
