@@ -1,4 +1,4 @@
-VERSION:=$(shell grep "version =" `pwd`/cmd/git-team/main.go | awk -F '"' '{print $$2}' | cut -c2-)
+VERSION:=$(shell grep -E "version\s+=" `pwd`/cmd/git-team/main.go | awk -F '"' '{print $$2}')
 
 CURR_DIR:=$(shell pwd)
 
