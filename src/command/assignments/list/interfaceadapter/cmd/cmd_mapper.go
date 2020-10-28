@@ -1,7 +1,7 @@
 package listcmdadapter
 
 import (
-	"gopkg.in/alecthomas/kingpin.v2"
+	"github.com/urfave/cli/v2"
 
 	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/assignments/list"
@@ -10,13 +10,15 @@ import (
 )
 
 // Command the ls command
-func Command(root commandadapter.CommandRoot) *kingpin.CmdClause {
-	ls := root.Command("ls", "List your assignments")
-	ls.Alias("list")
-
-	ls.Action(commandadapter.Run(policy(), listeventadapter.MapEventToEffects))
-
-	return ls
+func Command() *cli.Command {
+	return &cli.Command{
+		Name:    "list",
+		Aliases: []string{"ls"},
+		Usage:   "List your assignments",
+		Action: func(c *cli.Context) error {
+			return commandadapter.RunUrFave(policy(), listeventadapter.MapEventToEffects)(c)
+		},
+	}
 }
 
 func policy() list.Policy {

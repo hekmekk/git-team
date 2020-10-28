@@ -8,7 +8,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 	// addcmdadapter "github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/cmd"
-	// assignmentscmdadapter "github.com/hekmekk/git-team/src/command/assignments/interfaceadapter/cmd"
+	assignmentscmdadapter "github.com/hekmekk/git-team/src/command/assignments/interfaceadapter/cmd"
 	// listcmdadapter "github.com/hekmekk/git-team/src/command/assignments/list/interfaceadapter/cmd"
 	// removecmdadapter "github.com/hekmekk/git-team/src/command/assignments/remove/interfaceadapter/cmd"
 	// configcmdadapter "github.com/hekmekk/git-team/src/command/config/interfaceadapter/cmd"
@@ -51,6 +51,7 @@ func newApplication() *cli.App {
 			enablecmdadapter.Command(),
 			disablecmdadapter.Command(),
 			statuscmdadapter.Command(),
+			assignmentscmdadapter.Command(),
 		},
 		Action: statuscmdadapter.Command().Action,
 	}
@@ -73,7 +74,6 @@ func newApplication() *cli.App {
 	// return nil
 	// })
 
-	// assignmentscmdadapter.Command(app)
 	// configcmdadapter.Command(app)
 
 	sort.Sort(cli.FlagsByName(app.Flags))
