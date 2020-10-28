@@ -10,7 +10,6 @@ import (
 	commitsettings "github.com/hekmekk/git-team/src/command/enable/commitsettings/entity"
 	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
-	"github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
@@ -26,7 +25,7 @@ func (mock gitConfigReaderMock) GetAll(scope gitconfigscope.Scope, key string) (
 	return []string{}, nil
 }
 
-func (mock gitConfigReaderMock) GetRegexp(scope scope.Scope, pattern string) (map[string]string, error) {
+func (mock gitConfigReaderMock) GetRegexp(scope gitconfigscope.Scope, pattern string) (map[string]string, error) {
 	return mock.getRegexp(scope, pattern)
 }
 
@@ -59,18 +58,18 @@ func (mock configReaderMock) Read() (config.Config, error) {
 }
 
 type gitConfigWriterMock struct {
-	replaceAll func(scope.Scope, string, string) error
+	replaceAll func(gitconfigscope.Scope, string, string) error
 }
 
-func (mock gitConfigWriterMock) UnsetAll(scope scope.Scope, key string) error {
+func (mock gitConfigWriterMock) UnsetAll(scope gitconfigscope.Scope, key string) error {
 	return nil
 }
 
-func (mock gitConfigWriterMock) ReplaceAll(scope scope.Scope, key string, value string) error {
+func (mock gitConfigWriterMock) ReplaceAll(scope gitconfigscope.Scope, key string, value string) error {
 	return mock.replaceAll(scope, key, value)
 }
 
-func (mock gitConfigWriterMock) Add(scope scope.Scope, key string, value string) error {
+func (mock gitConfigWriterMock) Add(scope gitconfigscope.Scope, key string, value string) error {
 	return nil
 }
 
@@ -169,7 +168,7 @@ func TestEnableSucceeds(t *testing.T) {
 			}
 
 			deps.GitConfigWriter = &gitConfigWriterMock{
-				replaceAll: func(scope scope.Scope, key string, value string) error {
+				replaceAll: func(scope gitconfigscope.Scope, key string, value string) error {
 					if key != "commit.template" && key != "core.hooksPath" {
 						t.Errorf("wrong key: %s", key)
 						t.Fail()
@@ -258,7 +257,7 @@ func TestEnableAllShouldSucceed(t *testing.T) {
 	}
 
 	deps.GitConfigWriter = &gitConfigWriterMock{
-		replaceAll: func(scope scope.Scope, key string, value string) error {
+		replaceAll: func(scope gitconfigscope.Scope, key string, value string) error {
 			return nil
 		},
 	}
@@ -354,7 +353,7 @@ func TestEnableKeepsSeparateCommitTemplatesPerUserAndRepository(t *testing.T) {
 			},
 		},
 		GitConfigWriter: &gitConfigWriterMock{
-			replaceAll: func(scope.Scope, string, string) error {
+			replaceAll: func(gitconfigscope.Scope, string, string) error {
 				return nil
 			},
 		},

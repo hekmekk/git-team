@@ -7,7 +7,7 @@ import (
 	"github.com/hekmekk/git-team/src/core/events"
 	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
-	"github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
 // Dependencies the dependencies of the list Policy module
@@ -24,7 +24,7 @@ type Policy struct {
 func (policy Policy) Apply() events.Event {
 	deps := policy.Deps
 
-	aliasCoauthorMap, err := deps.GitConfigReader.GetRegexp(scope.Global, "team.alias")
+	aliasCoauthorMap, err := deps.GitConfigReader.GetRegexp(gitconfigscope.Global, "team.alias")
 	if err != nil && err.Error() != giterror.SectionOrKeyIsInvalid {
 		return RetrievalFailed{Reason: err}
 	}

@@ -14,7 +14,6 @@ import (
 	config "github.com/hekmekk/git-team/src/shared/config/interface"
 	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
-	"github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 	state "github.com/hekmekk/git-team/src/shared/state/interface"
 )
@@ -117,7 +116,7 @@ func (policy Policy) Apply() events.Event {
 }
 
 func lookupAllCoauthors(deps Dependencies) ([]string, error) {
-	aliasCoauthorMap, err := deps.GitConfigReader.GetRegexp(scope.Global, "team.alias")
+	aliasCoauthorMap, err := deps.GitConfigReader.GetRegexp(gitconfigscope.Global, "team.alias")
 	if err != nil && err.Error() != giterror.SectionOrKeyIsInvalid {
 		return []string{}, err
 	}

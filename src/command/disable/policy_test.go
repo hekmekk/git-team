@@ -9,7 +9,6 @@ import (
 
 	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
-	"github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
@@ -25,7 +24,7 @@ func (mock gitConfigReaderMock) GetAll(scope gitconfigscope.Scope, key string) (
 	return []string{}, nil
 }
 
-func (mock gitConfigReaderMock) GetRegexp(scope scope.Scope, pattern string) (map[string]string, error) {
+func (mock gitConfigReaderMock) GetRegexp(scope gitconfigscope.Scope, pattern string) (map[string]string, error) {
 	return nil, nil
 }
 
