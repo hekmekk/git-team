@@ -52,6 +52,7 @@ func newApplication() *cli.App {
 			disablecmdadapter.Command(),
 			statuscmdadapter.Command(),
 		},
+		Action: statuscmdadapter.Command().Action,
 	}
 
 	// ls := listcmdadapter.Command(app)
