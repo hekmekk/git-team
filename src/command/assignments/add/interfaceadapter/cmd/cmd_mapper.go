@@ -22,7 +22,7 @@ func Command() *cli.Command {
 	return &cli.Command{
 		Name:      "add",
 		Usage:     "Add a new or override an existing alias to co-author assignment",
-		ArgsUsage: "alias - The alias to assign a co-author to\ncoauthor - The co-author",
+		ArgsUsage: "<alias> <coauthor>",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{Name: "force-override", Value: false, Aliases: []string{"f"}, Usage: "Override an existing assignment"},
 		},

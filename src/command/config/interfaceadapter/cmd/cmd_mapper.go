@@ -18,7 +18,7 @@ func Command() *cli.Command {
 	return &cli.Command{
 		Name:      "config",
 		Usage:     "Edit configuration",
-		ArgsUsage: "key - the key of the setting\nvalue - the value of the setting",
+		ArgsUsage: "<key> <value>",
 		Action: func(c *cli.Context) error {
 			args := c.Args()
 			key := args.First()
