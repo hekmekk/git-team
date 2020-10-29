@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"log"
 	"os"
 	"sort"
@@ -68,6 +70,9 @@ func newApplication() *cli.App {
 		EnableBashCompletion: true,
 		HideHelp:             false,
 		HideVersion:          false,
+		Flags: []cli.Flag{
+			&cli.BoolFlag{Name: "generate-man-page", Value: false, Usage: "Generate man page for this"},
+		},
 		Commands: []*cli.Command{
 			enablecmdadapter.Command(),
 			disablecmdadapter.Command(),
@@ -79,6 +84,17 @@ func newApplication() *cli.App {
 			configcmdadapter.Command(),
 		},
 		Action: func(c *cli.Context) error {
+			shouldGenerateManPage := c.Bool("generate-man-page")
+			if shouldGenerateManPage {
+				manPage, err := c.App.ToMan()
+				if err != nil {
+					effects.NewPrintErr(errors.New("failed to generate man page")).Run()
+					return nil
+				}
+				fmt.Println(manPage)
+				return nil
+			}
+
 			effects.NewDeprecationWarning("git team (as a default command)", "git team enable").Run()
 			return enablecmdadapter.Command().Action(c)
 		},
