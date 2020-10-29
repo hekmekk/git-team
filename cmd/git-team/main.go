@@ -78,7 +78,10 @@ func newApplication() *cli.App {
 			rm,
 			configcmdadapter.Command(),
 		},
-		Action: enablecmdadapter.Command().Action,
+		Action: func(c *cli.Context) error {
+			effects.NewDeprecationWarning("git team (as a default command)", "git team enable").Run()
+			return enablecmdadapter.Command().Action(c)
+		},
 	}
 
 	sort.Sort(cli.FlagsByName(app.Flags))
