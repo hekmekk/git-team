@@ -27,7 +27,7 @@ func Command() *cli.Command {
 		Name:  "enable",
 		Usage: "Enables injection of the provided co-authors whenever `git-commit` is used",
 		Before: func(c *cli.Context) error {
-			if !c.Args().Present() {
+			if !c.Args().Present() && !c.Bool("all") {
 				effects.NewDeprecationWarning("git team enable (without aliases)", "git team [status]").Run()
 			}
 			return nil
