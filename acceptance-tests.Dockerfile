@@ -1,4 +1,4 @@
-FROM golang:1.12-stretch as bats
+FROM golang:1.14-stretch as bats
 
 LABEL maintainer Rea Sand <hekmek@posteo.de>
 
@@ -14,7 +14,7 @@ RUN git clone https://github.com/ztombol/bats-assert /bats-libs/bats-assert
 
 # ----------------------------------------------------------------- #
 
-FROM golang:1.12-stretch as git-team
+FROM golang:1.14-stretch as git-team
 
 RUN mkdir /git-team-source
 WORKDIR /git-team-source
@@ -33,7 +33,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install ./cmd/...
 
 # ----------------------------------------------------------------- #
 
-FROM golang:1.12-stretch
+FROM golang:1.14-stretch
 COPY --from=bats /usr/local/bin/bats /usr/local/bin/bats
 COPY --from=bats /usr/local/libexec/bats-core /usr/local/libexec/bats-core
 COPY --from=bats /bats-libs /bats-libs
