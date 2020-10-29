@@ -78,7 +78,7 @@ func newApplication() *cli.App {
 			rm,
 			configcmdadapter.Command(),
 		},
-		Action: statuscmdadapter.Command().Action,
+		Action: enablecmdadapter.Command().Action,
 	}
 
 	sort.Sort(cli.FlagsByName(app.Flags))
