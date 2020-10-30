@@ -335,35 +335,6 @@ func TestEnableAllShouldAbortWhenNoCoauthorsCouldBeFound(t *testing.T) {
 func TestEnableKeepsSeparateCommitTemplatesPerUserAndRepository(t *testing.T) {
 	t.Parallel()
 
-	deps := Dependencies{
-		SanityCheckCoauthors: func(coauthors []string) []error { return []error{} },
-		WriteTemplateFile: func(_ string, data []byte, _ os.FileMode) error {
-			return nil
-		},
-		GitResolveAliases:    func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} },
-		CommitSettingsReader: commitSettingsReader,
-		ConfigReader: &configReaderMock{
-			read: func() (config.Config, error) {
-				return config.Config{ActivationScope: activationscope.RepoLocal}, nil
-			},
-		},
-		ActivationValidator: &activationValidatorMock{
-			isInsideAGitRepository: func() bool {
-				return true
-			},
-		},
-		GitConfigWriter: &gitConfigWriterMock{
-			replaceAll: func(gitconfigscope.Scope, string, string) error {
-				return nil
-			},
-		},
-		StateWriter: &stateWriterMock{
-			persistEnabled: func(activationscope.Scope, []string) error {
-				return nil
-			},
-		},
-	}
-
 	properties := []struct {
 		user             string
 		pathToRepo       string
@@ -382,6 +353,35 @@ func TestEnableKeepsSeparateCommitTemplatesPerUserAndRepository(t *testing.T) {
 
 		t.Run(fmt.Sprintf("%s:%s", user, pathToRepo), func(t *testing.T) {
 			t.Parallel()
+
+			deps := Dependencies{
+				SanityCheckCoauthors: func(coauthors []string) []error { return []error{} },
+				WriteTemplateFile: func(_ string, data []byte, _ os.FileMode) error {
+					return nil
+				},
+				GitResolveAliases:    func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} },
+				CommitSettingsReader: commitSettingsReader,
+				ConfigReader: &configReaderMock{
+					read: func() (config.Config, error) {
+						return config.Config{ActivationScope: activationscope.RepoLocal}, nil
+					},
+				},
+				ActivationValidator: &activationValidatorMock{
+					isInsideAGitRepository: func() bool {
+						return true
+					},
+				},
+				GitConfigWriter: &gitConfigWriterMock{
+					replaceAll: func(gitconfigscope.Scope, string, string) error {
+						return nil
+					},
+				},
+				StateWriter: &stateWriterMock{
+					persistEnabled: func(activationscope.Scope, []string) error {
+						return nil
+					},
+				},
+			}
 
 			deps.GetEnv = func(string) string {
 				return user
