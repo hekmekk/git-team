@@ -4,7 +4,7 @@ load '/bats-libs/bats-support/load.bash'
 load '/bats-libs/bats-assert/load.bash'
 
 teardown() {
-	bash -c "/usr/local/bin/git-team rm noujz || true"
+	bash -c "/usr/local/bin/git-team assignments rm noujz || true"
 }
 
 @test "git-team: add should add an assignment to git config" {

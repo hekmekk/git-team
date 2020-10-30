@@ -18,9 +18,9 @@ setup() {
 	git config user.name git-team-acceptance-test
 	git config user.email foo@bar.baz
 
-	/usr/local/bin/git-team add a 'A <a@x.y>'
-	/usr/local/bin/git-team add b 'B <b@x.y>'
-	/usr/local/bin/git-team add c 'C <c@x.y>'
+	/usr/local/bin/git-team assignments add a 'A <a@x.y>'
+	/usr/local/bin/git-team assignments add b 'B <b@x.y>'
+	/usr/local/bin/git-team assignments add c 'C <c@x.y>'
 }
 
 teardown() {
@@ -28,9 +28,9 @@ teardown() {
 
 	/usr/local/bin/git-team config activation-scope global
 
-	/usr/local/bin/git-team rm a
-	/usr/local/bin/git-team rm b
-	/usr/local/bin/git-team rm c
+	/usr/local/bin/git-team assignments rm a
+	/usr/local/bin/git-team assignments rm b
+	/usr/local/bin/git-team assignments rm c
 
 	cd -
 	rm -rf $REPO_PATH

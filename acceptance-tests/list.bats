@@ -11,9 +11,9 @@ load '/bats-libs/bats-assert/load.bash'
 }
 
 @test "git-team: list should show all alias -> coauthor assignments" {
-	/usr/local/bin/git-team add a 'A <a@x.y>'
-	/usr/local/bin/git-team add bb 'B <b@x.y>'
-	/usr/local/bin/git-team add c 'C <c@x.y>'
+	/usr/local/bin/git-team assignments add a 'A <a@x.y>'
+	/usr/local/bin/git-team assignments add bb 'B <b@x.y>'
+	/usr/local/bin/git-team assignments add c 'C <c@x.y>'
 
 	run /usr/local/bin/git-team list
 	assert_success
@@ -23,15 +23,15 @@ load '/bats-libs/bats-assert/load.bash'
 	assert_line --index 3 '─ bb →  B <b@x.y>'
 	assert_line --index 4 '─ c  →  C <c@x.y>'
 
-	/usr/local/bin/git-team rm a
-	/usr/local/bin/git-team rm bb
-	/usr/local/bin/git-team rm c
+	/usr/local/bin/git-team assignments rm a
+	/usr/local/bin/git-team assignments rm bb
+	/usr/local/bin/git-team assignments rm c
 }
 
 @test "git-team: ls should show all alias -> coauthor assignments" {
-	/usr/local/bin/git-team add a 'A <a@x.y>'
-	/usr/local/bin/git-team add bb 'B <b@x.y>'
-	/usr/local/bin/git-team add c 'C <c@x.y>'
+	/usr/local/bin/git-team assignments add a 'A <a@x.y>'
+	/usr/local/bin/git-team assignments add bb 'B <b@x.y>'
+	/usr/local/bin/git-team assignments add c 'C <c@x.y>'
 
 	run /usr/local/bin/git-team ls
 	assert_success
@@ -41,8 +41,8 @@ load '/bats-libs/bats-assert/load.bash'
 	assert_line --index 3 '─ bb →  B <b@x.y>'
 	assert_line --index 4 '─ c  →  C <c@x.y>'
 
-	/usr/local/bin/git-team rm a
-	/usr/local/bin/git-team rm bb
-	/usr/local/bin/git-team rm c
+	/usr/local/bin/git-team assignments rm a
+	/usr/local/bin/git-team assignments rm bb
+	/usr/local/bin/git-team assignments rm c
 }
 

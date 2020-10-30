@@ -27,14 +27,14 @@ teardown() {
 }
 
 @test "git-team: add should force override if the '--force-override' option is used" {
-	/usr/local/bin/git-team add noujz 'Mr. Green <green@mr.se>'
+	/usr/local/bin/git-team assignments add noujz 'Mr. Green <green@mr.se>'
 	run bash -c "/usr/local/bin/git-team assignments add --force-override noujz 'Mr. Noujz <noujz@mr.se>'"
 	assert_success
 	assert_line --index 0 "Assignment added: 'noujz' →  'Mr. Noujz <noujz@mr.se>'"
 }
 
 @test "git-team: add should force override if the '-f' option is used" {
-	/usr/local/bin/git-team add noujz 'Mr. Green <green@mr.se>'
+	/usr/local/bin/git-team assignments add noujz 'Mr. Green <green@mr.se>'
 	run bash -c "/usr/local/bin/git-team assignments add -f noujz 'Mr. Noujz <noujz@mr.se>'"
 	assert_success
 	assert_line --index 0 "Assignment added: 'noujz' →  'Mr. Noujz <noujz@mr.se>'"
