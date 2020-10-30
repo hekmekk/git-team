@@ -32,7 +32,7 @@ func Command() *cli.Command {
 			}
 			return nil
 		},
-		ArgsUsage: "co-authors - The co-authors for the next commit(s). A co-author must either be an alias or of the shape \"Name <email>\"",
+		ArgsUsage: "<co-authors> (A co-author must either be an alias or of the shape \"Name <email>\")",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{Name: "all", Value: false, Aliases: []string{"A"}, Usage: "Use all known co-authors"},
 		},

@@ -22,7 +22,7 @@ func Command() *cli.Command {
 		Name:      "remove",
 		Aliases:   []string{"rm"},
 		Usage:     "Remove an alias to co-author assignment",
-		ArgsUsage: "alias - The alias to identify the assignment to be removed",
+		ArgsUsage: "<alias>",
 		Action: func(c *cli.Context) error {
 			args := c.Args()
 			if args.Len() != 1 {
