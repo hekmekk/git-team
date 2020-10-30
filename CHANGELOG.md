@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Usage section for different commands and subcommands.
 
-## [1.5.0] - 2020-10-29
+## [1.5.0] - 2020-10-30
 ### Added
 - New flag `--all|-A` for the `enable` command to include all known co-authors.
 
