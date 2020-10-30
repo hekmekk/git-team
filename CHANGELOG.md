@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2020-10-29
+### Added
+- New flag `--all|-A` for the `enable` command to include all known co-authors.
+
+### Changed
+- Shell completion is now done within the application itself.
+
+### Deprecated
+- `enable` as a default command
+
 ## [1.4.1] - 2020-09-13
 ### Fixed
 - Don't append co-authors to a commit message if they are part of it already. This may happen when co-authors have been added manually or when both the commit template as well as the `prepare-commit-msg` hook take effect (e.g.: IDEs reading from the commit template and writing the entire content (including co-authors) back as a single commit message).
@@ -117,7 +127,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Append co-authors to a `git commit` message by means of a commit message template file
 
-[Unreleased]: https://github.com/hekmekk/git-team/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/hekmekk/git-team/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/hekmekk/git-team/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/hekmekk/git-team/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/hekmekk/git-team/compare/v1.3.8...v1.4.0
 [1.3.8]: https://github.com/hekmekk/git-team/compare/v1.3.7...v1.3.8
