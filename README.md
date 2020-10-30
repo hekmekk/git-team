@@ -27,7 +27,7 @@ This will activate git team globally, so that you can seemlessly switch between 
 If you prefer per repository activation, you can set [the corresponding config option](/README.md#configuration).
 
 ```bash
-git team [enable] noujz <alias1> ... <aliasN> "Mr. Green <green@mr.se>"
+git team enable noujz <alias1> ... <aliasN> "Mr. Green <green@mr.se>"
 ```
 
 ### Commit some
