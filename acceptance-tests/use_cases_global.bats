@@ -27,8 +27,8 @@ teardown() {
 }
 
 @test "use case: (scope: global) an existing repo-local git hook should be respected" {
-	echo -e "#!/bin/sh\necho 'pre-commit hook triggered'\nexit 1" > $REPO_PATH/.git/hooks/pre-commit
-	chmod +x $REPO_PATH/.git/hooks/pre-commit
+	echo -e '#!/bin/sh\necho "commit-msg hook triggered with params: $@"\nexit 1' > $REPO_PATH/.git/hooks/commit-msg
+	chmod +x $REPO_PATH/.git/hooks/commit-msg
 
 	/usr/local/bin/git-team enable 'A <a@x.y>'
 
@@ -36,7 +36,7 @@ teardown() {
 	run git commit -m "test"
 
 	assert_failure
-	assert_line --index 0 'pre-commit hook triggered'
+	assert_line --index 0 'commit-msg hook triggered with params: .git/COMMIT_EDITMSG'
 }
 
 @test "use case: (scope: global) when git-team is enabled then 'git commit -m' should have the respective co-authors injected" {

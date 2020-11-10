@@ -40,6 +40,7 @@ COPY --from=bats /bats-libs /bats-libs
 COPY --from=git-team /go/bin/git-team /usr/local/bin/git-team
 COPY --from=git-team /go/bin/prepare-commit-msg /usr/local/bin/prepare-commit-msg
 COPY --from=git-team /bin/git-hook-proxy /usr/local/etc/git-team/hooks/pre-commit
+COPY --from=git-team /bin/git-hook-proxy /usr/local/etc/git-team/hooks/commit-msg
 
 WORKDIR /
 
