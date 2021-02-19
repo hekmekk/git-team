@@ -12,10 +12,10 @@ RUN useradd -m -u $UID -g $GID -s /bin/bash $USERNAME
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install man-db
 
 COPY bash_completion /source/bash_completion
+COPY git-hooks /source/git-hooks
 COPY src /source/src
+COPY cmd /source/cmd
 COPY go.mod /source
-COPY main.go /source
-COPY main_test.go /source
 COPY Makefile /source
 
 WORKDIR /source
@@ -28,4 +28,4 @@ RUN make install
 
 USER $USERNAME
 
-ENTRYPOINT ["/usr/local/bin/git-team"]
+ENTRYPOINT ["/bin/git-team"]
