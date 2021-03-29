@@ -1,4 +1,3 @@
 ./git-team
-go.sum
 signing-key.asc
 target/
