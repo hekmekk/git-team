@@ -57,7 +57,7 @@ install:
 	install $(CURR_DIR)/target/bin/git-team $(BIN_PREFIX)/bin/git-team
 	mkdir -p $(HOOKS_DIR)
 	install $(CURR_DIR)/target/bin/prepare-commit-msg $(HOOKS_DIR)/prepare-commit-msg
-	install $(CURR_DIR)/git-hooks/proxy.sh /usr/local/etc/git-team/hooks/proxy.sh
+	install $(CURR_DIR)/git-hooks/proxy.sh $(HOOKS_DIR)/proxy.sh
 	$(CURR_DIR)/git-hooks/install_symlinks.sh
 	mkdir -p /usr/local/share/man/man1
 	install -m "0644" $(CURR_DIR)/target/man/git-team.1.gz /usr/local/share/man/man1/git-team.1.gz
