@@ -44,7 +44,7 @@ endif
 	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=amd64 go install ./cmd/...
 	mkdir -p $(CURR_DIR)/target/bin
 	mv $(GOPATH)/bin/git-team $(CURR_DIR)/target/bin/git-team
-	mv $(GOPATH)/bin/prepare-commit-msg $(CURR_DIR)/target/bin/prepare-commit-msg
+	mv $(GOPATH)/bin/prepare-commit-msg $(CURR_DIR)/target/bin/prepare-commit-msg-git-team
 	@echo "[INFO] Successfully built git-team version v$(VERSION)"
 
 man-page: clean deps
@@ -56,8 +56,9 @@ install:
 	@echo "[INFO] Installing into $(BIN_PREFIX)/bin/ ..."
 	install $(CURR_DIR)/target/bin/git-team $(BIN_PREFIX)/bin/git-team
 	mkdir -p $(HOOKS_DIR)
-	install $(CURR_DIR)/target/bin/prepare-commit-msg $(HOOKS_DIR)/prepare-commit-msg
+	install $(CURR_DIR)/target/bin/prepare-commit-msg-git-team $(HOOKS_DIR)/prepare-commit-msg-git-team
 	install $(CURR_DIR)/git-hooks/proxy.sh $(HOOKS_DIR)/proxy.sh
+	install $(CURR_DIR)/git-hooks/prepare-commit-msg.sh $(HOOKS_DIR)/prepare-commit-msg
 	$(CURR_DIR)/git-hooks/install_symlinks.sh
 	mkdir -p /usr/local/share/man/man1
 	install -m "0644" $(CURR_DIR)/target/man/git-team.1.gz /usr/local/share/man/man1/git-team.1.gz
@@ -102,8 +103,9 @@ deb rpm: clean package-build
 		--rpm-sign \
 		-p /pkg-target \
 		target/bin/git-team=$(BIN_PREFIX)/bin/git-team \
-		target/bin/prepare-commit-msg=$(HOOKS_DIR)/prepare-commit-msg \
+		target/bin/prepare-commit-msg-git-team=$(HOOKS_DIR)/prepare-commit-msg-git-team \
 		git-hooks/proxy.sh=$(HOOKS_DIR)/proxy.sh \
+		git-hooks/prepare-commit-msg.sh=$(HOOKS_DIR)/prepare-commit-msg \
 		bash_completion/git-team.bash=/etc/bash_completion.d/git-team \
 		target/man/git-team.1.gz=/usr/share/man/man1/git-team.1.gz
 
