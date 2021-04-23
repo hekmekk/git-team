@@ -139,7 +139,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Append co-authors to a `git commit` message by means of a commit message template file
 
 [Unreleased]: https://github.com/hekmekk/git-team/compare/v1.5.3...HEAD
-[1.5.2]: https://github.com/hekmekk/git-team/compare/v1.5.2...v1.5.3
+[1.5.3]: https://github.com/hekmekk/git-team/compare/v1.5.2...v1.5.3
 [1.5.2]: https://github.com/hekmekk/git-team/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/hekmekk/git-team/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/hekmekk/git-team/compare/v1.4.1...v1.5.0
