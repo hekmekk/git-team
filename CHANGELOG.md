@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.5.4] - 2021-04-23
+### Fixed
+- Execute a local `prepare-commit-msg` git hook after the git-team hook.
+- Properly fail proxied local git hooks.
+
 ## [1.5.3] - 2021-03-29
 ### Fixed
 - Include `go.sum` file in order to hopefully resolve [an issue on osx during installation](https://github.com/hekmekk/homebrew-git-team/issues/1).
@@ -138,7 +143,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Append co-authors to a `git commit` message by means of a commit message template file
 
-[Unreleased]: https://github.com/hekmekk/git-team/compare/v1.5.3...HEAD
+[Unreleased]: https://github.com/hekmekk/git-team/compare/v1.5.4...HEAD
+[1.5.4]: https://github.com/hekmekk/git-team/compare/v1.5.3...v1.5.4
 [1.5.3]: https://github.com/hekmekk/git-team/compare/v1.5.2...v1.5.3
 [1.5.2]: https://github.com/hekmekk/git-team/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/hekmekk/git-team/compare/v1.5.0...v1.5.1
