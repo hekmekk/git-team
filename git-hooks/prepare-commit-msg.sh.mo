@@ -2,7 +2,7 @@
 
 REAL_LOCAL_HOOK="`git rev-parse --show-toplevel`/.git/hooks/`basename ${0}`"
 
-/usr/local/etc/git-team/hooks/prepare-commit-msg-git-team "$@"
+{{ hooks_dir }}/prepare-commit-msg-git-team "$@"
 git_team_hook_result=$?
 if [ $git_team_hook_result -ne 0 ]; then
     exit $git_team_hook_result

@@ -1,3 +1,6 @@
 ./git-team
 signing-key.asc
 target/
+mo
+git-hooks/install_symlinks.sh
+git-hooks/prepare-commit-msg.sh

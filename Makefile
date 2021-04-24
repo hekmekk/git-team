@@ -9,6 +9,7 @@ ifeq ($(UNAME_S),Darwin)
 	GOOS=darwin
 	BASH_COMPLETION_PREFIX:=/usr/local
 endif
+# Note: this is currently still hard-coded
 HOOKS_DIR:=/usr/local/etc/git-team/hooks
 
 BATS_FILE:=
@@ -21,7 +22,7 @@ ifdef FILTER
 	BATS_FILTER=--filter $(FILTER)
 endif
 
-all: fmt build man-page
+all: fmt build man-page process-hook-templates
 
 tidy:
 	go mod tidy
@@ -51,6 +52,15 @@ man-page: clean deps
 	mkdir -p $(CURR_DIR)/target/man/
 	go run $(CURR_DIR)/cmd/git-team/main.go --generate-man-page > $(CURR_DIR)/target/man/git-team.1
 	gzip -f $(CURR_DIR)/target/man/git-team.1
+
+mo:
+	curl -sSL https://git.io/get-mo -o mo
+	chmod +x mo
+
+process-hook-templates: mo
+	hooks_dir=$(HOOKS_DIR) ./mo $(CURR_DIR)/git-hooks/prepare-commit-msg.sh.mo > $(CURR_DIR)/git-hooks/prepare-commit-msg.sh
+	hooks_dir=$(HOOKS_DIR) ./mo $(CURR_DIR)/git-hooks/install_symlinks.sh.mo > $(CURR_DIR)/git-hooks/install_symlinks.sh
+	chmod +x $(CURR_DIR)/git-hooks/install_symlinks.sh
 
 install:
 	@echo "[INFO] Installing into $(BIN_PREFIX)/bin/ ..."
@@ -82,7 +92,7 @@ endif
 package-build: export-signing-key
 	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-pkg:v$(VERSION) . -f pkg.Dockerfile
 
-deb rpm: clean package-build
+deb rpm: clean package-build process-hook-templates
 	mkdir -p target/$@
 	chown -R $(shell id -u):$(shell id -g) target/$@
 	docker run --rm -h git-team-pkg -v $(CURR_DIR)/target/$@:/pkg-target git-team-pkg:v$(VERSION) fpm \
@@ -117,6 +127,8 @@ package: rpm deb show-checksums
 clean:
 	rm -f $(CURR_DIR)/git-team
 	rm -f $(CURR_DIR)/signing-key.asc
+	rm -f $(CURR_DIR)/git-hooks/prepare-commit-msg.sh
+	rm -f $(CURR_DIR)/git-hooks/install_symlinks.sh
 	rm -rf $(CURR_DIR)/target
 	rm -rf $(CURR_DIR)/acceptance-tests/src/
 	rm -rf $(CURR_DIR)/acceptance-tests/git-hooks/
