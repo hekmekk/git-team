@@ -69,10 +69,9 @@ install:
 	install $(CURR_DIR)/target/bin/prepare-commit-msg-git-team $(bindir)/prepare-commit-msg-git-team
 	mkdir -p $(man1dir)
 	install -m "0644" $(CURR_DIR)/target/man/git-team.1.gz $(man1dir)/git-team.1.gz
-	@if [ -d "$(bash_completion_dir)" ]; then \
-		install -m "0644" $(CURR_DIR)/bash_completion/git-team.bash $(bash_completion_dir)/git-team; \
-		echo "[INFO] Don't forget to source $(bash_completion_dir)/git-team"; \
-	fi
+	mkdir -p $(bash_completion_dir)
+	install -m "0644" $(CURR_DIR)/bash_completion/git-team.bash $(bash_completion_dir)/git-team;
+	echo "[INFO] Don't forget to source $(bash_completion_dir)/git-team";
 
 uninstall:
 	rm -f $(bindir)/git-team
