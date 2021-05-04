@@ -79,47 +79,8 @@ uninstall:
 	rm -f $(sysconfdir)/bash_completion.d/git-team
 	rm -f $(man1dir)/git-team.1.gz
 
-export-signing-key: clean
-ifndef GPG_SIGNING_KEY_ID
-	$(error GPG_SIGNING_KEY_ID is not set)
-endif
-	gpg --armor --export-secret-keys $(GPG_SIGNING_KEY_ID) > $(CURR_DIR)/signing-key.asc
-
-package-build: export-signing-key
-	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-pkg:v$(VERSION) . -f pkg.Dockerfile
-
-deb rpm: clean package-build
-	mkdir -p target/$@
-	chown -R $(shell id -u):$(shell id -g) target/$@
-	docker run --rm -h git-team-pkg -v $(CURR_DIR)/target/$@:/pkg-target git-team-pkg:v$(VERSION) fpm \
-		-f \
-		-s dir \
-		-t $@ \
-		-n "git-team" \
-		-v $(VERSION) \
-		-m "git-team authors" \
-		--url "https://github.com/hekmekk/git-team" \
-		--architecture "x86_64" \
-		--license "MIT" \
-		--vendor "git-team authors" \
-		--description "git-team - commit message enhancement with co-authors" \
-		--depends "git" \
-		--deb-no-default-config-files \
-		--rpm-sign \
-		-p /pkg-target \
-		target/bin/git-team=$(bindir)/git-team \
-		target/bin/prepare-commit-msg-git-team=$(bindir)/prepare-commit-msg-git-team \
-		bash_completion/git-team.bash=$(sysconfdir)/bash_completion.d/git-team \
-		target/man/git-team.1.gz=$(man1dir)/git-team.1.gz
-
-show-checksums: package-build
-	find $(CURR_DIR)/target/ -type f -exec sha256sum {} \;
-
-package: rpm deb show-checksums
-
 clean:
 	rm -f $(CURR_DIR)/git-team
-	rm -f $(CURR_DIR)/signing-key.asc
 	rm -rf $(CURR_DIR)/target
 	rm -rf $(CURR_DIR)/acceptance-tests/src/
 	rm -rf $(CURR_DIR)/acceptance-tests/git-hooks/
