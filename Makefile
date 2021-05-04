@@ -16,7 +16,8 @@ exec_prefix := $(prefix)
 bindir := $(exec_prefix)/bin
 datarootdir := $(prefix)/share
 man1dir := $(datarootdir)/man/man1
-sysconfdir := $(prefix)/etc
+
+bash_completion_dir := $(datarootdir)/bash-completion/completions
 
 CURR_DIR := $(shell pwd)
 
@@ -68,15 +69,15 @@ install:
 	install $(CURR_DIR)/target/bin/prepare-commit-msg-git-team $(bindir)/prepare-commit-msg-git-team
 	mkdir -p $(man1dir)
 	install -m "0644" $(CURR_DIR)/target/man/git-team.1.gz $(man1dir)/git-team.1.gz
-	@if [ -d "$(sysconfdir)/bash_completion.d" ]; then \
-		install -m "0644" $(CURR_DIR)/bash_completion/git-team.bash $(sysconfdir)/bash_completion.d/git-team; \
-		echo "[INFO] Don't forget to source $(sysconfdir)/bash_completion.d/*"; \
+	@if [ -d "$(bash_completion_dir)" ]; then \
+		install -m "0644" $(CURR_DIR)/bash_completion/git-team.bash $(bash_completion_dir)/git-team; \
+		echo "[INFO] Don't forget to source $(bash_completion_dir)/git-team"; \
 	fi
 
 uninstall:
 	rm -f $(bindir)/git-team
 	rm -f $(bindir)/prepare-commit-msg-git-team
-	rm -f $(sysconfdir)/bash_completion.d/git-team
+	rm -f $(bash_completion_dir)/git-team
 	rm -f $(man1dir)/git-team.1.gz
 
 clean:
