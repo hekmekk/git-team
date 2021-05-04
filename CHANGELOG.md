@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.5.5] - 2021-05-04
+### Fixed
+- Adherence to linux FHS. This mostly affects where hooks are being stored. They no longer live in `/usr/local/etc/git-team/hooks` but are dynamically installed into `~/.git-team/hooks`. The previous path wasn't quite correctly chosen.
+- Installation paths (e.g. prefix, bindir, man1dir) are now configurable during installation as git-team no longer relies on fixed paths, except for `~/git-team`, which is now used for commit templates and hooks. This makes it possible to resolve an issue where the hooks path had to be removed manually after removing git-team via homebrew, as it wasn't possible to rely on homebrew magic variables during installation.
+
 ## [1.5.4] - 2021-04-23
 ### Fixed
 - Execute a local `prepare-commit-msg` git hook after the git-team hook.
@@ -143,7 +148,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Append co-authors to a `git commit` message by means of a commit message template file
 
-[Unreleased]: https://github.com/hekmekk/git-team/compare/v1.5.4...HEAD
+[Unreleased]: https://github.com/hekmekk/git-team/compare/v1.5.5...HEAD
+[1.5.5]: https://github.com/hekmekk/git-team/compare/v1.5.4...v1.5.5
 [1.5.4]: https://github.com/hekmekk/git-team/compare/v1.5.3...v1.5.4
 [1.5.3]: https://github.com/hekmekk/git-team/compare/v1.5.2...v1.5.3
 [1.5.2]: https://github.com/hekmekk/git-team/compare/v1.5.1...v1.5.2
