@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	version     = "1.5.5-rc1"
+	version     = "1.5.5"
 	authorName  = "Rea Sand"
 	authorEmail = "hekmek@posteo.de"
 )
