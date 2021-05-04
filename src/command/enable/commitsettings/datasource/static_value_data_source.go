@@ -27,9 +27,11 @@ func newStaticValueDataSource(deps dependencies) StaticValueDataSource {
 }
 
 func (ds StaticValueDataSource) Read() entity.CommitSettings {
+	homeDir := ds.deps.getEnv("HOME")
+
 	cfg := entity.CommitSettings{
-		TemplatesBaseDir: fmt.Sprintf("%s/.config/git-team/commit-templates", ds.deps.getEnv("HOME")),
-		HooksDir:         "/usr/local/etc/git-team/hooks",
+		TemplatesBaseDir: fmt.Sprintf("%s/.git-team/commit-templates", homeDir),
+		HooksDir:         fmt.Sprintf("%s/.git-team/hooks", homeDir),
 	}
 	return cfg
 }

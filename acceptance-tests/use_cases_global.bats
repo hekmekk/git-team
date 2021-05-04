@@ -6,8 +6,6 @@ load '/bats-libs/bats-assert/load.bash'
 REPO_PATH=/tmp/repo/use-cases-global
 
 setup() {
-	cp /usr/local/bin/prepare-commit-msg /usr/local/etc/git-team/hooks/prepare-commit-msg
-
 	mkdir -p $REPO_PATH
 	cd $REPO_PATH
 	touch THE_FILE

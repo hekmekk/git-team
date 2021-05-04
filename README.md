@@ -46,7 +46,7 @@ See `git team config -h` on how to configure git team.
 | `activation-scope` | `string` | `global`, `repo-local` | `global` | set to `repo-local` to use git-team on a per repository basis. |
 
 ## A note on git hooks
-git-team uses a `prepare-commit-msg` hook to inject co-authors into a commit message. This hook is installed into `/usr/local/etc/git-team/hooks`. When you `enable` git-team, the git config option `core.hooksPath` will be set to point to that directory. Along with the `prepare-commit-msg` hook come proxies for all the other git hooks, so that other existing repo-local hooks are still being triggered.
+git-team uses a `prepare-commit-msg` hook to inject co-authors into a commit message. This hook is installed into `${HOME}/.git-team/hooks`. When you `enable` git-team, the git config option `core.hooksPath` will be set to point to that directory. Along with the `prepare-commit-msg` hook come proxies for all the other git hooks, so that other existing repo-local hooks are still being triggered.
 
 ## Similar projects
 - [git mob](https://www.npmjs.com/package/git-mob)

@@ -41,14 +41,6 @@ func (mock commitSettingsReaderMock) Read() commitsettings.CommitSettings {
 	return mock.read()
 }
 
-var commitSettings = commitsettings.CommitSettings{TemplatesBaseDir: "/path/to/commit-templates", HooksDir: "/path/to/hooks"}
-
-var commitSettingsReader = commitSettingsReaderMock{
-	read: func() commitsettings.CommitSettings {
-		return commitSettings
-	},
-}
-
 type configReaderMock struct {
 	read func() (config.Config, error)
 }
@@ -92,6 +84,71 @@ func (mock activationValidatorMock) IsInsideAGitRepository() bool {
 	return mock.isInsideAGitRepository()
 }
 
+func defaultDeps() Dependencies {
+
+	commitSettings := commitsettings.CommitSettings{TemplatesBaseDir: "/path/to/commit-templates", HooksDir: "/path/to/hooks"}
+
+	commitSettingsReader := commitSettingsReaderMock{
+		read: func() commitsettings.CommitSettings {
+			return commitSettings
+		},
+	}
+
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
+
+	gitConfigWriter := &gitConfigWriterMock{
+		replaceAll: func(_ gitconfigscope.Scope, key string, _ string) error {
+			return nil
+		},
+	}
+
+	gitConfigReader := &gitConfigReaderMock{
+		getRegexp: func(_ gitconfigscope.Scope, pattern string) (map[string]string, error) {
+			return map[string]string{
+				"team.alias.alias1": "Mrs. Noujz <noujz@mrs.se>",
+			}, nil
+		},
+	}
+
+	stateWriter := &stateWriterMock{
+		persistEnabled: func(_ activationscope.Scope, coauthors []string) error {
+			return nil
+		},
+	}
+
+	activationValidator := &activationValidatorMock{
+		isInsideAGitRepository: func() bool {
+			return true
+		},
+	}
+
+	deps := Dependencies{
+		SanityCheckCoauthors: func([]string) []error { return []error{} },
+		CommitSettingsReader: commitSettingsReader,
+		CreateTemplateDir:    func(string, os.FileMode) error { return nil },
+		WriteTemplateFile:    func(string, []byte, os.FileMode) error { return nil },
+		CreateHooksDir:       func(string, os.FileMode) error { return nil },
+		WriteHookFile:        func(string, []byte, os.FileMode) error { return nil },
+		Lstat:                func(string) (os.FileInfo, error) { return nil, nil },
+		Remove:               func(string) error { return nil },
+		Symlink:              func(string, string) error { return nil },
+		GitResolveAliases:    func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} },
+		ConfigReader:         configReader,
+		GitConfigWriter:      gitConfigWriter,
+		GitConfigReader:      gitConfigReader,
+		StateWriter:          stateWriter,
+		GetEnv:               func(string) string { return "someone" },
+		GetWd:                func() (string, error) { return "/path/to/repo", nil },
+		ActivationValidator:  activationValidator,
+	}
+
+	return deps
+}
+
 func TestEnableAborted(t *testing.T) {
 	deps := Dependencies{}
 	req := Request{AliasesAndCoauthors: &[]string{}, UseAll: &[]bool{false}[0]}
@@ -113,18 +170,11 @@ func TestEnableSucceeds(t *testing.T) {
 	expectedStateRepositoryPersistEnabledCoauthors := []string{"Mr. Noujz <noujz@mr.se>", "Mrs. Noujz <noujz@mrs.se>"}
 	expectedCommitTemplateCoauthors := "\n\nCo-authored-by: Mr. Noujz <noujz@mr.se>\nCo-authored-by: Mrs. Noujz <noujz@mrs.se>"
 
-	WriteTemplateFile := func(_ string, data []byte, _ os.FileMode) error {
-		if expectedCommitTemplateCoauthors != string(data) {
-			t.Errorf("expected: %s, got: %s", expectedCommitTemplateCoauthors, string(data))
-			t.Fail()
-		}
-		return nil
-	}
-	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
-
 	user := "someone"
 	pathToRepo := "/path/to/repo"
 	repoChecksum := "a05b508ef212dc640aced4037a66021d" // echo -n <user>:<pathToRepo> | md5sum | awk '{ print $1 }'
+
+	commitSettings := commitsettings.CommitSettings{TemplatesBaseDir: "/path/to/commit-templates", HooksDir: "/path/to/hooks"}
 
 	cases := []struct {
 		activationScope activationscope.Scope
@@ -135,22 +185,22 @@ func TestEnableSucceeds(t *testing.T) {
 		{activationscope.RepoLocal, fmt.Sprintf("%s/repo-local/%s", commitSettings.TemplatesBaseDir, repoChecksum), gitconfigscope.Local},
 	}
 
-	deps := Dependencies{
-		SanityCheckCoauthors: func(coauthors []string) []error { return []error{} },
-		WriteTemplateFile:    WriteTemplateFile,
-		GitResolveAliases:    resolveAliases,
-		CommitSettingsReader: commitSettingsReader,
-		GetEnv: func(string) string {
-			return user
-		},
-		GetWd: func() (string, error) {
-			return pathToRepo, nil
-		},
-		ActivationValidator: &activationValidatorMock{
-			isInsideAGitRepository: func() bool {
-				return true
-			},
-		},
+	deps := defaultDeps()
+
+	deps.WriteTemplateFile = func(_ string, data []byte, _ os.FileMode) error {
+		if expectedCommitTemplateCoauthors != string(data) {
+			t.Errorf("expected: %s, got: %s", expectedCommitTemplateCoauthors, string(data))
+			t.Fail()
+		}
+		return nil
+	}
+
+	deps.GetEnv = func(string) string {
+		return user
+	}
+
+	deps.GetWd = func() (string, error) {
+		return pathToRepo, nil
 	}
 
 	for _, caseLoopVar := range cases {
@@ -221,44 +271,20 @@ func TestEnableAllShouldSucceed(t *testing.T) {
 	coauthors := &[]string{}
 	expectedStateRepositoryPersistEnabledCoauthors := []string{"Mr. Noujz <noujz@mr.se>", "Mrs. Noujz <noujz@mrs.se>"}
 
-	WriteTemplateFile := func(_ string, data []byte, _ os.FileMode) error {
-		return nil
-	}
+	deps := defaultDeps()
 
-	deps := Dependencies{
-		GitConfigReader: &gitConfigReaderMock{
-			getRegexp: func(_ gitconfigscope.Scope, pattern string) (map[string]string, error) {
-				return map[string]string{
-					"team.alias.alias1": "Mr. Noujz <noujz@mr.se>",
-					"team.alias.alias2": "Mrs. Noujz <noujz@mrs.se>",
-				}, nil
-			},
-		},
-
-		WriteTemplateFile:    WriteTemplateFile,
-		CommitSettingsReader: commitSettingsReader,
-		GetEnv: func(string) string {
-			return "someone"
-		},
-		GetWd: func() (string, error) {
-			return "/path/to/repo", nil
-		},
-		ActivationValidator: &activationValidatorMock{
-			isInsideAGitRepository: func() bool {
-				return true
-			},
+	deps.GitConfigReader = &gitConfigReaderMock{
+		getRegexp: func(_ gitconfigscope.Scope, pattern string) (map[string]string, error) {
+			return map[string]string{
+				"team.alias.alias1": "Mr. Noujz <noujz@mr.se>",
+				"team.alias.alias2": "Mrs. Noujz <noujz@mrs.se>",
+			}, nil
 		},
 	}
 
 	deps.ConfigReader = &configReaderMock{
 		read: func() (config.Config, error) {
 			return config.Config{ActivationScope: activationscope.Global}, nil
-		},
-	}
-
-	deps.GitConfigWriter = &gitConfigWriterMock{
-		replaceAll: func(scope gitconfigscope.Scope, key string, value string) error {
-			return nil
 		},
 	}
 
@@ -270,10 +296,6 @@ func TestEnableAllShouldSucceed(t *testing.T) {
 			}
 			return nil
 		},
-	}
-
-	deps.CreateTemplateDir = func(path string, _ os.FileMode) error {
-		return nil
 	}
 
 	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{true}[0]}
@@ -291,11 +313,11 @@ func TestEnableAllShouldSucceed(t *testing.T) {
 func testEnableAllShouldFailWhenLookingUpCoauthorsReturnsAnError(t *testing.T) {
 	err := errors.New("exit status 1")
 
-	deps := Dependencies{
-		GitConfigReader: &gitConfigReaderMock{
-			getRegexp: func(_ gitconfigscope.Scope, pattern string) (map[string]string, error) {
-				return map[string]string{}, err
-			},
+	deps := defaultDeps()
+
+	deps.GitConfigReader = &gitConfigReaderMock{
+		getRegexp: func(_ gitconfigscope.Scope, pattern string) (map[string]string, error) {
+			return map[string]string{}, err
 		},
 	}
 
@@ -312,11 +334,11 @@ func testEnableAllShouldFailWhenLookingUpCoauthorsReturnsAnError(t *testing.T) {
 }
 
 func TestEnableAllShouldAbortWhenNoCoauthorsCouldBeFound(t *testing.T) {
-	deps := Dependencies{
-		GitConfigReader: &gitConfigReaderMock{
-			getRegexp: func(_ gitconfigscope.Scope, pattern string) (map[string]string, error) {
-				return map[string]string{}, nil
-			},
+	deps := defaultDeps()
+
+	deps.GitConfigReader = &gitConfigReaderMock{
+		getRegexp: func(_ gitconfigscope.Scope, pattern string) (map[string]string, error) {
+			return map[string]string{}, nil
 		},
 	}
 
@@ -354,32 +376,11 @@ func TestEnableKeepsSeparateCommitTemplatesPerUserAndRepository(t *testing.T) {
 		t.Run(fmt.Sprintf("%s:%s", user, pathToRepo), func(t *testing.T) {
 			t.Parallel()
 
-			deps := Dependencies{
-				SanityCheckCoauthors: func(coauthors []string) []error { return []error{} },
-				WriteTemplateFile: func(_ string, data []byte, _ os.FileMode) error {
-					return nil
-				},
-				GitResolveAliases:    func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} },
-				CommitSettingsReader: commitSettingsReader,
-				ConfigReader: &configReaderMock{
-					read: func() (config.Config, error) {
-						return config.Config{ActivationScope: activationscope.RepoLocal}, nil
-					},
-				},
-				ActivationValidator: &activationValidatorMock{
-					isInsideAGitRepository: func() bool {
-						return true
-					},
-				},
-				GitConfigWriter: &gitConfigWriterMock{
-					replaceAll: func(gitconfigscope.Scope, string, string) error {
-						return nil
-					},
-				},
-				StateWriter: &stateWriterMock{
-					persistEnabled: func(activationscope.Scope, []string) error {
-						return nil
-					},
+			deps := defaultDeps()
+
+			deps.ConfigReader = &configReaderMock{
+				read: func() (config.Config, error) {
+					return config.Config{ActivationScope: activationscope.RepoLocal}, nil
 				},
 			}
 
@@ -412,29 +413,17 @@ func TestEnableDropsDuplicateEntries(t *testing.T) {
 	expectedStateRepositoryPersistEnabledCoauthors := []string{"Mr. Noujz <noujz@mr.se>", "Mrs. Noujz <noujz@mrs.se>"}
 	expectedCommitTemplateCoauthors := "\n\nCo-authored-by: Mr. Noujz <noujz@mr.se>\nCo-authored-by: Mrs. Noujz <noujz@mrs.se>"
 
-	CreateTemplateDir := func(string, os.FileMode) error { return nil }
-	WriteTemplateFile := func(_ string, data []byte, _ os.FileMode) error {
+	deps := defaultDeps()
+
+	deps.WriteTemplateFile = func(_ string, data []byte, _ os.FileMode) error {
 		if expectedCommitTemplateCoauthors != string(data) {
 			t.Errorf("expected: %s, got: %s", expectedCommitTemplateCoauthors, string(data))
 			t.Fail()
 		}
 		return nil
 	}
-	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
 
-	configReader := &configReaderMock{
-		read: func() (config.Config, error) {
-			return config.Config{ActivationScope: activationscope.Global}, nil
-		},
-	}
-
-	gitConfigWriter := &gitConfigWriterMock{
-		replaceAll: func(gitconfigscope.Scope, string, string) error {
-			return nil
-		},
-	}
-
-	stateWriter := &stateWriterMock{
+	deps.StateWriter = &stateWriterMock{
 		persistEnabled: func(_ activationscope.Scope, coauthors []string) error {
 			if !reflect.DeepEqual(expectedStateRepositoryPersistEnabledCoauthors, coauthors) {
 				t.Errorf("expected: %s, got: %s", expectedStateRepositoryPersistEnabledCoauthors, coauthors)
@@ -444,23 +433,6 @@ func TestEnableDropsDuplicateEntries(t *testing.T) {
 		},
 	}
 
-	activationValidator := &activationValidatorMock{
-		isInsideAGitRepository: func() bool {
-			return true
-		},
-	}
-
-	deps := Dependencies{
-		SanityCheckCoauthors: func(coauthors []string) []error { return []error{} },
-		CreateTemplateDir:    CreateTemplateDir,
-		WriteTemplateFile:    WriteTemplateFile,
-		GitResolveAliases:    resolveAliases,
-		StateWriter:          stateWriter,
-		CommitSettingsReader: commitSettingsReader,
-		ConfigReader:         configReader,
-		GitConfigWriter:      gitConfigWriter,
-		ActivationValidator:  activationValidator,
-	}
 	req := Request{AliasesAndCoauthors: &coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Succeeded{}
@@ -478,9 +450,10 @@ func TestEnableFailsDueToSanityCheckErr(t *testing.T) {
 
 	expectedErr := errors.New("Not a valid coauthor: INVALID COAUTHOR")
 
-	deps := Dependencies{
-		SanityCheckCoauthors: func(coauthors []string) []error { return []error{expectedErr} },
-	}
+	deps := defaultDeps()
+
+	deps.SanityCheckCoauthors = func(coauthors []string) []error { return []error{expectedErr} }
+
 	req := Request{AliasesAndCoauthors: &coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
@@ -498,10 +471,10 @@ func TestEnableFailsDueToResolveAliasesErr(t *testing.T) {
 
 	expectedErr := errors.New("failed to resolve alias mrs")
 
-	deps := Dependencies{
-		SanityCheckCoauthors: func(coauthors []string) []error { return []error{} },
-		GitResolveAliases:    func([]string) ([]string, []error) { return []string{}, []error{expectedErr} },
-	}
+	deps := defaultDeps()
+
+	deps.GitResolveAliases = func([]string) ([]string, []error) { return []string{}, []error{expectedErr} }
+
 	req := Request{AliasesAndCoauthors: &coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
@@ -519,19 +492,12 @@ func TestEnableFailsDueToConfigReaderError(t *testing.T) {
 
 	expectedErr := errors.New("Failed to read from config")
 
-	sanityCheck := func([]string) []error { return []error{} }
-	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
-	configReader := &configReaderMock{
+	deps := defaultDeps()
+
+	deps.ConfigReader = &configReaderMock{
 		read: func() (config.Config, error) {
 			return config.Config{}, expectedErr
 		},
-	}
-
-	deps := Dependencies{
-		SanityCheckCoauthors: sanityCheck,
-		GitResolveAliases:    resolveAliases,
-		CommitSettingsReader: commitSettingsReader,
-		ConfigReader:         configReader,
 	}
 
 	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
@@ -551,39 +517,20 @@ func TestEnableFailsWhenNotInsideAGitRepository(t *testing.T) {
 
 	expectedErr := errors.New("Failed to enable with activation-scope=repo-local: not inside a git repository")
 
-	sanityCheck := func([]string) []error { return []error{} }
-	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
-	CreateTemplateDir := func(string, os.FileMode) error { return nil }
-	WriteTemplateFile := func(string, []byte, os.FileMode) error { return nil }
+	deps := defaultDeps()
 
-	configReader := &configReaderMock{
+	deps.ConfigReader = &configReaderMock{
 		read: func() (config.Config, error) {
 			return config.Config{ActivationScope: activationscope.RepoLocal}, nil
 		},
 	}
 
-	gitConfigWriter := &gitConfigWriterMock{
-		replaceAll: func(_ gitconfigscope.Scope, key string, _ string) error {
-			return nil
-		},
-	}
-
-	activationValidator := &activationValidatorMock{
+	deps.ActivationValidator = &activationValidatorMock{
 		isInsideAGitRepository: func() bool {
 			return false
 		},
 	}
 
-	deps := Dependencies{
-		SanityCheckCoauthors: sanityCheck,
-		CreateTemplateDir:    CreateTemplateDir,
-		WriteTemplateFile:    WriteTemplateFile,
-		GitResolveAliases:    resolveAliases,
-		CommitSettingsReader: commitSettingsReader,
-		ConfigReader:         configReader,
-		GitConfigWriter:      gitConfigWriter,
-		ActivationValidator:  activationValidator,
-	}
 	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
@@ -601,34 +548,18 @@ func TestEnableFailsDueToGetWdErr(t *testing.T) {
 
 	expectedErr := errors.New("Failed to get working dir")
 
-	sanityCheck := func([]string) []error { return []error{} }
-	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
-	CreateTemplateDir := func(string, os.FileMode) error { return nil }
-	configReader := &configReaderMock{
+	deps := defaultDeps()
+
+	deps.ConfigReader = &configReaderMock{
 		read: func() (config.Config, error) {
 			return config.Config{ActivationScope: activationscope.RepoLocal}, nil
 		},
 	}
-	activationValidator := &activationValidatorMock{
-		isInsideAGitRepository: func() bool {
-			return true
-		},
+
+	deps.GetWd = func() (string, error) {
+		return "", expectedErr
 	}
 
-	deps := Dependencies{
-		SanityCheckCoauthors: sanityCheck,
-		CreateTemplateDir:    CreateTemplateDir,
-		GitResolveAliases:    resolveAliases,
-		CommitSettingsReader: commitSettingsReader,
-		ConfigReader:         configReader,
-		GetEnv: func(string) string {
-			return "USER"
-		},
-		GetWd: func() (string, error) {
-			return "", expectedErr
-		},
-		ActivationValidator: activationValidator,
-	}
 	req := Request{AliasesAndCoauthors: &coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
@@ -646,28 +577,10 @@ func TestEnableFailsDueToCreateTemplateDirErr(t *testing.T) {
 
 	expectedErr := errors.New("Failed to create Dir")
 
-	sanityCheck := func([]string) []error { return []error{} }
-	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
-	CreateTemplateDir := func(string, os.FileMode) error { return expectedErr }
-	configReader := &configReaderMock{
-		read: func() (config.Config, error) {
-			return config.Config{ActivationScope: activationscope.Global}, nil
-		},
-	}
-	activationValidator := &activationValidatorMock{
-		isInsideAGitRepository: func() bool {
-			return true
-		},
-	}
+	deps := defaultDeps()
 
-	deps := Dependencies{
-		SanityCheckCoauthors: sanityCheck,
-		CreateTemplateDir:    CreateTemplateDir,
-		GitResolveAliases:    resolveAliases,
-		CommitSettingsReader: commitSettingsReader,
-		ConfigReader:         configReader,
-		ActivationValidator:  activationValidator,
-	}
+	deps.CreateTemplateDir = func(string, os.FileMode) error { return expectedErr }
+
 	req := Request{AliasesAndCoauthors: &coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
@@ -685,30 +598,10 @@ func TestEnableFailsDueToWriteTemplateFileErr(t *testing.T) {
 
 	expectedErr := errors.New("Failed to write file")
 
-	sanityCheck := func([]string) []error { return []error{} }
-	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
-	CreateTemplateDir := func(string, os.FileMode) error { return nil }
-	WriteTemplateFile := func(string, []byte, os.FileMode) error { return expectedErr }
-	configReader := &configReaderMock{
-		read: func() (config.Config, error) {
-			return config.Config{ActivationScope: activationscope.Global}, nil
-		},
-	}
-	activationValidator := &activationValidatorMock{
-		isInsideAGitRepository: func() bool {
-			return true
-		},
-	}
+	deps := defaultDeps()
 
-	deps := Dependencies{
-		SanityCheckCoauthors: sanityCheck,
-		CreateTemplateDir:    CreateTemplateDir,
-		WriteTemplateFile:    WriteTemplateFile,
-		GitResolveAliases:    resolveAliases,
-		CommitSettingsReader: commitSettingsReader,
-		ConfigReader:         configReader,
-		ActivationValidator:  activationValidator,
-	}
+	deps.WriteTemplateFile = func(string, []byte, os.FileMode) error { return expectedErr }
+
 	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
@@ -726,18 +619,9 @@ func TestEnableFailsDueToGitSetCommitTemplateErr(t *testing.T) {
 
 	expectedErr := errors.New("Failed to set commit template")
 
-	sanityCheck := func([]string) []error { return []error{} }
-	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
-	CreateTemplateDir := func(string, os.FileMode) error { return nil }
-	WriteTemplateFile := func(string, []byte, os.FileMode) error { return nil }
+	deps := defaultDeps()
 
-	configReader := &configReaderMock{
-		read: func() (config.Config, error) {
-			return config.Config{ActivationScope: activationscope.Global}, nil
-		},
-	}
-
-	gitConfigWriter := &gitConfigWriterMock{
+	deps.GitConfigWriter = &gitConfigWriterMock{
 		replaceAll: func(_ gitconfigscope.Scope, key string, _ string) error {
 			if key == "commit.template" {
 				return expectedErr
@@ -746,22 +630,90 @@ func TestEnableFailsDueToGitSetCommitTemplateErr(t *testing.T) {
 		},
 	}
 
-	activationValidator := &activationValidatorMock{
-		isInsideAGitRepository: func() bool {
-			return true
-		},
-	}
+	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
-	deps := Dependencies{
-		SanityCheckCoauthors: sanityCheck,
-		CreateTemplateDir:    CreateTemplateDir,
-		WriteTemplateFile:    WriteTemplateFile,
-		GitResolveAliases:    resolveAliases,
-		CommitSettingsReader: commitSettingsReader,
-		ConfigReader:         configReader,
-		GitConfigWriter:      gitConfigWriter,
-		ActivationValidator:  activationValidator,
+	expectedEvent := Failed{Reason: []error{expectedErr}}
+
+	event := Policy{deps, req}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
 	}
+}
+
+func TestEnableFailsDueToSetCreateHooksDirErr(t *testing.T) {
+	coauthors := &[]string{"Mr. Noujz <noujz@mr.se>"}
+
+	expectedErr := errors.New("Failed to create hooks dir")
+
+	deps := defaultDeps()
+
+	deps.CreateHooksDir = func(string, os.FileMode) error { return expectedErr }
+
+	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
+
+	expectedEvent := Failed{Reason: []error{expectedErr}}
+
+	event := Policy{deps, req}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
+	}
+}
+
+func TestEnableFailsDueToCreateHookFileErr(t *testing.T) {
+	coauthors := &[]string{"Mr. Noujz <noujz@mr.se>"}
+
+	expectedErr := errors.New("Failed to create hook file")
+
+	deps := defaultDeps()
+
+	deps.WriteHookFile = func(_ string, data []byte, _ os.FileMode) error { return expectedErr }
+
+	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
+
+	expectedEvent := Failed{Reason: []error{expectedErr}}
+
+	event := Policy{deps, req}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
+	}
+}
+
+func TestEnableFailsDueToRemoveSymlinkErr(t *testing.T) {
+	coauthors := &[]string{"Mr. Noujz <noujz@mr.se>"}
+
+	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
+
+	expectedErr := errors.New("Failed to remove existing hook symlink")
+
+	expectedEvent := Failed{Reason: []error{expectedErr}}
+
+	deps := defaultDeps()
+
+	deps.Remove = func(string) error { return expectedErr }
+
+	event := Policy{deps, req}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
+	}
+}
+
+func TestEnableFailsDueToCreateHookSymlinkErr(t *testing.T) {
+	coauthors := &[]string{"Mr. Noujz <noujz@mr.se>"}
+
+	expectedErr := errors.New("Failed to create hook symlink")
+
+	deps := defaultDeps()
+
+	deps.Symlink = func(_ string, _ string) error { return expectedErr }
+
 	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
@@ -777,19 +729,11 @@ func TestEnableFailsDueToGitSetCommitTemplateErr(t *testing.T) {
 func TestEnableFailsDueToSetHooksPathErr(t *testing.T) {
 	coauthors := &[]string{"Mr. Noujz <noujz@mr.se>"}
 
+	deps := defaultDeps()
+
 	expectedErr := errors.New("Failed to set hooks path")
 
-	sanityCheck := func([]string) []error { return []error{} }
-	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
-	CreateTemplateDir := func(string, os.FileMode) error { return nil }
-	WriteTemplateFile := func(string, []byte, os.FileMode) error { return nil }
-	configReader := &configReaderMock{
-		read: func() (config.Config, error) {
-			return config.Config{ActivationScope: activationscope.Global}, nil
-		},
-	}
-
-	gitConfigWriter := &gitConfigWriterMock{
+	deps.GitConfigWriter = &gitConfigWriterMock{
 		replaceAll: func(_ gitconfigscope.Scope, key string, _ string) error {
 			if key == "core.hooksPath" {
 				return expectedErr
@@ -798,22 +742,6 @@ func TestEnableFailsDueToSetHooksPathErr(t *testing.T) {
 		},
 	}
 
-	activationValidator := &activationValidatorMock{
-		isInsideAGitRepository: func() bool {
-			return true
-		},
-	}
-
-	deps := Dependencies{
-		SanityCheckCoauthors: sanityCheck,
-		CreateTemplateDir:    CreateTemplateDir,
-		WriteTemplateFile:    WriteTemplateFile,
-		GitResolveAliases:    resolveAliases,
-		CommitSettingsReader: commitSettingsReader,
-		ConfigReader:         configReader,
-		GitConfigWriter:      gitConfigWriter,
-		ActivationValidator:  activationValidator,
-	}
 	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
@@ -831,45 +759,12 @@ func TestEnableFailsDueToSaveStatusErr(t *testing.T) {
 
 	expectedErr := errors.New("Failed to set status")
 
-	sanityCheck := func([]string) []error { return []error{} }
-	resolveAliases := func([]string) ([]string, []error) { return []string{"Mrs. Noujz <noujz@mrs.se>"}, []error{} }
-	CreateTemplateDir := func(string, os.FileMode) error { return nil }
-	WriteTemplateFile := func(string, []byte, os.FileMode) error { return nil }
+	deps := defaultDeps()
 
-	configReader := &configReaderMock{
-		read: func() (config.Config, error) {
-			return config.Config{ActivationScope: activationscope.Global}, nil
-		},
-	}
-
-	gitConfigWriter := &gitConfigWriterMock{
-		replaceAll: func(_ gitconfigscope.Scope, key string, _ string) error {
-			return nil
-		},
-	}
-
-	stateWriter := &stateWriterMock{
+	deps.StateWriter = &stateWriterMock{
 		persistEnabled: func(_ activationscope.Scope, _ []string) error {
 			return expectedErr
 		},
-	}
-
-	activationValidator := &activationValidatorMock{
-		isInsideAGitRepository: func() bool {
-			return true
-		},
-	}
-
-	deps := Dependencies{
-		SanityCheckCoauthors: sanityCheck,
-		CreateTemplateDir:    CreateTemplateDir,
-		WriteTemplateFile:    WriteTemplateFile,
-		GitResolveAliases:    resolveAliases,
-		CommitSettingsReader: commitSettingsReader,
-		ConfigReader:         configReader,
-		GitConfigWriter:      gitConfigWriter,
-		StateWriter:          stateWriter,
-		ActivationValidator:  activationValidator,
 	}
 
 	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}

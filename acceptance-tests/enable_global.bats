@@ -4,8 +4,6 @@ load '/bats-libs/bats-support/load.bash'
 load '/bats-libs/bats-assert/load.bash'
 
 setup() {
-	cp /usr/local/bin/prepare-commit-msg /usr/local/etc/git-team/hooks/prepare-commit-msg
-
 	/usr/local/bin/git-team config activation-scope global
 
 	/usr/local/bin/git-team assignments add a 'A <a@x.y>'
@@ -38,17 +36,17 @@ teardown() {
 @test "git-team: (scope: global) enable should enable the prepare-commit-msg hook" {
 	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && git config --global core.hooksPath"
 	assert_success
-	assert_line '/usr/local/etc/git-team/hooks'
+	assert_line '/root/.git-team/hooks'
 }
 
 @test "git-team: (scope: global) enable should set a commit template" {
 	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && git config --global commit.template"
 	assert_success
-	assert_line '/root/.config/git-team/commit-templates/global/COMMIT_TEMPLATE'
+	assert_line '/root/.git-team/commit-templates/global/COMMIT_TEMPLATE'
 }
 
 @test "git-team: (scope: global) enable should provision the commit template" {
-	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && cat /root/.config/git-team/commit-templates/global/COMMIT_TEMPLATE"
+	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && cat /root/.git-team/commit-templates/global/COMMIT_TEMPLATE"
 	assert_success
 	assert_line --index 0 'Co-authored-by: A <a@x.y>'
 	assert_line --index 1 'Co-authored-by: Ad-hoc <adhoc@tmp.se>'
@@ -57,7 +55,7 @@ teardown() {
 }
 
 @test "git-team: (scope: global) enable 'all via -A' should provision the commit template" {
-	run bash -c "/usr/local/bin/git-team enable -A &>/dev/null && cat /root/.config/git-team/commit-templates/global/COMMIT_TEMPLATE"
+	run bash -c "/usr/local/bin/git-team enable -A &>/dev/null && cat /root/.git-team/commit-templates/global/COMMIT_TEMPLATE"
 	assert_success
 	assert_line --index 0 'Co-authored-by: A <a@x.y>'
 	assert_line --index 1 'Co-authored-by: B <b@x.y>'
@@ -65,7 +63,7 @@ teardown() {
 }
 
 @test "git-team: (scope: global) enable 'all via --all' should provision the commit template" {
-	run bash -c "/usr/local/bin/git-team enable --all &>/dev/null && cat /root/.config/git-team/commit-templates/global/COMMIT_TEMPLATE"
+	run bash -c "/usr/local/bin/git-team enable --all &>/dev/null && cat /root/.git-team/commit-templates/global/COMMIT_TEMPLATE"
 	assert_success
 	assert_line --index 0 'Co-authored-by: A <a@x.y>'
 	assert_line --index 1 'Co-authored-by: B <b@x.y>'

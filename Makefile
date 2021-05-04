@@ -1,28 +1,36 @@
-VERSION:=$(shell grep -E "version\s+=" `pwd`/cmd/git-team/main.go | awk -F '"' '{print $$2}')
+VERSION := $(shell grep -E "version\s+=" `pwd`/cmd/git-team/main.go | awk -F '"' '{print $$2}')
 
-CURR_DIR:=$(shell pwd)
-
-UNAME_S:= $(shell uname -s)
-BASH_COMPLETION_PREFIX:=
-GOOS:=linux
+GOOS :=
+prefix :=
+UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
 	GOOS=darwin
-	BASH_COMPLETION_PREFIX:=/usr/local
+	prefix:=/usr/local
 endif
-# Note: this is currently still hard-coded
-HOOKS_DIR:=/usr/local/etc/git-team/hooks
+ifeq ($(UNAME_S),Linux)
+	GOOS=linux
+	prefix:=/usr
+endif
 
-BATS_FILE:=
+exec_prefix := $(prefix)
+bindir := $(exec_prefix)/bin
+datarootdir := $(prefix)/share
+man1dir := $(datarootdir)/man/man1
+sysconfdir := $(prefix)/etc
+
+CURR_DIR := $(shell pwd)
+
+BATS_FILE :=
 ifdef CASE
 	BATS_FILE=$(CASE).bats
 endif
 
-BATS_FILTER:=
+BATS_FILTER :=
 ifdef FILTER
 	BATS_FILTER=--filter $(FILTER)
 endif
 
-all: fmt build man-page process-hook-templates
+all: fmt build man-page
 
 tidy:
 	go mod tidy
@@ -53,35 +61,23 @@ man-page: clean deps
 	go run $(CURR_DIR)/cmd/git-team/main.go --generate-man-page > $(CURR_DIR)/target/man/git-team.1
 	gzip -f $(CURR_DIR)/target/man/git-team.1
 
-mo:
-	curl -sSL https://git.io/get-mo -o mo
-	chmod +x mo
-
-process-hook-templates: mo
-	hooks_dir=$(HOOKS_DIR) ./mo $(CURR_DIR)/git-hooks/prepare-commit-msg.sh.mo > $(CURR_DIR)/git-hooks/prepare-commit-msg.sh
-	hooks_dir=$(HOOKS_DIR) ./mo $(CURR_DIR)/git-hooks/install_symlinks.sh.mo > $(CURR_DIR)/git-hooks/install_symlinks.sh
-	chmod +x $(CURR_DIR)/git-hooks/install_symlinks.sh
-
 install:
-	@echo "[INFO] Installing into $(BIN_PREFIX)/bin/ ..."
-	install $(CURR_DIR)/target/bin/git-team $(BIN_PREFIX)/bin/git-team
-	mkdir -p $(HOOKS_DIR)
-	install $(CURR_DIR)/target/bin/prepare-commit-msg-git-team $(HOOKS_DIR)/prepare-commit-msg-git-team
-	install $(CURR_DIR)/git-hooks/proxy.sh $(HOOKS_DIR)/proxy.sh
-	install $(CURR_DIR)/git-hooks/prepare-commit-msg.sh $(HOOKS_DIR)/prepare-commit-msg
-	$(CURR_DIR)/git-hooks/install_symlinks.sh
-	mkdir -p /usr/local/share/man/man1
-	install -m "0644" $(CURR_DIR)/target/man/git-team.1.gz /usr/local/share/man/man1/git-team.1.gz
-	@if [ -d "$(BASH_COMPLETION_PREFIX)/etc/bash_completion.d" ]; then \
-		install -m "0644" $(CURR_DIR)/bash_completion/git-team.bash $(BASH_COMPLETION_PREFIX)/etc/bash_completion.d/git-team; \
-		echo "[INFO] Don't forget to source $(BASH_COMPLETION_PREFIX)/etc/bash_completion.d/*"; \
+	@echo "[INFO] Installing into $(bindir)/ ..."
+	mkdir -p $(bindir)
+	install $(CURR_DIR)/target/bin/git-team $(bindir)/git-team
+	install $(CURR_DIR)/target/bin/prepare-commit-msg-git-team $(bindir)/prepare-commit-msg-git-team
+	mkdir -p $(man1dir)
+	install -m "0644" $(CURR_DIR)/target/man/git-team.1.gz $(man1dir)/git-team.1.gz
+	@if [ -d "$(sysconfdir)/bash_completion.d" ]; then \
+		install -m "0644" $(CURR_DIR)/bash_completion/git-team.bash $(sysconfdir)/bash_completion.d/git-team; \
+		echo "[INFO] Don't forget to source $(sysconfdir)/bash_completion.d/*"; \
 	fi
 
 uninstall:
-	rm -f $(BIN_PREFIX)/bin/git-team
-	rm -f $(BASH_COMPLETION_PREFIX)/etc/bash_completion.d/git-team
-	rm -f /usr/share/man/man1/git-team.1.gz
-	rm -rf $(HOOKS_DIR)
+	rm -f $(bindir)/git-team
+	rm -f $(bindir)/prepare-commit-msg-git-team
+	rm -f $(sysconfdir)/bash_completion.d/git-team
+	rm -f $(man1dir)/git-team.1.gz
 
 export-signing-key: clean
 ifndef GPG_SIGNING_KEY_ID
@@ -92,7 +88,7 @@ endif
 package-build: export-signing-key
 	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-pkg:v$(VERSION) . -f pkg.Dockerfile
 
-deb rpm: clean package-build process-hook-templates
+deb rpm: clean package-build
 	mkdir -p target/$@
 	chown -R $(shell id -u):$(shell id -g) target/$@
 	docker run --rm -h git-team-pkg -v $(CURR_DIR)/target/$@:/pkg-target git-team-pkg:v$(VERSION) fpm \
@@ -108,16 +104,13 @@ deb rpm: clean package-build process-hook-templates
 		--vendor "git-team authors" \
 		--description "git-team - commit message enhancement with co-authors" \
 		--depends "git" \
-		--after-install git-hooks/install_symlinks.sh \
 		--deb-no-default-config-files \
 		--rpm-sign \
 		-p /pkg-target \
-		target/bin/git-team=$(BIN_PREFIX)/bin/git-team \
-		target/bin/prepare-commit-msg-git-team=$(HOOKS_DIR)/prepare-commit-msg-git-team \
-		git-hooks/proxy.sh=$(HOOKS_DIR)/proxy.sh \
-		git-hooks/prepare-commit-msg.sh=$(HOOKS_DIR)/prepare-commit-msg \
-		bash_completion/git-team.bash=/etc/bash_completion.d/git-team \
-		target/man/git-team.1.gz=/usr/share/man/man1/git-team.1.gz
+		target/bin/git-team=$(bindir)/git-team \
+		target/bin/prepare-commit-msg-git-team=$(bindir)/prepare-commit-msg-git-team \
+		bash_completion/git-team.bash=$(sysconfdir)/bash_completion.d/git-team \
+		target/man/git-team.1.gz=$(man1dir)/git-team.1.gz
 
 show-checksums: package-build
 	find $(CURR_DIR)/target/ -type f -exec sha256sum {} \;
@@ -127,15 +120,9 @@ package: rpm deb show-checksums
 clean:
 	rm -f $(CURR_DIR)/git-team
 	rm -f $(CURR_DIR)/signing-key.asc
-	rm -f $(CURR_DIR)/git-hooks/prepare-commit-msg.sh
-	rm -f $(CURR_DIR)/git-hooks/install_symlinks.sh
 	rm -rf $(CURR_DIR)/target
 	rm -rf $(CURR_DIR)/acceptance-tests/src/
 	rm -rf $(CURR_DIR)/acceptance-tests/git-hooks/
-
-purge: clean uninstall
-	git config --global --unset-all commit.template
-	git config --global --unset-all core.hooksPath
 
 docker-build: clean
 	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-run:v$(VERSION) .

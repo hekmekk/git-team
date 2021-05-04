@@ -19,8 +19,6 @@ FROM golang:1.14-stretch as git-team
 RUN mkdir /git-team-source
 WORKDIR /git-team-source
 
-COPY git-hooks/proxy.sh /bin/git-hook-proxy
-
 ENV GOPATH=/go
 
 COPY go.* ./
@@ -38,9 +36,7 @@ COPY --from=bats /usr/local/bin/bats /usr/local/bin/bats
 COPY --from=bats /usr/local/libexec/bats-core /usr/local/libexec/bats-core
 COPY --from=bats /bats-libs /bats-libs
 COPY --from=git-team /go/bin/git-team /usr/local/bin/git-team
-COPY --from=git-team /go/bin/prepare-commit-msg /usr/local/bin/prepare-commit-msg
-COPY --from=git-team /bin/git-hook-proxy /usr/local/etc/git-team/hooks/pre-commit
-COPY --from=git-team /bin/git-hook-proxy /usr/local/etc/git-team/hooks/commit-msg
+COPY --from=git-team /go/bin/prepare-commit-msg /usr/local/bin/prepare-commit-msg-git-team
 
 WORKDIR /
 

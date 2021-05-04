@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	commitsettings "github.com/hekmekk/git-team/src/command/enable/commitsettings/interface"
 	utils "github.com/hekmekk/git-team/src/command/enable/utils"
@@ -24,6 +25,11 @@ type Dependencies struct {
 	CommitSettingsReader commitsettings.Reader
 	CreateTemplateDir    func(path string, perm os.FileMode) error
 	WriteTemplateFile    func(path string, data []byte, mode os.FileMode) error
+	CreateHooksDir       func(path string, perm os.FileMode) error
+	WriteHookFile        func(path string, data []byte, mode os.FileMode) error
+	Lstat                func(path string) (os.FileInfo, error)
+	Remove               func(path string) error
+	Symlink              func(realPath string, linkPath string) error
 	GitResolveAliases    func(aliases []string) ([]string, []error)
 	ConfigReader         config.Reader
 	GitConfigWriter      gitconfig.Writer
@@ -104,6 +110,10 @@ func (policy Policy) Apply() events.Event {
 		return Failed{Reason: []error{err}}
 	}
 
+	if err := installHooks(deps, settings.HooksDir); err != nil {
+		return Failed{Reason: []error{err}}
+	}
+
 	if err := deps.GitConfigWriter.ReplaceAll(gitConfigScope, "core.hooksPath", settings.HooksDir); err != nil {
 		return Failed{Reason: []error{err}}
 	}
@@ -158,6 +168,71 @@ func removeDuplicates(coauthors []string) []string {
 	}
 
 	return uniqueCoauthors
+}
+
+func installHooks(deps Dependencies, hooksDir string) error {
+	proxyFileContent := getProxyHookFileContent()
+
+	prepareCommitMsgFileContent := getPrepareCommitMsgFileContent()
+
+	if err := deps.CreateHooksDir(hooksDir, os.ModePerm); err != nil {
+		return err
+	}
+
+	if err := deps.WriteHookFile(filepath.Join(hooksDir, "proxy.sh"), []byte(proxyFileContent), 0755); err != nil {
+		return err
+	}
+
+	if err := deps.WriteHookFile(filepath.Join(hooksDir, "prepare-commit-msg"), []byte(prepareCommitMsgFileContent), 0755); err != nil {
+		return err
+	}
+
+	proxiedGitHooks := []string{"applypatch-msg", "commit-msg", "fsmonitor-watchman", "p4-pre-submit", "post-applypatch", "post-checkout", "post-commit", "post-index-change", "post-merge", "post-receive", "post-rewrite", "post-update", "pre-applypatch", "pre-auto-gc", "pre-commit", "pre-push", "pre-rebase", "pre-receive", "push-to-checkout", "sendemail-validate", "update"}
+
+	for _, hook := range proxiedGitHooks {
+		err := forceCreateSymlink(deps, "proxy.sh", filepath.Join(hooksDir, hook))
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func forceCreateSymlink(deps Dependencies, realPath string, linkPath string) error {
+	if _, err := deps.Lstat(linkPath); err == nil {
+		if err := deps.Remove(linkPath); err != nil {
+			return err
+		}
+	}
+	return deps.Symlink(realPath, linkPath)
+}
+
+func getProxyHookFileContent() string {
+	return `#!/bin/sh
+
+REAL_LOCAL_HOOK="$(git rev-parse --show-toplevel)/.git/hooks/$(basename ${0})"
+
+if [ -f "${REAL_LOCAL_HOOK}" ]; then
+    "${REAL_LOCAL_HOOK}" "$@" || exit $?
+fi
+
+exit 0`
+}
+
+func getPrepareCommitMsgFileContent() string {
+	return `#!/bin/sh
+
+# $(dirname ${0})/prepare-commit-msg-git-team "$@" || exit $?
+prepare-commit-msg-git-team "$@" || exit $?
+
+REAL_LOCAL_HOOK="$(git rev-parse --show-toplevel)/.git/hooks/$(basename ${0})"
+
+if [ -f "${REAL_LOCAL_HOOK}" ]; then
+   "${REAL_LOCAL_HOOK}" "$@" || exit $?
+fi
+
+exit 0`
 }
 
 func setupTemplate(gitConfigScope gitconfigscope.Scope, deps Dependencies, commitTemplateBaseDir string, uniqueCoauthors []string) error {

@@ -7,8 +7,6 @@ REPO_PATH=/tmp/repo/enable-tests
 REPO_CHECKSUM=$(echo -n $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
 
 setup() {
-	cp /usr/local/bin/prepare-commit-msg /usr/local/etc/git-team/hooks/prepare-commit-msg
-
 	/usr/local/bin/git-team config activation-scope repo-local
 
 	mkdir -p $REPO_PATH
@@ -51,17 +49,17 @@ teardown() {
 @test "git-team: (scope: repo-local) enable should set the prepare-commit-msg hook" {
 	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && git config --local core.hooksPath"
 	assert_success
-	assert_line '/usr/local/etc/git-team/hooks'
+	assert_line '/root/.git-team/hooks'
 }
 
 @test "git-team: (scope: repo-local) enable should set the commit template" {
 	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && git config --local commit.template"
 	assert_success
-	assert_line "/root/.config/git-team/commit-templates/repo-local/$REPO_CHECKSUM/COMMIT_TEMPLATE"
+	assert_line "/root/.git-team/commit-templates/repo-local/$REPO_CHECKSUM/COMMIT_TEMPLATE"
 }
 
 @test "git-team: (scope: repo-local) enable should provision the commit template" {
-	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && cat /root/.config/git-team/commit-templates/repo-local/$REPO_CHECKSUM/COMMIT_TEMPLATE"
+	run bash -c "/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>' &>/dev/null && cat /root/.git-team/commit-templates/repo-local/$REPO_CHECKSUM/COMMIT_TEMPLATE"
 	assert_success
 	assert_line --index 0 'Co-authored-by: A <a@x.y>'
 	assert_line --index 1 'Co-authored-by: Ad-hoc <adhoc@tmp.se>'
@@ -70,7 +68,7 @@ teardown() {
 }
 
 @test "git-team: (scope: repo-local) enable 'all via -A' should provision the commit template" {
-	run bash -c "/usr/local/bin/git-team enable -A &>/dev/null && cat /root/.config/git-team/commit-templates/repo-local/$REPO_CHECKSUM/COMMIT_TEMPLATE"
+	run bash -c "/usr/local/bin/git-team enable -A &>/dev/null && cat /root/.git-team/commit-templates/repo-local/$REPO_CHECKSUM/COMMIT_TEMPLATE"
 	assert_success
 	assert_line --index 0 'Co-authored-by: A <a@x.y>'
 	assert_line --index 1 'Co-authored-by: B <b@x.y>'
@@ -78,7 +76,7 @@ teardown() {
 }
 
 @test "git-team: (scope: repo-local) enable 'all via --all' should provision the commit template" {
-	run bash -c "/usr/local/bin/git-team enable --all &>/dev/null && cat /root/.config/git-team/commit-templates/repo-local/$REPO_CHECKSUM/COMMIT_TEMPLATE"
+	run bash -c "/usr/local/bin/git-team enable --all &>/dev/null && cat /root/.git-team/commit-templates/repo-local/$REPO_CHECKSUM/COMMIT_TEMPLATE"
 	assert_success
 	assert_line --index 0 'Co-authored-by: A <a@x.y>'
 	assert_line --index 1 'Co-authored-by: B <b@x.y>'
