@@ -61,12 +61,13 @@ sudo rpm -i /path/to/downloaded/release.rpm
 ```
 
 ## Void Linux
+[@steinex](https://github.com/steinex) maintains the [template](https://github.com/void-linux/void-packages/blob/master/srcpkgs/git-team/template).
 ```bash
 sudo xbps-install git-team
 ```
 
 ## Arch Linux
-Install from the [AUR](https://aur.archlinux.org/packages/git-team-git/)
+[@lockejan](https://github.com/lockejan) maintains the [AUR](https://aur.archlinux.org/packages/git-team-git/).
 ```bash
 yay git-team-git
 ```
