@@ -1,6 +1,7 @@
 # Installation
 ## OSX
-### via [Homebrew](https://brew.sh)
+### via Homebrew
+See [homebrew-git-team](https://github.com/hekmekk/homebrew-git-team) for the formula.
 1. Add tap
 
 ```bash
