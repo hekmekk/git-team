@@ -24,7 +24,7 @@ teardown() {
 	rm -rf $REPO_PATH
 }
 
-@test "use case: (scope: global) an existing repo-local git hook should be respected" {
+@test "use case: (scope: global) an existing repo-local git hook should be respected - commit-msg" {
 	echo -e '#!/bin/sh\necho "commit-msg hook triggered with params: $@"\nexit 1' > $REPO_PATH/.git/hooks/commit-msg
 	chmod +x $REPO_PATH/.git/hooks/commit-msg
 
@@ -35,6 +35,19 @@ teardown() {
 
 	assert_failure
 	assert_line --index 0 'commit-msg hook triggered with params: .git/COMMIT_EDITMSG'
+}
+
+@test "use case: (scope: global) an existing repo-local git hook should be respected - prepare-commit-msg" {
+	echo -e '#!/bin/sh\necho "prepare-commit-msg hook triggered with params: $@"\nexit 1' > $REPO_PATH/.git/hooks/prepare-commit-msg
+	chmod +x $REPO_PATH/.git/hooks/prepare-commit-msg
+
+	/usr/local/bin/git-team enable 'A <a@x.y>'
+
+	git add -A
+	run git commit -m "test"
+
+	assert_failure
+	assert_line --index 0 'prepare-commit-msg hook triggered with params: .git/COMMIT_EDITMSG message'
 }
 
 @test "use case: (scope: global) when git-team is enabled then 'git commit -m' should have the respective co-authors injected" {
