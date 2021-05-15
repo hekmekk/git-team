@@ -3,55 +3,103 @@
 load '/bats-libs/bats-support/load.bash'
 load '/bats-libs/bats-assert/load.bash'
 
+REPO_PATH=/tmp/repo/prepare-commit-msg-enabled-repo-local
+
 setup() {
+	mkdir -p $REPO_PATH
+	cd $REPO_PATH
+	git config --global init.defaultBranch main
+	git init
+	git config user.name 'git-team-acceptance-test'
+	git config user.email 'acc@git.team'
 	/usr/local/bin/git-team enable 'A <a@x.y>' 'B <b@x.y>' 'C <c@x.y>'
-	touch /tmp/COMMIT_MSG
 }
 
 teardown() {
+	cd -
+	rm -rf $REPO_PATH
+	rm /root/.gitconfig
+}
+
+@test "when git-team is enabled (scope: global), a merge commit should have co-authors injected" {
+	echo '# some-repository' > README.md
+	git add README.md
+	git commit -m 'initial commit'
+
+	git checkout -b some-branch
+	echo 'some-branch' >> README.md
+	git commit -am 'added line to README.md'
+
+	git checkout main
+
+	git merge some-branch
+
+	run git show --name-only
+
+	assert_success
+	assert_line --index 0 --regexp '^commit\s\w+'
+	assert_line --index 1 'Author: git-team-acceptance-test <acc@git.team>'
+	assert_line --index 2 --regexp '^Date:.+'
+	assert_line --index 3 --regexp '\s+added line to README.md'
+	refute_line --index 4 --regexp '\w+'
+	assert_line --index 5 --regexp '\s+Co-authored-by: A <a@x.y>'
+	assert_line --index 6 --regexp '\s+Co-authored-by: B <b@x.y>'
+	assert_line --index 7 --regexp '\s+Co-authored-by: C <c@x.y>'
+	assert_line --index 8 'README.md'
+
 	/usr/local/bin/git-team disable
-	rm /tmp/COMMIT_MSG
 }
 
-@test "prepare-commit-msg: git-team enabled: (scope: global) - message" {
-	run bash -c "/usr/local/bin/prepare-commit-msg-git-team /tmp/COMMIT_MSG message && cat /tmp/COMMIT_MSG"
+@test "when git-team is enabled (scope: global), a squash merge commit should have co-authors injected" {
+	echo '# some-repository' > README.md
+	git add README.md
+	git commit -m 'initial commit'
+
+	git checkout -b some-branch
+	echo 'some-branch' >> README.md
+	git commit -am 'added line to README.md'
+
+	git checkout main
+
+	git merge --squash some-branch
+	git commit -m "squashed"
+
+	run git show --name-only
+
 	assert_success
-	assert_line --index 0 'Co-authored-by: A <a@x.y>'
-	assert_line --index 1 'Co-authored-by: B <b@x.y>'
-	assert_line --index 2 'Co-authored-by: C <c@x.y>'
+	assert_line --index 0 --regexp '^commit\s\w+'
+	assert_line --index 1 'Author: git-team-acceptance-test <acc@git.team>'
+	assert_line --index 2 --regexp '^Date:.+'
+	assert_line --index 3 --regexp '\s+squashed'
+	refute_line --index 4 --regexp '\w+'
+	assert_line --index 5 --regexp '\s+Co-authored-by: A <a@x.y>'
+	assert_line --index 6 --regexp '\s+Co-authored-by: B <b@x.y>'
+	assert_line --index 7 --regexp '\s+Co-authored-by: C <c@x.y>'
+	assert_line --index 8 'README.md'
+
+	/usr/local/bin/git-team disable
 }
 
-@test "prepare-commit-msg: git-team enabled: (scope: global) - none" {
-	run bash -c "/usr/local/bin/prepare-commit-msg-git-team /tmp/COMMIT_MSG && cat /tmp/COMMIT_MSG"
-	assert_success
-	refute_output --regexp '\w+'
-}
+@test "when git-team is enabled (scope: global), an amended commit message should not have any co-authors injected" {
+	/usr/local/bin/git-team disable
+	echo '# some-repository' > README.md
+	git add README.md
+	git commit -m 'initial commit'
 
-@test "prepare-commit-msg: git-team enabled: (scope: global) - commit" {
-	run bash -c "/usr/local/bin/prepare-commit-msg-git-team /tmp/COMMIT_MSG commit && cat /tmp/COMMIT_MSG"
-	assert_success
-	refute_output --regexp '\w+'
-}
+	/usr/local/bin/git-team enable 'A <a@x.y>' 'B <b@x.y>' 'C <c@x.y>'
+	git config core.editor echo
+	git commit --amend
 
-@test "prepare-commit-msg: git-team enabled: (scope: global) - template" {
-	run bash -c "/usr/local/bin/prepare-commit-msg-git-team /tmp/COMMIT_MSG template && cat /tmp/COMMIT_MSG"
-	assert_success
-	refute_output --regexp '\w+'
-}
+	run git show --name-only
 
-@test "prepare-commit-msg: git-team enabled: (scope: global) - merge" {
-	run bash -c "/usr/local/bin/prepare-commit-msg-git-team /tmp/COMMIT_MSG merge && cat /tmp/COMMIT_MSG"
 	assert_success
-	assert_line --index 0 'Co-authored-by: A <a@x.y>'
-	assert_line --index 1 'Co-authored-by: B <b@x.y>'
-	assert_line --index 2 'Co-authored-by: C <c@x.y>'
-}
+	assert_line --index 0 --regexp '^commit\s\w+'
+	assert_line --index 1 'Author: git-team-acceptance-test <acc@git.team>'
+	assert_line --index 2 --regexp '^Date:.+'
+	assert_line --index 3 --regexp '\s+initial commit'
+	assert_line --index 4 --regexp 'README.md'
+	refute_line --index 5 --regexp '\w+'
 
-@test "prepare-commit-msg: git-team enabled: (scope: global) - squash" {
-	run bash -c "/usr/local/bin/prepare-commit-msg-git-team /tmp/COMMIT_MSG squash && cat /tmp/COMMIT_MSG"
-	assert_success
-	assert_line --index 0 'Co-authored-by: A <a@x.y>'
-	assert_line --index 1 'Co-authored-by: B <b@x.y>'
-	assert_line --index 2 'Co-authored-by: C <c@x.y>'
+	/usr/local/bin/git-team disable
 }
 
