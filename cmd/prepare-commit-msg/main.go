@@ -14,13 +14,14 @@ import (
 
 type commitMsgSourceT string
 
+// see: https://git-scm.com/docs/githooks#_prepare_commit_msg
 const (
-	commit   commitMsgSourceT = "commit"
-	merge    commitMsgSourceT = "merge"
-	message  commitMsgSourceT = "message"
-	none     commitMsgSourceT = "none"
-	squash   commitMsgSourceT = "squash"
-	template commitMsgSourceT = "template"
+	commit   commitMsgSourceT = "commit"   // [off] - git commit -c|-C|--amend
+	merge    commitMsgSourceT = "merge"    // [on]  - git merge (unless ff)
+	message  commitMsgSourceT = "message"  // [on]  - git commit -m|-F
+	none     commitMsgSourceT = "none"     // [off] - git commit
+	squash   commitMsgSourceT = "squash"   // [on]  - git merge --squash
+	template commitMsgSourceT = "template" // [off] - git commit -t or if commit.template is set
 )
 
 func main() {
