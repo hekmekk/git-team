@@ -1,4 +1,4 @@
-VERSION := $(shell grep -E "version\s+=" `pwd`/cmd/git-team/main.go | awk -F '"' '{print $$2}')
+VERSION := $(shell grep -E "version\s+=" `pwd`/main.go | awk -F '"' '{print $$2}')
 
 GOOS :=
 prefix :=
@@ -40,25 +40,24 @@ deps: tidy
 	go mod download
 
 test: deps
-	go test -cover ./cmd/...
 	go test -cover ./src/...
 
 fmt: deps
-	go fmt ./cmd/...
+	go fmt main.go
 	go fmt ./src/...
 
 build: clean deps
 ifndef GOPATH
 	$(error GOPATH is not set)
 endif
-	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=amd64 go install ./cmd/...
+	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=amd64 go install ./...
 	mkdir -p $(CURR_DIR)/target/bin
 	mv $(GOPATH)/bin/git-team $(CURR_DIR)/target/bin/git-team
 	@echo "[INFO] Successfully built git-team version v$(VERSION)"
 
 man-page: clean deps
 	mkdir -p $(CURR_DIR)/target/man/
-	go run $(CURR_DIR)/cmd/git-team/main.go --generate-man-page > $(CURR_DIR)/target/man/git-team.1
+	go run $(CURR_DIR)/main.go --generate-man-page > $(CURR_DIR)/target/man/git-team.1
 	gzip -f $(CURR_DIR)/target/man/git-team.1
 
 install:

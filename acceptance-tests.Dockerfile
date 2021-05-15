@@ -27,9 +27,9 @@ COPY go.* ./
 RUN go mod download
 
 COPY src ./src
-COPY cmd ./cmd
+COPY main.go .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install ./cmd/...
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install ./...
 
 # ----------------------------------------------------------------- #
 
