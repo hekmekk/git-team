@@ -214,7 +214,7 @@ func getProxyHookFileContent() string {
 REAL_LOCAL_HOOK="$(git rev-parse --show-toplevel)/.git/hooks/$(basename ${0})"
 
 if [ -f "${REAL_LOCAL_HOOK}" ]; then
-    "${REAL_LOCAL_HOOK}" "$@" || exit $?
+    "${REAL_LOCAL_HOOK}" "${@}" || exit $?
 fi
 
 exit 0`
@@ -222,14 +222,12 @@ exit 0`
 
 func getPrepareCommitMsgFileContent() string {
 	return `#!/bin/sh
-
-# $(dirname ${0})/prepare-commit-msg-git-team "$@" || exit $?
-prepare-commit-msg-git-team "$@" || exit $?
+prepare-commit-msg-git-team "${@}" || exit $?
 
 REAL_LOCAL_HOOK="$(git rev-parse --show-toplevel)/.git/hooks/$(basename ${0})"
 
 if [ -f "${REAL_LOCAL_HOOK}" ]; then
-   "${REAL_LOCAL_HOOK}" "$@" || exit $?
+   "${REAL_LOCAL_HOOK}" "${@}" || exit $?
 fi
 
 exit 0`
