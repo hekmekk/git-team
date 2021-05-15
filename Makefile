@@ -85,13 +85,6 @@ clean:
 	rm -rf $(CURR_DIR)/acceptance-tests/src/
 	rm -rf $(CURR_DIR)/acceptance-tests/git-hooks/
 
-docker-build: clean
-	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --build-arg USERNAME=$(USER) -t git-team-run:v$(VERSION) .
-	docker tag git-team-run:v$(VERSION) git-team-run:latest
-
-docker-run: docker-build
-	docker run git-team-run:v$(VERSION) --help
-
 .PHONY: acceptance-tests
 acceptance-tests:
 	docker build -t git-team-acceptance-tests . -f acceptance-tests.Dockerfile
