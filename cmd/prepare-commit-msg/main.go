@@ -16,11 +16,11 @@ type commitMsgSourceT string
 
 // see: https://git-scm.com/docs/githooks#_prepare_commit_msg
 const (
-	commit   commitMsgSourceT = "commit"   // [off] - git commit -c|-C|--amend
-	merge    commitMsgSourceT = "merge"    // [on]  - git merge (unless ff)
 	message  commitMsgSourceT = "message"  // [on]  - git commit -m|-F
-	none     commitMsgSourceT = "none"     // [off] - git commit
+	merge    commitMsgSourceT = "merge"    // [on]  - git merge (unless ff)
 	squash   commitMsgSourceT = "squash"   // [on]  - git merge --squash
+	none     commitMsgSourceT = "none"     // [off] - git commit
+	commit   commitMsgSourceT = "commit"   // [off] - git commit -c|-C|--amend
 	template commitMsgSourceT = "template" // [off] - git commit -t or if commit.template is set
 )
 
