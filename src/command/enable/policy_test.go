@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 
 	commitsettings "github.com/hekmekk/git-team/src/command/enable/commitsettings/entity"
@@ -670,17 +671,28 @@ func TestEnableFailsDueToCreateHookFileErr(t *testing.T) {
 
 	deps := defaultDeps()
 
-	deps.WriteHookFile = func(_ string, data []byte, _ os.FileMode) error { return expectedErr }
-
 	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
 
-	event := Policy{deps, req}.Apply()
+	for _, hookFileNameLoopVar := range []string{"proxy.sh", "prepare-commit-msg"} {
+		hookFileName := hookFileNameLoopVar
+		t.Run(hookFileName, func(t *testing.T) {
+			t.Parallel()
+			deps.WriteHookFile = func(hookFilePath string, data []byte, _ os.FileMode) error {
+				if strings.HasSuffix(hookFilePath, hookFileName) {
+					return expectedErr
+				}
+				return nil
+			}
 
-	if !reflect.DeepEqual(expectedEvent, event) {
-		t.Errorf("expected: %s, got: %s", expectedEvent, event)
-		t.Fail()
+			event := Policy{deps, req}.Apply()
+
+			if !reflect.DeepEqual(expectedEvent, event) {
+				t.Errorf("expected: %s, got: %s", expectedEvent, event)
+				t.Fail()
+			}
+		})
 	}
 }
 
