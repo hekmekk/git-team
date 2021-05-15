@@ -675,7 +675,7 @@ func TestEnableFailsDueToCreateHookFileErr(t *testing.T) {
 
 	expectedEvent := Failed{Reason: []error{expectedErr}}
 
-	for _, hookFileNameLoopVar := range []string{"proxy.sh", "prepare-commit-msg"} {
+	for _, hookFileNameLoopVar := range []string{"proxy.sh", "prepare-commit-msg", "prepare-commit-msg-git-team.sh"} {
 		hookFileName := hookFileNameLoopVar
 		t.Run(hookFileName, func(t *testing.T) {
 			t.Parallel()

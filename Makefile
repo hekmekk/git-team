@@ -54,7 +54,6 @@ endif
 	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=amd64 go install ./cmd/...
 	mkdir -p $(CURR_DIR)/target/bin
 	mv $(GOPATH)/bin/git-team $(CURR_DIR)/target/bin/git-team
-	mv $(GOPATH)/bin/prepare-commit-msg $(CURR_DIR)/target/bin/prepare-commit-msg-git-team
 	@echo "[INFO] Successfully built git-team version v$(VERSION)"
 
 man-page: clean deps
@@ -66,7 +65,6 @@ install:
 	@echo "[INFO] Installing into $(bindir)/ ..."
 	mkdir -p $(bindir)
 	install $(CURR_DIR)/target/bin/git-team $(bindir)/git-team
-	install $(CURR_DIR)/target/bin/prepare-commit-msg-git-team $(bindir)/prepare-commit-msg-git-team
 	mkdir -p $(man1dir)
 	install -m "0644" $(CURR_DIR)/target/man/git-team.1.gz $(man1dir)/git-team.1.gz
 	mkdir -p $(bash_completion_dir)
@@ -75,7 +73,6 @@ install:
 
 uninstall:
 	rm -f $(bindir)/git-team
-	rm -f $(bindir)/prepare-commit-msg-git-team
 	rm -f $(bash_completion_dir)/git-team
 	rm -f $(man1dir)/git-team.1.gz
 
