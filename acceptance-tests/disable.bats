@@ -8,6 +8,7 @@ REPO_CHECKSUM=$(echo -n $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
 
 setup() {
 	mkdir -p $REPO_PATH
+	git config --global init.defaultBranch main
 }
 
 teardown() {
@@ -161,8 +162,8 @@ teardown() {
 	/usr/local/bin/git-team disable
 
 	run bash -c "ls -la /root/.git-team/commit-templates/global/COMMIT_TEMPLATE"
-	assert_failure 2
-	assert_line "ls: cannot access '/root/.git-team/commit-templates/global/COMMIT_TEMPLATE': No such file or directory"
+	assert_failure 1
+	assert_line "ls: /root/.git-team/commit-templates/global/COMMIT_TEMPLATE: No such file or directory"
 
 	rm -rf /root/.git-team/
 }
@@ -181,8 +182,8 @@ teardown() {
 	/usr/local/bin/git-team disable
 
 	run bash -c "ls -la /root/.git-team/commit-templates/repo-local/$REPO_CHECKSUM"
-	assert_failure 2
-	assert_line "ls: cannot access '/root/.git-team/commit-templates/repo-local/$REPO_CHECKSUM': No such file or directory"
+	assert_failure 1
+	assert_line "ls: /root/.git-team/commit-templates/repo-local/$REPO_CHECKSUM: No such file or directory"
 
 	rm -rf /root/.git-team/
 	cd -

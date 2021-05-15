@@ -1,6 +1,8 @@
-FROM golang:1.16-stretch as bats
+FROM alpine/git:v2.30.2 as bats
 
 LABEL maintainer Rea Sand <hekmek@posteo.de>
+
+RUN apk add --no-cache bash
 
 RUN mkdir /bats-source
 RUN git clone https://github.com/bats-core/bats-core.git --branch v1.2.0 --single-branch /bats-source
@@ -14,7 +16,7 @@ RUN git clone https://github.com/ztombol/bats-assert /bats-libs/bats-assert
 
 # ----------------------------------------------------------------- #
 
-FROM golang:1.16-stretch as git-team
+FROM golang:1.16-alpine as git-team
 
 RUN mkdir /git-team-source
 WORKDIR /git-team-source
@@ -31,7 +33,10 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install ./cmd/...
 
 # ----------------------------------------------------------------- #
 
-FROM golang:1.16-stretch
+FROM golang:1.16-alpine
+
+RUN apk add --no-cache bash git ncurses
+
 COPY --from=bats /usr/local/bin/bats /usr/local/bin/bats
 COPY --from=bats /usr/local/libexec/bats-core /usr/local/libexec/bats-core
 COPY --from=bats /bats-libs /bats-libs
