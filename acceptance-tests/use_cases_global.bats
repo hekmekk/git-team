@@ -175,7 +175,7 @@ EOF
 	assert_line --index 2 --regexp '^Date:.+'
 	assert_line --index 3 --regexp '\s+initial commit'
 	assert_line --index 4 --regexp 'README.md'
-	refute_line --index 5 --regexp '\w+'
+	refute_output --partial 'Co-authored-by:'
 
 	/usr/local/bin/git-team disable
 }
