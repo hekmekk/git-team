@@ -4,15 +4,19 @@ load '/bats-libs/bats-support/load.bash'
 load '/bats-libs/bats-assert/load.bash'
 
 REPO_PATH=/tmp/repo/use-cases-global
+USER_NAME=git-team-acceptance-test
+USER_EMAIL=acc@git.team
 
 setup() {
+	git config --global init.defaultBranch main
+
 	mkdir -p $REPO_PATH
 	cd $REPO_PATH
 	touch THE_FILE
 
 	git init
-	git config user.name git-team-acceptance-test
-	git config user.email foo@bar.baz
+	git config user.name "$USER_NAME"
+	git config user.email "$USER_EMAIL"
 
 	/usr/local/bin/git-team config activation-scope global
 }
@@ -22,6 +26,8 @@ teardown() {
 
 	cd -
 	rm -rf $REPO_PATH
+
+	rm /root/.gitconfig
 }
 
 @test "use case: (scope: global) an existing repo-local git hook should be respected - commit-msg" {
@@ -59,7 +65,7 @@ teardown() {
 	run git show --name-only
 	assert_success
 	assert_line --index 0 --regexp '^commit\s\w+'
-	assert_line --index 1 'Author: git-team-acceptance-test <foo@bar.baz>'
+	assert_line --index 1 "Author: $USER_NAME <$USER_EMAIL>"
 	assert_line --index 2 --regexp '^Date:.+'
 	assert_line --index 3 --regexp '\s+test'
 	refute_line --index 4 --regexp '\w+'
@@ -82,7 +88,7 @@ EOF
 	run git show --name-only
 	assert_success
 	assert_line --index 0 --regexp '^commit\s\w+'
-	assert_line --index 1 'Author: git-team-acceptance-test <foo@bar.baz>'
+	assert_line --index 1 "Author: $USER_NAME <$USER_EMAIL>"
 	assert_line --index 2 --regexp '^Date:.+'
 	assert_line --index 3 --regexp '\s+test'
 	refute_line --index 4 --regexp '\w+'
@@ -99,7 +105,7 @@ EOF
 	run git show --name-only
 	assert_success
 	assert_line --index 0 --regexp '^commit\s\w+'
-	assert_line --index 1 'Author: git-team-acceptance-test <foo@bar.baz>'
+	assert_line --index 1 "Author: $USER_NAME <$USER_EMAIL>"
 	assert_line --index 2 --regexp '^Date:.+'
 	assert_line --index 3 --regexp '\s+test'
 	assert_line --index 4 'THE_FILE'

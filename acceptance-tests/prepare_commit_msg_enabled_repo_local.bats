@@ -5,14 +5,16 @@ load '/bats-libs/bats-assert/load.bash'
 
 REPO_PATH=/tmp/repo/prepare-commit-msg-enabled-repo-local
 REPO_CHECKSUM=$(echo -n $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
+USER_NAME=git-team-acceptance-test
+USER_EMAIL=acc@git.team
 
 setup() {
 	mkdir -p $REPO_PATH
 	cd $REPO_PATH
 	git config --global init.defaultBranch main
 	git init
-	git config user.name 'git-team-acceptance-test'
-	git config user.email 'acc@git.team'
+	git config user.name "$USER_NAME"
+	git config user.email "$USER_EMAIL"
 	/usr/local/bin/git-team config activation-scope repo-local
 }
 
@@ -43,7 +45,7 @@ teardown() {
 	assert_success
 	assert_line --index 0 --regexp '^commit\s\w+'
 	assert_line --index 1 --regexp '^Merge:'
-	assert_line --index 2 'Author: git-team-acceptance-test <acc@git.team>'
+	assert_line --index 2 "Author: $USER_NAME <$USER_EMAIL>"
 	assert_line --index 3 --regexp '^Date:.+'
 	assert_line --index 4 --regexp "\s+Merge branch 'some-branch'"
 	refute_line --index 5 --regexp '\w+'
@@ -73,7 +75,7 @@ teardown() {
 
 	assert_success
 	assert_line --index 0 --regexp '^commit\s\w+'
-	assert_line --index 1 'Author: git-team-acceptance-test <acc@git.team>'
+	assert_line --index 1 "Author: $USER_NAME <$USER_EMAIL>"
 	assert_line --index 2 --regexp '^Date:.+'
 	assert_line --index 3 --regexp '\s+squashed'
 	refute_line --index 4 --regexp '\w+'
@@ -99,7 +101,7 @@ teardown() {
 
 	assert_success
 	assert_line --index 0 --regexp '^commit\s\w+'
-	assert_line --index 1 'Author: git-team-acceptance-test <acc@git.team>'
+	assert_line --index 1 "Author: $USER_NAME <$USER_EMAIL>"
 	assert_line --index 2 --regexp '^Date:.+'
 	assert_line --index 3 --regexp '\s+initial commit'
 	assert_line --index 4 --regexp 'README.md'
