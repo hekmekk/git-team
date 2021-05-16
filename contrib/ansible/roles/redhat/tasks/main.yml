@@ -1,0 +1,47 @@
+---
+- name: "Check if git-team is installed"
+  command: dnf list installed git-team
+  register: is_package_installed
+  failed_when: is_package_installed.rc > 1
+  changed_when: is_package_installed.rc == 1
+
+- name: "Save json_response from Github release url"
+  uri:
+    url: https://api.github.com/repos/hekmekk/git-team/releases/latest
+    return_content: true
+  register: json_response
+  when: is_package_installed.rc == 1
+
+- set_fact:
+    browser_download_urls: "{{ json_response | json_query('*.assets[*].browser_download_url') | flatten }}"
+  when: is_package_installed.rc == 1
+
+- debug:
+    var: browser_download_urls
+  when: is_package_installed.rc == 1
+
+- set_fact:
+    package_url: "{{ browser_download_urls | select('match', '.*git-team-.*.x86_64.rpm$') | list | first | default('') }}"
+  when: is_package_installed.rc == 1
+
+- debug:
+    var: package_url
+  when: is_package_installed.rc == 1
+
+- fail:
+    msg: "No package found for latest release"
+  when: is_package_installed.rc == 1 and package_url == ""
+
+- name: "Download *.rpm"
+  get_url:
+    url: "{{ package_url }}"
+    dest: /tmp/git-team.rpm
+  when: is_package_installed.rc == 1
+
+- name: "Install git-team"
+  dnf:
+    name: "/tmp/git-team.rpm"
+    state: present
+    disable_gpg_check: yes
+  when: is_package_installed.rc == 1
+
