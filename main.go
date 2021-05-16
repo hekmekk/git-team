@@ -38,24 +38,6 @@ func main() {
 }
 
 func newApplication() *cli.App {
-	ls := listcmdadapter.Command()
-	ls.Before = func(c *cli.Context) error {
-		effects.NewDeprecationWarning("git team ls", "git team assignments").Run()
-		return nil
-	}
-
-	add := addcmdadapter.Command()
-	add.Before = func(c *cli.Context) error {
-		effects.NewDeprecationWarning("git team add", "git team assignments add").Run()
-		return nil
-	}
-
-	rm := removecmdadapter.Command()
-	rm.Before = func(c *cli.Context) error {
-		effects.NewDeprecationWarning("git team rm", "git team assignments rm").Run()
-		return nil
-	}
-
 	app := &cli.App{
 		Name:     "git-team",
 		Compiled: time.Now(),
@@ -78,9 +60,9 @@ func newApplication() *cli.App {
 			disablecmdadapter.Command(),
 			statuscmdadapter.Command(),
 			assignmentscmdadapter.Command(),
-			add,
-			ls,
-			rm,
+			addcmdadapter.Command(),
+			listcmdadapter.Command(),
+			removecmdadapter.Command(),
 			configcmdadapter.Command(),
 			completioncmdadapter.Command(),
 		},
@@ -96,7 +78,6 @@ func newApplication() *cli.App {
 				return nil
 			}
 
-			effects.NewDeprecationWarning("git team (as a default command)", "git team enable").Run()
 			return enablecmdadapter.Command().Action(c)
 		},
 	}

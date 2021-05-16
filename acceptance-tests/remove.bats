@@ -16,14 +16,12 @@ load '/bats-libs/bats-assert/load.bash'
 
 	run /usr/local/bin/git-team rm noujz
 	assert_success
-	assert_line --index 0 "warn: 'git team rm' has been deprecated and is going to be removed in a future major release, use 'git team assignments rm' instead"
-	assert_line --index 1 "Assignment removed: 'noujz'"
+	assert_line "Assignment removed: 'noujz'"
 }
 
 @test "git-team: remove should fail for a non-existing alias" {
 	run /usr/local/bin/git-team rm noujz
 	assert_failure
-	assert_line --index 0 "warn: 'git team rm' has been deprecated and is going to be removed in a future major release, use 'git team assignments rm' instead"
-	assert_line --index 1 "error: No such alias: 'noujz'"
+	assert_line "error: No such alias: 'noujz'"
 }
 
