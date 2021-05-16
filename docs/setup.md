@@ -80,6 +80,7 @@ sudo make install
 ```
 
 ## Install from source
+For releases since v1.6.0.
 ```shell script
 go install github.com/hekmekk/git-team@latest
 source <(git-team completion bash)
