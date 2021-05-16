@@ -1,11 +1,10 @@
 package completioncmdadapter
 
 import (
-	"fmt"
-
 	"github.com/urfave/cli/v2"
 
 	"github.com/hekmekk/git-team/src/command/completion/bash"
+	"github.com/hekmekk/git-team/src/core/effects"
 )
 
 func Command() *cli.Command {
@@ -14,7 +13,7 @@ func Command() *cli.Command {
 		Usage:       "Bash completion",
 		Description: "Source with bash to get auto completion",
 		Action: func(c *cli.Context) error {
-			fmt.Println(bash.Script)
+			effects.NewPrintMessage(bash.Script).Run()
 			return nil
 		},
 	}
