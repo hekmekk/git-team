@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 
@@ -27,12 +28,34 @@ func Command() *cli.Command {
 			&cli.BoolFlag{Name: "force-override", Value: false, Aliases: []string{"f"}, Usage: "Override an existing assignment"},
 		},
 		Action: func(c *cli.Context) error {
-			args := c.Args()
-			if args.Len() != 2 {
+			if c.NArg() == 0 {
+				reader := bufio.NewReader(os.Stdin)
+
+				input, err := reader.ReadString('\n')
+				if err != nil {
+					effects.NewPrintErr(errors.New("failed to read from stdin")).Run()
+					return nil
+				}
+				argsFromStdin := strings.SplitN(strings.TrimSpace(input), " ", 2)
+
+				if len(argsFromStdin) != 2 {
+					effects.NewPrintErr(errors.New("exactly 2 arguments expected")).Run()
+					return nil
+				}
+
+				alias := argsFromStdin[0]
+				coauthor := argsFromStdin[1]
+				forceOverride := c.Bool("force-override")
+				return commandadapter.RunUrFave(policy(&alias, &coauthor, &forceOverride), addeventadapter.MapEventToEffects)(c)
+
+			}
+
+			if c.NArg() != 2 {
 				effects.NewPrintErr(errors.New("exactly 2 arguments expected")).Run()
 				return nil
 			}
 
+			args := c.Args()
 			alias := args.First()
 			coauthor := args.Get(1)
 			forceOverride := c.Bool("force-override")

@@ -19,6 +19,12 @@ teardown() {
 	assert_line "Assignment added: 'noujz' →  'Mr. Noujz <noujz@mr.se>'"
 }
 
+@test "git-team: add should create an assigment when receiving input from stdin" {
+	run bash -c "echo 'noujz Mr. Noujz <noujz@mr.se>' | /usr/local/bin/git-team add"
+	assert_success
+	assert_line "Assignment added: 'noujz' →  'Mr. Noujz <noujz@mr.se>'"
+}
+
 @test "git-team: add should ask for override and apply it if user replies with yes" {
 	/usr/local/bin/git-team add noujz 'Mr. Green <green@mr.se>'
 	run bash -c "/usr/local/bin/git-team add noujz 'Mr. Noujz <noujz@mr.se>' <<< yes"
