@@ -13,12 +13,28 @@
   when: is_package_installed.rc == 1
 
 - set_fact:
-    package_deb_url: "{{ json_response.json.body |regex_search('(https://github.com/hekmekk/git-team-releases/raw/master/git-team_.*.deb)') }}"
+    browser_download_urls: "{{ json_response | json_query('*.assets[*].browser_download_url') | flatten }}"
   when: is_package_installed.rc == 1
 
-- name: "Extract *.deb file from html body"
+- debug:
+    var: browser_download_urls
+  when: is_package_installed.rc == 1
+
+- set_fact:
+    package_url: "{{ browser_download_urls | select('match', '.*git-team_.*_amd64.deb$') | list | first | default('') }}"
+  when: is_package_installed.rc == 1
+
+- debug:
+    var: package_url
+  when: is_package_installed.rc == 1
+
+- fail:
+    msg: "No package found for latest release"
+  when: is_package_installed.rc == 1 and package_url == ""
+
+- name: "Download *.deb"
   get_url:
-    url: "{{ package_deb_url }}"
+    url: "{{ package_url }}"
     dest: /tmp/git-team.deb
   when: is_package_installed.rc == 1
 

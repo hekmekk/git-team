@@ -3,6 +3,8 @@
   connection: local
   become: true
 
-  roles:
-    - git-team
+  tasks:
+    - include_role:
+        name: debian
+      when: ansible_distribution_file_variety == 'Debian'
 
