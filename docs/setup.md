@@ -79,3 +79,9 @@ make
 sudo make install
 ```
 
+## Install from source
+```shell script
+go install github.com/hekmekk/git-team@latest
+source <(git-team completion bash)
+```
+
