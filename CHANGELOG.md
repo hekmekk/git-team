@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.6.0] - 2021-05-16
+### Added
+- New command `completion` has been introduced. The output of this command can be sourced as is to get shell completion. Bash is the only supported shell for the moment.
+
 ## [1.5.5] - 2021-05-04
 ### Fixed
 - Adherence to linux FHS. This mostly affects where hooks are being stored. They no longer live in `/usr/local/etc/git-team/hooks` but are dynamically installed into `~/.git-team/hooks`. The previous path wasn't quite correctly chosen.
@@ -148,7 +152,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Append co-authors to a `git commit` message by means of a commit message template file
 
-[Unreleased]: https://github.com/hekmekk/git-team/compare/v1.5.5...HEAD
+[Unreleased]: https://github.com/hekmekk/git-team/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/hekmekk/git-team/compare/v1.5.5...v1.6.0
 [1.5.5]: https://github.com/hekmekk/git-team/compare/v1.5.4...v1.5.5
 [1.5.4]: https://github.com/hekmekk/git-team/compare/v1.5.3...v1.5.4
 [1.5.3]: https://github.com/hekmekk/git-team/compare/v1.5.2...v1.5.3
