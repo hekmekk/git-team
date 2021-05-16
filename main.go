@@ -15,8 +15,8 @@ import (
 	addcmdadapter "github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/cmd"
 	assignmentscmdadapter "github.com/hekmekk/git-team/src/command/assignments/interfaceadapter/cmd"
 	listcmdadapter "github.com/hekmekk/git-team/src/command/assignments/list/interfaceadapter/cmd"
-
 	removecmdadapter "github.com/hekmekk/git-team/src/command/assignments/remove/interfaceadapter/cmd"
+	completioncmdadapter "github.com/hekmekk/git-team/src/command/completion/interfaceadapter/cmd"
 	configcmdadapter "github.com/hekmekk/git-team/src/command/config/interfaceadapter/cmd"
 	disablecmdadapter "github.com/hekmekk/git-team/src/command/disable/interfaceadapter/cmd"
 	enablecmdadapter "github.com/hekmekk/git-team/src/command/enable/interfaceadapter/cmd"
@@ -82,6 +82,7 @@ func newApplication() *cli.App {
 			ls,
 			rm,
 			configcmdadapter.Command(),
+			completioncmdadapter.Command(),
 		},
 		Action: func(c *cli.Context) error {
 			shouldGenerateManPage := c.Bool("generate-man-page")

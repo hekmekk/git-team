@@ -31,7 +31,7 @@ ifdef FILTER
 	BATS_FILTER=--filter $(FILTER)
 endif
 
-all: fmt build man-page
+all: fmt build man-page completion
 
 tidy:
 	go mod tidy
@@ -62,6 +62,10 @@ man-page: clean deps
 	go run $(CURR_DIR)/main.go --generate-man-page > $(CURR_DIR)/target/man/git-team.1
 	gzip -f $(CURR_DIR)/target/man/git-team.1
 
+completion: clean deps
+	mkdir -p $(CURR_DIR)/target/completion/bash
+	go run $(CURR_DIR)/main.go completion bash > $(CURR_DIR)/target/completion/bash/git-team.bash
+
 install:
 	@echo "[INFO] Installing into $(bindir)/ ..."
 	mkdir -p $(bindir)
@@ -69,7 +73,7 @@ install:
 	mkdir -p $(man1dir)
 	install -m "0644" $(CURR_DIR)/target/man/git-team.1.gz $(man1dir)/git-team.1.gz
 	mkdir -p $(bash_completion_dir)
-	install -m "0644" $(CURR_DIR)/bash_completion/git-team.bash $(bash_completion_dir)/git-team
+	install -m "0644" $(CURR_DIR)/target/completion/bash/git-team.bash $(bash_completion_dir)/git-team
 	echo "[INFO] Don't forget to source $(bash_completion_dir)/git-team"
 
 uninstall:
