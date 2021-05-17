@@ -10,46 +10,40 @@ import (
 	"github.com/hekmekk/git-team/src/core/effects"
 )
 
-func TestMapEventToEffectsDeAllocationSucceeded(t *testing.T) {
+func TestMapEventToEffectDeAllocationSucceeded(t *testing.T) {
 	alias := "mr"
 	msg := fmt.Sprintf("Assignment removed: '%s'", alias)
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintMessage(msg),
-		effects.NewExitOk(),
-	}
+	expectedEffect := effects.NewExitOkMsg(msg)
 
-	effects := MapEventToEffects(remove.DeAllocationSucceeded{Alias: alias})
+	effect := MapEventToEffect(remove.DeAllocationSucceeded{Alias: alias})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsDeAllocationFailed(t *testing.T) {
+func TestMapEventToEffectDeAllocationFailed(t *testing.T) {
 	err := errors.New("failure")
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintErr(err),
-		effects.NewExitErr(),
-	}
+	expectedEffect := effects.NewExitErr(err)
 
-	effects := MapEventToEffects(remove.DeAllocationFailed{Reason: err})
+	effect := MapEventToEffect(remove.DeAllocationFailed{Reason: err})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsUnknownEvent(t *testing.T) {
-	expectedEffects := []effects.Effect{}
+func TestMapEventToEffectUnknownEvent(t *testing.T) {
+	expectedEffect := effects.NewExitOk()
 
-	effects := MapEventToEffects("UNKNOWN_EVENT")
+	effect := MapEventToEffect("UNKNOWN_EVENT")
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }

@@ -10,63 +10,54 @@ import (
 	state "github.com/hekmekk/git-team/src/shared/state/entity"
 )
 
-func TestMapEventToEffectsStateRetrievalSucceededEnabled(t *testing.T) {
+func TestMapEventToEffectStateRetrievalSucceededEnabled(t *testing.T) {
 	msg := "git-team enabled\n\nco-authors\n─ Mr. Noujz <noujz@mr.se>\n─ Mrs. Noujz <noujz@mrs.se>"
 	state := state.NewStateEnabled([]string{"Mrs. Noujz <noujz@mrs.se>", "Mr. Noujz <noujz@mr.se>"})
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintMessage(msg),
-		effects.NewExitOk(),
-	}
+	expectedEffect := effects.NewExitOkMsg(msg)
 
-	effects := MapEventToEffects(status.StateRetrievalSucceeded{State: state})
+	effect := MapEventToEffect(status.StateRetrievalSucceeded{State: state})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsStateRetrievalSucceededDisabled(t *testing.T) {
+func TestMapEventToEffectStateRetrievalSucceededDisabled(t *testing.T) {
 	msg := "git-team disabled"
 	state := state.NewStateDisabled()
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintMessage(msg),
-		effects.NewExitOk(),
-	}
+	expectedEffect := effects.NewExitOkMsg(msg)
 
-	effects := MapEventToEffects(status.StateRetrievalSucceeded{State: state})
+	effect := MapEventToEffect(status.StateRetrievalSucceeded{State: state})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsStateRetrievalFailed(t *testing.T) {
+func TestMapEventToEffectStateRetrievalFailed(t *testing.T) {
 	err := errors.New("failure")
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintErr(err),
-		effects.NewExitErr(),
-	}
+	expectedEffect := effects.NewExitErr(err)
 
-	effects := MapEventToEffects(status.StateRetrievalFailed{Reason: err})
+	effect := MapEventToEffect(status.StateRetrievalFailed{Reason: err})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsUnknownEvent(t *testing.T) {
-	expectedEffects := []effects.Effect{}
+func TestMapEventToEffectUnknownEvent(t *testing.T) {
+	expectedEffect := effects.NewExitOk()
 
-	effects := MapEventToEffects("UNKNOWN_EVENT")
+	effect := MapEventToEffect("UNKNOWN_EVENT")
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }

@@ -12,100 +12,85 @@ import (
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
 )
 
-func TestMapEventToEffectsRetrievalSucceeded(t *testing.T) {
+func TestMapEventToEffectRetrievalSucceeded(t *testing.T) {
 	msg := "config\n─ activation-scope: global"
 
 	cfg := config.Config{
 		ActivationScope: activationscope.Global,
 	}
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintMessage(msg),
-		effects.NewExitOk(),
-	}
+	expectedEffect := effects.NewExitOkMsg(msg)
 
-	effects := MapEventToEffects(configevents.RetrievalSucceeded{Config: cfg})
+	effect := MapEventToEffect(configevents.RetrievalSucceeded{Config: cfg})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsRetrievalFailed(t *testing.T) {
+func TestMapEventToEffectRetrievalFailed(t *testing.T) {
 	err := errors.New("failed to retrieve config")
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintErr(err),
-		effects.NewExitErr(),
-	}
+	expectedEffect := effects.NewExitErr(err)
 
-	effects := MapEventToEffects(configevents.RetrievalFailed{Reason: err})
+	effect := MapEventToEffect(configevents.RetrievalFailed{Reason: err})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsSettingModificationSucceeded(t *testing.T) {
+func TestMapEventToEffectSettingModificationSucceeded(t *testing.T) {
 	key := "activation-scope"
 	value := "repo-local"
 
 	msg := fmt.Sprintf("Configuration updated: '%s' → '%s'", key, value)
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintMessage(msg),
-		effects.NewExitOk(),
-	}
+	expectedEffect := effects.NewExitOkMsg(msg)
 
-	effects := MapEventToEffects(configevents.SettingModificationSucceeded{Key: key, Value: value})
+	effect := MapEventToEffect(configevents.SettingModificationSucceeded{Key: key, Value: value})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsSettingModificationFailed(t *testing.T) {
+func TestMapEventToEffectSettingModificationFailed(t *testing.T) {
 	err := errors.New("failed to modify setting")
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintErr(err),
-		effects.NewExitErr(),
-	}
+	expectedEffect := effects.NewExitErr(err)
 
-	effects := MapEventToEffects(configevents.SettingModificationFailed{Reason: err})
+	effect := MapEventToEffect(configevents.SettingModificationFailed{Reason: err})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsReadingSingleSettingNotYetImplemented(t *testing.T) {
+func TestMapEventToEffectReadingSingleSettingNotYetImplemented(t *testing.T) {
 	err := errors.New("Reading a single setting has not yet been implemented")
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintErr(err),
-		effects.NewExitErr(),
-	}
+	expectedEffect := effects.NewExitErr(err)
 
-	effects := MapEventToEffects(configevents.ReadingSingleSettingNotYetImplemented{})
+	effect := MapEventToEffect(configevents.ReadingSingleSettingNotYetImplemented{})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsUnknownEvent(t *testing.T) {
-	expectedEffects := []effects.Effect{}
+func TestMapEventToEffectUnknownEvent(t *testing.T) {
+	expectedEffect := effects.NewExitOk()
 
-	effects := MapEventToEffects("UNKNOWN_EVENT")
+	effect := MapEventToEffect("UNKNOWN_EVENT")
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }

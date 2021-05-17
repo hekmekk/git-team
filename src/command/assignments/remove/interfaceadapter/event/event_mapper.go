@@ -10,20 +10,14 @@ import (
 	"github.com/hekmekk/git-team/src/core/events"
 )
 
-// MapEventToEffects convert deallocation events to effects for the cli
-func MapEventToEffects(event events.Event) []effects.Effect {
+// MapEventToEffect convert deallocation events to effects for the cli
+func MapEventToEffect(event events.Event) effects.Effect {
 	switch evt := event.(type) {
 	case remove.DeAllocationSucceeded:
-		return []effects.Effect{
-			effects.NewPrintMessage(color.CyanString(fmt.Sprintf("Assignment removed: '%s'", evt.Alias))),
-			effects.NewExitOk(),
-		}
+		return effects.NewExitOkMsg(color.CyanString(fmt.Sprintf("Assignment removed: '%s'", evt.Alias)))
 	case remove.DeAllocationFailed:
-		return []effects.Effect{
-			effects.NewPrintErr(evt.Reason),
-			effects.NewExitErr(),
-		}
+		return effects.NewExitErr(evt.Reason)
 	default:
-		return []effects.Effect{}
+		return effects.NewExitOk()
 	}
 }

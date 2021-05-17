@@ -47,12 +47,9 @@ func TestFoldErrors(t *testing.T) {
 	}
 }
 
-func TestMapEventToEffectsSucceeded(t *testing.T) {
+func TestMapEventToEffectSucceeded(t *testing.T) {
 	coauthors := []string{"A Coauthor"}
-	expectedEffects := []effects.Effect{
-		effects.NewPrintMessage(fmt.Sprintf("git-team enabled\n\nco-authors\n─ A Coauthor")),
-		effects.NewExitOk(),
-	}
+	expectedEffect := effects.NewExitOkMsg(fmt.Sprintf("git-team enabled\n\nco-authors\n─ A Coauthor"))
 
 	statusPolicy := &statusPolicyMock{
 		apply: func() events.Event {
@@ -60,19 +57,16 @@ func TestMapEventToEffectsSucceeded(t *testing.T) {
 		},
 	}
 
-	effects := MapEventToEffectsFactory(statusPolicy)(enable.Succeeded{})
+	effect := MapEventToEffectFactory(statusPolicy)(enable.Succeeded{})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsAborted(t *testing.T) {
-	expectedEffects := []effects.Effect{
-		effects.NewPrintMessage("git-team disabled"),
-		effects.NewExitOk(),
-	}
+func TestMapEventToEffectAborted(t *testing.T) {
+	expectedEffect := effects.NewExitOkMsg("git-team disabled")
 
 	statusPolicy := &statusPolicyMock{
 		apply: func() events.Event {
@@ -80,21 +74,18 @@ func TestMapEventToEffectsAborted(t *testing.T) {
 		},
 	}
 
-	effects := MapEventToEffectsFactory(statusPolicy)(enable.Aborted{})
+	effect := MapEventToEffectFactory(statusPolicy)(enable.Aborted{})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsSucceededButQueryStatusFailed(t *testing.T) {
+func TestMapEventToEffectSucceededButQueryStatusFailed(t *testing.T) {
 	err := errors.New("query status failure")
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintErr(err),
-		effects.NewExitErr(),
-	}
+	expectedEffect := effects.NewExitErr(err)
 
 	statusPolicy := &statusPolicyMock{
 		apply: func() events.Event {
@@ -102,37 +93,34 @@ func TestMapEventToEffectsSucceededButQueryStatusFailed(t *testing.T) {
 		},
 	}
 
-	effects := MapEventToEffectsFactory(statusPolicy)(enable.Succeeded{})
+	effect := MapEventToEffectFactory(statusPolicy)(enable.Succeeded{})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsFailed(t *testing.T) {
+func TestMapEventToEffectFailed(t *testing.T) {
 	err := errors.New("enable failure")
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintErr(err),
-		effects.NewExitErr(),
-	}
+	expectedEffect := effects.NewExitErr(err)
 
-	effects := MapEventToEffectsFactory(nil)(enable.Failed{Reason: []error{err}})
+	effect := MapEventToEffectFactory(nil)(enable.Failed{Reason: []error{err}})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsUnknownEvent(t *testing.T) {
-	expectedEffects := []effects.Effect{}
+func TestMapEventToEffectUnknownEvent(t *testing.T) {
+	expectedEffect := effects.NewExitOk()
 
-	effects := MapEventToEffectsFactory(nil)("UNKNOWN_EVENT")
+	effect := MapEventToEffectFactory(nil)("UNKNOWN_EVENT")
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }

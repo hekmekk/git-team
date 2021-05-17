@@ -1,29 +1,58 @@
 package effects
 
-import (
-	"os"
-)
+import "fmt"
 
-// Exit the type definition
-type Exit struct {
-	code int
+type ExitOk struct {
+	message string
 }
 
-// NewExitOk the constructor for the ok case
-func NewExitOk() Exit {
-	return Exit{
-		code: 0,
+// Message return the message
+func (exitOk ExitOk) Message() string {
+	return exitOk.message
+}
+
+type ExitWarn struct {
+	message string
+}
+
+// Message return the message
+func (exitWarn ExitWarn) Message() string {
+	return exitWarn.message
+}
+
+type ExitErr struct {
+	message string
+}
+
+// Message return the message
+func (exitErr ExitErr) Message() string {
+	return exitErr.message
+}
+
+// NewExitOk exit with success code
+func NewExitOk() Effect {
+	return ExitOk{
+		message: "",
 	}
 }
 
-// NewExitErr the constructor for the error case
-func NewExitErr() Exit {
-	return Exit{
-		code: -1,
+// NewExitOkMsg exit with success code and print a message
+func NewExitOkMsg(message string) Effect {
+	return ExitOk{
+		message: message,
 	}
 }
 
-// Run exit with the respective status code
-func (exit Exit) Run() {
-	os.Exit(exit.code)
+// NewExitWarn exit with warn code and print a message prefixed with warn:
+func NewExitWarn(message string) Effect {
+	return ExitWarn{
+		message: fmt.Sprintf("warn: %s", message),
+	}
+}
+
+// NewExitErr exit with error code and print a message prefixed with error:
+func NewExitErr(err error) Effect {
+	return ExitErr{
+		message: fmt.Sprintf("error: %s", err.Error()),
+	}
 }

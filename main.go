@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"sort"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/hekmekk/git-team/src/core/effects"
 
+	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	addcmdadapter "github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/cmd"
 	assignmentscmdadapter "github.com/hekmekk/git-team/src/command/assignments/interfaceadapter/cmd"
 	listcmdadapter "github.com/hekmekk/git-team/src/command/assignments/list/interfaceadapter/cmd"
@@ -71,11 +71,9 @@ func newApplication() *cli.App {
 			if shouldGenerateManPage {
 				manPage, err := c.App.ToMan()
 				if err != nil {
-					effects.NewPrintErr(errors.New("failed to generate man page")).Run()
-					return nil
+					return commandadapter.RunEffect(effects.NewExitErr(errors.New("failed to generate man page")))
 				}
-				fmt.Println(manPage)
-				return nil
+				return commandadapter.RunEffect(effects.NewExitOkMsg(manPage))
 			}
 
 			return enablecmdadapter.Command().Action(c)

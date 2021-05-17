@@ -23,7 +23,7 @@ load '/bats-libs/bats-assert/load.bash'
 
 @test "git-team: config activation-scope non-existing-value should fail" {
 	run bash -c "git team config activation-scope non-existing-value"
-	assert_failure 255
+	assert_failure 1
 	assert_line "error: Unknown activation-scope 'non-existing-value'"
 }
 

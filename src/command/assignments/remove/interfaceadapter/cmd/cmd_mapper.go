@@ -26,12 +26,11 @@ func Command() *cli.Command {
 		Action: func(c *cli.Context) error {
 			args := c.Args()
 			if args.Len() != 1 {
-				effects.NewPrintErr(errors.New("exactly one alias must be specified")).Run()
-				return nil
+				return commandadapter.RunEffect(effects.NewExitErr(errors.New("exactly one alias must be specified")))
 			}
 
 			alias := args.First()
-			return commandadapter.RunUrFave(policy(&alias), removeeventadapter.MapEventToEffects)(c)
+			return commandadapter.RunUrFave(policy(&alias), removeeventadapter.MapEventToEffect)(c)
 		},
 		BashComplete: func(c *cli.Context) {
 			args := c.Args()

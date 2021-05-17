@@ -8,19 +8,16 @@ import (
 	"github.com/hekmekk/git-team/src/core/policy"
 )
 
-// MapEventToEffectsFactory convert disable events to effects for the cli
-func MapEventToEffectsFactory(statusPolicy policy.Policy) func(events.Event) []effects.Effect {
-	return func(event events.Event) []effects.Effect {
+// MapEventToEffectFactory convert disable events to effects for the cli
+func MapEventToEffectFactory(statusPolicy policy.Policy) func(events.Event) effects.Effect {
+	return func(event events.Event) effects.Effect {
 		switch evt := event.(type) {
 		case disable.Succeeded:
-			return statuseventadapter.MapEventToEffects(statusPolicy.Apply())
+			return statuseventadapter.MapEventToEffect(statusPolicy.Apply())
 		case disable.Failed:
-			return []effects.Effect{
-				effects.NewPrintErr(evt.Reason),
-				effects.NewExitErr(),
-			}
+			return effects.NewExitErr(evt.Reason)
 		default:
-			return []effects.Effect{}
+			return effects.NewExitOk()
 		}
 	}
 }

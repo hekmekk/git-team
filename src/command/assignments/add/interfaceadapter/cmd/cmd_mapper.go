@@ -33,33 +33,30 @@ func Command() *cli.Command {
 
 				input, err := reader.ReadString('\n')
 				if err != nil {
-					effects.NewPrintErr(errors.New("failed to read from stdin")).Run()
-					return nil
+					return commandadapter.RunEffect(effects.NewExitErr(err))
 				}
 				argsFromStdin := strings.SplitN(strings.TrimSpace(input), " ", 2)
 
 				if len(argsFromStdin) != 2 {
-					effects.NewPrintErr(errors.New("exactly 2 arguments expected")).Run()
-					return nil
+					return commandadapter.RunEffect(effects.NewExitErr(errors.New("exactly 2 arguments expected FOOO")))
 				}
 
 				alias := argsFromStdin[0]
 				coauthor := argsFromStdin[1]
 				forceOverride := c.Bool("force-override")
-				return commandadapter.RunUrFave(policy(&alias, &coauthor, &forceOverride), addeventadapter.MapEventToEffects)(c)
+				return commandadapter.RunUrFave(policy(&alias, &coauthor, &forceOverride), addeventadapter.MapEventToEffect)(c)
 
 			}
 
 			if c.NArg() != 2 {
-				effects.NewPrintErr(errors.New("exactly 2 arguments expected")).Run()
-				return nil
+				return commandadapter.RunEffect(effects.NewExitErr(errors.New("exactly 2 arguments expected")))
 			}
 
 			args := c.Args()
 			alias := args.First()
 			coauthor := args.Get(1)
 			forceOverride := c.Bool("force-override")
-			return commandadapter.RunUrFave(policy(&alias, &coauthor, &forceOverride), addeventadapter.MapEventToEffects)(c)
+			return commandadapter.RunUrFave(policy(&alias, &coauthor, &forceOverride), addeventadapter.MapEventToEffect)(c)
 		},
 	}
 }

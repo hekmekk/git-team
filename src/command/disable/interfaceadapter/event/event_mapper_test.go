@@ -20,11 +20,8 @@ func (mock statusPolicyMock) Apply() events.Event {
 	return mock.apply()
 }
 
-func TestMapEventToEffectsSucceeded(t *testing.T) {
-	expectedEffects := []effects.Effect{
-		effects.NewPrintMessage("git-team disabled"),
-		effects.NewExitOk(),
-	}
+func TestMapEventToEffectSucceeded(t *testing.T) {
+	expectedEffect := effects.NewExitOkMsg("git-team disabled")
 
 	statusPolicy := &statusPolicyMock{
 		apply: func() events.Event {
@@ -32,21 +29,18 @@ func TestMapEventToEffectsSucceeded(t *testing.T) {
 		},
 	}
 
-	effects := MapEventToEffectsFactory(statusPolicy)(disable.Succeeded{})
+	effect := MapEventToEffectFactory(statusPolicy)(disable.Succeeded{})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsSucceededButQueryStatusFailed(t *testing.T) {
+func TestMapEventToEffectSucceededButQueryStatusFailed(t *testing.T) {
 	err := errors.New("query status failure")
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintErr(err),
-		effects.NewExitErr(),
-	}
+	expectedEffect := effects.NewExitErr(err)
 
 	statusPolicy := &statusPolicyMock{
 		apply: func() events.Event {
@@ -54,37 +48,34 @@ func TestMapEventToEffectsSucceededButQueryStatusFailed(t *testing.T) {
 		},
 	}
 
-	effects := MapEventToEffectsFactory(statusPolicy)(disable.Succeeded{})
+	effect := MapEventToEffectFactory(statusPolicy)(disable.Succeeded{})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsFailed(t *testing.T) {
+func TestMapEventToEffectFailed(t *testing.T) {
 	err := errors.New("disable failure")
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintErr(err),
-		effects.NewExitErr(),
-	}
+	expectedEffect := effects.NewExitErr(err)
 
-	effects := MapEventToEffectsFactory(nil)(disable.Failed{Reason: err})
+	effect := MapEventToEffectFactory(nil)(disable.Failed{Reason: err})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsUnknownEvent(t *testing.T) {
-	expectedEffects := []effects.Effect{}
+func TestMapEventToEffectUnknownEvent(t *testing.T) {
+	expectedEffect := effects.NewExitOk()
 
-	effects := MapEventToEffectsFactory(nil)("UNKNOWN_EVENT")
+	effect := MapEventToEffectFactory(nil)("UNKNOWN_EVENT")
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }

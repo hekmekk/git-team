@@ -14,36 +14,21 @@ import (
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
 )
 
-// MapEventToEffects convert config events to effects for the cli
-func MapEventToEffects(event events.Event) []effects.Effect {
+// MapEventToEffect convert config events to effects for the cli
+func MapEventToEffect(event events.Event) effects.Effect {
 	switch evt := event.(type) {
 	case configevents.RetrievalSucceeded:
-		return []effects.Effect{
-			effects.NewPrintMessage(toString(evt.Config)),
-			effects.NewExitOk(),
-		}
+		return effects.NewExitOkMsg(toString(evt.Config))
 	case configevents.RetrievalFailed:
-		return []effects.Effect{
-			effects.NewPrintErr(evt.Reason),
-			effects.NewExitErr(),
-		}
+		return effects.NewExitErr(evt.Reason)
 	case configevents.SettingModificationSucceeded:
-		return []effects.Effect{
-			effects.NewPrintMessage(color.CyanString(fmt.Sprintf("Configuration updated: '%s' → '%s'", evt.Key, evt.Value))),
-			effects.NewExitOk(),
-		}
+		return effects.NewExitOkMsg(color.CyanString(fmt.Sprintf("Configuration updated: '%s' → '%s'", evt.Key, evt.Value)))
 	case configevents.SettingModificationFailed:
-		return []effects.Effect{
-			effects.NewPrintErr(evt.Reason),
-			effects.NewExitErr(),
-		}
+		return effects.NewExitErr(evt.Reason)
 	case configevents.ReadingSingleSettingNotYetImplemented:
-		return []effects.Effect{
-			effects.NewPrintErr(errors.New("Reading a single setting has not yet been implemented")),
-			effects.NewExitErr(),
-		}
+		return effects.NewExitErr(errors.New("Reading a single setting has not yet been implemented"))
 	default:
-		return []effects.Effect{}
+		return effects.NewExitOk()
 	}
 }
 

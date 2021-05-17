@@ -69,7 +69,7 @@ teardown() {
 
 @test "git-team: assignments add should fail to create an assigment for an invalidly formatted co-author" {
 	run /usr/local/bin/git-team assignments add noujz INVALID-CO-AUTHOR
-	assert_failure 255
+	assert_failure 1
 	assert_line --index 0 "error: Not a valid coauthor: INVALID-CO-AUTHOR"
 }
 

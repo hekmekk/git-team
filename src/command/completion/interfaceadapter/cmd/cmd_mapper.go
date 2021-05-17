@@ -3,6 +3,7 @@ package completioncmdadapter
 import (
 	"github.com/urfave/cli/v2"
 
+	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/completion/bash"
 	"github.com/hekmekk/git-team/src/core/effects"
 )
@@ -13,8 +14,7 @@ func Command() *cli.Command {
 		Usage:       "Bash completion",
 		Description: "Source with bash to get auto completion",
 		Action: func(c *cli.Context) error {
-			effects.NewPrintMessage(bash.Script).Run()
-			return nil
+			return commandadapter.RunEffect(effects.NewExitOkMsg(bash.Script))
 		},
 	}
 

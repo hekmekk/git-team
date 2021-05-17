@@ -12,21 +12,15 @@ import (
 	state "github.com/hekmekk/git-team/src/shared/state/entity"
 )
 
-// MapEventToEffects convert status events to effects for the cli
-func MapEventToEffects(event events.Event) []effects.Effect {
+// MapEventToEffect convert status events to effects for the cli
+func MapEventToEffect(event events.Event) effects.Effect {
 	switch evt := event.(type) {
 	case status.StateRetrievalSucceeded:
-		return []effects.Effect{
-			effects.NewPrintMessage(toString(evt.State)),
-			effects.NewExitOk(),
-		}
+		return effects.NewExitOkMsg(toString(evt.State))
 	case status.StateRetrievalFailed:
-		return []effects.Effect{
-			effects.NewPrintErr(evt.Reason),
-			effects.NewExitErr(),
-		}
+		return effects.NewExitErr(evt.Reason)
 	default:
-		return []effects.Effect{}
+		return effects.NewExitOk()
 	}
 }
 

@@ -23,7 +23,7 @@ func Command() *cli.Command {
 			args := c.Args()
 			key := args.First()
 			value := args.Get(1)
-			return commandadapter.RunUrFave(policy(&key, &value), configeventadapter.MapEventToEffects)(c)
+			return commandadapter.RunUrFave(policy(&key, &value), configeventadapter.MapEventToEffect)(c)
 		},
 		BashComplete: func(c *cli.Context) {
 			options := map[string][]string{

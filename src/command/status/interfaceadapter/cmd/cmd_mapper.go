@@ -18,7 +18,7 @@ func Command() *cli.Command {
 		Name:  "status",
 		Usage: "Print the current status",
 		Action: func(c *cli.Context) error {
-			return commandadapter.RunUrFave(Policy(), statuseventadapter.MapEventToEffects)(c)
+			return commandadapter.RunUrFave(Policy(), statuseventadapter.MapEventToEffect)(c)
 		},
 	}
 }

@@ -12,21 +12,15 @@ import (
 	"github.com/hekmekk/git-team/src/core/events"
 )
 
-// MapEventToEffects convert list events to effects for the cli
-func MapEventToEffects(event events.Event) []effects.Effect {
+// MapEventToEffect convert list events to effects for the cli
+func MapEventToEffect(event events.Event) effects.Effect {
 	switch evt := event.(type) {
 	case list.RetrievalSucceeded:
-		return []effects.Effect{
-			effects.NewPrintMessage(toString(evt.Assignments)),
-			effects.NewExitOk(),
-		}
+		return effects.NewExitOkMsg(toString(evt.Assignments))
 	case list.RetrievalFailed:
-		return []effects.Effect{
-			effects.NewPrintErr(evt.Reason),
-			effects.NewExitErr(),
-		}
+		return effects.NewExitErr(evt.Reason)
 	default:
-		return []effects.Effect{}
+		return effects.NewExitOk()
 	}
 }
 

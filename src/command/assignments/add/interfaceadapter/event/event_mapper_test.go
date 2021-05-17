@@ -10,61 +10,51 @@ import (
 	"github.com/hekmekk/git-team/src/core/effects"
 )
 
-func TestMapEventToEffectsAssignmentSucceeded(t *testing.T) {
+func TestMapEventToEffectAssignmentSucceeded(t *testing.T) {
 	alias := "mr"
 	coauthor := "Mr. Noujz <noujz@mr.se>"
 	msg := fmt.Sprintf("Assignment added: '%s' →  '%s'", alias, coauthor)
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintMessage(msg),
-		effects.NewExitOk(),
-	}
+	expectedEffect := effects.NewExitOkMsg(msg)
 
-	effects := MapEventToEffects(add.AssignmentSucceeded{Alias: alias, Coauthor: coauthor})
+	effect := MapEventToEffect(add.AssignmentSucceeded{Alias: alias, Coauthor: coauthor})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsAssignmentFailed(t *testing.T) {
+func TestMapEventToEffectAssignmentFailed(t *testing.T) {
 	err := errors.New("failure")
 
-	expectedEffects := []effects.Effect{
-		effects.NewPrintErr(err),
-		effects.NewExitErr(),
-	}
+	expectedEffect := effects.NewExitErr(err)
 
-	effects := MapEventToEffects(add.AssignmentFailed{Reason: err})
+	effect := MapEventToEffect(add.AssignmentFailed{Reason: err})
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsAssignmentAborted(t *testing.T) {
-	expectedEffects := []effects.Effect{
-		effects.NewPrintMessage("Nothing changed"),
-		effects.NewExitOk(),
-	}
+func TestMapEventToEffectAssignmentAborted(t *testing.T) {
+	expectedEffect := effects.NewExitWarn("nothing changed")
+	effect := MapEventToEffect(add.AssignmentAborted{Alias: "", ExistingCoauthor: "", ReplacingCoauthor: ""})
 
-	effects := MapEventToEffects(add.AssignmentAborted{Alias: "", ExistingCoauthor: "", ReplacingCoauthor: ""})
-
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
 
-func TestMapEventToEffectsUnknownEvent(t *testing.T) {
-	expectedEffects := []effects.Effect{}
+func TestMapEventToEffectUnknownEvent(t *testing.T) {
+	expectedEffect := effects.NewExitOk()
 
-	effects := MapEventToEffects("UNKNOWN_EVENT")
+	effect := MapEventToEffect("UNKNOWN_EVENT")
 
-	if !reflect.DeepEqual(expectedEffects, effects) {
-		t.Errorf("expected: %s, got: %s", expectedEffects, effects)
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
 		t.Fail()
 	}
 }
