@@ -82,10 +82,7 @@ uninstall:
 	rm -f $(man1dir)/git-team.1.gz
 
 clean:
-	rm -f $(CURR_DIR)/git-team
 	rm -rf $(CURR_DIR)/target
-	rm -rf $(CURR_DIR)/acceptance-tests/src/
-	rm -rf $(CURR_DIR)/acceptance-tests/git-hooks/
 
 .PHONY: acceptance-tests
 acceptance-tests:
