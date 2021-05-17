@@ -16,7 +16,7 @@ load '/bats-libs/bats-assert/load.bash'
 
 	run /usr/local/bin/git-team assignments
 	assert_success
-	assert_line --index 0 'assignments'
+	assert_line --index 0 'Assignments'
 	assert_line --index 1 '─ a  →  A <a@x.y>'
 	assert_line --index 2 '─ bb →  B <b@x.y>'
 	assert_line --index 3 '─ c  →  C <c@x.y>'
@@ -33,7 +33,7 @@ load '/bats-libs/bats-assert/load.bash'
 
 	run /usr/local/bin/git-team assignments ls
 	assert_success
-	assert_line --index 0 'assignments'
+	assert_line --index 0 'Assignments'
 	assert_line --index 1 '─ a  →  A <a@x.y>'
 	assert_line --index 2 '─ bb →  B <b@x.y>'
 	assert_line --index 3 '─ c  →  C <c@x.y>'
