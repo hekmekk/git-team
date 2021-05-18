@@ -6,10 +6,10 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/assignments/remove"
 	removeeventadapter "github.com/hekmekk/git-team/src/command/assignments/remove/interfaceadapter/event"
-	"github.com/hekmekk/git-team/src/shared/cliadapter/effects"
+	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
+	"github.com/hekmekk/git-team/src/shared/cli/effects"
 	aliascompletion "github.com/hekmekk/git-team/src/shared/completion"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
 	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"

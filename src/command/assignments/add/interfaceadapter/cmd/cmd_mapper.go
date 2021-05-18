@@ -10,11 +10,11 @@ import (
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 
-	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/assignments/add"
 	addeventadapter "github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/core/validation"
-	"github.com/hekmekk/git-team/src/shared/cliadapter/effects"
+	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
+	"github.com/hekmekk/git-team/src/shared/cli/effects"
 	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )

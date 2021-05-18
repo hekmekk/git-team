@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/hekmekk/git-team/src/shared/cliadapter/effects"
+	"github.com/hekmekk/git-team/src/shared/cli/effects"
 )
 
 // Event an event emitted when applying a Policy

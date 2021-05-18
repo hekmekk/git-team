@@ -10,7 +10,7 @@ import (
 
 	configevents "github.com/hekmekk/git-team/src/command/config/events"
 	"github.com/hekmekk/git-team/src/core/events"
-	"github.com/hekmekk/git-team/src/shared/cliadapter/effects"
+	"github.com/hekmekk/git-team/src/shared/cli/effects"
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
 )
 

@@ -9,7 +9,7 @@ import (
 	"github.com/hekmekk/git-team/src/command/assignments/list"
 	"github.com/hekmekk/git-team/src/core/assignment"
 	"github.com/hekmekk/git-team/src/core/events"
-	"github.com/hekmekk/git-team/src/shared/cliadapter/effects"
+	"github.com/hekmekk/git-team/src/shared/cli/effects"
 )
 
 // MapEventToEffect convert list events to effects for the cli

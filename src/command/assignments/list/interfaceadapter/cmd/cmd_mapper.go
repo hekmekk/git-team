@@ -3,9 +3,9 @@ package listcmdadapter
 import (
 	"github.com/urfave/cli/v2"
 
-	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/assignments/list"
 	listeventadapter "github.com/hekmekk/git-team/src/command/assignments/list/interfaceadapter/event"
+	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
 )
 

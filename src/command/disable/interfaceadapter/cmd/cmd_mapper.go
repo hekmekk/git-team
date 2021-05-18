@@ -5,11 +5,11 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/disable"
 	disableeventadapter "github.com/hekmekk/git-team/src/command/disable/interfaceadapter/event"
 	statuscmdmapper "github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
 	activation "github.com/hekmekk/git-team/src/shared/activation/impl"
+	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
 	configds "github.com/hekmekk/git-team/src/shared/config/datasource"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
 	state "github.com/hekmekk/git-team/src/shared/state/impl"

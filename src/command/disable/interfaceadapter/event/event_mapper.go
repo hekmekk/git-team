@@ -5,7 +5,7 @@ import (
 	statuseventadapter "github.com/hekmekk/git-team/src/command/status/interfaceadapter/event"
 	"github.com/hekmekk/git-team/src/core/events"
 	"github.com/hekmekk/git-team/src/core/policy"
-	"github.com/hekmekk/git-team/src/shared/cliadapter/effects"
+	"github.com/hekmekk/git-team/src/shared/cli/effects"
 )
 
 // MapEventToEffectFactory convert disable events to effects for the cli

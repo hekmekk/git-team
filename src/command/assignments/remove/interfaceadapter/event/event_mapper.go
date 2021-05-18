@@ -7,7 +7,7 @@ import (
 
 	"github.com/hekmekk/git-team/src/command/assignments/remove"
 	"github.com/hekmekk/git-team/src/core/events"
-	"github.com/hekmekk/git-team/src/shared/cliadapter/effects"
+	"github.com/hekmekk/git-team/src/shared/cli/effects"
 )
 
 // MapEventToEffect convert deallocation events to effects for the cli

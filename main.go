@@ -9,9 +9,8 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"github.com/hekmekk/git-team/src/shared/cliadapter/effects"
+	"github.com/hekmekk/git-team/src/shared/cli/effects"
 
-	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	addcmdadapter "github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/cmd"
 	assignmentscmdadapter "github.com/hekmekk/git-team/src/command/assignments/interfaceadapter/cmd"
 	listcmdadapter "github.com/hekmekk/git-team/src/command/assignments/list/interfaceadapter/cmd"
@@ -21,6 +20,7 @@ import (
 	disablecmdadapter "github.com/hekmekk/git-team/src/command/disable/interfaceadapter/cmd"
 	enablecmdadapter "github.com/hekmekk/git-team/src/command/enable/interfaceadapter/cmd"
 	statuscmdadapter "github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
+	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
 )
 
 const (
