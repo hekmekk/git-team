@@ -44,7 +44,7 @@ func Command() *cli.Command {
 				alias := argsFromStdin[0]
 				coauthor := argsFromStdin[1]
 				forceOverride := c.Bool("force-override")
-				return commandadapter.RunUrFave(policy(&alias, &coauthor, &forceOverride), addeventadapter.MapEventToEffect)(c)
+				return commandadapter.Run(policy(&alias, &coauthor, &forceOverride), addeventadapter.MapEventToEffect)
 
 			}
 
@@ -56,7 +56,7 @@ func Command() *cli.Command {
 			alias := args.First()
 			coauthor := args.Get(1)
 			forceOverride := c.Bool("force-override")
-			return commandadapter.RunUrFave(policy(&alias, &coauthor, &forceOverride), addeventadapter.MapEventToEffect)(c)
+			return commandadapter.Run(policy(&alias, &coauthor, &forceOverride), addeventadapter.MapEventToEffect)
 		},
 	}
 }

@@ -30,7 +30,7 @@ func Command() *cli.Command {
 			}
 
 			alias := args.First()
-			return commandadapter.RunUrFave(policy(&alias), removeeventadapter.MapEventToEffect)(c)
+			return commandadapter.Run(policy(&alias), removeeventadapter.MapEventToEffect)
 		},
 		BashComplete: func(c *cli.Context) {
 			args := c.Args()

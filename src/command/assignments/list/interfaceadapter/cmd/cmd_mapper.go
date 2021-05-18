@@ -16,7 +16,7 @@ func Command() *cli.Command {
 		Aliases: []string{"ls"},
 		Usage:   "List your assignments",
 		Action: func(c *cli.Context) error {
-			return commandadapter.RunUrFave(policy(), listeventadapter.MapEventToEffect)(c)
+			return commandadapter.Run(policy(), listeventadapter.MapEventToEffect)
 		},
 	}
 }
