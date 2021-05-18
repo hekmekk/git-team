@@ -38,7 +38,7 @@ func Command() *cli.Command {
 				argsFromStdin := strings.SplitN(strings.TrimSpace(input), " ", 2)
 
 				if len(argsFromStdin) != 2 {
-					return commandadapter.RunEffect(effects.NewExitErr(errors.New("exactly 2 arguments expected FOOO")))
+					return commandadapter.RunEffect(effects.NewExitErr(errors.New("exactly 2 arguments expected")))
 				}
 
 				alias := argsFromStdin[0]
