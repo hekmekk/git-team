@@ -6,8 +6,8 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/hekmekk/git-team/src/command/disable"
-	disableeventadapter "github.com/hekmekk/git-team/src/command/disable/interfaceadapter/event"
-	statuscmdmapper "github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
+	disableeventadapter "github.com/hekmekk/git-team/src/command/disable/cliadapter/event"
+	statuscmdmapper "github.com/hekmekk/git-team/src/command/status/cliadapter/cmd"
 	activation "github.com/hekmekk/git-team/src/shared/activation/impl"
 	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
 	configds "github.com/hekmekk/git-team/src/shared/config/datasource"

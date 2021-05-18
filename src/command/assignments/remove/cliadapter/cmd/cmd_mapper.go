@@ -7,7 +7,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/hekmekk/git-team/src/command/assignments/remove"
-	removeeventadapter "github.com/hekmekk/git-team/src/command/assignments/remove/interfaceadapter/event"
+	removeeventadapter "github.com/hekmekk/git-team/src/command/assignments/remove/cliadapter/event"
 	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
 	"github.com/hekmekk/git-team/src/shared/cli/effects"
 	aliascompletion "github.com/hekmekk/git-team/src/shared/completion"

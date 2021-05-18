@@ -4,7 +4,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/hekmekk/git-team/src/command/status"
-	statuseventadapter "github.com/hekmekk/git-team/src/command/status/interfaceadapter/event"
+	statuseventadapter "github.com/hekmekk/git-team/src/command/status/cliadapter/event"
 	activation "github.com/hekmekk/git-team/src/shared/activation/impl"
 	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
 	config "github.com/hekmekk/git-team/src/shared/config/datasource"

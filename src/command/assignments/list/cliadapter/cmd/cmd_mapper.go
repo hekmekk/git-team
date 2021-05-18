@@ -4,7 +4,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/hekmekk/git-team/src/command/assignments/list"
-	listeventadapter "github.com/hekmekk/git-team/src/command/assignments/list/interfaceadapter/event"
+	listeventadapter "github.com/hekmekk/git-team/src/command/assignments/list/cliadapter/event"
 	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
 )

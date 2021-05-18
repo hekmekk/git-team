@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/hekmekk/git-team/src/command/enable"
-	statuseventadapter "github.com/hekmekk/git-team/src/command/status/interfaceadapter/event"
+	statuseventadapter "github.com/hekmekk/git-team/src/command/status/cliadapter/event"
 	"github.com/hekmekk/git-team/src/core/events"
 	"github.com/hekmekk/git-team/src/core/policy"
 	"github.com/hekmekk/git-team/src/shared/cli/effects"

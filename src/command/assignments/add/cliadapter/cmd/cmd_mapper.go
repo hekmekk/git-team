@@ -11,7 +11,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/hekmekk/git-team/src/command/assignments/add"
-	addeventadapter "github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/event"
+	addeventadapter "github.com/hekmekk/git-team/src/command/assignments/add/cliadapter/event"
 	"github.com/hekmekk/git-team/src/core/validation"
 	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
 	"github.com/hekmekk/git-team/src/shared/cli/effects"

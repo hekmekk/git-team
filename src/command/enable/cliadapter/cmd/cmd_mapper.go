@@ -8,9 +8,9 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/hekmekk/git-team/src/command/enable"
+	enableeventadapter "github.com/hekmekk/git-team/src/command/enable/cliadapter/event"
 	commitsettingsds "github.com/hekmekk/git-team/src/command/enable/commitsettings/datasource"
-	enableeventadapter "github.com/hekmekk/git-team/src/command/enable/interfaceadapter/event"
-	statuscmdmapper "github.com/hekmekk/git-team/src/command/status/interfaceadapter/cmd"
+	statuscmdmapper "github.com/hekmekk/git-team/src/command/status/cliadapter/cmd"
 	"github.com/hekmekk/git-team/src/core/validation"
 	activation "github.com/hekmekk/git-team/src/shared/activation/impl"
 	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
