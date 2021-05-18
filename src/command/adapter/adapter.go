@@ -2,7 +2,6 @@ package commandadapter
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
@@ -25,11 +24,9 @@ func RunEffect(effect effects.Effect) error {
 	switch e := effect.(type) {
 	case effects.ExitOk:
 		fmt.Println(e.Message())
-		os.Exit(0)
 		return nil
 	case effects.ExitWarn:
 		fmt.Println(color.YellowString(e.Message()))
-		os.Exit(0)
 		return nil
 	case effects.ExitErr:
 		return cli.NewExitError(color.RedString(e.Message()), 1)
