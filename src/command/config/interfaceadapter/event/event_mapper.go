@@ -9,8 +9,8 @@ import (
 	"github.com/fatih/color"
 
 	configevents "github.com/hekmekk/git-team/src/command/config/events"
-	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/events"
+	"github.com/hekmekk/git-team/src/shared/cliadapter/effects"
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
 )
 

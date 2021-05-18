@@ -6,9 +6,9 @@ import (
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 
-	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/events"
 	"github.com/hekmekk/git-team/src/core/policy"
+	"github.com/hekmekk/git-team/src/shared/cliadapter/effects"
 )
 
 // Run apply a policy, convert the resulting event to an effect and run that effect

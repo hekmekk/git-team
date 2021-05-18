@@ -7,9 +7,9 @@ import (
 
 	"github.com/hekmekk/git-team/src/command/enable"
 	statuseventadapter "github.com/hekmekk/git-team/src/command/status/interfaceadapter/event"
-	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/events"
 	"github.com/hekmekk/git-team/src/core/policy"
+	"github.com/hekmekk/git-team/src/shared/cliadapter/effects"
 )
 
 // MapEventToEffectFactory convert enable events to effects for the cli

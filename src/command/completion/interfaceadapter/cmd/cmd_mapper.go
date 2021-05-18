@@ -5,7 +5,7 @@ import (
 
 	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/completion/bash"
-	"github.com/hekmekk/git-team/src/core/effects"
+	"github.com/hekmekk/git-team/src/shared/cliadapter/effects"
 )
 
 func Command() *cli.Command {

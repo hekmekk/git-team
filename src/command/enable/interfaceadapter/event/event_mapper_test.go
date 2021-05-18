@@ -10,8 +10,8 @@ import (
 
 	"github.com/hekmekk/git-team/src/command/enable"
 	status "github.com/hekmekk/git-team/src/command/status"
-	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/events"
+	"github.com/hekmekk/git-team/src/shared/cliadapter/effects"
 	state "github.com/hekmekk/git-team/src/shared/state/entity"
 )
 

@@ -13,8 +13,8 @@ import (
 	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/assignments/add"
 	addeventadapter "github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/event"
-	"github.com/hekmekk/git-team/src/core/effects"
 	"github.com/hekmekk/git-team/src/core/validation"
+	"github.com/hekmekk/git-team/src/shared/cliadapter/effects"
 	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )

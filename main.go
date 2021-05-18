@@ -9,7 +9,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"github.com/hekmekk/git-team/src/core/effects"
+	"github.com/hekmekk/git-team/src/shared/cliadapter/effects"
 
 	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	addcmdadapter "github.com/hekmekk/git-team/src/command/assignments/add/interfaceadapter/cmd"

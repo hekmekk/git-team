@@ -9,7 +9,7 @@ import (
 	commandadapter "github.com/hekmekk/git-team/src/command/adapter"
 	"github.com/hekmekk/git-team/src/command/assignments/remove"
 	removeeventadapter "github.com/hekmekk/git-team/src/command/assignments/remove/interfaceadapter/event"
-	"github.com/hekmekk/git-team/src/core/effects"
+	"github.com/hekmekk/git-team/src/shared/cliadapter/effects"
 	aliascompletion "github.com/hekmekk/git-team/src/shared/completion"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
 	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"

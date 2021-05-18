@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	configevents "github.com/hekmekk/git-team/src/command/config/events"
-	"github.com/hekmekk/git-team/src/core/effects"
 	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
+	"github.com/hekmekk/git-team/src/shared/cliadapter/effects"
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
 )
 
