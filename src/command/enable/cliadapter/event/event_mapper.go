@@ -19,7 +19,7 @@ func MapEventToEffectFactory(statusPolicy policy.Policy) func(events.Event) effe
 		case enable.Succeeded, enable.Aborted:
 			return statuseventadapter.MapEventToEffect(statusPolicy.Apply())
 		case enable.Failed:
-			return effects.NewExitErr(foldErrors(evt.Reason))
+			return effects.NewExitErrMsg(foldErrors(evt.Reason))
 		default:
 			return effects.NewExitOk()
 		}

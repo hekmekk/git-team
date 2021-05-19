@@ -20,7 +20,6 @@ import (
 	disablecmdadapter "github.com/hekmekk/git-team/src/command/disable/cliadapter/cmd"
 	enablecmdadapter "github.com/hekmekk/git-team/src/command/enable/cliadapter/cmd"
 	statuscmdadapter "github.com/hekmekk/git-team/src/command/status/cliadapter/cmd"
-	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
 )
 
 const (
@@ -71,9 +70,9 @@ func newApplication() *cli.App {
 			if shouldGenerateManPage {
 				manPage, err := c.App.ToMan()
 				if err != nil {
-					return commandadapter.RunEffect(effects.NewExitErr(errors.New("failed to generate man page")))
+					return effects.NewExitErrMsg(errors.New("failed to generate man page")).Run()
 				}
-				return commandadapter.RunEffect(effects.NewExitOkMsg(manPage))
+				return effects.NewExitOkMsg(manPage).Run()
 			}
 
 			return enablecmdadapter.Command().Action(c)

@@ -27,7 +27,7 @@ func TestMapEventToEffectDeAllocationSucceeded(t *testing.T) {
 func TestMapEventToEffectDeAllocationFailed(t *testing.T) {
 	err := errors.New("failure")
 
-	expectedEffect := effects.NewExitErr(err)
+	expectedEffect := effects.NewExitErrMsg(err)
 
 	effect := MapEventToEffect(remove.DeAllocationFailed{Reason: err})
 

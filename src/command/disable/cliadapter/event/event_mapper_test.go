@@ -40,7 +40,7 @@ func TestMapEventToEffectSucceeded(t *testing.T) {
 func TestMapEventToEffectSucceededButQueryStatusFailed(t *testing.T) {
 	err := errors.New("query status failure")
 
-	expectedEffect := effects.NewExitErr(err)
+	expectedEffect := effects.NewExitErrMsg(err)
 
 	statusPolicy := &statusPolicyMock{
 		apply: func() events.Event {
@@ -59,7 +59,7 @@ func TestMapEventToEffectSucceededButQueryStatusFailed(t *testing.T) {
 func TestMapEventToEffectFailed(t *testing.T) {
 	err := errors.New("disable failure")
 
-	expectedEffect := effects.NewExitErr(err)
+	expectedEffect := effects.NewExitErrMsg(err)
 
 	effect := MapEventToEffectFactory(nil)(disable.Failed{Reason: err})
 

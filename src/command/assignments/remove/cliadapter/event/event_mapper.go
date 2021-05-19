@@ -16,7 +16,7 @@ func MapEventToEffect(event events.Event) effects.Effect {
 	case remove.DeAllocationSucceeded:
 		return effects.NewExitOkMsg(color.CyanString(fmt.Sprintf("Assignment removed: '%s'", evt.Alias)))
 	case remove.DeAllocationFailed:
-		return effects.NewExitErr(evt.Reason)
+		return effects.NewExitErrMsg(evt.Reason)
 	default:
 		return effects.NewExitOk()
 	}

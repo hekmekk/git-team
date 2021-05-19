@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 
 	"github.com/hekmekk/git-team/src/command/assignments/add"
@@ -32,11 +31,11 @@ func Command() *cli.Command {
 			forceOverride := c.Bool("force-override")
 
 			if c.NArg() == 0 {
-				return commandadapter.RunEffect(handleInputFromStdin(forceOverride))
+				return handleInputFromStdin(forceOverride).Run()
 			}
 
 			if c.NArg() != 2 {
-				return commandadapter.RunEffect(effects.NewExitErr(errors.New("exactly 2 arguments expected")))
+				return effects.NewExitErrMsg(errors.New("exactly 2 arguments expected")).Run()
 			}
 
 			args := c.Args()
@@ -51,7 +50,7 @@ func handleInputFromStdin(forceOverride bool) effects.Effect {
 	lines, err := readLinesFromStdin()
 
 	if err != nil {
-		return effects.NewExitErr(err)
+		return effects.NewExitErrMsg(err)
 	}
 
 	errOccured := false
@@ -60,38 +59,24 @@ func handleInputFromStdin(forceOverride bool) effects.Effect {
 
 		var effect effects.Effect
 		if len(argsFromStdin) != 2 {
-			effect = effects.NewExitErr(errors.New("exactly 2 arguments expected"))
+			effect = effects.NewExitErrMsg(errors.New("exactly 2 arguments expected"))
 		} else {
 
 			alias := argsFromStdin[0]
 			coauthor := argsFromStdin[1]
 			effect = commandadapter.ApplyPolicy(policy(&alias, &coauthor, &forceOverride), addeventadapter.MapEventToEffect)
 		}
-		msg, localErrOccurred := derivePrintMsgAndDetermineIfErrorOccured(effect)
-		if localErrOccurred {
+		err := effect.Run()
+		if err != nil {
 			errOccured = true
 		}
-		commandadapter.RunEffect(effects.NewExitOkMsg(msg))
 	}
 
 	if errOccured {
-		return effects.NewExitErr(errors.New(""))
+		return effects.NewExitErr()
 	}
 
 	return effects.NewExitOk()
-}
-
-func derivePrintMsgAndDetermineIfErrorOccured(effect effects.Effect) (string, bool) {
-	switch e := effect.(type) {
-	case effects.ExitOk:
-		return e.Message(), false
-	case effects.ExitWarn:
-		return color.YellowString(e.Message()), false
-	case effects.ExitErr:
-		return color.RedString(e.Message()), true
-	default:
-		return color.RedString("error: undefined behavior encountered"), true
-	}
 }
 
 func readLinesFromStdin() ([]string, error) {

@@ -16,7 +16,7 @@ func MapEventToEffect(event events.Event) effects.Effect {
 	case add.AssignmentSucceeded:
 		return effects.NewExitOkMsg(color.CyanString(fmt.Sprintf("Assignment added: '%s' →  '%s'", evt.Alias, evt.Coauthor)))
 	case add.AssignmentFailed:
-		return effects.NewExitErr(evt.Reason)
+		return effects.NewExitErrMsg(evt.Reason)
 	case add.AssignmentAborted:
 		return effects.NewExitOkMsg("Nothing changed")
 	default:

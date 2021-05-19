@@ -20,13 +20,13 @@ func MapEventToEffect(event events.Event) effects.Effect {
 	case configevents.RetrievalSucceeded:
 		return effects.NewExitOkMsg(toString(evt.Config))
 	case configevents.RetrievalFailed:
-		return effects.NewExitErr(evt.Reason)
+		return effects.NewExitErrMsg(evt.Reason)
 	case configevents.SettingModificationSucceeded:
 		return effects.NewExitOkMsg(color.CyanString(fmt.Sprintf("Configuration updated: '%s' → '%s'", evt.Key, evt.Value)))
 	case configevents.SettingModificationFailed:
-		return effects.NewExitErr(evt.Reason)
+		return effects.NewExitErrMsg(evt.Reason)
 	case configevents.ReadingSingleSettingNotYetImplemented:
-		return effects.NewExitErr(errors.New("Reading a single setting has not yet been implemented"))
+		return effects.NewExitErrMsg(errors.New("Reading a single setting has not yet been implemented"))
 	default:
 		return effects.NewExitOk()
 	}

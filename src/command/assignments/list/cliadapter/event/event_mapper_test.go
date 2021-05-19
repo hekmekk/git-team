@@ -48,7 +48,7 @@ func TestMapEventToEffectRetrievalSucceededEmpty(t *testing.T) {
 func TestMapEventToEffectRetrievalFailed(t *testing.T) {
 	err := errors.New("failure")
 
-	expectedEffect := effects.NewExitErr(err)
+	expectedEffect := effects.NewExitErrMsg(err)
 
 	effect := MapEventToEffect(list.RetrievalFailed{Reason: err})
 

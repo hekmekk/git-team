@@ -18,7 +18,7 @@ func MapEventToEffect(event events.Event) effects.Effect {
 	case status.StateRetrievalSucceeded:
 		return effects.NewExitOkMsg(toString(evt.State))
 	case status.StateRetrievalFailed:
-		return effects.NewExitErr(evt.Reason)
+		return effects.NewExitErrMsg(evt.Reason)
 	default:
 		return effects.NewExitOk()
 	}

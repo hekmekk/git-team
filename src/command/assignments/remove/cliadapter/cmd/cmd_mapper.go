@@ -26,7 +26,7 @@ func Command() *cli.Command {
 		Action: func(c *cli.Context) error {
 			args := c.Args()
 			if args.Len() != 1 {
-				return commandadapter.RunEffect(effects.NewExitErr(errors.New("exactly one alias must be specified")))
+				return effects.NewExitErrMsg(errors.New("exactly one alias must be specified")).Run()
 			}
 
 			alias := args.First()

@@ -32,7 +32,7 @@ func TestMapEventToEffectRetrievalSucceeded(t *testing.T) {
 func TestMapEventToEffectRetrievalFailed(t *testing.T) {
 	err := errors.New("failed to retrieve config")
 
-	expectedEffect := effects.NewExitErr(err)
+	expectedEffect := effects.NewExitErrMsg(err)
 
 	effect := MapEventToEffect(configevents.RetrievalFailed{Reason: err})
 
@@ -61,7 +61,7 @@ func TestMapEventToEffectSettingModificationSucceeded(t *testing.T) {
 func TestMapEventToEffectSettingModificationFailed(t *testing.T) {
 	err := errors.New("failed to modify setting")
 
-	expectedEffect := effects.NewExitErr(err)
+	expectedEffect := effects.NewExitErrMsg(err)
 
 	effect := MapEventToEffect(configevents.SettingModificationFailed{Reason: err})
 
@@ -74,7 +74,7 @@ func TestMapEventToEffectSettingModificationFailed(t *testing.T) {
 func TestMapEventToEffectReadingSingleSettingNotYetImplemented(t *testing.T) {
 	err := errors.New("Reading a single setting has not yet been implemented")
 
-	expectedEffect := effects.NewExitErr(err)
+	expectedEffect := effects.NewExitErrMsg(err)
 
 	effect := MapEventToEffect(configevents.ReadingSingleSettingNotYetImplemented{})
 

@@ -28,7 +28,7 @@ func TestMapEventToEffectAssignmentSucceeded(t *testing.T) {
 func TestMapEventToEffectAssignmentFailed(t *testing.T) {
 	err := errors.New("failure")
 
-	expectedEffect := effects.NewExitErr(err)
+	expectedEffect := effects.NewExitErrMsg(err)
 
 	effect := MapEventToEffect(add.AssignmentFailed{Reason: err})
 

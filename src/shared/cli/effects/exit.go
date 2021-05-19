@@ -1,58 +1,80 @@
 package effects
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
 
-type ExitOk struct {
+	"github.com/fatih/color"
+	"github.com/urfave/cli/v2"
+)
+
+// ExitType how to we want to exit
+type exitType int
+
+const (
+	// Ok nothing to worry about
+	Ok exitType = iota
+	// Error something went wrong
+	Error
+)
+
+type ExitWithoutMsg struct {
+	kind exitType
+}
+
+type ExitWithMsg struct {
+	kind    exitType
 	message string
 }
 
-// Message return the message
-func (exitOk ExitOk) Message() string {
-	return exitOk.message
+func (exit ExitWithoutMsg) Run() error {
+	switch exit.kind {
+	case Ok:
+		return nil
+	case Error:
+		return cli.Exit("", 1)
+	}
+	return nil
 }
 
-type ExitWarn struct {
-	message string
-}
-
-// Message return the message
-func (exitWarn ExitWarn) Message() string {
-	return exitWarn.message
-}
-
-type ExitErr struct {
-	message string
-}
-
-// Message return the message
-func (exitErr ExitErr) Message() string {
-	return exitErr.message
+func (exit ExitWithMsg) Run() error {
+	switch exit.kind {
+	case Ok:
+		fmt.Println(exit.message)
+		return nil
+	case Error:
+		return cli.Exit(exit.message, 1)
+	default:
+		return NewExitErrMsg(errors.New("unexpected behavior encountered")).Run()
+	}
 }
 
 // NewExitOk exit with success code
 func NewExitOk() Effect {
-	return ExitOk{
-		message: "",
+	return ExitWithoutMsg{
+		kind: Ok,
 	}
 }
 
 // NewExitOkMsg exit with success code and print a message
 func NewExitOkMsg(message string) Effect {
-	return ExitOk{
+	return ExitWithMsg{
+		kind:    Ok,
 		message: message,
 	}
 }
 
-// NewExitWarn exit with warn code and print a message prefixed with warn:
-func NewExitWarn(message string) Effect {
-	return ExitWarn{
-		message: fmt.Sprintf("warn: %s", message),
+// NewExitErr exit with error code
+func NewExitErr() Effect {
+	return ExitWithoutMsg{
+		kind: Error,
 	}
 }
 
-// NewExitErr exit with error code and print a message prefixed with error:
-func NewExitErr(err error) Effect {
-	return ExitErr{
-		message: fmt.Sprintf("error: %s", err.Error()),
+// NewExitErrMsg exit with error code and print a red colored message with error:
+func NewExitErrMsg(err error) Effect {
+	return ExitWithMsg{
+		kind:    Error,
+		message: color.RedString(fmt.Sprintf("error: %s", err.Error())),
 	}
 }

@@ -15,7 +15,7 @@ func MapEventToEffectFactory(statusPolicy policy.Policy) func(events.Event) effe
 		case disable.Succeeded:
 			return statuseventadapter.MapEventToEffect(statusPolicy.Apply())
 		case disable.Failed:
-			return effects.NewExitErr(evt.Reason)
+			return effects.NewExitErrMsg(evt.Reason)
 		default:
 			return effects.NewExitOk()
 		}
