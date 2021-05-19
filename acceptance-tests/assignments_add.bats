@@ -62,21 +62,21 @@ teardown() {
 	/usr/local/bin/git-team assignments add noujz 'Mr. Green <green@mr.se>'
 	run bash -c "/usr/local/bin/git-team assignments add noujz 'Mr. Noujz <noujz@mr.se>' <<< no"
 	assert_success
-	assert_line --index 0 "Assignment 'noujz' →  'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed"
+	assert_line --index 0 "Assignment 'noujz' →  'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] "
 }
 
 @test "git-team: assignments add should ask for override and abort if user replies with anything else" {
 	/usr/local/bin/git-team assignments add noujz 'Mr. Green <green@mr.se>'
 	run bash -c "/usr/local/bin/git-team assignments add noujz 'Mr. Noujz <noujz@mr.se>' <<< foo"
 	assert_success
-	assert_line --index 0 "Assignment 'noujz' →  'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed"
+	assert_line --index 0 "Assignment 'noujz' →  'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] "
 }
 
 @test "git-team: assignments add should ask for override and abort if user just hits ENTER" {
 	/usr/local/bin/git-team assignments add noujz 'Mr. Green <green@mr.se>'
 	run bash -c "/usr/local/bin/git-team assignments add noujz 'Mr. Noujz <noujz@mr.se>' <<< ''"
 	assert_success
-	assert_line --index 0 "Assignment 'noujz' →  'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] Nothing changed"
+	assert_line --index 0 "Assignment 'noujz' →  'Mr. Green <green@mr.se>' exists already. Override with 'Mr. Noujz <noujz@mr.se>'? [N/y] "
 }
 
 @test "git-team: assignments add should fail to create an assigment for an invalidly formatted co-author" {

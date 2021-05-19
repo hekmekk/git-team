@@ -18,7 +18,7 @@ func MapEventToEffect(event events.Event) effects.Effect {
 	case add.AssignmentFailed:
 		return effects.NewExitErrMsg(evt.Reason)
 	case add.AssignmentAborted:
-		return effects.NewExitOkMsg("Nothing changed")
+		return effects.NewExitOk()
 	default:
 		return effects.NewExitOk()
 	}
