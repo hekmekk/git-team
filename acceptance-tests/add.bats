@@ -6,6 +6,8 @@ load '/bats-libs/bats-assert/load.bash'
 teardown() {
 	bash -c "/usr/local/bin/git-team assignments rm noujz || true"
 
+	bash -c "/usr/local/bin/git-team assignments rm green || true"
+
 	bash -c "/usr/local/bin/git-team assignments rm a || true"
 	bash -c "/usr/local/bin/git-team assignments rm b || true"
 	bash -c "/usr/local/bin/git-team assignments rm c || true"
@@ -56,6 +58,20 @@ teardown() {
 	run bash -c "/usr/local/bin/git-team add -f noujz 'Mr. Noujz <noujz@mr.se>'"
 	assert_success
 	assert_line "Assignment added: 'noujz' →  'Mr. Noujz <noujz@mr.se>'"
+}
+
+@test "git-team: add should keep the existing assignment if the '--keep-existing' option is used" {
+	/usr/local/bin/git-team add green 'Green <green@git.team>'
+	run bash -c "/usr/local/bin/git-team add --keep-existing green 'Red <red@git.team>'"
+	assert_success
+	refute_output --regexp '\w+'
+}
+
+@test "git-team: add should keep the existing assignment if the '-k' option is used" {
+	/usr/local/bin/git-team add green 'Green <green@git.team>'
+	run bash -c "/usr/local/bin/git-team add -k green 'Red <red@git.team>'"
+	assert_success
+	refute_output --regexp '\w+'
 }
 
 @test "git-team: add should ask for override and abort if user replies with no" {

@@ -12,6 +12,7 @@ type AssignmentRequest struct {
 	Alias         *string
 	Coauthor      *string
 	ForceOverride *bool
+	KeepExisting  *bool
 }
 
 // Dependencies the dependencies of the add Policy module
@@ -33,6 +34,14 @@ const (
 	yes string = "yes"
 )
 
+type assignmentReplacementStrategy int
+
+const (
+	Override assignmentReplacementStrategy = iota
+	KeepExisting
+	Ask
+)
+
 // Apply assign a co-author to an alias
 func (policy Policy) Apply() events.Event {
 	req := policy.Req
@@ -45,6 +54,11 @@ func (policy Policy) Apply() events.Event {
 		return AssignmentFailed{Reason: checkErr}
 	}
 
+	forceOverride := *req.ForceOverride
+	keepExisting := *req.KeepExisting
+
+	assignmentReplacementStrategy := deriveAssignmentReplacementStrategy(forceOverride, keepExisting)
+
 	isAssignmentExisting := false
 
 	existingCoauthor, resolveErr := deps.GitResolveAlias(alias)
@@ -56,12 +70,20 @@ func (policy Policy) Apply() events.Event {
 
 	shouldAddAssignment := true
 
-	if isAssignmentExisting && !*req.ForceOverride {
+	if isAssignmentExisting && assignmentReplacementStrategy == Ask {
 		choice, err := shouldAssignmentBeOverridden(deps, alias, existingCoauthor, coauthor)
 		if err != nil {
 			return AssignmentFailed{Reason: err}
 		}
 		shouldAddAssignment = choice
+	} else {
+		if assignmentReplacementStrategy == Override {
+			shouldAddAssignment = true
+		}
+
+		if assignmentReplacementStrategy == KeepExisting {
+			shouldAddAssignment = false
+		}
 	}
 
 	if !shouldAddAssignment {
@@ -78,6 +100,18 @@ func (policy Policy) Apply() events.Event {
 	}
 
 	return AssignmentSucceeded{Alias: alias, Coauthor: coauthor}
+}
+
+func deriveAssignmentReplacementStrategy(forceOverride bool, keepExisting bool) assignmentReplacementStrategy {
+	if forceOverride == keepExisting {
+		return Ask
+	}
+
+	if forceOverride {
+		return Override
+	}
+
+	return KeepExisting
 }
 
 func shouldAssignmentBeOverridden(deps Dependencies, alias, existingCoauthor, replacingCoauthor string) (bool, error) {

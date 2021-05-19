@@ -26,12 +26,14 @@ func Command() *cli.Command {
 		ArgsUsage: "<alias> <coauthor>",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{Name: "force-override", Value: false, Aliases: []string{"f"}, Usage: "Override an existing assignment"},
+			&cli.BoolFlag{Name: "keep-existing", Value: false, Aliases: []string{"k"}, Usage: "Keep existing assignment"},
 		},
 		Action: func(c *cli.Context) error {
 			forceOverride := c.Bool("force-override")
+			keepExisting := c.Bool("keep-existing")
 
 			if c.NArg() == 0 {
-				return handleInputFromStdin(forceOverride).Run()
+				return handleInputFromStdin(forceOverride, keepExisting).Run()
 			}
 
 			if c.NArg() != 2 {
@@ -41,12 +43,12 @@ func Command() *cli.Command {
 			args := c.Args()
 			alias := args.First()
 			coauthor := args.Get(1)
-			return commandadapter.Run(policy(&alias, &coauthor, &forceOverride), addeventadapter.MapEventToEffect)
+			return commandadapter.Run(policy(&alias, &coauthor, &forceOverride, &keepExisting), addeventadapter.MapEventToEffect)
 		},
 	}
 }
 
-func handleInputFromStdin(forceOverride bool) effects.Effect {
+func handleInputFromStdin(forceOverride bool, keepExisting bool) effects.Effect {
 	lines, err := readLinesFromStdin()
 
 	if err != nil {
@@ -64,7 +66,7 @@ func handleInputFromStdin(forceOverride bool) effects.Effect {
 
 			alias := argsFromStdin[0]
 			coauthor := argsFromStdin[1]
-			effect = commandadapter.ApplyPolicy(policy(&alias, &coauthor, &forceOverride), addeventadapter.MapEventToEffect)
+			effect = commandadapter.ApplyPolicy(policy(&alias, &coauthor, &forceOverride, &keepExisting), addeventadapter.MapEventToEffect)
 		}
 		err := effect.Run()
 		if err != nil {
@@ -94,12 +96,13 @@ func readLinesFromStdin() ([]string, error) {
 	return lines, nil
 }
 
-func policy(alias *string, coauthor *string, forceOverride *bool) add.Policy {
+func policy(alias *string, coauthor *string, forceOverride *bool, keepExisting *bool) add.Policy {
 	return add.Policy{
 		Req: add.AssignmentRequest{
 			Alias:         alias,
 			Coauthor:      coauthor,
 			ForceOverride: forceOverride,
+			KeepExisting:  keepExisting,
 		},
 		Deps: add.Dependencies{
 			SanityCheckCoauthor: validation.SanityCheckCoauthor,
