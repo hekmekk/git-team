@@ -8,13 +8,10 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// ExitType how to we want to exit
 type exitType int
 
 const (
-	// Ok nothing to worry about
 	Ok exitType = iota
-	// Error something went wrong
 	Error
 )
 
