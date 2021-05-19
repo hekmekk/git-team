@@ -5,6 +5,10 @@ load '/bats-libs/bats-assert/load.bash'
 
 teardown() {
 	bash -c "/usr/local/bin/git-team assignments rm noujz || true"
+
+	bash -c "/usr/local/bin/git-team assignments rm a || true"
+	bash -c "/usr/local/bin/git-team assignments rm b || true"
+	bash -c "/usr/local/bin/git-team assignments rm c || true"
 }
 
 @test "git-team: assignments add should add an assignment to git config" {
@@ -20,9 +24,17 @@ teardown() {
 }
 
 @test "git-team: assignments add should create a new assigment when receiving input from stdin" {
-	run bash -c "echo 'noujz Mr. Noujz <noujz@mr.se>' | /usr/local/bin/git-team assignments add"
+	run bash -c "echo noujz 'Mr. Noujz <noujz@mr.se>' | /usr/local/bin/git-team assignments add"
 	assert_success
 	assert_line "Assignment added: 'noujz' →  'Mr. Noujz <noujz@mr.se>'"
+}
+
+@test "git-team: add should create an assigment when receiving multiple lines of input from stdin" {
+	run bash -c "for alias in a b c; do echo \$alias 'Mrs. Noujz <noujz@mrs.se>'; done | /usr/local/bin/git-team assignments add"
+	assert_success
+	assert_line --index 0 "Assignment added: 'a' →  'Mrs. Noujz <noujz@mrs.se>'"
+	assert_line --index 1 "Assignment added: 'b' →  'Mrs. Noujz <noujz@mrs.se>'"
+	assert_line --index 2 "Assignment added: 'c' →  'Mrs. Noujz <noujz@mrs.se>'"
 }
 
 @test "git-team: assignments add should ask for override and apply it if user replies with yes" {
