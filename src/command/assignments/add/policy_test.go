@@ -65,7 +65,7 @@ func TestAddShouldNotOverrideTheOriginalAssignment(t *testing.T) {
 		GetAnswerFromUser:   func(string) (string, error) { return "", nil },
 	}
 
-	expectedEvent := AssignmentAborted{Alias: alias, ExistingCoauthor: existingCoauthor, ReplacingCoauthor: replacingCoauthor}
+	expectedEvent := AssignmentAborted{}
 
 	event := Policy{deps, AssignmentRequest{Alias: &alias, Coauthor: &replacingCoauthor, ForceOverride: &forceOverride, KeepExisting: &keepExisting}}.Apply()
 
@@ -153,7 +153,7 @@ func TestAddShouldKeepTheOriginalAssignment(t *testing.T) {
 		GetAnswerFromUser:   func(string) (string, error) { return "y", nil }, // TODO: this should not be required
 	}
 
-	expectedEvent := AssignmentAborted{Alias: alias, ExistingCoauthor: existingCoauthor, ReplacingCoauthor: replacingCoauthor}
+	expectedEvent := AssignmentAborted{}
 
 	event := Policy{deps, AssignmentRequest{Alias: &alias, Coauthor: &replacingCoauthor, ForceOverride: &forceOverride, KeepExisting: &keepExisting}}.Apply()
 

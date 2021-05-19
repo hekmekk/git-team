@@ -40,7 +40,7 @@ func TestMapEventToEffectAssignmentFailed(t *testing.T) {
 
 func TestMapEventToEffectAssignmentAborted(t *testing.T) {
 	expectedEffect := effects.NewExitOk()
-	effect := MapEventToEffect(add.AssignmentAborted{Alias: "", ExistingCoauthor: "", ReplacingCoauthor: ""})
+	effect := MapEventToEffect(add.AssignmentAborted{})
 
 	if !reflect.DeepEqual(expectedEffect, effect) {
 		t.Errorf("expected: %s, got: %s", expectedEffect, effect)

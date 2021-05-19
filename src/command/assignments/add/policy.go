@@ -87,11 +87,7 @@ func (policy Policy) Apply() events.Event {
 	}
 
 	if !shouldAddAssignment {
-		return AssignmentAborted{
-			Alias:             alias,
-			ExistingCoauthor:  existingCoauthor,
-			ReplacingCoauthor: coauthor,
-		}
+		return AssignmentAborted{}
 	}
 
 	err := deps.GitAddAlias(alias, coauthor)
