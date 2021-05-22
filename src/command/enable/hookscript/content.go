@@ -16,7 +16,7 @@ const proxy = `
 
 REAL_LOCAL_HOOK="$(git rev-parse --show-toplevel)/.git/hooks/$(basename ${0})"
 
-if [ -f "${REAL_LOCAL_HOOK}" ]; then
+if [ -x "${REAL_LOCAL_HOOK}" ]; then
     "${REAL_LOCAL_HOOK}" "${@}" || exit $?
 fi
 
@@ -32,7 +32,7 @@ const prepareCommitMsg = `
 
 REAL_LOCAL_HOOK="$(git rev-parse --show-toplevel)/.git/hooks/$(basename ${0})"
 
-if [ -f "${REAL_LOCAL_HOOK}" ]; then
+if [ -x "${REAL_LOCAL_HOOK}" ]; then
    "${REAL_LOCAL_HOOK}" "${@}" || exit $?
 fi
 
