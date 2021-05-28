@@ -75,9 +75,9 @@ case "${commit_source}" in
                 exit 0
         fi
 
-        echo -e -n "\n\n" >> $template
+        printf "\n\n" >> $template
         git config ${gitconfig_scope_flag} --get-all team.state.active-coauthors | while read coauthor; do
-                echo -e -n "Co-authored-by: $coauthor\n" >> $template
+                printf "Co-authored-by: $coauthor\n" >> $template
         done
         ;;
 *)
