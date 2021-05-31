@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/hekmekk/git-team.svg?branch=master)](https://travis-ci.org/hekmekk/git-team)
+[![Build Status](https://travis-ci.com/hekmekk/git-team.svg?branch=master)](https://travis-ci.com/github/hekmekk/git-team)
 
 # git-team
 
