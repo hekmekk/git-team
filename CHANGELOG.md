@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.7.0] - 2021-05-31
+### Added
+- Scripting prerequisites for the `assignments add` sub-command. It can now handle input from stdin and understand a new flag `--keep-existing|-k` which skips existing assignments instead of asking for override.
+
+### Fixed
+- A [shell incompatibility issue](https://github.com/hekmekk/git-team/pull/16) within the prepare-commit-msg hook script which resulted in broken co-author output (`echo` command flags which weren't interpreted by some shells) when using e.g. `git commit -m`.
+
 ## [1.6.0] - 2021-05-16
 ### Added
 - New command `completion` has been introduced. The output of this command can be sourced as is to get shell completion. Bash is the only supported shell for the moment.
@@ -152,7 +159,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Append co-authors to a `git commit` message by means of a commit message template file
 
-[Unreleased]: https://github.com/hekmekk/git-team/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/hekmekk/git-team/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/hekmekk/git-team/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/hekmekk/git-team/compare/v1.5.5...v1.6.0
 [1.5.5]: https://github.com/hekmekk/git-team/compare/v1.5.4...v1.5.5
 [1.5.4]: https://github.com/hekmekk/git-team/compare/v1.5.3...v1.5.4
