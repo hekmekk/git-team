@@ -120,6 +120,6 @@ teardown() {
 @test "git-team: (scope: global) enable should fail when trying to enable with a non-existing alias" {
 	run /usr/local/bin/git-team enable non-existing-alias
 	assert_failure 1
-	assert_line 'error: Failed to resolve alias team.alias.non-existing-alias'
+	assert_line 'error: failed to resolve alias team.alias.non-existing-alias'
 }
 

@@ -2,8 +2,11 @@ package add
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"testing"
+
+	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 )
 
 func TestAddShouldMakeTheNewAssignment(t *testing.T) {
@@ -35,7 +38,7 @@ func TestAddShouldFailDueToProvidedCoauthorNotPassingSanityCheck(t *testing.T) {
 	forceOverride := false
 	keepExisting := false
 
-	err := errors.New("Not a valid coauthor: INVALID COAUTHOR")
+	err := errors.New("not a valid coauthor: INVALID COAUTHOR")
 
 	deps := Dependencies{
 		SanityCheckCoauthor: func(coauthor string) error { return err },
@@ -169,15 +172,13 @@ func TestAddShouldFailBecauseUnderlyingGitAddFails(t *testing.T) {
 	forceOverride := false
 	keepExisting := false
 
-	err := errors.New("git add failed")
-
 	deps := Dependencies{
 		SanityCheckCoauthor: func(coauthor string) error { return nil },
 		GitResolveAlias:     func(alias string) (string, error) { return "", errors.New("No such alias") },
-		GitAddAlias:         func(alias, coauthor string) error { return err },
+		GitAddAlias:         func(alias, coauthor string) error { return gitconfigerror.ErrConfigFileCannotBeWritten },
 	}
 
-	expectedEvent := AssignmentFailed{Reason: err}
+	expectedEvent := AssignmentFailed{Reason: fmt.Errorf("failed to add alias: %s", gitconfigerror.ErrConfigFileCannotBeWritten)}
 
 	event := Policy{deps, AssignmentRequest{Alias: &alias, Coauthor: &coauthor, ForceOverride: &forceOverride, KeepExisting: &keepExisting}}.Apply()
 

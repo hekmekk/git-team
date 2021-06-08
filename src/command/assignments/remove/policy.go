@@ -1,10 +1,11 @@
 package remove
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/hekmekk/git-team/src/core/events"
-	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
+	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 )
 
 // DeAllocationRequest remove an alias -> coauthor assignment
@@ -32,11 +33,11 @@ func (policy Policy) Apply() events.Event {
 
 	err := deps.GitRemoveAlias(alias)
 	if err != nil {
-		if err.Error() != giterror.UnsetOptionWhichDoesNotExist {
-			return DeAllocationFailed{Reason: err}
+		if errors.Is(err, gitconfigerror.ErrTryingToUnsetAnOptionWhichDoesNotExist) {
+			return DeAllocationFailed{Reason: fmt.Errorf("no such alias: '%s'", alias)}
 		}
 
-		return DeAllocationFailed{Reason: fmt.Errorf("No such alias: '%s'", alias)}
+		return DeAllocationFailed{Reason: fmt.Errorf("failed to remove alias: %s", err)}
 	}
 
 	return DeAllocationSucceeded{Alias: alias}

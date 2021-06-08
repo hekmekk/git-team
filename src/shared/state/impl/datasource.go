@@ -1,7 +1,7 @@
 package stateimpl
 
 import (
-	"errors"
+	"fmt"
 
 	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
@@ -35,7 +35,7 @@ func (ds GitConfigDataSource) Query(activationScope activationscope.Scope) (stat
 
 	activeCoauthors, err := ds.GitConfigReader.GetAll(gitConfigScope, "team.state.active-coauthors")
 	if err != nil {
-		return state.State{}, errors.New("no active co-authors found")
+		return state.State{}, fmt.Errorf("no active co-authors found: %s", err)
 	}
 
 	return state.NewStateEnabled(activeCoauthors), nil

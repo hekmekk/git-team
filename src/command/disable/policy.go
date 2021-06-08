@@ -1,6 +1,7 @@
 package disable
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -38,13 +39,13 @@ func (policy Policy) Apply() events.Event {
 
 	cfg, err := deps.ConfigReader.Read()
 	if err != nil {
-		return Failed{Reason: err}
+		return Failed{Reason: fmt.Errorf("failed to read config: %s", err)}
 	}
 
 	activationScope := cfg.ActivationScope
 
 	if activationScope == activationscope.RepoLocal && !deps.ActivationValidator.IsInsideAGitRepository() {
-		return Failed{Reason: fmt.Errorf("Failed to disable with activation-scope=%s: not inside a git repository", activationScope)}
+		return Failed{Reason: fmt.Errorf("failed to disable with activation-scope=%s: not inside a git repository", activationScope)}
 	}
 
 	var gitConfigScope gitconfigscope.Scope
@@ -54,17 +55,17 @@ func (policy Policy) Apply() events.Event {
 		gitConfigScope = gitconfigscope.Local
 	}
 
-	if err := gitConfigWriter.UnsetAll(gitConfigScope, "core.hooksPath"); err != nil && err.Error() != giterror.UnsetOptionWhichDoesNotExist {
-		return Failed{Reason: err}
+	if err := gitConfigWriter.UnsetAll(gitConfigScope, "core.hooksPath"); err != nil && !errors.Is(err, giterror.ErrTryingToUnsetAnOptionWhichDoesNotExist) {
+		return Failed{Reason: fmt.Errorf("failed to unset core.hooksPath: %s", err)}
 	}
 
 	commitTemplatePath, err := deps.GitConfigReader.Get(gitConfigScope, "commit.template")
-	if err != nil && err.Error() != giterror.SectionOrKeyIsInvalid {
-		return Failed{Reason: err}
+	if err != nil && !errors.Is(err, giterror.ErrSectionOrKeyIsInvalid) {
+		return Failed{Reason: fmt.Errorf("failed to get commit.template: %s", err)}
 	}
 
-	if err := gitConfigWriter.UnsetAll(gitConfigScope, "commit.template"); err != nil && err.Error() != giterror.UnsetOptionWhichDoesNotExist {
-		return Failed{Reason: err}
+	if err := gitConfigWriter.UnsetAll(gitConfigScope, "commit.template"); err != nil && !errors.Is(err, giterror.ErrTryingToUnsetAnOptionWhichDoesNotExist) {
+		return Failed{Reason: fmt.Errorf("failed to unset commit.template: %s", err)}
 	}
 
 	if commitTemplatePath != "" {
@@ -77,13 +78,13 @@ func (policy Policy) Apply() events.Event {
 
 		if _, err := deps.StatFile(templatePathToDelete); err == nil {
 			if err := deps.RemoveFile(templatePathToDelete); err != nil {
-				return Failed{Reason: err}
+				return Failed{Reason: fmt.Errorf("failed to remove commit template: %s", err)}
 			}
 		}
 	}
 
 	if err := deps.StateWriter.PersistDisabled(activationScope); err != nil {
-		return Failed{Reason: err}
+		return Failed{Reason: fmt.Errorf("failed to write current state: %s", err)}
 	}
 
 	return Succeeded{}

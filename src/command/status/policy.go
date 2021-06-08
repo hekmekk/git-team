@@ -28,18 +28,18 @@ func (policy Policy) Apply() events.Event {
 
 	cfg, cfgReadErr := deps.ConfigReader.Read()
 	if cfgReadErr != nil {
-		return StateRetrievalFailed{Reason: cfgReadErr}
+		return StateRetrievalFailed{Reason: fmt.Errorf("failed to read config: %s", cfgReadErr)}
 	}
 
 	activationScope := cfg.ActivationScope
 
 	if activationScope == activationscope.RepoLocal && !deps.ActivationValidator.IsInsideAGitRepository() {
-		return StateRetrievalFailed{Reason: fmt.Errorf("Failed to get status with activation-scope=%s: not inside a git repository", activationScope)}
+		return StateRetrievalFailed{Reason: fmt.Errorf("failed to get status with activation-scope=%s: not inside a git repository", activationScope)}
 	}
 
 	state, stateRepositoryQueryErr := deps.StateReader.Query(cfg.ActivationScope)
 	if stateRepositoryQueryErr != nil {
-		return StateRetrievalFailed{Reason: stateRepositoryQueryErr}
+		return StateRetrievalFailed{Reason: fmt.Errorf("failed to query current state: %s", stateRepositoryQueryErr)}
 	}
 
 	return StateRetrievalSucceeded{State: state}

@@ -37,7 +37,7 @@ func (policy Policy) Apply() events.Event {
 	if (keyPtr == nil || *keyPtr == "") && (valuePtr == nil || *valuePtr == "") {
 		cfg, err := deps.ConfigReader.Read()
 		if err != nil {
-			return configevents.RetrievalFailed{Reason: err}
+			return configevents.RetrievalFailed{Reason: fmt.Errorf("failed to read config: %s", err)}
 		}
 
 		return configevents.RetrievalSucceeded{Config: cfg}
@@ -51,16 +51,16 @@ func (policy Policy) Apply() events.Event {
 	value := *valuePtr
 
 	if key != "activation-scope" {
-		return configevents.SettingModificationFailed{Reason: fmt.Errorf("Unknown setting '%s'", key)}
+		return configevents.SettingModificationFailed{Reason: fmt.Errorf("unknown setting '%s'", key)}
 	}
 
 	desiredScope := activationscope.FromString(value)
 	if desiredScope == activationscope.Unknown {
-		return configevents.SettingModificationFailed{Reason: fmt.Errorf("Unknown activation-scope '%s'", value)}
+		return configevents.SettingModificationFailed{Reason: fmt.Errorf("unknown activation-scope '%s'", value)}
 	}
 
 	if err := deps.ConfigWriter.SetActivationScope(desiredScope); err != nil {
-		return configevents.SettingModificationFailed{Reason: fmt.Errorf("Failed to modify setting 'activation-scope': %s", err)}
+		return configevents.SettingModificationFailed{Reason: fmt.Errorf("failed to modify setting 'activation-scope': %s", err)}
 	}
 
 	return configevents.SettingModificationSucceeded{Key: key, Value: value}

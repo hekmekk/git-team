@@ -9,6 +9,7 @@ import (
 
 	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
+	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
@@ -180,7 +181,7 @@ func TestDisableShouldSucceedWhenUnsetHooksPathFailsBecauseTheOptionDoesntExist(
 		},
 	}
 
-	expectedErr := errors.New("exit status 5")
+	expectedErr := gitconfigerror.ErrTryingToUnsetAnOptionWhichDoesNotExist
 	gitConfigWriter := &gitConfigWriterMock{
 		unsetAll: func(scope gitconfigscope.Scope, key string) error {
 			switch key {
@@ -260,7 +261,7 @@ func TestDisableShouldFailWhenNotInsideAGitRepository(t *testing.T) {
 		},
 	}
 
-	expectedErr := errors.New("Failed to disable with activation-scope=repo-local: not inside a git repository")
+	expectedErr := errors.New("failed to disable with activation-scope=repo-local: not inside a git repository")
 
 	expectedEvent := Failed{Reason: expectedErr}
 
@@ -273,7 +274,6 @@ func TestDisableShouldFailWhenNotInsideAGitRepository(t *testing.T) {
 }
 
 func TestDisableShouldFailWhenReadConfigFails(t *testing.T) {
-	expectedErr := errors.New("failed to read config")
 	gitConfigWriter := &gitConfigWriterMock{
 		unsetAll: func(scope gitconfigscope.Scope, key string) error {
 			switch key {
@@ -289,7 +289,7 @@ func TestDisableShouldFailWhenReadConfigFails(t *testing.T) {
 
 	configReader := &configReaderMock{
 		read: func() (config.Config, error) {
-			return config.Config{}, expectedErr
+			return config.Config{}, gitconfigerror.ErrConfigFileIsInvalid
 		},
 	}
 
@@ -303,7 +303,7 @@ func TestDisableShouldFailWhenReadConfigFails(t *testing.T) {
 		},
 	}
 
-	expectedEvent := Failed{Reason: expectedErr}
+	expectedEvent := Failed{Reason: fmt.Errorf("failed to read config: %s", gitconfigerror.ErrConfigFileIsInvalid)}
 
 	event := Policy{deps}.Apply()
 
@@ -314,14 +314,13 @@ func TestDisableShouldFailWhenReadConfigFails(t *testing.T) {
 }
 
 func TestDisableShouldFailWhenUnsetHooksPathFails(t *testing.T) {
-	expectedErr := errors.New("failed to unset hooks path")
 	gitConfigWriter := &gitConfigWriterMock{
 		unsetAll: func(scope gitconfigscope.Scope, key string) error {
 			switch key {
 			case "commit.template":
 				return nil
 			case "core.hooksPath":
-				return expectedErr
+				return gitconfigerror.ErrConfigFileCannotBeWritten
 			default:
 				return fmt.Errorf("wrong key: %s", key)
 			}
@@ -344,7 +343,7 @@ func TestDisableShouldFailWhenUnsetHooksPathFails(t *testing.T) {
 		},
 	}
 
-	expectedEvent := Failed{Reason: expectedErr}
+	expectedEvent := Failed{Reason: fmt.Errorf("failed to unset core.hooksPath: %s", gitconfigerror.ErrConfigFileCannotBeWritten)}
 
 	event := Policy{deps}.Apply()
 
@@ -355,7 +354,7 @@ func TestDisableShouldFailWhenUnsetHooksPathFails(t *testing.T) {
 }
 
 func TestDisableShouldSucceedWhenReadingCommitTemplateFailsBecauseItHasBeenUnsetAlready(t *testing.T) {
-	expectedErr := errors.New("exit status 1")
+	expectedErr := gitconfigerror.ErrSectionOrKeyIsInvalid
 	gitConfigReader := &gitConfigReaderMock{
 		get: func(_ gitconfigscope.Scope, key string) (string, error) {
 			return "", expectedErr
@@ -412,10 +411,9 @@ func TestDisableShouldSucceedWhenReadingCommitTemplateFailsBecauseItHasBeenUnset
 }
 
 func TestDisableShouldFailWhenReadingCommitTemplatePathFails(t *testing.T) {
-	expectedErr := errors.New("failed to get commit.template")
 	gitConfigReader := &gitConfigReaderMock{
 		get: func(_ gitconfigscope.Scope, key string) (string, error) {
-			return "", expectedErr
+			return "", gitconfigerror.ErrConfigFileCannotBeWritten
 		},
 	}
 
@@ -449,7 +447,7 @@ func TestDisableShouldFailWhenReadingCommitTemplatePathFails(t *testing.T) {
 		},
 	}
 
-	expectedEvent := Failed{Reason: expectedErr}
+	expectedEvent := Failed{Reason: fmt.Errorf("failed to get commit.template: %s", gitconfigerror.ErrConfigFileCannotBeWritten)}
 
 	event := Policy{deps}.Apply()
 
@@ -466,7 +464,7 @@ func TestDisableShouldSucceedWhenUnsetCommitTemplateFailsBecauseItWasUnsetAlread
 		},
 	}
 
-	expectedErr := errors.New("exit status 5")
+	expectedErr := gitconfigerror.ErrTryingToUnsetAnOptionWhichDoesNotExist
 	gitConfigWriter := &gitConfigWriterMock{
 		unsetAll: func(scope gitconfigscope.Scope, key string) error {
 			switch key {
@@ -523,12 +521,11 @@ func TestDisableShouldFailWhenUnsetCommitTemplateFails(t *testing.T) {
 		},
 	}
 
-	expectedErr := errors.New("failed to unset commit template")
 	gitConfigWriter := &gitConfigWriterMock{
 		unsetAll: func(scope gitconfigscope.Scope, key string) error {
 			switch key {
 			case "commit.template":
-				return expectedErr
+				return gitconfigerror.ErrConfigFileCannotBeWritten
 			case "core.hooksPath":
 				return nil
 			default:
@@ -554,7 +551,7 @@ func TestDisableShouldFailWhenUnsetCommitTemplateFails(t *testing.T) {
 		},
 	}
 
-	expectedEvent := Failed{Reason: expectedErr}
+	expectedEvent := Failed{Reason: fmt.Errorf("failed to unset commit.template: %s", gitconfigerror.ErrConfigFileCannotBeWritten)}
 
 	event := Policy{deps}.Apply()
 
@@ -590,14 +587,14 @@ func TestDisableShouldFailWhenRemoveFileFails(t *testing.T) {
 		},
 	}
 
-	err := errors.New("failed to remove file")
+	removeFileErr := errors.New("failed to remove file")
 
 	deps := Dependencies{
 		ConfigReader:    configReader,
 		GitConfigReader: gitConfigReader,
 		GitConfigWriter: gitConfigWriter,
 		StatFile:        statFile,
-		RemoveFile:      func(string) error { return err },
+		RemoveFile:      func(string) error { return removeFileErr },
 		ActivationValidator: &activationValidatorMock{
 			isInsideAGitRepository: func() bool {
 				return true
@@ -605,7 +602,7 @@ func TestDisableShouldFailWhenRemoveFileFails(t *testing.T) {
 		},
 	}
 
-	expectedEvent := Failed{Reason: err}
+	expectedEvent := Failed{Reason: fmt.Errorf("failed to remove commit template: %s", removeFileErr)}
 
 	event := Policy{deps}.Apply()
 
@@ -745,11 +742,11 @@ func TestDisableShouldFailWhenpersistDisabledFails(t *testing.T) {
 		},
 	}
 
-	expectedErr := errors.New("failed to save status")
+	writeStateErr := errors.New("failed to save status")
 
 	stateWriter := &stateWriterMock{
 		persistDisabled: func(scope activationscope.Scope) error {
-			return expectedErr
+			return writeStateErr
 		},
 	}
 
@@ -773,7 +770,7 @@ func TestDisableShouldFailWhenpersistDisabledFails(t *testing.T) {
 		},
 	}
 
-	expectedEvent := Failed{Reason: expectedErr}
+	expectedEvent := Failed{Reason: fmt.Errorf("failed to write current state: %s", writeStateErr)}
 
 	event := Policy{deps}.Apply()
 

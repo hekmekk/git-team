@@ -11,6 +11,7 @@ import (
 	commitsettings "github.com/hekmekk/git-team/src/command/enable/commitsettings/entity"
 	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
+	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
@@ -449,7 +450,7 @@ func TestEnableDropsDuplicateEntries(t *testing.T) {
 func TestEnableFailsDueToSanityCheckErr(t *testing.T) {
 	coauthors := []string{"INVALID COAUTHOR"}
 
-	expectedErr := errors.New("Not a valid coauthor: INVALID COAUTHOR")
+	expectedErr := errors.New("not a valid coauthor: INVALID COAUTHOR")
 
 	deps := defaultDeps()
 
@@ -491,19 +492,17 @@ func TestEnableFailsDueToResolveAliasesErr(t *testing.T) {
 func TestEnableFailsDueToConfigReaderError(t *testing.T) {
 	coauthors := &[]string{"Mr. Noujz <noujz@mr.se>"}
 
-	expectedErr := errors.New("Failed to read from config")
-
 	deps := defaultDeps()
 
 	deps.ConfigReader = &configReaderMock{
 		read: func() (config.Config, error) {
-			return config.Config{}, expectedErr
+			return config.Config{}, gitconfigerror.ErrConfigFileIsInvalid
 		},
 	}
 
 	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
-	expectedEvent := Failed{Reason: []error{expectedErr}}
+	expectedEvent := Failed{Reason: []error{fmt.Errorf("failed to read config: %s", gitconfigerror.ErrConfigFileIsInvalid)}}
 
 	event := Policy{deps, req}.Apply()
 
@@ -516,7 +515,7 @@ func TestEnableFailsDueToConfigReaderError(t *testing.T) {
 func TestEnableFailsWhenNotInsideAGitRepository(t *testing.T) {
 	coauthors := &[]string{"Mr. Noujz <noujz@mr.se>"}
 
-	expectedErr := errors.New("Failed to enable with activation-scope=repo-local: not inside a git repository")
+	expectedErr := errors.New("failed to enable with activation-scope=repo-local: not inside a git repository")
 
 	deps := defaultDeps()
 
@@ -547,7 +546,7 @@ func TestEnableFailsWhenNotInsideAGitRepository(t *testing.T) {
 func TestEnableFailsDueToGetWdErr(t *testing.T) {
 	coauthors := []string{"Mr. Noujz <noujz@mr.se>"}
 
-	expectedErr := errors.New("Failed to get working dir")
+	getWdErr := errors.New("failed to get working dir")
 
 	deps := defaultDeps()
 
@@ -558,12 +557,12 @@ func TestEnableFailsDueToGetWdErr(t *testing.T) {
 	}
 
 	deps.GetWd = func() (string, error) {
-		return "", expectedErr
+		return "", getWdErr
 	}
 
 	req := Request{AliasesAndCoauthors: &coauthors, UseAll: &[]bool{false}[0]}
 
-	expectedEvent := Failed{Reason: []error{expectedErr}}
+	expectedEvent := Failed{Reason: []error{fmt.Errorf("failed to setup commit template: %s", getWdErr)}}
 
 	event := Policy{deps, req}.Apply()
 
@@ -576,15 +575,15 @@ func TestEnableFailsDueToGetWdErr(t *testing.T) {
 func TestEnableFailsDueToCreateTemplateDirErr(t *testing.T) {
 	coauthors := []string{"Mr. Noujz <noujz@mr.se>"}
 
-	expectedErr := errors.New("Failed to create Dir")
+	createDirErr := errors.New("failed to create Dir")
 
 	deps := defaultDeps()
 
-	deps.CreateTemplateDir = func(string, os.FileMode) error { return expectedErr }
+	deps.CreateTemplateDir = func(string, os.FileMode) error { return createDirErr }
 
 	req := Request{AliasesAndCoauthors: &coauthors, UseAll: &[]bool{false}[0]}
 
-	expectedEvent := Failed{Reason: []error{expectedErr}}
+	expectedEvent := Failed{Reason: []error{fmt.Errorf("failed to setup commit template: %s", createDirErr)}}
 
 	event := Policy{deps, req}.Apply()
 
@@ -597,15 +596,15 @@ func TestEnableFailsDueToCreateTemplateDirErr(t *testing.T) {
 func TestEnableFailsDueToWriteTemplateFileErr(t *testing.T) {
 	coauthors := &[]string{"Mr. Noujz <noujz@mr.se>"}
 
-	expectedErr := errors.New("Failed to write file")
+	writeFileErr := errors.New("failed to write file")
 
 	deps := defaultDeps()
 
-	deps.WriteTemplateFile = func(string, []byte, os.FileMode) error { return expectedErr }
+	deps.WriteTemplateFile = func(string, []byte, os.FileMode) error { return writeFileErr }
 
 	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
-	expectedEvent := Failed{Reason: []error{expectedErr}}
+	expectedEvent := Failed{Reason: []error{fmt.Errorf("failed to setup commit template: %s", writeFileErr)}}
 
 	event := Policy{deps, req}.Apply()
 
@@ -618,14 +617,12 @@ func TestEnableFailsDueToWriteTemplateFileErr(t *testing.T) {
 func TestEnableFailsDueToGitSetCommitTemplateErr(t *testing.T) {
 	coauthors := &[]string{"Mr. Noujz <noujz@mr.se>"}
 
-	expectedErr := errors.New("Failed to set commit template")
-
 	deps := defaultDeps()
 
 	deps.GitConfigWriter = &gitConfigWriterMock{
 		replaceAll: func(_ gitconfigscope.Scope, key string, _ string) error {
 			if key == "commit.template" {
-				return expectedErr
+				return gitconfigerror.ErrConfigFileIsInvalid
 			}
 			return nil
 		},
@@ -633,7 +630,7 @@ func TestEnableFailsDueToGitSetCommitTemplateErr(t *testing.T) {
 
 	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
-	expectedEvent := Failed{Reason: []error{expectedErr}}
+	expectedEvent := Failed{Reason: []error{fmt.Errorf("failed to setup commit template: %s", gitconfigerror.ErrConfigFileIsInvalid)}}
 
 	event := Policy{deps, req}.Apply()
 
@@ -646,15 +643,15 @@ func TestEnableFailsDueToGitSetCommitTemplateErr(t *testing.T) {
 func TestEnableFailsDueToSetCreateHooksDirErr(t *testing.T) {
 	coauthors := &[]string{"Mr. Noujz <noujz@mr.se>"}
 
-	expectedErr := errors.New("Failed to create hooks dir")
+	createHooksDirErr := errors.New("failed to create hooks dir")
 
 	deps := defaultDeps()
 
-	deps.CreateHooksDir = func(string, os.FileMode) error { return expectedErr }
+	deps.CreateHooksDir = func(string, os.FileMode) error { return createHooksDirErr }
 
 	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
-	expectedEvent := Failed{Reason: []error{expectedErr}}
+	expectedEvent := Failed{Reason: []error{fmt.Errorf("failed to install hooks: %s", createHooksDirErr)}}
 
 	event := Policy{deps, req}.Apply()
 
@@ -667,13 +664,13 @@ func TestEnableFailsDueToSetCreateHooksDirErr(t *testing.T) {
 func TestEnableFailsDueToCreateHookFileErr(t *testing.T) {
 	coauthors := &[]string{"Mr. Noujz <noujz@mr.se>"}
 
-	expectedErr := errors.New("Failed to create hook file")
+	createHooksFileErr := errors.New("failed to create hook file")
 
 	deps := defaultDeps()
 
 	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
-	expectedEvent := Failed{Reason: []error{expectedErr}}
+	expectedEvent := Failed{Reason: []error{fmt.Errorf("failed to install hooks: %s", createHooksFileErr)}}
 
 	for _, hookFileNameLoopVar := range []string{"proxy.sh", "prepare-commit-msg", "prepare-commit-msg-git-team.sh"} {
 		hookFileName := hookFileNameLoopVar
@@ -681,7 +678,7 @@ func TestEnableFailsDueToCreateHookFileErr(t *testing.T) {
 			t.Parallel()
 			deps.WriteHookFile = func(hookFilePath string, data []byte, _ os.FileMode) error {
 				if strings.HasSuffix(hookFilePath, hookFileName) {
-					return expectedErr
+					return createHooksFileErr
 				}
 				return nil
 			}
@@ -701,13 +698,13 @@ func TestEnableFailsDueToRemoveSymlinkErr(t *testing.T) {
 
 	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
-	expectedErr := errors.New("Failed to remove existing hook symlink")
+	removeSymlinkErr := errors.New("failed to remove existing hook symlink")
 
-	expectedEvent := Failed{Reason: []error{expectedErr}}
+	expectedEvent := Failed{Reason: []error{fmt.Errorf("failed to install hooks: %s", removeSymlinkErr)}}
 
 	deps := defaultDeps()
 
-	deps.Remove = func(string) error { return expectedErr }
+	deps.Remove = func(string) error { return removeSymlinkErr }
 
 	event := Policy{deps, req}.Apply()
 
@@ -720,15 +717,15 @@ func TestEnableFailsDueToRemoveSymlinkErr(t *testing.T) {
 func TestEnableFailsDueToCreateHookSymlinkErr(t *testing.T) {
 	coauthors := &[]string{"Mr. Noujz <noujz@mr.se>"}
 
-	expectedErr := errors.New("Failed to create hook symlink")
+	createSymlinkErr := errors.New("failed to create hook symlink")
 
 	deps := defaultDeps()
 
-	deps.Symlink = func(_ string, _ string) error { return expectedErr }
+	deps.Symlink = func(_ string, _ string) error { return createSymlinkErr }
 
 	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
-	expectedEvent := Failed{Reason: []error{expectedErr}}
+	expectedEvent := Failed{Reason: []error{fmt.Errorf("failed to install hooks: %s", createSymlinkErr)}}
 
 	event := Policy{deps, req}.Apply()
 
@@ -743,12 +740,10 @@ func TestEnableFailsDueToSetHooksPathErr(t *testing.T) {
 
 	deps := defaultDeps()
 
-	expectedErr := errors.New("Failed to set hooks path")
-
 	deps.GitConfigWriter = &gitConfigWriterMock{
 		replaceAll: func(_ gitconfigscope.Scope, key string, _ string) error {
 			if key == "core.hooksPath" {
-				return expectedErr
+				return gitconfigerror.ErrConfigFileCannotBeWritten
 			}
 			return nil
 		},
@@ -756,7 +751,7 @@ func TestEnableFailsDueToSetHooksPathErr(t *testing.T) {
 
 	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
-	expectedEvent := Failed{Reason: []error{expectedErr}}
+	expectedEvent := Failed{Reason: []error{fmt.Errorf("failed to set core.hooksPath: %s", gitconfigerror.ErrConfigFileCannotBeWritten)}}
 
 	event := Policy{deps, req}.Apply()
 
@@ -769,19 +764,19 @@ func TestEnableFailsDueToSetHooksPathErr(t *testing.T) {
 func TestEnableFailsDueToSaveStatusErr(t *testing.T) {
 	coauthors := &[]string{"Mr. Noujz <noujz@mr.se>"}
 
-	expectedErr := errors.New("Failed to set status")
+	stateWriteErr := errors.New("some gitconfig error")
 
 	deps := defaultDeps()
 
 	deps.StateWriter = &stateWriterMock{
 		persistEnabled: func(_ activationscope.Scope, _ []string) error {
-			return expectedErr
+			return stateWriteErr
 		},
 	}
 
 	req := Request{AliasesAndCoauthors: coauthors, UseAll: &[]bool{false}[0]}
 
-	expectedEvent := Failed{Reason: []error{expectedErr}}
+	expectedEvent := Failed{Reason: []error{fmt.Errorf("failed to persist state: some gitconfig error")}}
 
 	event := Policy{deps, req}.Apply()
 

@@ -1,11 +1,12 @@
 package list
 
 import (
-	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/hekmekk/git-team/src/core/assignment"
+	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
@@ -66,11 +67,9 @@ func TestListShouldReturnTheAvailableAssignments(t *testing.T) {
 }
 
 func TestListShouldReturnAnEmptyListIfGitConfigSectionIsEmpty(t *testing.T) {
-	err := errors.New("exit status 1")
-
 	gitConfigReader := &gitConfigReaderMock{
 		getRegexp: func(_ gitconfigscope.Scope, pattern string) (map[string]string, error) {
-			return map[string]string{}, err
+			return map[string]string{}, gitconfigerror.ErrSectionOrKeyIsInvalid
 		},
 	}
 
@@ -89,11 +88,9 @@ func TestListShouldReturnAnEmptyListIfGitConfigSectionIsEmpty(t *testing.T) {
 }
 
 func TestListShouldReturnFailure(t *testing.T) {
-	err := errors.New("failed to get assignments")
-
 	gitConfigReader := &gitConfigReaderMock{
 		getRegexp: func(_ gitconfigscope.Scope, pattern string) (map[string]string, error) {
-			return map[string]string{}, err
+			return map[string]string{}, gitconfigerror.ErrTryingToUseAnInvalidRegexp
 		},
 	}
 
@@ -101,7 +98,7 @@ func TestListShouldReturnFailure(t *testing.T) {
 		GitConfigReader: gitConfigReader,
 	}
 
-	expectedEvent := RetrievalFailed{Reason: err}
+	expectedEvent := RetrievalFailed{Reason: fmt.Errorf("failed to retrieve assignments: %s", gitconfigerror.ErrTryingToUseAnInvalidRegexp)}
 
 	event := Policy{deps}.Apply()
 

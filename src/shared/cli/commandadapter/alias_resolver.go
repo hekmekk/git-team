@@ -42,7 +42,7 @@ func resolveAlias(gitconfigGet func(gitconfigscope.Scope, string) (string, error
 	return func(alias string) (string, error) {
 		coauthor, err := gitconfigGet(gitconfigscope.Global, fmt.Sprintf("team.alias.%s", alias))
 		if err != nil || coauthor == "" {
-			return "", fmt.Errorf("Failed to resolve alias team.alias.%s", alias)
+			return "", fmt.Errorf("failed to resolve alias team.alias.%s", alias)
 		}
 
 		return coauthor, nil

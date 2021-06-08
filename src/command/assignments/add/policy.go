@@ -73,7 +73,7 @@ func (policy Policy) Apply() events.Event {
 	if isAssignmentExisting && assignmentReplacementStrategy == Ask {
 		choice, err := shouldAssignmentBeOverridden(deps, alias, existingCoauthor, coauthor)
 		if err != nil {
-			return AssignmentFailed{Reason: err}
+			return AssignmentFailed{Reason: fmt.Errorf("failed to retrieve answer from user: %s", err)}
 		}
 		shouldAddAssignment = choice
 	} else {
@@ -92,7 +92,7 @@ func (policy Policy) Apply() events.Event {
 
 	err := deps.GitAddAlias(alias, coauthor)
 	if err != nil {
-		return AssignmentFailed{Reason: err}
+		return AssignmentFailed{Reason: fmt.Errorf("failed to add alias: %s", err)}
 	}
 
 	return AssignmentSucceeded{Alias: alias, Coauthor: coauthor}

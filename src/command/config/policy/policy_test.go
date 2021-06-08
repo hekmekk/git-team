@@ -47,9 +47,9 @@ func TestConfigShouldBeRetrieved(t *testing.T) {
 }
 
 func TestConfigShouldNotBeRetrieved(t *testing.T) {
-	err := errors.New("failed to retrieve config")
+	err := errors.New("some git config error")
 
-	expectedEvent := configevents.RetrievalFailed{Reason: err}
+	expectedEvent := configevents.RetrievalFailed{Reason: fmt.Errorf("failed to read config: %s", err)}
 
 	configReader := configReaderMock{
 		read: func() (config.Config, error) {
@@ -107,7 +107,7 @@ func TestFailIfOnlyOneArgumentIsProvided(t *testing.T) {
 }
 
 func TestFailOnUnknownSetting(t *testing.T) {
-	err := errors.New("Unknown setting 'A'")
+	err := errors.New("unknown setting 'A'")
 
 	expectedEvent := configevents.SettingModificationFailed{Reason: err}
 
@@ -122,7 +122,7 @@ func TestFailOnUnknownSetting(t *testing.T) {
 }
 
 func TestFailOnUnknownActivationScope(t *testing.T) {
-	err := errors.New("Unknown activation-scope 'A'")
+	err := errors.New("unknown activation-scope 'A'")
 
 	expectedEvent := configevents.SettingModificationFailed{Reason: err}
 
@@ -148,7 +148,7 @@ func TestShouldFailWhenConfigWriterFails(t *testing.T) {
 	key := "activation-scope"
 
 	err := errors.New("unable to write to gitconfig")
-	expectedEvent := configevents.SettingModificationFailed{Reason: fmt.Errorf("Failed to modify setting 'activation-scope': %s", err)}
+	expectedEvent := configevents.SettingModificationFailed{Reason: fmt.Errorf("failed to modify setting 'activation-scope': %s", err)}
 
 	for _, loopValue := range []string{"global", "repo-local"} {
 		value := loopValue

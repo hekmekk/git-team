@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strings"
 
+	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 	scope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
@@ -100,7 +101,9 @@ func list(exec func(scope.Scope, ...string) ([]string, error)) func(scope.Scope)
 // execute /usr/bin/env git config --<scope> <options>
 func execGitConfig(scope scope.Scope, options ...string) ([]string, error) {
 	gitConfigCommand := func(additionalOptions ...string) ([]byte, error) {
-		return exec.Command("/usr/bin/env", append([]string{"git", "config"}, additionalOptions...)...).CombinedOutput()
+		cmd := exec.Command("/usr/bin/env", append([]string{"git", "config"}, additionalOptions...)...)
+		out, err := cmd.CombinedOutput()
+		return out, gitconfigerror.New(err)
 	}
 
 	return execGitConfigFactory(gitConfigCommand)(scope, options...)

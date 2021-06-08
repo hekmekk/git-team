@@ -56,7 +56,7 @@ func TestShouldReturnErrorIfNoAssignmentIsFound(t *testing.T) {
 
 func TestShouldReturnErrorIfResolvingFails(t *testing.T) {
 	mr := "mr"
-	expectedErr := errors.New("Failed to resolve alias team.alias.mr")
+	expectedErr := errors.New("failed to resolve alias team.alias.mr")
 
 	gitconfigGet := func(scope gitconfigscope.Scope, alias string) (string, error) {
 		if scope != gitconfigscope.Global {

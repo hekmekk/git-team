@@ -1,10 +1,11 @@
 package remove
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 	"testing"
+
+	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 )
 
 func TestRmShouldRemoveTheAssignment(t *testing.T) {
@@ -24,14 +25,14 @@ func TestRmShouldRemoveTheAssignment(t *testing.T) {
 	}
 }
 
-func TestRmShouldRemoveTheAssignmentWhenTryingToRemoveANonExistingAlias(t *testing.T) {
+func TestRmShouldNotRemoveTheAssignmentWhenTryingToRemoveANonExistingAlias(t *testing.T) {
 	alias := "mr"
 
 	remove := func(alias string) error {
-		return errors.New("exit status 5")
+		return gitconfigerror.ErrTryingToUnsetAnOptionWhichDoesNotExist
 	}
 
-	expectedEvent := DeAllocationFailed{Reason: fmt.Errorf("No such alias: '%s'", alias)}
+	expectedEvent := DeAllocationFailed{Reason: fmt.Errorf("no such alias: '%s'", alias)}
 
 	event := Policy{Dependencies{GitRemoveAlias: remove}, DeAllocationRequest{Alias: &alias}}.Apply()
 
@@ -44,13 +45,11 @@ func TestRmShouldRemoveTheAssignmentWhenTryingToRemoveANonExistingAlias(t *testi
 func TestRmShouldFailBecauseUnderlyingGitRemoveFails(t *testing.T) {
 	alias := "mr"
 
-	err := errors.New("git remove DeAllocationRequest failed")
-
 	remove := func(alias string) error {
-		return err
+		return gitconfigerror.ErrConfigFileCannotBeWritten
 	}
 
-	expectedEvent := DeAllocationFailed{Reason: err}
+	expectedEvent := DeAllocationFailed{Reason: fmt.Errorf("failed to remove alias: %s", gitconfigerror.ErrConfigFileCannotBeWritten)}
 
 	event := Policy{Dependencies{GitRemoveAlias: remove}, DeAllocationRequest{Alias: &alias}}.Apply()
 

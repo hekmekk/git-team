@@ -72,6 +72,6 @@ func NewExitErr() Effect {
 func NewExitErrMsg(err error) Effect {
 	return ExitWithMsg{
 		kind:    Error,
-		message: color.RedString(fmt.Sprintf("error: %s", err.Error())),
+		message: color.RedString(fmt.Sprintf("error: %s", err)),
 	}
 }

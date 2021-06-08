@@ -1,6 +1,8 @@
 package list
 
 import (
+	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/hekmekk/git-team/src/core/assignment"
@@ -25,8 +27,8 @@ func (policy Policy) Apply() events.Event {
 	deps := policy.Deps
 
 	aliasCoauthorMap, err := deps.GitConfigReader.GetRegexp(gitconfigscope.Global, "team.alias")
-	if err != nil && err.Error() != giterror.SectionOrKeyIsInvalid {
-		return RetrievalFailed{Reason: err}
+	if err != nil && !errors.Is(err, giterror.ErrSectionOrKeyIsInvalid) {
+		return RetrievalFailed{Reason: fmt.Errorf("failed to retrieve assignments: %s", err)}
 	}
 
 	assignments := []assignment.Assignment{}

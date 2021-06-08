@@ -1,13 +1,13 @@
 package datasource
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 	"testing"
 
 	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
+	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
@@ -83,7 +83,7 @@ func TestLoadSucceedsWhenActivationScopeIsUnsetInGitconfig(t *testing.T) {
 			if key != "team.config.activation-scope" {
 				return "", fmt.Errorf("wrong key: %s", key)
 			}
-			return "", errors.New("exit status 1")
+			return "", gitconfigerror.ErrSectionOrKeyIsInvalid
 		},
 	}
 
@@ -110,7 +110,7 @@ func TestLoadFailsWhenReadingFromGitconfigFails(t *testing.T) {
 			if key != "team.config.activation-scope" {
 				return "", fmt.Errorf("wrong key: %s", key)
 			}
-			return "", errors.New("reading from gitconfig failed")
+			return "", gitconfigerror.ErrConfigFileCannotBeWritten
 		},
 	}
 	cfg, err := NewGitconfigDataSource(gitConfigReader).Read()

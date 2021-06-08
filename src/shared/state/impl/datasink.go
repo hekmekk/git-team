@@ -1,6 +1,8 @@
 package stateimpl
 
 import (
+	"errors"
+
 	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
@@ -38,18 +40,18 @@ func (ds GitConfigDataSink) persist(activationScope activationscope.Scope, state
 		gitConfigScope = gitconfigscope.Local
 	}
 
-	if err := gitConfigWriter.UnsetAll(gitConfigScope, "team.state.active-coauthors"); err != nil && err.Error() != giterror.UnsetOptionWhichDoesNotExist {
-		return err
+	if err := gitConfigWriter.UnsetAll(gitConfigScope, "team.state.active-coauthors"); err != nil && !errors.Is(err, giterror.ErrTryingToUnsetAnOptionWhichDoesNotExist) {
+		return errors.New("failed to unset team.state.active-coauthors")
 	}
 
 	for _, coauthor := range state.Coauthors {
 		if err := gitConfigWriter.Add(gitConfigScope, "team.state.active-coauthors", coauthor); err != nil {
-			return err
+			return errors.New("failed to set team.state.active-coauthors")
 		}
 	}
 
 	if err := gitConfigWriter.ReplaceAll(gitConfigScope, "team.state.status", string(state.Status)); err != nil {
-		return err
+		return errors.New("failed to replace team.state.status")
 	}
 
 	return nil

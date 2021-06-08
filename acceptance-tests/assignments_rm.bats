@@ -22,6 +22,6 @@ load '/bats-libs/bats-assert/load.bash'
 @test "git-team: assignments rm should fail for a non-existing alias" {
 	run /usr/local/bin/git-team assignments rm noujz
 	assert_failure
-	assert_line --index 0 "error: No such alias: 'noujz'"
+	assert_line --index 0 "error: no such alias: 'noujz'"
 }
 

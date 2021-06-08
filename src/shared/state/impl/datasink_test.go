@@ -1,10 +1,10 @@
 package stateimpl
 
 import (
-	"errors"
 	"testing"
 
 	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
+	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
@@ -43,7 +43,9 @@ func TestPersistSucceeds(t *testing.T) {
 
 func TestPersistSucceedsWhenTryingToRemoveNonExistingActiveCoauthorsFromGitConfig(t *testing.T) {
 	gitConfigWriter := &gitConfigWriterMock{
-		unsetAll:   func(gitconfigscope.Scope, string) error { return errors.New("exit status 5") },
+		unsetAll: func(gitconfigscope.Scope, string) error {
+			return gitconfigerror.ErrTryingToUnsetAnOptionWhichDoesNotExist
+		},
 		add:        func(gitconfigscope.Scope, string, string) error { return nil },
 		replaceAll: func(gitconfigscope.Scope, string, string) error { return nil },
 	}
@@ -57,49 +59,43 @@ func TestPersistSucceedsWhenTryingToRemoveNonExistingActiveCoauthorsFromGitConfi
 }
 
 func TestPersistFailsDueToAnotherUnsetAllFailure(t *testing.T) {
-	expectedErr := errors.New("unset-all failure")
-
 	gitConfigWriter := &gitConfigWriterMock{
-		unsetAll: func(gitconfigscope.Scope, string) error { return expectedErr },
+		unsetAll: func(gitconfigscope.Scope, string) error { return gitconfigerror.ErrConfigFileCannotBeWritten },
 	}
 
 	err := NewGitConfigDataSink(gitConfigWriter).PersistEnabled(activationscope.Global, []string{"CO-AUTHOR"})
 
-	if expectedErr != err {
-		t.Errorf("expected: %s, got: %s", expectedErr, err)
+	if err == nil {
+		t.Errorf("expected error, got nil")
 		t.Fail()
 	}
 }
 
 func TestPersistFailsDueToAddFailure(t *testing.T) {
-	expectedErr := errors.New("add failure")
-
 	gitConfigWriter := &gitConfigWriterMock{
 		unsetAll: func(gitconfigscope.Scope, string) error { return nil },
-		add:      func(gitconfigscope.Scope, string, string) error { return expectedErr },
+		add:      func(gitconfigscope.Scope, string, string) error { return gitconfigerror.ErrConfigFileCannotBeWritten },
 	}
 
 	err := NewGitConfigDataSink(gitConfigWriter).PersistEnabled(activationscope.Global, []string{"CO-AUTHOR"})
 
-	if expectedErr != err {
-		t.Errorf("expected: %s, got: %s", expectedErr, err)
+	if err == nil {
+		t.Errorf("expected error, got nil")
 		t.Fail()
 	}
 }
 
 func TestPersistFailsDueReplaceAllFailure(t *testing.T) {
-	expectedErr := errors.New("replace-all failure")
-
 	gitConfigWriter := &gitConfigWriterMock{
 		unsetAll:   func(gitconfigscope.Scope, string) error { return nil },
 		add:        func(gitconfigscope.Scope, string, string) error { return nil },
-		replaceAll: func(gitconfigscope.Scope, string, string) error { return expectedErr },
+		replaceAll: func(gitconfigscope.Scope, string, string) error { return gitconfigerror.ErrSectionOrKeyIsInvalid },
 	}
 
 	err := NewGitConfigDataSink(gitConfigWriter).PersistDisabled(activationscope.Global)
 
-	if expectedErr != err {
-		t.Errorf("expected: %s, got: %s", expectedErr, err)
+	if err == nil {
+		t.Errorf("expected error, got nil")
 		t.Fail()
 	}
 }

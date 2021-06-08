@@ -1,7 +1,7 @@
 package main
 
 import (
-	"errors"
+	"fmt"
 	"log"
 	"os"
 	"sort"
@@ -70,7 +70,7 @@ func newApplication() *cli.App {
 			if shouldGenerateManPage {
 				manPage, err := c.App.ToMan()
 				if err != nil {
-					return effects.NewExitErrMsg(errors.New("failed to generate man page")).Run()
+					return effects.NewExitErrMsg(fmt.Errorf("failed to generate man page: %s", err)).Run()
 				}
 				return effects.NewExitOkMsg(manPage).Run()
 			}

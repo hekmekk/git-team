@@ -2,11 +2,13 @@ package status
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 
 	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
+	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 	state "github.com/hekmekk/git-team/src/shared/state/entity"
 )
 
@@ -81,17 +83,15 @@ func TestStatusShouldBeRetrieved(t *testing.T) {
 }
 
 func TestStatusShouldNotBeRetrievedDueToConfigReaderError(t *testing.T) {
-	err := errors.New("failed to read config")
-
 	deps := Dependencies{
 		ConfigReader: &configReaderMock{
 			read: func() (config.Config, error) {
-				return config.Config{}, err
+				return config.Config{}, gitconfigerror.ErrConfigFileCannotBeWritten
 			},
 		},
 	}
 
-	expectedEvent := StateRetrievalFailed{Reason: err}
+	expectedEvent := StateRetrievalFailed{Reason: fmt.Errorf("failed to read config: %s", gitconfigerror.ErrConfigFileCannotBeWritten)}
 
 	event := Policy{deps}.Apply()
 
@@ -115,7 +115,7 @@ func TestStatusShouldFailWhenNotInsideAGitRepository(t *testing.T) {
 		},
 	}
 
-	expectedErr := errors.New("Failed to get status with activation-scope=repo-local: not inside a git repository")
+	expectedErr := errors.New("failed to get status with activation-scope=repo-local: not inside a git repository")
 
 	expectedEvent := StateRetrievalFailed{Reason: expectedErr}
 
@@ -128,7 +128,7 @@ func TestStatusShouldFailWhenNotInsideAGitRepository(t *testing.T) {
 }
 
 func TestStatusShouldNotBeRetrievedDueToStateRetrievalError(t *testing.T) {
-	err := errors.New("failed to retrieve state")
+	err := errors.New("no active co-authors found")
 
 	deps := Dependencies{
 		ConfigReader: &configReaderMock{
@@ -151,7 +151,7 @@ func TestStatusShouldNotBeRetrievedDueToStateRetrievalError(t *testing.T) {
 		},
 	}
 
-	expectedEvent := StateRetrievalFailed{Reason: err}
+	expectedEvent := StateRetrievalFailed{Reason: fmt.Errorf("failed to query current state: %s", err)}
 
 	event := Policy{deps}.Apply()
 

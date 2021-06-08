@@ -1,6 +1,7 @@
 package datasource
 
 import (
+	"errors"
 	"fmt"
 
 	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
@@ -23,17 +24,17 @@ func NewGitconfigDataSource(gitSettingsReader gitconfig.Reader) GitconfigDataSou
 func (ds GitconfigDataSource) Read() (config.Config, error) {
 	rawScope, err := ds.GitConfigReader.Get(gitconfigscope.Global, "team.config.activation-scope")
 
-	if err != nil && err.Error() == giterror.SectionOrKeyIsInvalid {
+	if err != nil && errors.Is(err, giterror.ErrSectionOrKeyIsInvalid) {
 		return config.Config{ActivationScope: activationscope.Global}, nil
 	}
 
 	if err != nil {
-		return config.Config{}, err
+		return config.Config{}, fmt.Errorf("failed to get team.config.activation-scope: %s", err)
 	}
 
 	scope := activationscope.FromString(rawScope)
 	if scope == activationscope.Unknown {
-		return config.Config{}, fmt.Errorf("Unknown activation-scope '%s' found in config. Did you edit it manually?", rawScope)
+		return config.Config{}, fmt.Errorf("unknown activation-scope '%s' found in config. Did you edit it manually?", rawScope)
 	}
 
 	cfg := config.Config{

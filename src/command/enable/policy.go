@@ -3,6 +3,7 @@ package enable
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -63,7 +64,7 @@ func (policy Policy) Apply() events.Event {
 		availableCoauthors, err := lookupAllCoauthors(deps)
 
 		if err != nil {
-			return Failed{Reason: []error{err}}
+			return Failed{Reason: []error{fmt.Errorf("failed to lookup coauthors: %s", err)}}
 		}
 
 		if len(availableCoauthors) == 0 {
@@ -91,13 +92,13 @@ func (policy Policy) Apply() events.Event {
 
 	cfg, err := deps.ConfigReader.Read()
 	if err != nil {
-		return Failed{Reason: []error{err}}
+		return Failed{Reason: []error{fmt.Errorf("failed to read config: %s", err)}}
 	}
 
 	activationScope := cfg.ActivationScope
 
 	if activationScope == activationscope.RepoLocal && !deps.ActivationValidator.IsInsideAGitRepository() {
-		return Failed{Reason: []error{fmt.Errorf("Failed to enable with activation-scope=%s: not inside a git repository", activationScope)}}
+		return Failed{Reason: []error{fmt.Errorf("failed to enable with activation-scope=%s: not inside a git repository", activationScope)}}
 	}
 
 	var gitConfigScope gitconfigscope.Scope
@@ -108,19 +109,19 @@ func (policy Policy) Apply() events.Event {
 	}
 
 	if err := setupTemplate(gitConfigScope, deps, settings.TemplatesBaseDir, coAuthors); err != nil {
-		return Failed{Reason: []error{err}}
+		return Failed{Reason: []error{fmt.Errorf("failed to setup commit template: %s", err)}}
 	}
 
 	if err := installHooks(deps, settings.HooksDir); err != nil {
-		return Failed{Reason: []error{err}}
+		return Failed{Reason: []error{fmt.Errorf("failed to install hooks: %s", err)}}
 	}
 
 	if err := deps.GitConfigWriter.ReplaceAll(gitConfigScope, "core.hooksPath", settings.HooksDir); err != nil {
-		return Failed{Reason: []error{err}}
+		return Failed{Reason: []error{fmt.Errorf("failed to set core.hooksPath: %s", err)}}
 	}
 
 	if err := deps.StateWriter.PersistEnabled(cfg.ActivationScope, coAuthors); err != nil {
-		return Failed{Reason: []error{err}}
+		return Failed{Reason: []error{fmt.Errorf("failed to persist state: %s", err)}}
 	}
 
 	return Succeeded{}
@@ -128,7 +129,7 @@ func (policy Policy) Apply() events.Event {
 
 func lookupAllCoauthors(deps Dependencies) ([]string, error) {
 	aliasCoauthorMap, err := deps.GitConfigReader.GetRegexp(gitconfigscope.Global, "team.alias")
-	if err != nil && err.Error() != giterror.SectionOrKeyIsInvalid {
+	if err != nil && !errors.Is(err, giterror.ErrSectionOrKeyIsInvalid) {
 		return []string{}, err
 	}
 

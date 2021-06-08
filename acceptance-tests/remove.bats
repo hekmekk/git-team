@@ -22,6 +22,6 @@ load '/bats-libs/bats-assert/load.bash'
 @test "git-team: remove should fail for a non-existing alias" {
 	run /usr/local/bin/git-team rm noujz
 	assert_failure
-	assert_line "error: No such alias: 'noujz'"
+	assert_line "error: no such alias: 'noujz'"
 }
 
