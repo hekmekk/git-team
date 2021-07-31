@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"reflect"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -26,10 +26,7 @@ func TestFromString(t *testing.T) {
 			t.Parallel()
 			scope := FromString(candidate)
 
-			if !reflect.DeepEqual(expectedScope, scope) {
-				t.Errorf("expected: %s, got: %s", expectedScope, scope)
-				t.Fail()
-			}
+			require.Equal(t, expectedScope, scope)
 		})
 	}
 }
