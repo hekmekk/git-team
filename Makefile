@@ -41,7 +41,11 @@ deps: tidy
 
 test: go-test hookscript-tests
 
-go-test: deps
+.PHONY: mocks
+mocks:
+	rm -rf mocks && docker run --rm --user "$(shell id -u):$(shell id -g)" -v "$(CURR_DIR):/src" -w /src vektra/mockery:v2.8 --dir=src/ --all --keeptree
+
+go-test: deps mocks
 	go test -cover ./src/...
 
 fmt: deps
@@ -82,6 +86,7 @@ uninstall:
 	rm -f $(man1dir)/git-team.1.gz
 
 clean:
+	rm -rf $(CURR_DIR)/mocks
 	rm -rf $(CURR_DIR)/target
 
 .PHONY: acceptance-tests
