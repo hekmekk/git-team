@@ -33,10 +33,7 @@ endif
 
 all: fmt build man-page completion
 
-tidy: mocks
-	go mod tidy
-
-deps: tidy
+deps:
 	go mod download
 
 test: clean go-test hookscript-tests
@@ -44,7 +41,7 @@ test: clean go-test hookscript-tests
 mocks:
 	docker run --rm --user "$(shell id -u):$(shell id -g)" -v "$(CURR_DIR):/src" -w /src vektra/mockery:v2.8 --dir=src/ --all --keeptree
 
-go-test: deps
+go-test: mocks deps
 	go test -cover ./src/...
 
 fmt: deps
