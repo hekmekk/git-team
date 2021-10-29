@@ -33,19 +33,6 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install ./...
 
 # ----------------------------------------------------------------- #
 
-FROM alpine:3.13.5 as prepare-commit-msg-git-team
-
-RUN mkdir /hookscript
-WORKDIR /hookscript
-
-COPY src/command/enable/hookscript/content.go ./hookscript-content.go
-
-RUN sed '1,/const prepareCommitMsgGitTeam =/d;/^`/,$d' hookscript-content.go > prepare-commit-msg-git-team.sh
-
-RUN chmod +x prepare-commit-msg-git-team.sh
-
-# ----------------------------------------------------------------- #
-
 FROM golang:1.16-alpine
 
 RUN apk add --no-cache bash git ncurses
@@ -54,7 +41,9 @@ COPY --from=bats /usr/local/bin/bats /usr/local/bin/bats
 COPY --from=bats /usr/local/libexec/bats-core /usr/local/libexec/bats-core
 COPY --from=bats /bats-libs /bats-libs
 COPY --from=git-team /go/bin/git-team /usr/local/bin/git-team
-COPY --from=prepare-commit-msg-git-team /hookscript/prepare-commit-msg-git-team.sh /usr/local/bin/prepare-commit-msg-git-team
+COPY src/command/enable/hookscript/prepare-commit-msg-git-team.sh /usr/local/bin/prepare-commit-msg-git-team
+
+RUN chmod +x /usr/local/bin/prepare-commit-msg-git-team
 
 WORKDIR /
 
