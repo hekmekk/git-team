@@ -1,6 +1,4 @@
-package bash
-
-const Script = `#!/usr/bin/env bash
+#!/usr/bin/env bash
 
 # triggered for git team
 _git_team() {
@@ -21,4 +19,4 @@ _git_team_bash_completion() {
         return 0
 }
 
-complete -F _git_team_bash_completion git-team`
+complete -F _git_team_bash_completion git-team
