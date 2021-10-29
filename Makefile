@@ -87,7 +87,7 @@ clean:
 
 .PHONY: acceptance-tests
 acceptance-tests:
-	docker build -t git-team-acceptance-tests . -f acceptance-tests.Dockerfile
+	DOCKER_BUILDKIT=1 docker build -t git-team-acceptance-tests . -f acceptance-tests.Dockerfile
 	docker run -e "TERM=$(TERM)" --rm -v $(CURR_DIR)/acceptance-tests:/acceptance-tests git-team-acceptance-tests --pretty /acceptance-tests/$(BATS_FILE) $(BATS_FILTER)
 
 .PHONY: hookscript-tests
