@@ -92,6 +92,6 @@ acceptance-tests:
 
 .PHONY: hookscript-tests
 hookscript-tests:
-	docker build -t git-team-hookscript-tests . -f hookscript-tests.Dockerfile
+	DOCKER_BUILDKIT=1 docker build -t git-team-hookscript-tests . -f hookscript-tests.Dockerfile
 	docker run -e "TERM=$(TERM)" --rm -v $(CURR_DIR)/hookscript-tests:/hookscript-tests git-team-hookscript-tests --pretty /hookscript-tests/
 
