@@ -72,6 +72,19 @@ sudo xbps-install git-team
 yay git-team-git
 ```
 
+## Install declaratively via [Nix](https://nixos.org)
+
+```nix
+{ pkgs, ... }:
+{
+  # Either for all users
+  environment.systemPackages = with pkgs; [ git-team ];
+
+  # Or for an explicit user
+  users.users."youruser".packages = with pkgs; [ git-team ];
+}
+```
+
 ## Build from source
 The latest version of git-team has been built against go version 1.16.
 ```bash
