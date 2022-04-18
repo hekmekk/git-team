@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.com/hekmekk/git-team.svg?branch=master)](https://travis-ci.com/github/hekmekk/git-team)
 
+[**:heart: Donate**](/docs/donate.md#heart-donate)
+
 # git-team
 
 Command line interface for managing and enhancing `git commit` messages with co-authors.
