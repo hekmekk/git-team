@@ -86,7 +86,7 @@ yay git-team-git
 ```
 
 ## Build from source
-The latest version of git-team has been built against go version 1.16.
+The latest version of git-team has been built against go version 1.18.
 ```bash
 make
 sudo make install
