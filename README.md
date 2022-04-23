@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.com/hekmekk/git-team.svg?branch=main)](https://travis-ci.com/github/hekmekk/git-team)
+[![Github Release Downloads](https://img.shields.io/github/downloads/hekmekk/git-team/total.svg?label=DOWNLOADS&logo=github&style=for-the-badge)](https://github.com/hekmekk/git-team/releases)
 
 [**:heart: Donate**](/docs/donate.md#heart-donate)
 
