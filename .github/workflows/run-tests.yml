@@ -1,0 +1,17 @@
+name: verify
+on: [push]
+jobs:
+  run-go-tests:
+    runs-on: ubuntu-latest # doesn't matter
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '1.18.0'
+      - run: make test
+  run-docker-based-tests:
+      - uses: actions/checkout@v3
+      - uses: docker-practice/actions-setup-docker@master
+      - run: make hookscript-tests
+      - run: make acceptance-tests
+
