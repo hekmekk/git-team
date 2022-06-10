@@ -31,7 +31,7 @@ ifdef FILTER
 	BATS_FILTER=--filter $(FILTER)
 endif
 
-all: fmt build man-page completion
+all: build man-page completion
 
 deps:
 	go mod download
