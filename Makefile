@@ -54,9 +54,8 @@ build: clean deps
 ifndef GOPATH
 	$(error GOPATH is not set)
 endif
-	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=amd64 go install ./...
 	mkdir -p $(CURR_DIR)/target/bin
-	mv $(GOPATH)/bin/git-team $(CURR_DIR)/target/bin/git-team
+	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=amd64 go build -o $(CURR_DIR)/target/bin ./...
 	@echo "[INFO] Successfully built git-team version v$(VERSION)"
 
 man-page: clean deps
