@@ -3,6 +3,7 @@ package disable
 import (
 	"errors"
 	"fmt"
+	state "github.com/hekmekk/git-team/src/shared/state/entity"
 	"os"
 	"reflect"
 	"testing"
@@ -34,7 +35,8 @@ func (mock gitConfigReaderMock) List(scope gitconfigscope.Scope) (map[string]str
 }
 
 type gitConfigWriterMock struct {
-	unsetAll func(gitconfigscope.Scope, string) error
+	unsetAll   func(gitconfigscope.Scope, string) error
+	replaceAll func(gitconfigscope.Scope, string, string) error
 }
 
 func (mock gitConfigWriterMock) UnsetAll(scope gitconfigscope.Scope, key string) error {
@@ -42,18 +44,26 @@ func (mock gitConfigWriterMock) UnsetAll(scope gitconfigscope.Scope, key string)
 }
 
 func (mock gitConfigWriterMock) ReplaceAll(scope gitconfigscope.Scope, key string, value string) error {
-	return nil
+	return mock.replaceAll(scope, key, value)
 }
 
 func (mock gitConfigWriterMock) Add(scope gitconfigscope.Scope, key string, value string) error {
 	return nil
 }
 
+type stateReaderMock struct {
+	query func(scope activationscope.Scope) (state.State, error)
+}
+
+func (mock stateReaderMock) Query(scope activationscope.Scope) (state.State, error) {
+	return mock.query(scope)
+}
+
 type stateWriterMock struct {
 	persistDisabled func(activationscope.Scope) error
 }
 
-func (mock stateWriterMock) PersistEnabled(scope activationscope.Scope, coauthors []string) error {
+func (mock stateWriterMock) PersistEnabled(scope activationscope.Scope, coauthors []string, previousHooksPath string) error {
 	return nil
 }
 func (mock stateWriterMock) PersistDisabled(scope activationscope.Scope) error {
@@ -77,10 +87,9 @@ func (mock activationValidatorMock) IsInsideAGitRepository() bool {
 }
 
 var (
-	fileInfo        os.FileInfo
-	statFile        = func(string) (os.FileInfo, error) { return fileInfo, nil }
-	removeFile      = func(string) error { return nil }
-	persistDisabled = func() error { return nil }
+	fileInfo   os.FileInfo
+	statFile   = func(string) (os.FileInfo, error) { return fileInfo, nil }
+	removeFile = func(string) error { return nil }
 )
 
 func TestDisableSucceeds(t *testing.T) {
@@ -146,6 +155,12 @@ func TestDisableSucceeds(t *testing.T) {
 				},
 			}
 
+			deps.StateReader = &stateReaderMock{
+				query: func(scope activationscope.Scope) (state.State, error) {
+					return state.NewStateEnabled([]string{}, ""), nil
+				},
+			}
+
 			deps.StateWriter = &stateWriterMock{
 				persistDisabled: func(scope activationscope.Scope) error {
 					if scope != activationScope {
@@ -195,6 +210,12 @@ func TestDisableShouldSucceedWhenUnsetHooksPathFailsBecauseTheOptionDoesntExist(
 		},
 	}
 
+	stateReader := &stateReaderMock{
+		query: func(scope activationscope.Scope) (state.State, error) {
+			return state.NewStateEnabled([]string{}, ""), nil
+		},
+	}
+
 	stateWriter := &stateWriterMock{
 		persistDisabled: func(scope activationscope.Scope) error {
 			return nil
@@ -212,6 +233,7 @@ func TestDisableShouldSucceedWhenUnsetHooksPathFailsBecauseTheOptionDoesntExist(
 		GitConfigWriter: gitConfigWriter,
 		StatFile:        statFile,
 		RemoveFile:      removeFile,
+		StateReader:     stateReader,
 		StateWriter:     stateWriter,
 		ConfigReader:    configReader,
 		ActivationValidator: &activationValidatorMock{
@@ -262,6 +284,43 @@ func TestDisableShouldFailWhenNotInsideAGitRepository(t *testing.T) {
 	}
 
 	expectedErr := errors.New("failed to disable with activation-scope=repo-local: not inside a git repository")
+
+	expectedEvent := Failed{Reason: expectedErr}
+
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
+	}
+}
+
+func TestDisableShouldFailWhenUnableToRetrieveState(t *testing.T) {
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.RepoLocal}, nil
+		},
+	}
+
+	stateReaderErr := errors.New("failed to retrieve state")
+
+	stateReader := &stateReaderMock{
+		query: func(scope activationscope.Scope) (state.State, error) {
+			return state.State{}, stateReaderErr
+		},
+	}
+
+	deps := Dependencies{
+		ConfigReader: configReader,
+		StateReader:  stateReader,
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
+			},
+		},
+	}
+
+	expectedErr := fmt.Errorf("failed to read current state: %s", stateReaderErr)
 
 	expectedEvent := Failed{Reason: expectedErr}
 
@@ -333,8 +392,15 @@ func TestDisableShouldFailWhenUnsetHooksPathFails(t *testing.T) {
 		},
 	}
 
+	stateReader := &stateReaderMock{
+		query: func(scope activationscope.Scope) (state.State, error) {
+			return state.NewStateEnabled([]string{}, ""), nil
+		},
+	}
+
 	deps := Dependencies{
 		ConfigReader:    configReader,
+		StateReader:     stateReader,
 		GitConfigWriter: gitConfigWriter,
 		ActivationValidator: &activationValidatorMock{
 			isInsideAGitRepository: func() bool {
@@ -344,6 +410,61 @@ func TestDisableShouldFailWhenUnsetHooksPathFails(t *testing.T) {
 	}
 
 	expectedEvent := Failed{Reason: fmt.Errorf("failed to unset core.hooksPath: %s", gitconfigerror.ErrConfigFileCannotBeWritten)}
+
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
+	}
+}
+
+func TestDisableShouldFailWhenReplacingHooksPathFails(t *testing.T) {
+	gitConfigWriter := &gitConfigWriterMock{
+		unsetAll: func(scope gitconfigscope.Scope, key string) error {
+			switch key {
+			case "commit.template":
+				return nil
+			case "core.hooksPath":
+				return nil
+			default:
+				return fmt.Errorf("wrong key: %s", key)
+			}
+		},
+		replaceAll: func(scope gitconfigscope.Scope, key string, value string) error {
+			switch key {
+			case "core.hooksPath":
+				return gitconfigerror.ErrConfigFileCannotBeWritten
+			default:
+				return fmt.Errorf("wrong key: %s", key)
+			}
+		},
+	}
+
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
+
+	stateReader := &stateReaderMock{
+		query: func(scope activationscope.Scope) (state.State, error) {
+			return state.NewStateEnabled([]string{}, "/path/to/previous/hooks"), nil
+		},
+	}
+
+	deps := Dependencies{
+		ConfigReader:    configReader,
+		StateReader:     stateReader,
+		GitConfigWriter: gitConfigWriter,
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
+			},
+		},
+	}
+
+	expectedEvent := Failed{Reason: fmt.Errorf("failed to replace core.hooksPath: %s", gitconfigerror.ErrConfigFileCannotBeWritten)}
 
 	event := Policy{deps}.Apply()
 
@@ -374,6 +495,12 @@ func TestDisableShouldSucceedWhenReadingCommitTemplateFailsBecauseItHasBeenUnset
 		},
 	}
 
+	stateReader := &stateReaderMock{
+		query: func(scope activationscope.Scope) (state.State, error) {
+			return state.NewStateEnabled([]string{}, ""), nil
+		},
+	}
+
 	stateWriter := &stateWriterMock{
 		persistDisabled: func(scope activationscope.Scope) error {
 			return nil
@@ -391,6 +518,7 @@ func TestDisableShouldSucceedWhenReadingCommitTemplateFailsBecauseItHasBeenUnset
 		GitConfigWriter: gitConfigWriter,
 		StatFile:        statFile,
 		RemoveFile:      removeFile,
+		StateReader:     stateReader,
 		StateWriter:     stateWriter,
 		ConfigReader:    configReader,
 		ActivationValidator: &activationValidatorMock{
@@ -436,10 +564,17 @@ func TestDisableShouldFailWhenReadingCommitTemplatePathFails(t *testing.T) {
 		},
 	}
 
+	stateReader := &stateReaderMock{
+		query: func(scope activationscope.Scope) (state.State, error) {
+			return state.NewStateEnabled([]string{}, ""), nil
+		},
+	}
+
 	deps := Dependencies{
 		ConfigReader:    configReader,
 		GitConfigReader: gitConfigReader,
 		GitConfigWriter: gitConfigWriter,
+		StateReader:     stateReader,
 		ActivationValidator: &activationValidatorMock{
 			isInsideAGitRepository: func() bool {
 				return true
@@ -478,6 +613,12 @@ func TestDisableShouldSucceedWhenUnsetCommitTemplateFailsBecauseItWasUnsetAlread
 		},
 	}
 
+	stateReader := &stateReaderMock{
+		query: func(scope activationscope.Scope) (state.State, error) {
+			return state.NewStateEnabled([]string{}, ""), nil
+		},
+	}
+
 	stateWriter := &stateWriterMock{
 		persistDisabled: func(scope activationscope.Scope) error {
 			return nil
@@ -496,6 +637,7 @@ func TestDisableShouldSucceedWhenUnsetCommitTemplateFailsBecauseItWasUnsetAlread
 		GitConfigWriter: gitConfigWriter,
 		StatFile:        statFile,
 		RemoveFile:      removeFile,
+		StateReader:     stateReader,
 		StateWriter:     stateWriter,
 		ActivationValidator: &activationValidatorMock{
 			isInsideAGitRepository: func() bool {
@@ -521,6 +663,12 @@ func TestDisableShouldFailWhenUnsetCommitTemplateFails(t *testing.T) {
 		},
 	}
 
+	stateReader := &stateReaderMock{
+		query: func(scope activationscope.Scope) (state.State, error) {
+			return state.NewStateEnabled([]string{}, ""), nil
+		},
+	}
+
 	gitConfigWriter := &gitConfigWriterMock{
 		unsetAll: func(scope gitconfigscope.Scope, key string) error {
 			switch key {
@@ -542,6 +690,7 @@ func TestDisableShouldFailWhenUnsetCommitTemplateFails(t *testing.T) {
 
 	deps := Dependencies{
 		ConfigReader:    configReader,
+		StateReader:     stateReader,
 		GitConfigReader: gitConfigReader,
 		GitConfigWriter: gitConfigWriter,
 		ActivationValidator: &activationValidatorMock{
@@ -587,12 +736,19 @@ func TestDisableShouldFailWhenRemoveFileFails(t *testing.T) {
 		},
 	}
 
+	stateReader := &stateReaderMock{
+		query: func(scope activationscope.Scope) (state.State, error) {
+			return state.NewStateEnabled([]string{}, ""), nil
+		},
+	}
+
 	removeFileErr := errors.New("failed to remove file")
 
 	deps := Dependencies{
 		ConfigReader:    configReader,
 		GitConfigReader: gitConfigReader,
 		GitConfigWriter: gitConfigWriter,
+		StateReader:     stateReader,
 		StatFile:        statFile,
 		RemoveFile:      func(string) error { return removeFileErr },
 		ActivationValidator: &activationValidatorMock{
@@ -632,6 +788,12 @@ func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenTheRespec
 		},
 	}
 
+	stateReader := &stateReaderMock{
+		query: func(scope activationscope.Scope) (state.State, error) {
+			return state.NewStateEnabled([]string{}, ""), nil
+		},
+	}
+
 	stateWriter := &stateWriterMock{
 		persistDisabled: func(scope activationscope.Scope) error {
 			return nil
@@ -649,6 +811,7 @@ func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenTheRespec
 		GitConfigReader: gitConfigReader,
 		GitConfigWriter: gitConfigWriter,
 		StatFile:        func(string) (os.FileInfo, error) { return fileInfo, nil },
+		StateReader:     stateReader,
 		StateWriter:     stateWriter,
 		ActivationValidator: &activationValidatorMock{
 			isInsideAGitRepository: func() bool {
@@ -687,6 +850,12 @@ func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenStatFileF
 		},
 	}
 
+	stateReader := &stateReaderMock{
+		query: func(scope activationscope.Scope) (state.State, error) {
+			return state.NewStateEnabled([]string{}, ""), nil
+		},
+	}
+
 	stateWriter := &stateWriterMock{
 		persistDisabled: func(scope activationscope.Scope) error {
 			return nil
@@ -704,6 +873,7 @@ func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenStatFileF
 		GitConfigReader: gitConfigReader,
 		GitConfigWriter: gitConfigWriter,
 		StatFile:        func(string) (os.FileInfo, error) { return fileInfo, errors.New("failed to stat file") },
+		StateReader:     stateReader,
 		StateWriter:     stateWriter,
 		ActivationValidator: &activationValidatorMock{
 			isInsideAGitRepository: func() bool {
@@ -722,7 +892,7 @@ func TestDisableShouldSucceedButNotTryToRemoveTheCommitTemplateFileWhenStatFileF
 	}
 }
 
-func TestDisableShouldFailWhenpersistDisabledFails(t *testing.T) {
+func TestDisableShouldFailWhenPersistDisabledFails(t *testing.T) {
 	gitConfigReader := &gitConfigReaderMock{
 		get: func(_ gitconfigscope.Scope, key string) (string, error) {
 			return "/path/to/template", nil
@@ -739,6 +909,12 @@ func TestDisableShouldFailWhenpersistDisabledFails(t *testing.T) {
 			default:
 				return fmt.Errorf("wrong key: %s", key)
 			}
+		},
+	}
+
+	stateReader := &stateReaderMock{
+		query: func(scope activationscope.Scope) (state.State, error) {
+			return state.NewStateEnabled([]string{}, ""), nil
 		},
 	}
 
@@ -762,6 +938,7 @@ func TestDisableShouldFailWhenpersistDisabledFails(t *testing.T) {
 		GitConfigWriter: gitConfigWriter,
 		StatFile:        statFile,
 		RemoveFile:      removeFile,
+		StateReader:     stateReader,
 		StateWriter:     stateWriter,
 		ActivationValidator: &activationValidatorMock{
 			isInsideAGitRepository: func() bool {

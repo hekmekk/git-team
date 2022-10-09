@@ -53,7 +53,7 @@ func TestMapEventToEffectSucceeded(t *testing.T) {
 
 	statusPolicy := &statusPolicyMock{
 		apply: func() events.Event {
-			return status.StateRetrievalSucceeded{State: state.NewStateEnabled(coauthors)}
+			return status.StateRetrievalSucceeded{State: state.NewStateEnabled(coauthors, "/previous/hooks/path")}
 		},
 	}
 

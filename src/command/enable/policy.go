@@ -116,11 +116,20 @@ func (policy Policy) Apply() events.Event {
 		return Failed{Reason: []error{fmt.Errorf("failed to install hooks: %s", err)}}
 	}
 
+	previousHooksPath, err := deps.GitConfigReader.Get(gitConfigScope, "core.hooksPath")
+
+	if err != nil && !errors.Is(err, giterror.ErrSectionOrKeyIsInvalid) {
+		return Failed{Reason: []error{fmt.Errorf("failed to get core.hooksPath: %s", err)}}
+	}
+
+	if previousHooksPath == settings.HooksDir {
+		previousHooksPath = ""
+	}
+
 	if err := deps.GitConfigWriter.ReplaceAll(gitConfigScope, "core.hooksPath", settings.HooksDir); err != nil {
 		return Failed{Reason: []error{fmt.Errorf("failed to set core.hooksPath: %s", err)}}
 	}
-
-	if err := deps.StateWriter.PersistEnabled(cfg.ActivationScope, coAuthors); err != nil {
+	if err := deps.StateWriter.PersistEnabled(cfg.ActivationScope, coAuthors, previousHooksPath); err != nil {
 		return Failed{Reason: []error{fmt.Errorf("failed to persist state: %s", err)}}
 	}
 

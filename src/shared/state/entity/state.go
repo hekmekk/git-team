@@ -9,18 +9,19 @@ const (
 
 // State the state of git-team
 type State struct {
-	Status    teamStatus
-	Coauthors []string
+	Status            teamStatus
+	Coauthors         []string
+	PreviousHooksPath string
 }
 
 // NewStateEnabled the constructor for the enabled state
-func NewStateEnabled(coauthors []string) State {
-	return State{Status: enabled, Coauthors: coauthors}
+func NewStateEnabled(coauthors []string, previousHooksPath string) State {
+	return State{Status: enabled, Coauthors: coauthors, PreviousHooksPath: previousHooksPath}
 }
 
 // NewStateDisabled the constructor for the disabled state
 func NewStateDisabled() State {
-	return State{Status: disabled, Coauthors: []string{}}
+	return State{Status: disabled, Coauthors: []string{}, PreviousHooksPath: ""}
 }
 
 // IsEnabled returns true if git-team is enabled

@@ -6,7 +6,7 @@ import (
 
 func TestIsEnabledShouldBeTrue(t *testing.T) {
 	expectedIsEnabled := true
-	isEnabled := NewStateEnabled([]string{}).IsEnabled()
+	isEnabled := NewStateEnabled([]string{}, "").IsEnabled()
 
 	if expectedIsEnabled != isEnabled {
 		t.Errorf("expected: %t, got: %t", expectedIsEnabled, isEnabled)

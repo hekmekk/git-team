@@ -22,6 +22,7 @@ type Dependencies struct {
 	GitConfigWriter     gitconfig.Writer
 	StatFile            func(string) (os.FileInfo, error)
 	RemoveFile          func(string) error
+	StateReader         state.Reader
 	StateWriter         state.Writer
 	ConfigReader        config.Reader
 	ActivationValidator activation.Validator
@@ -55,8 +56,20 @@ func (policy Policy) Apply() events.Event {
 		gitConfigScope = gitconfigscope.Local
 	}
 
-	if err := gitConfigWriter.UnsetAll(gitConfigScope, "core.hooksPath"); err != nil && !errors.Is(err, giterror.ErrTryingToUnsetAnOptionWhichDoesNotExist) {
-		return Failed{Reason: fmt.Errorf("failed to unset core.hooksPath: %s", err)}
+	appState, err := deps.StateReader.Query(activationScope)
+	if err != nil {
+		return Failed{Reason: fmt.Errorf("failed to read current state: %s", err)}
+	}
+
+	previousHooksPath := appState.PreviousHooksPath
+	if "" == previousHooksPath {
+		if err := gitConfigWriter.UnsetAll(gitConfigScope, "core.hooksPath"); err != nil && !errors.Is(err, giterror.ErrTryingToUnsetAnOptionWhichDoesNotExist) {
+			return Failed{Reason: fmt.Errorf("failed to unset core.hooksPath: %s", err)}
+		}
+	} else {
+		if err := gitConfigWriter.ReplaceAll(gitConfigScope, "core.hooksPath", previousHooksPath); err != nil {
+			return Failed{Reason: fmt.Errorf("failed to replace core.hooksPath: %s", err)}
+		}
 	}
 
 	commitTemplatePath, err := deps.GitConfigReader.Get(gitConfigScope, "commit.template")

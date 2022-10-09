@@ -2,10 +2,15 @@
 
 #!/bin/sh
 
-REAL_LOCAL_HOOK="$(git rev-parse --show-toplevel)/.git/hooks/$(basename ${0})"
+PREVIOUS_HOOKS_PATH=$(git config --get team.state.previous-hooks-path)
+PREVIOUS_GLOBAL_HOOK="${PREVIOUS_HOOKS_PATH}/$(basename ${0})"
+if [ -n "${PREVIOUS_HOOKS_PATH}" ] && [ -x "${PREVIOUS_GLOBAL_HOOK}" ]; then
+  "${PREVIOUS_GLOBAL_HOOK}" "${@}" && exit 0 || exit $?
+fi
 
+REAL_LOCAL_HOOK="$(git rev-parse --show-toplevel)/.git/hooks/$(basename $0)"
 if [ -x "${REAL_LOCAL_HOOK}" ]; then
-    "${REAL_LOCAL_HOOK}" "${@}" || exit $?
+  "${REAL_LOCAL_HOOK}" "${@}" || exit $?
 fi
 
 exit 0

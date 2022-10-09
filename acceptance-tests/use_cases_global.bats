@@ -43,6 +43,28 @@ teardown() {
 	assert_line --index 0 'commit-msg hook triggered with params: .git/COMMIT_EDITMSG'
 }
 
+@test "use case: (scope: global) an existing global git hook should be respected instead of a repo-local one - commit-msg" {
+	echo -e '#!/bin/sh\necho "repo-local commit-msg hook triggered with params: $@"\nexit 1' > $REPO_PATH/.git/hooks/commit-msg
+	chmod +x $REPO_PATH/.git/hooks/commit-msg
+
+	mkdir -p /tmp/non-git-team-hooks/
+	echo -e '#!/bin/sh\necho "global commit-msg hook triggered with params: $@"\nexit 0' > /tmp/non-git-team-hooks/commit-msg
+	chmod +x /tmp/non-git-team-hooks/commit-msg
+
+	git config --global core.hooksPath "/tmp/non-git-team-hooks"
+
+	/usr/local/bin/git-team enable 'A <a@x.y>'
+
+	git add -A
+	run git commit -m "test"
+
+	assert_success
+	assert_line --index 0 'global commit-msg hook triggered with params: .git/COMMIT_EDITMSG'
+
+	git config --global --unset core.hooksPath | true
+	rm -rf /tmp/non-git-team-hooks
+}
+
 @test "use case: (scope: global) an existing repo-local git hook should be respected - prepare-commit-msg" {
 	echo -e '#!/bin/sh\necho "prepare-commit-msg hook triggered with params: $@"\nexit 1' > $REPO_PATH/.git/hooks/prepare-commit-msg
 	chmod +x $REPO_PATH/.git/hooks/prepare-commit-msg
@@ -54,6 +76,28 @@ teardown() {
 
 	assert_failure
 	assert_line --index 0 'prepare-commit-msg hook triggered with params: .git/COMMIT_EDITMSG message'
+}
+
+@test "use case: (scope: global) an existing global git hook should be respected instead of a repo-local one - prepare-commit-msg" {
+	echo -e '#!/bin/sh\necho "repo-local prepare-commit-msg hook triggered with params: $@"\nexit 1' > $REPO_PATH/.git/hooks/prepare-commit-msg
+	chmod +x $REPO_PATH/.git/hooks/prepare-commit-msg
+
+	mkdir -p /tmp/non-git-team-hooks/
+	echo -e '#!/bin/sh\necho "global prepare-commit-msg hook triggered with params: $@"\nexit 0' > /tmp/non-git-team-hooks/prepare-commit-msg
+	chmod +x /tmp/non-git-team-hooks/prepare-commit-msg
+
+	git config --global core.hooksPath "/tmp/non-git-team-hooks"
+
+	/usr/local/bin/git-team enable 'A <a@x.y>'
+
+	git add -A
+	run git commit -m "test"
+
+	assert_success
+	assert_line --index 0 'global prepare-commit-msg hook triggered with params: .git/COMMIT_EDITMSG message'
+
+	git config --global --unset core.hooksPath | true
+	rm -rf /tmp/non-git-team-hooks
 }
 
 @test "use case: (scope: global) when git-team is enabled then 'git commit -m' should have the respective co-authors injected" {

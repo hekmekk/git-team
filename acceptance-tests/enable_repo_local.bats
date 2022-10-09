@@ -34,6 +34,43 @@ teardown() {
 	rm -rf $REPO_PATH
 }
 
+@test "git-team: (scope: repo-local) enable should persist a previous git hooks path" {
+	git config --local core.hooksPath "/path/to/non-git-team-hooks"
+
+	/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>'
+
+	run bash -c "git config --local --get-regexp team.state | sort"
+	assert_success
+	assert_line --index 0 'team.state.active-coauthors A <a@x.y>'
+	assert_line --index 1 'team.state.active-coauthors Ad-hoc <adhoc@tmp.se>'
+	assert_line --index 2 'team.state.active-coauthors B <b@x.y>'
+	assert_line --index 3 'team.state.active-coauthors C <c@x.y>'
+	assert_line --index 4 'team.state.previous-hooks-path /path/to/non-git-team-hooks'
+	assert_line --index 5 'team.state.status enabled'
+
+	/usr/local/bin/git-team disable
+
+	git config --local --unset core.hooksPath | true
+}
+
+@test "git-team: (scope: repo-local) enable should not set the git-team hooks path as the previous hooks path" {
+	git config --local core.hooksPath "/root/.git-team/hooks"
+
+	/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>'
+
+	run bash -c "git config --local --get-regexp team.state | sort"
+	assert_success
+	assert_line --index 0 'team.state.active-coauthors A <a@x.y>'
+	assert_line --index 1 'team.state.active-coauthors Ad-hoc <adhoc@tmp.se>'
+	assert_line --index 2 'team.state.active-coauthors B <b@x.y>'
+	assert_line --index 3 'team.state.active-coauthors C <c@x.y>'
+	assert_line --index 4 'team.state.status enabled'
+
+	/usr/local/bin/git-team disable
+
+	git config --local --unset core.hooksPath | true
+}
+
 @test "git-team: (scope: repo-local) enable should persist the current status" {
 	/usr/local/bin/git-team b a c 'Ad-hoc <adhoc@tmp.se>'
 

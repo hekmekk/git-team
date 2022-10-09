@@ -1,7 +1,9 @@
 package stateimpl
 
 import (
+	"errors"
 	"fmt"
+	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 
 	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
 	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
@@ -38,5 +40,10 @@ func (ds GitConfigDataSource) Query(activationScope activationscope.Scope) (stat
 		return state.State{}, fmt.Errorf("no active co-authors found: %s", err)
 	}
 
-	return state.NewStateEnabled(activeCoauthors), nil
+	previousHooksPath, err := ds.GitConfigReader.Get(gitConfigScope, "team.state.previous-hooks-path")
+	if err != nil && !errors.Is(err, giterror.ErrSectionOrKeyIsInvalid) {
+		return state.State{}, fmt.Errorf("failed to get previous hooks path: %s", err)
+	}
+
+	return state.NewStateEnabled(activeCoauthors, previousHooksPath), nil
 }

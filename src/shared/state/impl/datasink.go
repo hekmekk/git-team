@@ -21,8 +21,8 @@ func NewGitConfigDataSink(gitConfigWriter gitconfig.Writer) GitConfigDataSink {
 }
 
 // PersistEnabled persist the current state as enabled
-func (ds GitConfigDataSink) PersistEnabled(scope activationscope.Scope, coauthors []string) error {
-	return ds.persist(scope, state.NewStateEnabled(coauthors))
+func (ds GitConfigDataSink) PersistEnabled(scope activationscope.Scope, coauthors []string, previousHooksPath string) error {
+	return ds.persist(scope, state.NewStateEnabled(coauthors, previousHooksPath))
 }
 
 // PersistDisabled persist the current state as disabled
@@ -52,6 +52,16 @@ func (ds GitConfigDataSink) persist(activationScope activationscope.Scope, state
 
 	if err := gitConfigWriter.ReplaceAll(gitConfigScope, "team.state.status", string(state.Status)); err != nil {
 		return errors.New("failed to replace team.state.status")
+	}
+
+	if state.PreviousHooksPath == "" {
+		if err := gitConfigWriter.UnsetAll(gitConfigScope, "team.state.previous-hooks-path"); err != nil && !errors.Is(err, giterror.ErrTryingToUnsetAnOptionWhichDoesNotExist) {
+			return errors.New("failed to unset team.state.previous-hooks-path")
+		}
+	} else {
+		if err := gitConfigWriter.ReplaceAll(gitConfigScope, "team.state.previous-hooks-path", state.PreviousHooksPath); err != nil {
+			return errors.New("failed to replace team.state.previous-hooks-path")
+		}
 	}
 
 	return nil

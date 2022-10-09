@@ -26,7 +26,7 @@ func TestPersistSucceeds(t *testing.T) {
 		On("ReplaceAll", mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := NewGitConfigDataSink(gitConfigWriter).PersistEnabled(activationscope.Global, []string{"CO-AUTHOR"})
+	err := NewGitConfigDataSink(gitConfigWriter).PersistEnabled(activationscope.Global, []string{"CO-AUTHOR"}, "/previous/hooks/path")
 
 	require.Nil(t, err)
 }
@@ -46,7 +46,7 @@ func TestPersistSucceedsWhenTryingToRemoveNonExistingActiveCoauthorsFromGitConfi
 		On("ReplaceAll", mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := NewGitConfigDataSink(gitConfigWriter).PersistEnabled(activationscope.Global, []string{"CO-AUTHOR"})
+	err := NewGitConfigDataSink(gitConfigWriter).PersistEnabled(activationscope.Global, []string{"CO-AUTHOR"}, "/previous/hooks/path")
 
 	require.Nil(t, err)
 }
@@ -58,7 +58,7 @@ func TestPersistFailsDueToAnotherUnsetAllFailure(t *testing.T) {
 		On("UnsetAll", mock.Anything, mock.Anything).
 		Return(gitconfigerror.ErrConfigFileCannotBeWritten)
 
-	err := NewGitConfigDataSink(gitConfigWriter).PersistEnabled(activationscope.Global, []string{"CO-AUTHOR"})
+	err := NewGitConfigDataSink(gitConfigWriter).PersistEnabled(activationscope.Global, []string{"CO-AUTHOR"}, "/previous/hooks/path")
 
 	require.Error(t, err)
 }
@@ -74,7 +74,7 @@ func TestPersistFailsDueToAddFailure(t *testing.T) {
 		On("Add", mock.Anything, mock.Anything, mock.Anything).
 		Return(gitconfigerror.ErrConfigFileCannotBeWritten)
 
-	err := NewGitConfigDataSink(gitConfigWriter).PersistEnabled(activationscope.Global, []string{"CO-AUTHOR"})
+	err := NewGitConfigDataSink(gitConfigWriter).PersistEnabled(activationscope.Global, []string{"CO-AUTHOR"}, "/previous/hooks/path")
 
 	require.Error(t, err)
 }

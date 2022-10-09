@@ -1,6 +1,8 @@
 package stateimpl
 
 import (
+	"fmt"
+	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
 	"reflect"
 	"testing"
 
@@ -35,48 +37,64 @@ func TestQueryDisabled(t *testing.T) {
 
 	gitConfigReader := &gitConfigReaderMock{
 		get: func(scope gitconfigscope.Scope, key string) (string, error) {
-			return "disabled", nil
+			if "team.state.status" == key {
+				return "disabled", nil
+			}
+
+			if "team.state.previous-hooks-path" == key {
+				return "", nil
+			}
+
+			return "", nil
 		},
 		getAll: func(scope gitconfigscope.Scope, key string) ([]string, error) {
 			return []string{}, nil
 		},
 	}
 
-	state, err := NewGitConfigDataSource(gitConfigReader).Query(activationscope.Global)
+	appState, err := NewGitConfigDataSource(gitConfigReader).Query(activationscope.Global)
 
 	if err != nil {
 		t.Error(err)
 		t.Fail()
 	}
 
-	if !reflect.DeepEqual(expectedState, state) {
-		t.Errorf("expected: %s, got: %s", expectedState, state)
+	if !reflect.DeepEqual(expectedState, appState) {
+		t.Errorf("expected: %s, got: %s", expectedState, appState)
 		t.Fail()
 	}
 }
 
 func TestQueryEnabled(t *testing.T) {
 	activeCoauthors := []string{"Mr. Noujz <noujz@mr.se>"}
-	expectedState := state.State{Status: "enabled", Coauthors: activeCoauthors}
+	expectedState := state.State{Status: "enabled", Coauthors: activeCoauthors, PreviousHooksPath: "/path/to/previous/hooks"}
 
 	gitConfigReader := &gitConfigReaderMock{
 		get: func(scope gitconfigscope.Scope, key string) (string, error) {
-			return "enabled", nil
+			if "team.state.status" == key {
+				return "enabled", nil
+			}
+
+			if "team.state.previous-hooks-path" == key {
+				return "/path/to/previous/hooks", nil
+			}
+
+			return "", nil
 		},
 		getAll: func(scope gitconfigscope.Scope, key string) ([]string, error) {
 			return activeCoauthors, nil
 		},
 	}
 
-	state, err := NewGitConfigDataSource(gitConfigReader).Query(activationscope.Global)
+	appState, err := NewGitConfigDataSource(gitConfigReader).Query(activationscope.Global)
 
 	if err != nil {
 		t.Error(err)
 		t.Fail()
 	}
 
-	if !reflect.DeepEqual(expectedState, state) {
-		t.Errorf("expected: %s, got: %s", expectedState, state)
+	if !reflect.DeepEqual(expectedState, appState) {
+		t.Errorf("expected: %s, got: %s", expectedState, appState)
 		t.Fail()
 	}
 }
@@ -86,6 +104,14 @@ func TestQueryDisabledWhenStatusUnset(t *testing.T) {
 
 	gitConfigReader := &gitConfigReaderMock{
 		get: func(scope gitconfigscope.Scope, key string) (string, error) {
+			if "team.state.status" == key {
+				return "", nil
+			}
+
+			if "team.state.previous-hooks-path" == key {
+				return "", nil
+			}
+
 			return "", nil
 		},
 		getAll: func(scope gitconfigscope.Scope, key string) ([]string, error) {
@@ -93,15 +119,15 @@ func TestQueryDisabledWhenStatusUnset(t *testing.T) {
 		},
 	}
 
-	state, err := NewGitConfigDataSource(gitConfigReader).Query(activationscope.Global)
+	appState, err := NewGitConfigDataSource(gitConfigReader).Query(activationscope.Global)
 
 	if err != nil {
 		t.Error(err)
 		t.Fail()
 	}
 
-	if !reflect.DeepEqual(expectedState, state) {
-		t.Errorf("expected: %s, got: %s", expectedState, state)
+	if !reflect.DeepEqual(expectedState, appState) {
+		t.Errorf("expected: %s, got: %s", expectedState, appState)
 		t.Fail()
 	}
 }
@@ -130,7 +156,15 @@ func TestQueryTranslatesActivationScopeToGitconfigScopeCorrectly(t *testing.T) {
 						t.Errorf("wrong scope, expected: %s, got: %s", gitConfigScope, scope)
 						t.Fail()
 					}
-					return "enabled", nil
+					if "team.state.status" == key {
+						return "enabled", nil
+					}
+
+					if "team.state.previous-hooks-path" == key {
+						return "", nil
+					}
+
+					return "", nil
 				},
 				getAll: func(scope gitconfigscope.Scope, key string) ([]string, error) {
 					if scope != gitConfigScope {
@@ -143,5 +177,108 @@ func TestQueryTranslatesActivationScopeToGitconfigScopeCorrectly(t *testing.T) {
 
 			NewGitConfigDataSource(gitConfigReader).Query(activationScope)
 		})
+	}
+}
+
+func TestFailWhenFailingToRetrieveActiveCoAuthors(t *testing.T) {
+	expectedState := state.State{}
+
+	gitConfigReader := &gitConfigReaderMock{
+		get: func(scope gitconfigscope.Scope, key string) (string, error) {
+			if "team.state.status" == key {
+				return "enabled", nil
+			}
+
+			if "team.state.previous-hooks-path" == key {
+				return "", nil
+			}
+
+			return "", nil
+		},
+		getAll: func(scope gitconfigscope.Scope, key string) ([]string, error) {
+			return []string{}, gitconfigerror.ErrSectionOrKeyIsInvalid
+		},
+	}
+
+	appState, err := NewGitConfigDataSource(gitConfigReader).Query(activationscope.Global)
+
+	expectedErr := fmt.Errorf("no active co-authors found: %s", gitconfigerror.ErrSectionOrKeyIsInvalid)
+
+	if !reflect.DeepEqual(expectedErr, err) {
+		t.Errorf("expected: %s, got: %s", expectedErr, err)
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(expectedState, appState) {
+		t.Errorf("expected: %s, got: %s", expectedState, appState)
+		t.Fail()
+	}
+}
+
+func TestEmptyHooksPathOnSpecificGitConfigErr(t *testing.T) {
+	expectedState := state.State{Status: "enabled", Coauthors: []string{}}
+
+	gitConfigReader := &gitConfigReaderMock{
+		get: func(scope gitconfigscope.Scope, key string) (string, error) {
+			if "team.state.status" == key {
+				return "enabled", nil
+			}
+
+			if "team.state.previous-hooks-path" == key {
+				return "", gitconfigerror.ErrSectionOrKeyIsInvalid
+			}
+
+			return "", nil
+		},
+		getAll: func(scope gitconfigscope.Scope, key string) ([]string, error) {
+			return []string{}, nil
+		},
+	}
+
+	appState, err := NewGitConfigDataSource(gitConfigReader).Query(activationscope.Global)
+
+	if err != nil {
+		t.Error(err)
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(expectedState, appState) {
+		t.Errorf("expected: %s, got: %s", expectedState, appState)
+		t.Fail()
+	}
+}
+
+func TestFailWhenFailingToRetrievePreviousHooksPath(t *testing.T) {
+	expectedState := state.State{}
+
+	gitConfigReader := &gitConfigReaderMock{
+		get: func(scope gitconfigscope.Scope, key string) (string, error) {
+			if "team.state.status" == key {
+				return "enabled", nil
+			}
+
+			if "team.state.previous-hooks-path" == key {
+				return "", gitconfigerror.ErrConfigFileIsInvalid
+			}
+
+			return "", nil
+		},
+		getAll: func(scope gitconfigscope.Scope, key string) ([]string, error) {
+			return []string{}, nil
+		},
+	}
+
+	appState, err := NewGitConfigDataSource(gitConfigReader).Query(activationscope.Global)
+
+	expectedErr := fmt.Errorf("failed to get previous hooks path: %s", gitconfigerror.ErrConfigFileIsInvalid)
+
+	if !reflect.DeepEqual(expectedErr, err) {
+		t.Errorf("expected: %s, got: %s", expectedErr, err)
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(expectedState, appState) {
+		t.Errorf("expected: %s, got: %s", expectedState, appState)
+		t.Fail()
 	}
 }

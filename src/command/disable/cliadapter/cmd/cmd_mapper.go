@@ -34,6 +34,7 @@ func policy() disable.Policy {
 			GitConfigWriter:     gitconfig.NewDataSink(),
 			StatFile:            os.Stat,
 			RemoveFile:          os.RemoveAll,
+			StateReader:         state.NewGitConfigDataSource(gitconfig.NewDataSource()),
 			StateWriter:         state.NewGitConfigDataSink(gitconfig.NewDataSink()),
 			ActivationValidator: activation.NewGitConfigDataSource(gitconfig.NewDataSource()),
 		},
