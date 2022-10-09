@@ -55,8 +55,22 @@ sudo dpkg -i /path/to/downloaded/release.deb
 ### manually
 1. Download the [latest release](https://github.com/hekmekk/git-team/releases/latest)
 
-2. Install it manually
-```bash
+2. Import git-team signing key
+```shell
+curl --silent https://api.github.com/users/hekmekk/gpg_keys | jq -r '.[] | select(.key_id == "12BB70967049E845") | .raw_key' > git-team-signing-key.asc
+```
+
+```shell
+sudo rpm --import git-team-signing-key.asc
+```
+
+3. Check if Signature is ok
+```shell
+rpm -v --checksig /path/to/downloaded/release.rpm
+```
+
+4. Install
+```shell
 sudo rpm -i /path/to/downloaded/release.rpm
 ```
 
