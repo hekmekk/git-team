@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.7.1] - 2022-10-09
+### Fixed
+- An [issue](https://github.com/hekmekk/git-team/issues/7) where a previously configured `core.hooksPath` was ignored while git-team was enabled and not restored when git-team was disabled again.
+
 ## [1.7.0] - 2021-05-31
 ### Added
 - Scripting prerequisites for the `assignments add` sub-command. It can now handle input from stdin and understand a new flag `--keep-existing|-k` which skips existing assignments instead of asking for override.
@@ -159,7 +163,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Append co-authors to a `git commit` message by means of a commit message template file
 
-[Unreleased]: https://github.com/hekmekk/git-team/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/hekmekk/git-team/compare/v1.7.1...HEAD
+[1.7.1]: https://github.com/hekmekk/git-team/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/hekmekk/git-team/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/hekmekk/git-team/compare/v1.5.5...v1.6.0
 [1.5.5]: https://github.com/hekmekk/git-team/compare/v1.5.4...v1.5.5
