@@ -33,6 +33,9 @@ endif
 
 all: build man-page completion
 
+update-deps:
+	go get -u -t
+
 deps:
 	go get -t
 	go mod download
