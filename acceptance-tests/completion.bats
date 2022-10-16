@@ -15,9 +15,9 @@ load '/bats-libs/bats-assert/load.bash'
 	run /usr/local/bin/git-team completion bash
 
 	assert_success
-	assert_line --index 0 '#!/usr/bin/env bash'
+	assert_line --index 0 '#!/bin/bash'
 	assert_line --index 2 '_git_team() {'
-	assert_line --index 9 '_git_team_bash_completion() {'
-	assert_line --index 18 'complete -F _git_team_bash_completion git-team'
+	assert_line --index 17 '_git_team_bash_completion() {'
+	assert_line --index 31 'complete -F _git_team_bash_completion git-team'
 }
 
