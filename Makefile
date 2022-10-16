@@ -34,6 +34,7 @@ endif
 all: build man-page completion
 
 deps:
+	go get -t
 	go mod download
 
 test: clean go-test hookscript-tests
