@@ -40,7 +40,7 @@ deps:
 	go get -t
 	go mod download
 
-test: clean go-test hookscript-tests
+test: go-test hookscript-tests
 
 verify: test acceptance-tests
 
@@ -54,7 +54,7 @@ fmt: deps
 	go fmt main.go
 	go fmt ./src/...
 
-build: clean deps
+build: deps
 ifndef GOPATH
 	$(error GOPATH is not set)
 endif
@@ -62,12 +62,12 @@ endif
 	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=amd64 go build -o $(CURR_DIR)/target/bin ./...
 	@echo "[INFO] Successfully built git-team version v$(VERSION)"
 
-man-page: clean deps
+man-page: deps
 	mkdir -p $(CURR_DIR)/target/man/
 	go run $(CURR_DIR)/main.go --generate-man-page > $(CURR_DIR)/target/man/git-team.1
 	gzip -f $(CURR_DIR)/target/man/git-team.1
 
-completion: clean deps
+completion: deps
 	mkdir -p $(CURR_DIR)/target/completion/bash
 	go run $(CURR_DIR)/main.go completion bash > $(CURR_DIR)/target/completion/bash/git-team.bash
 
