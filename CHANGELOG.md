@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- The `completion zsh` subcommand providing a zsh completion script.
 - The bash completion script (`git-team completion bash`) now also completes flags.
 
 ## [1.7.1] - 2022-10-09

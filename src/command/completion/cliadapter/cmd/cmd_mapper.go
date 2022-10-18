@@ -17,12 +17,22 @@ func Command() *cli.Command {
 		},
 	}
 
+	zshCommand := &cli.Command{
+		Name:        "zsh",
+		Usage:       "Zsh completion",
+		Description: "Source with zsh to get auto completion",
+		Action: func(c *cli.Context) error {
+			return effects.NewExitOkMsg(script.Zsh).Run()
+		},
+	}
+
 	return &cli.Command{
 		Name:        "completion",
 		Usage:       "Shell completion",
 		Description: "Source the output of this command to get auto completion",
 		Subcommands: []*cli.Command{
 			bashCommand,
+			zshCommand,
 		},
 	}
 }

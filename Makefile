@@ -18,6 +18,7 @@ datarootdir := $(prefix)/share
 man1dir := $(datarootdir)/man/man1
 
 bash_completion_dir := $(datarootdir)/bash-completion/completions
+zsh_completion_dir := $(datarootdir)/zsh/site-functions
 
 CURR_DIR := $(shell pwd)
 
@@ -67,9 +68,15 @@ man-page: deps
 	go run $(CURR_DIR)/main.go --generate-man-page > $(CURR_DIR)/target/man/git-team.1
 	gzip -f $(CURR_DIR)/target/man/git-team.1
 
-completion: deps
+completion: bash_completion zsh_completion
+
+bash_completion: deps
 	mkdir -p $(CURR_DIR)/target/completion/bash
 	go run $(CURR_DIR)/main.go completion bash > $(CURR_DIR)/target/completion/bash/git-team.bash
+
+zsh_completion: deps
+	mkdir -p $(CURR_DIR)/target/completion/zsh
+	go run $(CURR_DIR)/main.go completion zsh > $(CURR_DIR)/target/completion/zsh/git-team.zsh
 
 install:
 	@echo "[INFO] Installing into $(bindir)/ ..."
@@ -79,11 +86,15 @@ install:
 	install -m "0644" $(CURR_DIR)/target/man/git-team.1.gz $(man1dir)/git-team.1.gz
 	mkdir -p $(bash_completion_dir)
 	install -m "0644" $(CURR_DIR)/target/completion/bash/git-team.bash $(bash_completion_dir)/git-team
-	echo "[INFO] Don't forget to source $(bash_completion_dir)/git-team"
+	echo "[INFO] bash: Don't forget to source $(bash_completion_dir)/git-team"
+	mkdir -p $(zsh_completion_dir)
+	install -m "0644" $(CURR_DIR)/target/completion/zsh/git-team.zsh $(zsh_completion_dir)/_git-team
+	echo "[INFO] zsh: Don't forget to source $(zsh_completion_dir)/_git-team"
 
 uninstall:
 	rm -f $(bindir)/git-team
 	rm -f $(bash_completion_dir)/git-team
+	rm -f $(zsh_completion_dir)/_git-team
 	rm -f $(man1dir)/git-team.1.gz
 
 clean:
