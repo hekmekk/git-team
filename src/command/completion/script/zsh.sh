@@ -1,5 +1,5 @@
-#compdef _git-team git-team
-function _git-team {
+#compdef git-team
+function _git_team {
   local -a opts
   local cur
   cur=${words[-1]}
@@ -15,4 +15,4 @@ function _git-team {
 
   return
 }
-compdef _git-team git-team
+compdef _git_team git-team
