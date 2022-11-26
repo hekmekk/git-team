@@ -28,9 +28,10 @@ load '/bats-libs/bats-assert/load.bash'
 	run /usr/local/bin/git-team completion zsh
 
 	assert_success
-	assert_line --index 0 '#compdef _git-team git-team'
+	assert_line --index 0 '#compdef git-team'
 	assert_line --index 1 'function _git-team {'
-	assert_line --index 14 '}'
-	assert_line --index 15 'compdef _git-team git-team'
+	assert_line --index 23 '}'
+	assert_line --index 24 'compdef _git-team git-team'
+	assert_line --index 27 "zstyle ':completion:*:*:git:*' user-commands team:'manage and enhance git commit messages with co-authors'"
 }
 
