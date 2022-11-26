@@ -17,11 +17,9 @@ function _git-team {
       opts=("${(@f)$(_CLI_ZSH_AUTOCOMPLETE_HACK=1 ${cmd} ${words[@]:1:#words[@]-1} --generate-bash-completion)}")
     fi
   fi
-
   if [[ "${opts[1]}" != "" ]]; then
     _describe 'values' opts
   fi
-
   return
 }
 compdef _git-team git-team
