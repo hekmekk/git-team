@@ -1,4 +1,4 @@
-[![Build Status](https://img.shields.io/github/workflow/status/hekmekk/git-team/verify?logo=github&style=for-the-badge)](https://github.com/hekmekk/git-team/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/hekmekk/git-team/verify.yml?branch=main&logo=github&style=for-the-badge)](https://github.com/hekmekk/git-team/actions)
 [![Github Release Downloads](https://img.shields.io/github/downloads/hekmekk/git-team/total.svg?label=DOWNLOADS&logo=github&style=for-the-badge)](https://github.com/hekmekk/git-team/releases)
 
 [**:heart: Donate**](/docs/donate.md#heart-donate)
