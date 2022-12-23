@@ -3,6 +3,7 @@ package list
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"testing"
 
 	"github.com/hekmekk/git-team/src/core/assignment"
@@ -42,27 +43,38 @@ func TestListShouldReturnTheAvailableAssignments(t *testing.T) {
 		},
 	}
 
-	deps := Dependencies{
-		GitConfigReader: gitConfigReader,
-	}
+	for _, caseLoopVar := range []bool{true, false} {
+		onlyAlias := caseLoopVar
+		t.Run(strconv.FormatBool(onlyAlias), func(t *testing.T) {
+			t.Parallel()
 
-	assignmentsA := []assignment.Assignment{
-		assignment.Assignment{Alias: "alias1", Coauthor: "coauthor1"},
-		assignment.Assignment{Alias: "alias2", Coauthor: "coauthor2"},
-	}
-	expectedEventA := RetrievalSucceeded{Assignments: assignmentsA}
+			req := ListRequest{
+				OnlyAlias: &onlyAlias,
+			}
 
-	assignmentsB := []assignment.Assignment{
-		assignment.Assignment{Alias: "alias2", Coauthor: "coauthor2"},
-		assignment.Assignment{Alias: "alias1", Coauthor: "coauthor1"},
-	}
-	expectedEventB := RetrievalSucceeded{Assignments: assignmentsB}
+			deps := Dependencies{
+				GitConfigReader: gitConfigReader,
+			}
 
-	event := Policy{deps}.Apply()
+			assignmentsA := []assignment.Assignment{
+				assignment.Assignment{Alias: "alias1", Coauthor: "coauthor1"},
+				assignment.Assignment{Alias: "alias2", Coauthor: "coauthor2"},
+			}
+			expectedEventA := RetrievalSucceeded{Assignments: assignmentsA, OnlyAlias: *req.OnlyAlias}
 
-	if !reflect.DeepEqual(expectedEventA, event) && !reflect.DeepEqual(expectedEventB, event) {
-		t.Errorf("expected: %s, got: %s", expectedEventA, event)
-		t.Fail()
+			assignmentsB := []assignment.Assignment{
+				assignment.Assignment{Alias: "alias2", Coauthor: "coauthor2"},
+				assignment.Assignment{Alias: "alias1", Coauthor: "coauthor1"},
+			}
+			expectedEventB := RetrievalSucceeded{Assignments: assignmentsB, OnlyAlias: *req.OnlyAlias}
+
+			event := Policy{deps, req}.Apply()
+
+			if !reflect.DeepEqual(expectedEventA, event) && !reflect.DeepEqual(expectedEventB, event) {
+				t.Errorf("expected: %v, got: %s", expectedEventA, event)
+				t.Fail()
+			}
+		})
 	}
 }
 
@@ -73,17 +85,28 @@ func TestListShouldReturnAnEmptyListIfGitConfigSectionIsEmpty(t *testing.T) {
 		},
 	}
 
-	deps := Dependencies{
-		GitConfigReader: gitConfigReader,
-	}
+	for _, caseLoopVar := range []bool{true, false} {
+		onlyAlias := caseLoopVar
+		t.Run(strconv.FormatBool(onlyAlias), func(t *testing.T) {
+			t.Parallel()
 
-	expectedEvent := RetrievalSucceeded{Assignments: []assignment.Assignment{}}
+			req := ListRequest{
+				OnlyAlias: &onlyAlias,
+			}
 
-	event := Policy{deps}.Apply()
+			deps := Dependencies{
+				GitConfigReader: gitConfigReader,
+			}
 
-	if !reflect.DeepEqual(expectedEvent, event) {
-		t.Errorf("expected: %s, got: %s", expectedEvent, event)
-		t.Fail()
+			expectedEvent := RetrievalSucceeded{Assignments: []assignment.Assignment{}, OnlyAlias: *req.OnlyAlias}
+
+			event := Policy{deps, req}.Apply()
+
+			if !reflect.DeepEqual(expectedEvent, event) {
+				t.Errorf("expected: %v, got: %s", expectedEvent, event)
+				t.Fail()
+			}
+		})
 	}
 }
 
@@ -94,13 +117,19 @@ func TestListShouldReturnFailure(t *testing.T) {
 		},
 	}
 
+	onlyAlias := false
+
+	req := ListRequest{
+		OnlyAlias: &onlyAlias,
+	}
+
 	deps := Dependencies{
 		GitConfigReader: gitConfigReader,
 	}
 
 	expectedEvent := RetrievalFailed{Reason: fmt.Errorf("failed to retrieve assignments: %s", gitconfigerror.ErrTryingToUseAnInvalidRegexp)}
 
-	event := Policy{deps}.Apply()
+	event := Policy{deps, req}.Apply()
 
 	if !reflect.DeepEqual(expectedEvent, event) {
 		t.Errorf("expected: %s, got: %s", expectedEvent, event)

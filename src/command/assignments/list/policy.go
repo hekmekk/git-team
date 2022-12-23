@@ -12,6 +12,11 @@ import (
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
 
+// ListRequest how to show the available assignments
+type ListRequest struct {
+	OnlyAlias *bool
+}
+
 // Dependencies the dependencies of the list Policy module
 type Dependencies struct {
 	GitConfigReader gitconfig.Reader
@@ -20,6 +25,7 @@ type Dependencies struct {
 // Policy the policy to apply
 type Policy struct {
 	Deps Dependencies
+	Req  ListRequest
 }
 
 // Apply show the available assignments
@@ -38,5 +44,5 @@ func (policy Policy) Apply() events.Event {
 		assignments = append(assignments, assignment.Assignment{Alias: alias, Coauthor: coauthor})
 	}
 
-	return RetrievalSucceeded{Assignments: assignments}
+	return RetrievalSucceeded{Assignments: assignments, OnlyAlias: *policy.Req.OnlyAlias}
 }

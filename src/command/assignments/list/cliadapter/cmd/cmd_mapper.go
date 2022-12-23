@@ -15,14 +15,21 @@ func Command() *cli.Command {
 		Name:    "list",
 		Aliases: []string{"ls"},
 		Usage:   "List your assignments",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{Name: "only-alias", Value: false, Aliases: []string{"o"}, Usage: "Only show the alias, omitting the leading dash and the associated co-authors"},
+		},
 		Action: func(c *cli.Context) error {
-			return commandadapter.Run(policy(), listeventadapter.MapEventToEffect)
+			onlyAlias := c.Bool("only-alias")
+			return commandadapter.Run(policy(&onlyAlias), listeventadapter.MapEventToEffect)
 		},
 	}
 }
 
-func policy() list.Policy {
+func policy(onlyAlias *bool) list.Policy {
 	return list.Policy{
+		Req: list.ListRequest{
+			OnlyAlias: onlyAlias,
+		},
 		Deps: list.Dependencies{
 			GitConfigReader: gitconfig.NewDataSource(),
 		},
