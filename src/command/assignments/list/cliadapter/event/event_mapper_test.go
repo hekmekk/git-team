@@ -22,7 +22,26 @@ func TestMapEventToEffectRetrievalSucceededSorted(t *testing.T) {
 
 	expectedEffect := effects.NewExitOkMsg(msg)
 
-	effect := MapEventToEffect(list.RetrievalSucceeded{Assignments: assignments})
+	effect := MapEventToEffect(list.RetrievalSucceeded{Assignments: assignments, OnlyAlias: false})
+
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
+		t.Fail()
+	}
+}
+
+func TestMapEventToEffectRetrievalSucceededSortedWithoutCoauthors(t *testing.T) {
+	assignments := []assignment.Assignment{
+		assignment.Assignment{Alias: "alias200", Coauthor: "coauthor2"},
+		assignment.Assignment{Alias: "alias1", Coauthor: "coauthor1"},
+		assignment.Assignment{Alias: "alias3", Coauthor: "coauthor3"},
+	}
+
+	msg := fmt.Sprintf("alias1\nalias200\nalias3")
+
+	expectedEffect := effects.NewExitOkMsg(msg)
+
+	effect := MapEventToEffect(list.RetrievalSucceeded{Assignments: assignments, OnlyAlias: true})
 
 	if !reflect.DeepEqual(expectedEffect, effect) {
 		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
@@ -37,7 +56,22 @@ func TestMapEventToEffectRetrievalSucceededEmpty(t *testing.T) {
 
 	expectedEffect := effects.NewExitOkMsg(msg)
 
-	effect := MapEventToEffect(list.RetrievalSucceeded{Assignments: assignments})
+	effect := MapEventToEffect(list.RetrievalSucceeded{Assignments: assignments, OnlyAlias: false})
+
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
+		t.Fail()
+	}
+}
+
+func TestMapEventToEffectRetrievalSucceededEmptyWithoutCoauthors(t *testing.T) {
+	assignments := []assignment.Assignment{}
+
+	msg := fmt.Sprintf("")
+
+	expectedEffect := effects.NewExitOkMsg(msg)
+
+	effect := MapEventToEffect(list.RetrievalSucceeded{Assignments: assignments, OnlyAlias: true})
 
 	if !reflect.DeepEqual(expectedEffect, effect) {
 		t.Errorf("expected: %s, got: %s", expectedEffect, effect)

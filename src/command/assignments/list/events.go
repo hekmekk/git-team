@@ -12,4 +12,5 @@ type RetrievalFailed struct {
 // RetrievalSucceeded listing the available assignments succeeded
 type RetrievalSucceeded struct {
 	Assignments []assignment.Assignment
+	OnlyAlias   bool
 }
