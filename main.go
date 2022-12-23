@@ -48,7 +48,7 @@ func newApplication() *cli.App {
 			},
 		},
 		Usage:                "Command line interface for managing and enhancing git commit messages with co-authors.",
-		EnableBashCompletion: true,
+		EnableBashCompletion: false,
 		HideHelp:             false,
 		HideVersion:          false,
 		Flags: []cli.Flag{

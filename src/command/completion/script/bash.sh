@@ -1,32 +1,62 @@
 #!/bin/bash
 # triggered for git team
 _git_team() {
-  if [[ "${COMP_WORDS[0]}" != "source" ]]; then
-    local cur opts base
-    COMPREPLY=()
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    if [[ "$cur" == "-"* ]]; then
-      opts=$( ${COMP_WORDS[@]:0:$COMP_CWORD} ${cur} --generate-bash-completion )
-    else
-      opts=$( ${COMP_WORDS[@]:0:$COMP_CWORD} --generate-bash-completion )
-    fi
-    __gitcomp "${opts}"
-    compopt +o default
-  fi
+  echo "git team: COMP_CWORD=${COMP_CWORD} | COMP_CWORDS=${COMP_WORDS[@]}" >> /tmp/completion.log
+  compopt +o default
+  case ${COMP_WORDS[COMP_CWORD-1]} in
+    -h | --help)
+      return
+      ;;
+  esac
+  case $COMP_CWORD in
+    1)
+      opts=""
+      return
+      ;;
+    2)
+      case ${COMP_WORDS[COMP_CWORD]} in
+        -*)
+          opts=$(compgen -W "-h --help" -- "${COMP_WORDS[COMP_CWORD]}")
+          ;;
+        *)
+          opts=$(compgen -W "first1 first2 first3" -- "${COMP_WORDS[COMP_CWORD]}")
+          ;;
+      esac
+      ;;
+    3)
+      opts=$(compgen -W "second1 second2 second3" -- "${COMP_WORDS[COMP_CWORD]}")
+      ;;
+    *)
+      opts=""
+  esac
+  __gitcomp "${opts}"
 }
 # triggered for git-team
 _git_team_bash_completion() {
-  if [[ "${COMP_WORDS[0]}" != "source" ]]; then
-    local cur opts base
-    COMPREPLY=()
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    if [[ "$cur" == "-"* ]]; then
-      opts=$( ${COMP_WORDS[@]:0:$COMP_CWORD} ${cur} --generate-bash-completion )
-    else
-      opts=$( ${COMP_WORDS[@]:0:$COMP_CWORD} --generate-bash-completion )
-    fi
-    COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
-    return 0
-  fi
+  echo "git-team: COMP_CWORD=${COMP_CWORD} | COMP_CWORDS=${COMP_WORDS[@]}" >> /tmp/completion.log
+  case ${COMP_WORDS[COMP_CWORD-1]} in
+    -h | --help)
+      COMPREPLY=()
+      return
+      ;;
+  esac
+  case $COMP_CWORD in
+    1)
+      case ${COMP_WORDS[COMP_CWORD]} in
+        -*)
+          COMPREPLY=($(compgen -W "-h --help" -- "${COMP_WORDS[COMP_CWORD]}"))
+          ;;
+        *)
+          COMPREPLY=($(compgen -W "first1 first2 first3" -- "${COMP_WORDS[COMP_CWORD]}"))
+          ;;
+      esac
+      ;;
+    2)
+      COMPREPLY=($(compgen -W "second1 second2 second3" -- "${COMP_WORDS[COMP_CWORD]}"))
+      ;;
+    *)
+      COMPREPLY=()
+      ;;
+  esac
 }
 complete -F _git_team_bash_completion git-team
