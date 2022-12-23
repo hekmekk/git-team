@@ -10,8 +10,6 @@ import (
 	removeeventadapter "github.com/hekmekk/git-team/src/command/assignments/remove/cliadapter/event"
 	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
 	"github.com/hekmekk/git-team/src/shared/cli/effects"
-	aliascompletion "github.com/hekmekk/git-team/src/shared/completion"
-	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
 	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
 	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
 )
@@ -31,17 +29,6 @@ func Command() *cli.Command {
 
 			alias := args.First()
 			return commandadapter.Run(policy(&alias), removeeventadapter.MapEventToEffect)
-		},
-		BashComplete: func(c *cli.Context) {
-			args := c.Args()
-			if args.Len() == 0 {
-				remainingAliases := aliascompletion.NewAliasShellCompletion(gitconfig.NewDataSource()).Complete(args.Slice())
-				for _, alias := range remainingAliases {
-					fmt.Println(alias)
-				}
-			} else {
-				fmt.Println()
-			}
 		},
 	}
 }
