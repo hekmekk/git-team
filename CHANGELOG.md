@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- The `--only-alias|-o` flag to the `[assignments] ls|list` command.
+
+### Fixed
+- Output of `status`, `config`, and `[assignments] ls|list` commands now use the terminal default color instead of a hardcoded white.
+- The help for the `config` command now also includes its 'display' function.
+
 ## [1.8.1]
 ### Fixed
 - The zsh completion script now correctly provides suggestions for the command `git team` (in addition to `git-team`).
