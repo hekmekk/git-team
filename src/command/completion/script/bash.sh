@@ -135,6 +135,20 @@ _git_team_bash_completion() {
               ;;
           esac
           ;;
+        enable)
+          case ${COMP_WORDS[COMP_CWORD]} in
+            -*)
+              COMPREPLY=()
+              ;;
+            *)
+              # TODO: need to subsequently suggest the REMAINING aliases or decide against doing so ...
+              COMPREPLY=($(compgen -W "$(git team assignments list --only-alias)" --  "${COMP_WORDS[COMP_CWORD]}"))
+              ;;
+          esac
+          ;;
+        *)
+          COMPREPLY=()
+          ;;
       esac
       ;;
     *)
@@ -145,7 +159,7 @@ _git_team_bash_completion() {
               COMPREPLY=()
               ;;
             *)
-              # TODO: need to subsequently suggest the REMAINING aliases
+              # TODO: need to subsequently suggest the REMAINING aliases or decide against doing so ...
               COMPREPLY=($(compgen -W "$(git team assignments list --only-alias)" --  "${COMP_WORDS[COMP_CWORD]}"))
               ;;
           esac
