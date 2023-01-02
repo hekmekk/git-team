@@ -2,6 +2,7 @@ package listeventadapter
 
 import (
 	"bytes"
+	"fmt"
 	"sort"
 	"strings"
 
@@ -58,7 +59,7 @@ func toStringWithCoauthors(assignments []assignment.Assignment) string {
 
 	buffer.WriteString(color.New(color.FgBlue).Add(color.Bold).Sprint("Assignments"))
 	for _, assignment := range assignments {
-		buffer.WriteString(color.WhiteString("\n─ %-[1]*s →  %s", maxAliasLength, assignment.Alias, assignment.Coauthor))
+		buffer.WriteString(fmt.Sprintf("\n─ %-[1]*s →  %s", maxAliasLength, assignment.Alias, assignment.Coauthor))
 	}
 
 	return buffer.String()

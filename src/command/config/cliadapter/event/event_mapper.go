@@ -47,7 +47,7 @@ func toString(cfg config.Config) string {
 	var buffer bytes.Buffer
 	buffer.WriteString(color.New(color.FgBlue).Add(color.Bold).Sprint("config"))
 	for _, property := range propertyStrings {
-		buffer.WriteString(color.WhiteString("\n─ %s", property))
+		buffer.WriteString(fmt.Sprintf("\n─ %s", property))
 	}
 
 	return buffer.String()
