@@ -1,0 +1,98 @@
+name: release
+run-name: Create release
+
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '1.18.0'
+      - run: |
+          GOPATH=$(go env GOPATH) make
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+      - run: |
+          gem install fpm
+      - name: Extract package version from tag
+        run: |
+          echo "git_team_version=$(echo ${{ github.ref_name }} | cut -c2-)" >> $GITHUB_ENV
+      - name: Package deb
+        run: |
+          fpm \
+            --debug \
+            -f \
+            -s dir \
+            -t deb \
+            -n "git-team" \
+            -v ${{ env.git_team_version }} \
+            -m "git-team authors" \
+            --url "https://github.com/hekmekk/git-team" \
+            --architecture "x86_64" \
+            --license "MIT" \
+            --vendor "git-team authors" \
+            --description "git-team - commit message enhancement with co-authors" \
+            --depends "git" \
+            --deb-no-default-config-files \
+            -p ./ \
+            target/bin/git-team=/usr/bin/git-team \
+            target/completion/bash/git-team.bash=/usr/share/bash-completion/completions/git-team \
+            target/completion/zsh/git-team.zsh=/usr/share/zsh/site-functions/_git-team \
+            target/man/git-team.1.gz=/usr/share/man/man1/git-team.1.gz
+      - name: Generate sha256sum for deb
+        id: sha256sum_deb
+        run: |
+          echo "CHECKSUM=$(sha256sum git-team_${{ env.git_team_version }}_amd64.deb | awk '{ print $1 }')" >> $GITHUB_OUTPUT
+      - name: Package rpm
+        run: |
+          fpm \
+            --debug \
+            -f \
+            -s dir \
+            -t rpm \
+            -n "git-team" \
+            -v ${{ env.git_team_version }} \
+            -m "git-team authors" \
+            --url "https://github.com/hekmekk/git-team" \
+            --architecture "x86_64" \
+            --license "MIT" \
+            --vendor "git-team authors" \
+            --description "git-team - commit message enhancement with co-authors" \
+            --depends "git" \
+            -p ./ \
+            target/bin/git-team=/usr/bin/git-team \
+            target/completion/bash/git-team.bash=/usr/share/bash-completion/completions/git-team \
+            target/completion/zsh/git-team.zsh=/usr/share/zsh/site-functions/_git-team \
+            target/man/git-team.1.gz=/usr/share/man/man1/git-team.1.gz
+      - name: Import GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v5
+        with:
+          gpg_private_key: ${{ secrets.GIT_TEAM_SIGNING_GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GIT_TEAM_SIGNING_GPG_PRIVATE_KEY_PASSPHRASE }}
+      - name: Sign rpm package
+        run: |
+          rpm --define "%_gpg_name hekmek@posteo.de" --addsign git-team-${{ env.git_team_version }}-1.x86_64.rpm
+      - name: Generate sha256sum for rpm
+        id: sha256sum_rpm
+        run: |
+          echo "CHECKSUM=$(sha256sum git-team-${{ env.git_team_version }}-1.x86_64.rpm | awk '{ print $1 }')" >> $GITHUB_OUTPUT
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body: |
+            **sha256 checksum (deb):** `${{ steps.sha256sum_deb.outputs.CHECKSUM }}`
+            **sha256 checksum (rpm):** `${{ steps.sha256sum_rpm.outputs.CHECKSUM }}`
+          files: |
+            git-team_${{ env.git_team_version }}_amd64.deb
+            git-team-${{ env.git_team_version }}-1.x86_64.rpm
