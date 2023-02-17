@@ -1,0 +1,60 @@
+name: homebrew
+run-name: Create pull request to bump version over at homebrew-git-team
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  # TODO: maybe split into update formula and create pr
+  update_formula_and_create_pr:
+    runs-on: ubuntu-latest
+    env:
+      VERSION_BUMPER_BRANCH_NAME: git-team-version-bumper/build-${{ github.ref_name }}
+    steps:
+      - uses: tibdex/github-app-token@v1
+        id: generate_token
+        with:
+          # Note that in order to create a PR in another repository, you need to create a PAT or Github App in that repository,
+          # whereas for creating a PR in the own/triggering repository the short lived ${{ secrets.GITHUB_TOKEN }}/${{ github.token }} can be used instead.
+          app_id: ${{ secrets.HOMEBREW_GIT_TEAM_PR_APP_APP_ID }}
+          private_key: ${{ secrets.HOMEBREW_GIT_TEAM_PR_APP_PRIVATE_KEY }}
+          installation_id: ${{ secrets.HOMEBREW_GIT_TEAM_PR_APP_INSTALLATION_ID }}
+      - uses: actions/checkout@v3
+        with:
+          # Note that in order to push to another repository, you need to create a PAT, designated DEPLOY KEY (SSH), or Github App in that repository,
+          # whereas for pushing into the own/triggering repository the short lived ${{ secrets.GITHUB_TOKEN }}/${{ github.token }} can be used instead.
+          repository: 'hekmekk/homebrew-git-team'
+          token: ${{ steps.generate_token.outputs.token }}
+      - name: Update Formula, create commit, and push to branch
+        run: |
+          git checkout -b ${{ env.VERSION_BUMPER_BRANCH_NAME }}
+
+          sed -i -E 's/:tag      => ".+"/:tag      => "${{ github.ref_name }}"/' ./Formula/git-team.rb
+          sed -i -E 's/:revision => ".+"/:revision => "${{ github.sha }}"/' ./Formula/git-team.rb
+
+          echo "####################"
+          head ./Formula/git-team.rb
+          echo "####################"
+
+          git config --global user.email "git-team-version-bumper[bot]@users.noreply.github.com"
+          git config --global user.name "git-team-version-bumper[bot]"
+
+          git add ./Formula/git-team.rb
+          git commit -m "build ${{ github.ref_name }}"
+
+          git push origin ${{ env.VERSION_BUMPER_BRANCH_NAME }}
+      - name: Create PR
+        run: |
+          # alternatively: https://github.com/peter-evans/create-pull-request#reference-example
+          gh pr create \
+            --assignee "hekmekk" \
+            --base "master" \
+            --body "This PR updates the homebrew Formula to build [git-team ${{ github.ref_name }}](https://github.com/hekmekk/git-team/releases/tag/${{ github.ref_name }})." \
+            --head "${{ env.VERSION_BUMPER_BRANCH_NAME }}" \
+            --repo "hekmekk/homebrew-git-team" \
+            --reviewer "hekmekk" \
+            --title "Build ${{ github.ref_name }}"
+        env:
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
