@@ -20,6 +20,9 @@ jobs:
         run: |
           echo "git_team_version=$(echo ${{ github.ref_name }} | cut -c2-)" >> $GITHUB_OUTPUT
 
+  verify:
+    uses: ./.github/workflows/verify.yaml
+
   build:
     runs-on: ubuntu-latest
     needs: verify
