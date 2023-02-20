@@ -11,6 +11,8 @@ jobs:
   update_formula_and_create_pr:
     runs-on: ubuntu-latest
     env:
+      TAG: ${{ github.ref_name }}
+      REVISION: ${{ github.sha }}
       VERSION_BUMPER_BRANCH_NAME: git-team-version-bumper/build-${{ github.ref_name }}
     steps:
       - uses: tibdex/github-app-token@v1
@@ -31,8 +33,8 @@ jobs:
         run: |
           git checkout -b ${{ env.VERSION_BUMPER_BRANCH_NAME }}
 
-          sed -i -E 's/:tag      => ".+"/:tag      => "${{ github.ref_name }}"/' ./Formula/git-team.rb
-          sed -i -E 's/:revision => ".+"/:revision => "${{ github.sha }}"/' ./Formula/git-team.rb
+          sed -i -E 's/:tag      => ".+"/:tag      => "${{ env.TAG }}"/' ./Formula/git-team.rb
+          sed -i -E 's/:revision => ".+"/:revision => "${{ env.REVISION }}"/' ./Formula/git-team.rb
 
           echo "####################"
           head ./Formula/git-team.rb
@@ -42,7 +44,7 @@ jobs:
           git config --global user.name "git-team-version-bumper[bot]"
 
           git add ./Formula/git-team.rb
-          git commit -m "build ${{ github.ref_name }}"
+          git commit -m "build ${{ env.TAG }}"
 
           git push origin ${{ env.VERSION_BUMPER_BRANCH_NAME }}
       - name: Create PR
@@ -51,10 +53,10 @@ jobs:
           gh pr create \
             --assignee "hekmekk" \
             --base "master" \
-            --body "This PR updates the homebrew Formula to build [git-team ${{ github.ref_name }}](https://github.com/hekmekk/git-team/releases/tag/${{ github.ref_name }})." \
+            --body "This PR updates the homebrew Formula to build [git-team ${{ env.TAG }}](https://github.com/hekmekk/git-team/releases/tag/${{ env.TAG }})." \
             --head "${{ env.VERSION_BUMPER_BRANCH_NAME }}" \
             --repo "hekmekk/homebrew-git-team" \
             --reviewer "hekmekk" \
-            --title "Build ${{ github.ref_name }}"
+            --title "Build ${{ env.TAG }}"
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
