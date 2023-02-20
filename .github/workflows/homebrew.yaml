@@ -1,19 +1,20 @@
 name: homebrew
 run-name: Create pull request to bump version over at homebrew-git-team
 
+# Using the on.release trigger doesn't work
+# see: https://docs.github.com/en/actions/using-workflows/triggering-a-workflow#triggering-a-workflow-from-a-workflow)
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  repository_dispatch:
+    types: [ release-created ]
 
 jobs:
   # TODO: maybe split into update formula and create pr
   update_formula_and_create_pr:
     runs-on: ubuntu-latest
     env:
-      TAG: ${{ github.ref_name }}
-      REVISION: ${{ github.sha }}
-      VERSION_BUMPER_BRANCH_NAME: git-team-version-bumper/build-${{ github.ref_name }}
+      TAG: ${{ github.event.client_payload.tag }}
+      REVISION: ${{ github.event.client_payload.revision }}
+      VERSION_BUMPER_BRANCH_NAME: git-team-version-bumper/build-${{ github.event.client_payload.tag }}
     steps:
       - uses: tibdex/github-app-token@v1
         id: generate_token
