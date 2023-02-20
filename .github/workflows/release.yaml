@@ -1,5 +1,5 @@
 name: release
-run-name: Publish a new release
+run-name: Create a new release
 
 permissions:
   contents: write
