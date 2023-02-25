@@ -34,8 +34,8 @@ jobs:
         run: |
           git checkout -b ${{ env.VERSION_BUMPER_BRANCH_NAME }}
 
-          sed -i -E 's/:tag      => ".+"/:tag      => "${{ env.TAG }}"/' ./Formula/git-team.rb
-          sed -i -E 's/:revision => ".+"/:revision => "${{ env.REVISION }}"/' ./Formula/git-team.rb
+          sed -i -E 's/tag:      ".+"/tag:      "${{ env.TAG }}"/' ./Formula/git-team.rb
+          sed -i -E 's/revision: ".+"/revision: "${{ env.REVISION }}"/' ./Formula/git-team.rb
 
           echo "####################"
           head ./Formula/git-team.rb
