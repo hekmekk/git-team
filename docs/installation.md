@@ -123,7 +123,6 @@ yay git-team-git
 ```
 
 ### Make
-The latest version of git-team has been built against go version 1.18.
 ```shell
 make
 sudo make install
