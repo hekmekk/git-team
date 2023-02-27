@@ -5,6 +5,7 @@ on:
   push:
     branches: [ main ]
   pull_request:
+  # required for this workflow to be reusable
   workflow_call:
 
 jobs:
