@@ -7,6 +7,7 @@ on:
   pull_request:
   # required for this workflow to be reusable
   workflow_call:
+  workflow_dispatch:
 
 jobs:
   verify:
