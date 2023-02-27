@@ -34,8 +34,9 @@ endif
 
 all: build man-page completion
 
-update-deps:
+update-and-cleanup-deps:
 	go get -u -t
+	go mod tidy
 
 deps:
 	go get -t
