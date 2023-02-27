@@ -1,5 +1,5 @@
----
 name: verify
+run-name: Verify
 
 on:
   push:
