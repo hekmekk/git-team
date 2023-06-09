@@ -1,6 +1,8 @@
 [![Build Status](https://img.shields.io/github/actions/workflow/status/hekmekk/git-team/verify.yaml?branch=main&logo=github&style=for-the-badge)](https://github.com/hekmekk/git-team/actions)
 [![Github Release Downloads](https://img.shields.io/github/downloads/hekmekk/git-team/total.svg?label=DOWNLOADS&logo=github&style=for-the-badge)](https://github.com/hekmekk/git-team/releases)
 
+[![Legacy Code: O++ S++ I+ C>+ E+++ M+ V+ D++ Ar>A](https://img.shields.io/badge/Legacy%20Code-O%2B%2B%20S%2B%2B%20I%2B%20C%3E%2B%20E%2B%2B%2B%20M%2B%20V%2B%20D%2B%2B%20Ar%3EA-informational)](https://gitlab.com/resident-uhlig/legacy-code)
+
 [**:heart: Donate**](/docs/donate.md#heart-donate)
 
 # git-team
