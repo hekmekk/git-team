@@ -3,7 +3,7 @@
 load '/bats-libs/bats-support/load.bash'
 load '/bats-libs/bats-assert/load.bash'
 
-REPO_PATH=/tmp/repo/technical-non-writable-gitconfig
+REPO_PATH=/tmp/repo/non-writable-gitconfig
 USER_NAME=git-team-acceptance-test
 USER_EMAIL=acc@git.team
 
@@ -30,7 +30,7 @@ teardown() {
         rm /home/git-team-acceptance-test/.gitconfig
 }
 
-@test "technical: the user should see helpful information in case of an unknown gitconfig error (e.g. non-writable config)" {
+@test "use case: the user should see helpful debug information in case of an unknown gitconfig error (e.g. non-writable config)" {
         # Note: scope is irrelevant here, because adding assignments is always done with scope=global
         run /usr/local/bin/git-team assignments add noujz "Mr. Noujz <noujz@mr.se>"
 
