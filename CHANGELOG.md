@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `--only-alias|-o` flag to the `[assignments] ls|list` command.
 
 ### Fixed
+- [Issue 18](https://github.com/hekmekk/git-team/issues/18): now printing helpful information when running into an unknown git config error.
 - Output of `status`, `config`, and `[assignments] ls|list` commands now use the terminal default color instead of a hardcoded white.
 - The help for the `config` command now also includes its 'display' function.
 

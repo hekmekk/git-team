@@ -28,13 +28,13 @@ func TestShouldExecuteGitConfigWithTheExpectedCommandLineArguments(t *testing.T)
 			providedOptions := []string{"--one", "--two"}
 			expectedOptions := append([]string{expectedScopeFlag}, providedOptions...)
 
-			executor := func(args ...string) ([]byte, error) {
+			executor := func(args ...string) (string, error) {
 				if !reflect.DeepEqual(expectedOptions, args) {
 					t.Errorf("expected: %s, received: %s", expectedOptions, args)
 					t.Fail()
 				}
 
-				return nil, nil
+				return "", nil
 			}
 
 			execGitConfigFactory(executor)(scope, providedOptions...)
@@ -44,9 +44,9 @@ func TestShouldExecuteGitConfigWithTheExpectedCommandLineArguments(t *testing.T)
 
 func TestShouldReturnTheTwoLines(t *testing.T) {
 	expectedLines := []string{"line1", "line2"}
-	out := []byte(fmt.Sprintf("%s\n%s\n", expectedLines[0], expectedLines[1]))
+	out := fmt.Sprintf("%s\n%s\n", expectedLines[0], expectedLines[1])
 
-	executor := func(args ...string) ([]byte, error) {
+	executor := func(args ...string) (string, error) {
 		return out, nil
 	}
 
@@ -65,8 +65,8 @@ func TestShouldReturnTheTwoLines(t *testing.T) {
 func TestShouldReturnNoLines(t *testing.T) {
 	expectedLines := []string{}
 
-	executor := func(args ...string) ([]byte, error) {
-		return []byte(""), nil
+	executor := func(args ...string) (string, error) {
+		return "", nil
 	}
 
 	lines, err := execGitConfigFactory(executor)(scope.Global, "")
@@ -84,8 +84,8 @@ func TestShouldReturnNoLines(t *testing.T) {
 func TestShouldReturnAnError(t *testing.T) {
 	expectedLines := []string{}
 
-	executor := func(args ...string) ([]byte, error) {
-		return nil, errors.New("executing the git config command failed")
+	executor := func(args ...string) (string, error) {
+		return "", errors.New("executing the git config command failed")
 	}
 
 	lines, err := execGitConfigFactory(executor)(scope.Global, "")

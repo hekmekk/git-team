@@ -100,16 +100,17 @@ func list(exec func(scope.Scope, ...string) ([]string, error)) func(scope.Scope)
 
 // execute /usr/bin/env git config --<scope> <options>
 func execGitConfig(scope scope.Scope, options ...string) ([]string, error) {
-	gitConfigCommand := func(additionalOptions ...string) ([]byte, error) {
+	gitConfigCommand := func(additionalOptions ...string) (string, error) {
 		cmd := exec.Command("/usr/bin/env", append([]string{"git", "config"}, additionalOptions...)...)
 		out, err := cmd.CombinedOutput()
-		return out, gitconfigerror.New(err)
+		stringOut := string(out)
+		return stringOut, gitconfigerror.New(err, cmd.String(), stringOut)
 	}
 
 	return execGitConfigFactory(gitConfigCommand)(scope, options...)
 }
 
-func execGitConfigFactory(cmd func(...string) ([]byte, error)) func(scope.Scope, ...string) ([]string, error) {
+func execGitConfigFactory(cmd func(...string) (string, error)) func(scope.Scope, ...string) ([]string, error) {
 	return func(scope scope.Scope, args ...string) ([]string, error) {
 		gitArgs := append([]string{scope.Flag()}, args...)
 
@@ -119,13 +120,11 @@ func execGitConfigFactory(cmd func(...string) ([]byte, error)) func(scope.Scope,
 			return nil, err
 		}
 
-		stringOut := string(out)
-
-		if stringOut == "" {
+		if out == "" {
 			return []string{}, nil
 		}
 
-		lines := strings.Split(strings.TrimRight(stringOut, "\n"), "\n")
+		lines := strings.Split(strings.TrimRight(out, "\n"), "\n")
 
 		return lines, nil
 	}
