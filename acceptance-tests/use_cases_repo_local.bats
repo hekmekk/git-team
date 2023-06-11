@@ -27,7 +27,7 @@ teardown() {
 	cd -
 	rm -rf $REPO_PATH
 
-	rm /root/.gitconfig
+	rm /home/git-team-acceptance-test/.gitconfig
 }
 
 @test "use case: (scope: repo-local) an existing repo-local git hook should be respected - commit msg" {

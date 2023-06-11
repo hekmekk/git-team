@@ -44,4 +44,8 @@ COPY --from=git-team /go/bin/git-team /usr/local/bin/git-team
 
 WORKDIR /
 
+ENV USERNAME git-team-acceptance-test
+RUN adduser -D ${USERNAME}
+USER ${USERNAME}
+
 ENTRYPOINT ["bash", "/usr/local/bin/bats"]
