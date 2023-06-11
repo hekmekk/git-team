@@ -105,10 +105,10 @@ clean:
 .PHONY: acceptance-tests
 acceptance-tests:
 	docker build -t git-team-acceptance-tests . -f acceptance-tests.Dockerfile
-	docker run -e "TERM=$(TERM)" --rm -v $(CURR_DIR)/acceptance-tests:/acceptance-tests git-team-acceptance-tests --pretty /acceptance-tests/$(BATS_FILE) $(BATS_FILTER)
+	docker run -e "TERM=$(TERM)" --rm -v $(CURR_DIR)/acceptance-tests:/acceptance-tests:ro git-team-acceptance-tests --pretty /acceptance-tests/$(BATS_FILE) $(BATS_FILTER)
 
 .PHONY: hookscript-tests
 hookscript-tests:
 	docker build -t git-team-hookscript-tests . -f hookscript-tests.Dockerfile
-	docker run -e "TERM=$(TERM)" --rm -v $(CURR_DIR)/hookscript-tests:/hookscript-tests git-team-hookscript-tests --pretty /hookscript-tests/
+	docker run -e "TERM=$(TERM)" --rm -v $(CURR_DIR)/hookscript-tests:/hookscript-tests:ro git-team-hookscript-tests --pretty /hookscript-tests/
 
