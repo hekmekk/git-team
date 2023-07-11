@@ -26,7 +26,7 @@ teardown() {
 	cd -
 	rm -rf $REPO_PATH
 
-	rm /root/.gitconfig
+	rm /home/git-team-acceptance-test/.gitconfig
 }
 
 @test "git-team: (scope: repo-local) disable should disable a previously enabled git-team" {
@@ -80,9 +80,9 @@ teardown() {
 	/usr/local/bin/git-team enable 'A <a@x.y>' 'B <b@x.y>'
 	/usr/local/bin/git-team disable
 
-	run bash -c "ls -la /root/.git-team/commit-templates/repo-local/$REPO_CHECKSUM"
+	run bash -c "ls -la /home/git-team-acceptance-test/.git-team/commit-templates/repo-local/$REPO_CHECKSUM"
 	assert_failure 1
-	assert_line "ls: /root/.git-team/commit-templates/repo-local/$REPO_CHECKSUM: No such file or directory"
+	assert_line "ls: /home/git-team-acceptance-test/.git-team/commit-templates/repo-local/$REPO_CHECKSUM: No such file or directory"
 }
 
 @test "git-team: (scope: repo-local) disable should treat a previously disabled git-team idempotently" {

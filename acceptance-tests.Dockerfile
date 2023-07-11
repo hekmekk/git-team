@@ -16,7 +16,7 @@ RUN git clone https://github.com/ztombol/bats-assert /bats-libs/bats-assert
 
 # ----------------------------------------------------------------- #
 
-FROM golang:1.18-alpine as git-team
+FROM golang:1.20-alpine as git-team
 
 RUN mkdir /git-team-source
 WORKDIR /git-team-source
@@ -33,7 +33,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install ./...
 
 # ----------------------------------------------------------------- #
 
-FROM golang:1.18-alpine
+FROM golang:1.20-alpine
 
 RUN apk add --no-cache bash git ncurses
 
@@ -43,5 +43,9 @@ COPY --from=bats /bats-libs /bats-libs
 COPY --from=git-team /go/bin/git-team /usr/local/bin/git-team
 
 WORKDIR /
+
+ENV USERNAME git-team-acceptance-test
+RUN adduser -D ${USERNAME}
+USER ${USERNAME}
 
 ENTRYPOINT ["bash", "/usr/local/bin/bats"]

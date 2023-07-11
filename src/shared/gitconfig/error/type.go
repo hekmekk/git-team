@@ -81,7 +81,7 @@ const (
 	msgTryingToUseAnInvalidRegexp           = "exit status 6"
 )
 
-func New(err error) error {
+func New(err error, gitCmd string, gitOutput string) error {
 	if err == nil {
 		return nil
 	}
@@ -100,6 +100,11 @@ func New(err error) error {
 	case msgTryingToUseAnInvalidRegexp:
 		return ErrTryingToUseAnInvalidRegexp
 	default:
-		return &UnknownErr{message: fmt.Sprintf("unknown gitconfig error: %s", err)}
+		return &UnknownErr{message: fmt.Sprintf(
+			"unknown gitconfig error: %s\n\ngit-config command:\n%s\n\ngit-config output:\n%s",
+			err,
+			gitCmd,
+			gitOutput,
+		)}
 	}
 }

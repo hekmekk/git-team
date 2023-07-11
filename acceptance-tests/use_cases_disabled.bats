@@ -26,7 +26,7 @@ teardown() {
 	cd -
 	rm -rf $REPO_PATH
 
-	rm /root/.gitconfig
+	rm /home/git-team-acceptance-test/.gitconfig
 }
 
 @test "use case: when git-team is disabled, a merge commit should not have co-authors injected" {
