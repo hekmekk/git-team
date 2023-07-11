@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	version     = "1.9.0alpha1"
+	version     = "1.9.0alpha2-shell-completion-fix"
 	authorName  = "Rea Sand"
 	authorEmail = "hekmek@posteo.de"
 )
