@@ -3,7 +3,7 @@
 _git_team() {
   compopt +o default
   case ${COMP_WORDS[COMP_CWORD-1]} in
-    -h | --help)
+    -h | --help | -v | --version)
       return
       ;;
   esac
@@ -15,18 +15,137 @@ _git_team() {
     2)
       case ${COMP_WORDS[COMP_CWORD]} in
         -*)
-          opts=$(compgen -W "-h --help" -- "${COMP_WORDS[COMP_CWORD]}")
+          opts=$(compgen -W "-h --help -v --version" -- "${COMP_WORDS[COMP_CWORD]}")
           ;;
         *)
-          opts=$(compgen -W "first1 first2 first3" -- "${COMP_WORDS[COMP_CWORD]}")
+          opts=$(compgen -W "add assignments completion config disable enable list ls remove rm status help h" -- "${COMP_WORDS[COMP_CWORD]}")
           ;;
       esac
       ;;
     3)
-      opts=$(compgen -W "second1 second2 second3" -- "${COMP_WORDS[COMP_CWORD]}")
+      case ${COMP_WORDS[COMP_CWORD-1]} in
+        add)
+          opts=$(compgen -W "-f --force-override -k --keep-existing" -- "${COMP_WORDS[COMP_CWORD]}")
+          ;;
+        assignments)
+          opts=$(compgen -W "add list ls remove rm help h" -- "${COMP_WORDS[COMP_CWORD]}")
+          ;;
+        completion)
+          opts=$(compgen -W "bash zsh help h" -- "${COMP_WORDS[COMP_CWORD]}")
+          ;;
+        config)
+          opts=$(compgen -W "activation-scope" -- "${COMP_WORDS[COMP_CWORD]}")
+          ;;
+        disable)
+          opts=""
+          ;;
+        enable)
+          case ${COMP_WORDS[COMP_CWORD]} in
+            -*)
+              opts=$(compgen -W "-A --all" -- "${COMP_WORDS[COMP_CWORD]}")
+              ;;
+            *)
+              opts=$(compgen -W "$(git team assignments list --only-alias)" --  "${COMP_WORDS[COMP_CWORD]}")
+              ;;
+          esac
+          ;;
+        list | ls)
+          case ${COMP_WORDS[COMP_CWORD]} in
+            -*)
+              opts=$(compgen -W "-o --only-alias" -- "${COMP_WORDS[COMP_CWORD]}")
+              ;;
+            *)
+              opts=""
+              ;;
+          esac
+          ;;
+        remove | rm)
+          opts=$(compgen -W "$(git team assignments list --only-alias)" --  "${COMP_WORDS[COMP_CWORD]}")
+          ;;
+        status)
+          opts=""
+          ;;
+        h | help)
+          opts=$(compgen -W "add assignments completion config disable enable list ls remove rm status help h" -- "${COMP_WORDS[COMP_CWORD]}")
+          ;;
+        *)
+          opts=""
+          ;;
+      esac
+      ;;
+    4)
+      case ${COMP_WORDS[2]} in
+        assignments)
+          case ${COMP_WORDS[3]} in
+            add)
+              opts=$(compgen -W "-f --force-override -k --keep-existing" -- "${COMP_WORDS[COMP_CWORD]}")
+              ;;
+            list | ls)
+              case ${COMP_WORDS[COMP_CWORD]} in
+                -*)
+                  opts=$(compgen -W "-o --only-alias" -- "${COMP_WORDS[COMP_CWORD]}")
+                  ;;
+                *)
+                  opts=""
+                  ;;
+              esac
+              ;;
+            remove | rm)
+              opts=$(compgen -W "$(git team assignments list --only-alias)" --  "${COMP_WORDS[COMP_CWORD]}")
+              ;;
+            *)
+              opts=""
+              ;;
+          esac
+          ;;
+        config)
+          case ${COMP_WORDS[3]} in
+            activation-scope)
+              opts=$(compgen -W "global repo-local" -- "${COMP_WORDS[COMP_CWORD]}")
+              ;;
+            *)
+              opts=""
+              ;;
+          esac
+          ;;
+        enable)
+          case ${COMP_WORDS[COMP_CWORD]} in
+            -*)
+              opts=""
+              ;;
+            *)
+              # COMP_WORDS={0:git, 1:team, 2:enable, 3:<alias #1>, ...}
+              local used_aliases=("${COMP_WORDS[@]:3:$(( ${#COMP_WORDS[@]} - 4 ))}")
+              local remaining_aliases=( $(__determine_remaining_aliases "${used_aliases[@]}") )
+              opts=$(compgen -W "$(echo "${remaining_aliases[@]}")" -- "${COMP_WORDS[COMP_CWORD]}")
+              ;;
+          esac
+          ;;
+        *)
+          opts=""
+          ;;
+      esac
       ;;
     *)
-      opts=""
+      case ${COMP_WORDS[2]} in
+        enable)
+          case ${COMP_WORDS[3]} in
+            -*)
+              opts=""
+              ;;
+            *)
+              # COMP_WORDS={0:git, 1:team, 2:enable, 3:<alias #1>, ...}
+              local used_aliases=("${COMP_WORDS[@]:3:$(( ${#COMP_WORDS[@]} - 4 ))}")
+              local remaining_aliases=( $(__determine_remaining_aliases "${used_aliases[@]}") )
+              opts=$(compgen -W "$(echo "${remaining_aliases[@]}")" -- "${COMP_WORDS[COMP_CWORD]}")
+              ;;
+          esac
+          ;;
+        *)
+          opts=""
+          ;;
+      esac
+      ;;
   esac
   __gitcomp "${opts}"
 }
