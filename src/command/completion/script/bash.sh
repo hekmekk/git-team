@@ -141,24 +141,9 @@ _git_team_bash_completion() {
               COMPREPLY=()
               ;;
             *)
-              # note: we're here for git-team enable <ALIAS #1>
-              FROM_INDEX=2
-              TO_INDEX=$(( ${#COMP_WORDS[@]} - 3 ))
-              USED_ALIASES=("${COMP_WORDS[@]:${FROM_INDEX}:${TO_INDEX}}")
-              local all_aliases=($(git team assignments list --only-alias))
-              local remaining_aliases=()
-              for alias in "${all_aliases[@]}"; do
-                local is_alias_used="no"
-                for used_alias in "${USED_ALIASES[@]}"; do
-                  if [[ "${alias}" = "${used_alias}" ]]; then
-                    is_alias_used="yes"
-                    # TODO: why not just break here or smth?
-                  fi
-                done
-                if [[ "${is_alias_used}" = "no" ]]; then
-                  remaining_aliases+=($alias)
-                fi
-              done
+              # COMP_WORDS={0:git-team, 1:enable, 2:<alias #1>, ...}
+              local used_aliases=("${COMP_WORDS[@]:2:$(( ${#COMP_WORDS[@]} - 3 ))}")
+              local remaining_aliases=( $(__determine_remaining_aliases "${used_aliases[@]}") )
               COMPREPLY=($(compgen -W "$(echo "${remaining_aliases[@]}")" -- "${COMP_WORDS[COMP_CWORD]}"))
               ;;
           esac
@@ -176,24 +161,9 @@ _git_team_bash_completion() {
               COMPREPLY=()
               ;;
             *)
-              # note: we're here for git-team enable <ALIAS #1> <ALIAS #n>
-              FROM_INDEX=2
-              TO_INDEX=$(( ${#COMP_WORDS[@]} - 3 ))
-              USED_ALIASES=("${COMP_WORDS[@]:${FROM_INDEX}:${TO_INDEX}}")
-              local all_aliases=($(git team assignments list --only-alias))
-              local remaining_aliases=()
-              for alias in "${all_aliases[@]}"; do
-                local is_alias_used="no"
-                for used_alias in "${USED_ALIASES[@]}"; do
-                  if [[ "${alias}" = "${used_alias}" ]]; then
-                    is_alias_used="yes"
-                    # TODO: why not just break here or smth?
-                  fi
-                done
-                if [[ "${is_alias_used}" = "no" ]]; then
-                  remaining_aliases+=($alias)
-                fi
-              done
+              # COMP_WORDS={0:git-team, 1:enable, 2:<alias #1>, ...}
+              local used_aliases=("${COMP_WORDS[@]:2:$(( ${#COMP_WORDS[@]} - 3 ))}")
+              local remaining_aliases=( $(__determine_remaining_aliases "${used_aliases[@]}") )
               COMPREPLY=($(compgen -W "$(echo "${remaining_aliases[@]}")" -- "${COMP_WORDS[COMP_CWORD]}"))
               ;;
           esac
@@ -206,3 +176,25 @@ _git_team_bash_completion() {
   esac
 }
 complete -F _git_team_bash_completion git-team
+
+
+function __determine_remaining_aliases() {
+  local used_aliases=("$@")
+  local all_aliases=($(git team assignments list --only-alias))
+  local remaining_aliases=()
+
+  for alias in "${all_aliases[@]}"; do
+    local is_alias_used="no"
+    for used_alias in "${used_aliases[@]}"; do
+      if [[ "${alias}" = "${used_alias}" ]]; then
+        is_alias_used="yes"
+        # TODO: why not just break here or smth?
+      fi
+    done
+    if [[ "${is_alias_used}" = "no" ]]; then
+      remaining_aliases+=($alias)
+    fi
+  done
+
+  echo "${remaining_aliases[@]}"
+}
