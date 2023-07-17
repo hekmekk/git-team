@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# TODO: extract function receiving COMP_CWORD and COMP_WORDS
+# without git-team and respectively 'git team'
+# and returns completion opts, so that the complete functions don't diverge.
+
 # triggered for git team
 _git_team() {
   compopt +o default
