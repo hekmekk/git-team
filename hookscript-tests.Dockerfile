@@ -1,4 +1,4 @@
-FROM alpine/git:v2.30.2 as bats
+FROM alpine/git:v2.30.2 AS bats
 
 LABEL maintainer Rea Sand <hekmek@posteo.de>
 
@@ -16,7 +16,7 @@ RUN git clone https://github.com/ztombol/bats-assert /bats-libs/bats-assert
 
 # ----------------------------------------------------------------- #
 
-FROM golang:1.23-alpine as git-team
+FROM golang:1.23-alpine AS git-team
 
 RUN mkdir /git-team-source
 WORKDIR /git-team-source
