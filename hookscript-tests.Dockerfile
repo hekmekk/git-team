@@ -1,4 +1,4 @@
-FROM alpine/git:v2.30.2 AS bats
+FROM alpine/git:v2.45.2 AS bats
 
 LABEL maintainer="Rea Sand <hekmek@posteo.de>"
 
