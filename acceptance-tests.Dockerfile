@@ -1,6 +1,6 @@
 FROM alpine/git:v2.30.2 AS bats
 
-LABEL maintainer Rea Sand <hekmek@posteo.de>
+LABEL maintainer="Rea Sand <hekmek@posteo.de>"
 
 RUN apk add --no-cache bash
 
@@ -44,7 +44,7 @@ COPY --from=git-team /go/bin/git-team /usr/local/bin/git-team
 
 WORKDIR /
 
-ENV USERNAME git-team-acceptance-test
+ENV USERNAME=git-team-acceptance-test
 RUN adduser -D ${USERNAME}
 USER ${USERNAME}
 

@@ -1,6 +1,6 @@
 FROM alpine/git:v2.30.2 AS bats
 
-LABEL maintainer Rea Sand <hekmek@posteo.de>
+LABEL maintainer="Rea Sand <hekmek@posteo.de>"
 
 RUN apk add --no-cache bash
 
