@@ -46,4 +46,4 @@ VOLUME /src/git_team_completion.sh
 
 WORKDIR /src
 
-ENTRYPOINT /bin/zsh
+ENTRYPOINT ["/bin/zsh"]
