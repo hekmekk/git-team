@@ -50,7 +50,7 @@ jobs:
           ruby-version: '3.0'
       - run: |
           gem install fpm
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: build-target
           path: target/
@@ -96,7 +96,7 @@ jobs:
           ruby-version: '3.0'
       - run: |
           gem install fpm
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: build-target
           path: target/
@@ -143,14 +143,14 @@ jobs:
     env:
       git_team_version: ${{ needs.extract-version.outputs.git_team_version }}
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: deb
       - name: Generate sha256sum for deb
         id: sha256sum_deb
         run: |
           echo "CHECKSUM=$(sha256sum git-team_${{ env.git_team_version }}_amd64.deb | awk '{ print $1 }')" >> $GITHUB_OUTPUT
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: rpm
       - name: Generate sha256sum for rpm
