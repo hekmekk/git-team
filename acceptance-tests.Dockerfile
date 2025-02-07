@@ -29,7 +29,7 @@ RUN go mod download
 COPY src ./src
 COPY main.go .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install ./...
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go install ./...
 
 # ----------------------------------------------------------------- #
 

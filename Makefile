@@ -1,15 +1,23 @@
 VERSION := $(shell grep -E "version\s+=" `pwd`/main.go | awk -F '"' '{print $$2}')
 
 GOOS :=
+GOARCH :=
 prefix :=
 UNAME_S := $(shell uname -s)
+UNAME_M := $(shell uname -m)
 ifeq ($(UNAME_S),Darwin)
 	GOOS=darwin
 	prefix:=/usr/local
 endif
+ifeq ($(UNAME_M),arm64)
+	GOARCH=arm64
+endif
 ifeq ($(UNAME_S),Linux)
 	GOOS=linux
 	prefix:=/usr
+endif
+ifeq ($(UNAME_M),x86_64)
+	GOARCH=amd64
 endif
 
 exec_prefix := $(prefix)
@@ -47,7 +55,7 @@ test: go-test hookscript-tests
 verify: test acceptance-tests
 
 mocks:
-	docker run --rm --user "$(shell id -u):$(shell id -g)" -v "$(CURR_DIR):/src" -w /src vektra/mockery:v2.14.0 --dir=src/ --all --keeptree
+	docker run --rm --user "$(shell id -u):$(shell id -g)" -v "$(CURR_DIR):/src" -w /src vektra/mockery:v2.15.0 --dir=src/ --all --keeptree
 
 go-test: mocks deps
 	go test -cover ./src/...
@@ -61,7 +69,7 @@ ifndef GOPATH
 	$(error GOPATH is not set)
 endif
 	mkdir -p $(CURR_DIR)/target/bin
-	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=amd64 go build -o $(CURR_DIR)/target/bin ./...
+	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o $(CURR_DIR)/target/bin ./...
 	@echo "[INFO] Successfully built git-team version v$(VERSION)"
 
 man-page: deps
