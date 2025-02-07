@@ -13,7 +13,7 @@ setup() {
 	assert_line 'git-team disabled'
 }
 
-@test 'git-team: (scope: global) status should properly disaplay the enabled status' {
+@test 'git-team: (scope: global) status should properly display the enabled status' {
 	/usr/local/bin/git-team enable 'A <a@x.y>' 'B <b@x.y>' 'C <c@x.y>'
 
 	run /usr/local/bin/git-team status
