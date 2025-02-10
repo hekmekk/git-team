@@ -30,7 +30,7 @@ teardown() {
 	assert_line 'git-team disabled'
 }
 
-@test 'git-team: (scope: repo-local) status should properly disaplay the enabled status' {
+@test 'git-team: (scope: repo-local) status should properly display the enabled status' {
 	/usr/local/bin/git-team enable 'A <a@x.y>' 'B <b@x.y>' 'C <c@x.y>'
 
 	run /usr/local/bin/git-team status
@@ -44,6 +44,15 @@ teardown() {
 	/usr/local/bin/git-team disable
 }
 
+@test 'git-team: (scope: repo-local) status should properly display the enabled status' {
+	/usr/local/bin/git-team enable 'A <a@x.y>' 'B <b@x.y>' 'C <c@x.y>'
+
+	run /usr/local/bin/git-team status --json
+	assert_success
+	assert_line --index 0 '{"status":"enabled","coAuthors":["A \u003ca@x.y\u003e","B \u003cb@x.y\u003e","C \u003cc@x.y\u003e"],"previousHooksPath":""}'
+
+	/usr/local/bin/git-team disable
+}
 
 @test 'git-team: (scope: repo-local) status should fail when not inside a git repository' {
 	cd /tmp

@@ -27,3 +27,13 @@ setup() {
 	/usr/local/bin/git-team disable
 }
 
+@test 'git-team: (scope: global) status should properly display the enabled status in a json format' {
+	/usr/local/bin/git-team enable 'A <a@x.y>' 'B <b@x.y>' 'C <c@x.y>'
+
+	run /usr/local/bin/git-team status --json
+	assert_success
+	assert_line --index 0 '{"status":"enabled","coAuthors":["A \u003ca@x.y\u003e","B \u003cb@x.y\u003e","C \u003cc@x.y\u003e"],"previousHooksPath":""}'
+
+	/usr/local/bin/git-team disable
+}
+

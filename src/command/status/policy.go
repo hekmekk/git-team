@@ -15,6 +15,7 @@ type Dependencies struct {
 	StateReader         state.Reader
 	ConfigReader        config.Reader
 	ActivationValidator activation.Validator
+	StateAsJson         bool
 }
 
 // Policy the policy to apply
@@ -42,5 +43,5 @@ func (policy Policy) Apply() events.Event {
 		return StateRetrievalFailed{Reason: fmt.Errorf("failed to query current state: %s", stateRepositoryQueryErr)}
 	}
 
-	return StateRetrievalSucceeded{State: retState}
+	return StateRetrievalSucceeded{State: retState, StateAsJson: deps.StateAsJson}
 }

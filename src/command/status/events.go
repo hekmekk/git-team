@@ -6,7 +6,8 @@ import (
 
 // StateRetrievalSucceeded successfully got the current state
 type StateRetrievalSucceeded struct {
-	State state.State
+	State       state.State
+	StateAsJson bool
 }
 
 // StateRetrievalFailed failed to get the current state
