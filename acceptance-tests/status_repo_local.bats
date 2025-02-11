@@ -49,7 +49,7 @@ teardown() {
 
 	run /usr/local/bin/git-team status --json
 	assert_success
-	assert_line --index 0 '{"status":"enabled","coAuthors":["A \u003ca@x.y\u003e","B \u003cb@x.y\u003e","C \u003cc@x.y\u003e"],"previousHooksPath":""}'
+	assert_line --index 0 '{"status":"enabled","coAuthors":["A <a@x.y>","B <b@x.y>","C <c@x.y>"],"previousHooksPath":""}'
 
 	/usr/local/bin/git-team disable
 }

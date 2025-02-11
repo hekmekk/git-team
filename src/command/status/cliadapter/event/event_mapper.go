@@ -51,10 +51,11 @@ func toString(theState state.State) string {
 
 func toJson(theState state.State) string {
 	var buffer bytes.Buffer
-	jsonData, err := json.Marshal(theState)
+	encoder := json.NewEncoder(&buffer)
+	encoder.SetEscapeHTML(false)
+	err := encoder.Encode(theState)
 	if err != nil {
 		return buffer.String()
 	}
-	buffer.Write(jsonData)
 	return buffer.String()
 }
