@@ -43,7 +43,7 @@ The debian package is made available via [apt-sourc.es](https://apt-sourc.es).
 
 1. Add *apt-sourc.es* GPG Key
 ```shell
-curl -fsSL https://apt-sourc.es/admin/gpg.asc | sudo apt-key add -
+curl -fsSL https://apt-sourc.es/admin/gpg.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/git-team.gpg
 ```
 
 2. Setup the `apt` repository
