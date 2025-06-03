@@ -55,7 +55,7 @@ func toJson(theState state.State) string {
 	encoder.SetEscapeHTML(false)
 	err := encoder.Encode(theState)
 	if err != nil {
-		return buffer.String()
+		effects.NewExitErrMsg(err)
 	}
 	return buffer.String()
 }
