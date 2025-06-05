@@ -19,7 +19,7 @@ func MapEventToEffect(event events.Event) effects.Effect {
 	switch evt := event.(type) {
 	case status.StateRetrievalSucceeded:
 		if evt.StateAsJson {
-			return effects.NewExitOkMsg(toJson(evt.State))
+			return toJson(evt.State)
 		}
 		return effects.NewExitOkMsg(toString(evt.State))
 	case status.StateRetrievalFailed:
@@ -49,13 +49,13 @@ func toString(theState state.State) string {
 	return buffer.String()
 }
 
-func toJson(theState state.State) string {
+func toJson(theState state.State) effects.Effect {
 	var buffer bytes.Buffer
 	encoder := json.NewEncoder(&buffer)
 	encoder.SetEscapeHTML(false)
 	err := encoder.Encode(theState)
 	if err != nil {
-		effects.NewExitErrMsg(err)
+		return effects.NewExitErrMsg(err)
 	}
-	return buffer.String()
+	return effects.NewExitOkMsg(buffer.String())
 }
