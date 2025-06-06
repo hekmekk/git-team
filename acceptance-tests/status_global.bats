@@ -7,7 +7,7 @@ setup() {
 	/usr/local/bin/git-team config activation-scope global
 }
 
-@test 'git-team: (scope: global) status should properly display a disabled status' {
+@test 'git-team: (scope: global) status should properly display the disabled status' {
 	run /usr/local/bin/git-team status
 	assert_success
 	assert_line 'git-team disabled'

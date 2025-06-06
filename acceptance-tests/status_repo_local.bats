@@ -24,7 +24,7 @@ teardown() {
 	rm -rf $REPO_PATH
 }
 
-@test 'git-team: (scope: repo-local) status should properly display a disabled status' {
+@test 'git-team: (scope: repo-local) status should properly display the disabled status' {
 	run /usr/local/bin/git-team status
 	assert_success
 	assert_line 'git-team disabled'
@@ -44,7 +44,7 @@ teardown() {
 	/usr/local/bin/git-team disable
 }
 
-@test 'git-team: (scope: repo-local) status should properly display the enabled status' {
+@test 'git-team: (scope: repo-local) status should properly display the enabled status in a json format' {
 	/usr/local/bin/git-team enable 'A <a@x.y>' 'B <b@x.y>' 'C <c@x.y>'
 
 	run /usr/local/bin/git-team status --json
