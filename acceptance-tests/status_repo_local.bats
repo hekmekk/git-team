@@ -33,7 +33,7 @@ teardown() {
 @test 'git-team: (scope: repo-local) status should properly display the disabled status in a json format' {
 	run /usr/local/bin/git-team status --json
 	assert_success
-	assert_line --index 0 '{"status":"disabled","coAuthors":[],"previousHooksPath":""}'
+	assert_line --index 0 '{"status":"disabled","coAuthors":[]}'
 }
 
 @test 'git-team: (scope: repo-local) status should properly display the enabled status' {
@@ -55,7 +55,7 @@ teardown() {
 
 	run /usr/local/bin/git-team status --json
 	assert_success
-	assert_line --index 0 '{"status":"enabled","coAuthors":["A <a@x.y>","B <b@x.y>","C <c@x.y>"],"previousHooksPath":""}'
+	assert_line --index 0 '{"status":"enabled","coAuthors":["A <a@x.y>","B <b@x.y>","C <c@x.y>"]}'
 
 	/usr/local/bin/git-team disable
 }

@@ -53,10 +53,20 @@ func toJson(theState state.State) effects.Effect {
 	var buffer bytes.Buffer
 	encoder := json.NewEncoder(&buffer)
 	encoder.SetEscapeHTML(false)
-	err := encoder.Encode(theState)
+
+	jsonStructure := struct {
+		Status    string   `json:"status"`
+		Coauthors []string `json:"coAuthors"`
+	}{
+		Status:    string(theState.Status),
+		Coauthors: theState.Coauthors,
+	}
+
+	err := encoder.Encode(jsonStructure)
 	if err != nil {
 		return effects.NewExitErrMsg(err)
 	}
+
 	jsonStringWithoutTrailingNewline := strings.TrimSuffix(buffer.String(), "\n")
 	return effects.NewExitOkMsg(jsonStringWithoutTrailingNewline)
 }

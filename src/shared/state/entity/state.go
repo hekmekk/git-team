@@ -9,9 +9,9 @@ const (
 
 // State the state of git-team
 type State struct {
-	Status            teamStatus `json:"status"`
-	Coauthors         []string   `json:"coAuthors"`
-	PreviousHooksPath string     `json:"previousHooksPath"`
+	Status            teamStatus
+	Coauthors         []string
+	PreviousHooksPath string
 }
 
 // NewStateEnabled the constructor for the enabled state
