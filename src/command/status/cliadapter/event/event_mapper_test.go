@@ -25,7 +25,7 @@ func TestMapEventToEffectStateRetrievalSucceededEnabled(t *testing.T) {
 }
 
 func TestMapEventToEffectStateRetrievalSucceededEnabledJson(t *testing.T) {
-	msg := `{"status":"enabled","coAuthors":["Mrs. Noujz <noujz@mrs.se>","Mr. Noujz <noujz@mr.se>"],"previousHooksPath":"/previous/hooks/path"}` + "\n"
+	msg := `{"status":"enabled","coAuthors":["Mrs. Noujz <noujz@mrs.se>","Mr. Noujz <noujz@mr.se>"],"previousHooksPath":"/previous/hooks/path"}`
 	state := state.NewStateEnabled([]string{"Mrs. Noujz <noujz@mrs.se>", "Mr. Noujz <noujz@mr.se>"}, "/previous/hooks/path")
 
 	expectedEffect := effects.NewExitOkMsg(msg)
@@ -53,7 +53,7 @@ func TestMapEventToEffectStateRetrievalSucceededDisabled(t *testing.T) {
 }
 
 func TestMapEventToEffectStateRetrievalSucceededDisabledJson(t *testing.T) {
-	msg := `{"status":"disabled","coAuthors":[],"previousHooksPath":""}` + "\n"
+	msg := `{"status":"disabled","coAuthors":[],"previousHooksPath":""}`
 	state := state.NewStateDisabled()
 
 	expectedEffect := effects.NewExitOkMsg(msg)

@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"sort"
-
 	"github.com/fatih/color"
+	"sort"
+	"strings"
 
 	"github.com/hekmekk/git-team/src/command/status"
 	"github.com/hekmekk/git-team/src/core/events"
@@ -57,5 +57,6 @@ func toJson(theState state.State) effects.Effect {
 	if err != nil {
 		return effects.NewExitErrMsg(err)
 	}
-	return effects.NewExitOkMsg(buffer.String())
+	jsonStringWithoutTrailingNewline := strings.TrimSuffix(buffer.String(), "\n")
+	return effects.NewExitOkMsg(jsonStringWithoutTrailingNewline)
 }
