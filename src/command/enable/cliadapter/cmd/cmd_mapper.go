@@ -32,7 +32,7 @@ func Command() *cli.Command {
 		Action: func(c *cli.Context) error {
 			coauthors := c.Args().Slice()
 			useAll := c.Bool("all")
-			return commandadapter.Run(policy(&coauthors, &useAll), enableeventadapter.MapEventToEffectFactory(statuscmdmapper.Policy()))
+			return commandadapter.Run(policy(&coauthors, &useAll), enableeventadapter.MapEventToEffectFactory(statuscmdmapper.Policy(false)))
 		},
 		BashComplete: func(c *cli.Context) {
 			remainingAliases := aliascompletion.NewAliasShellCompletion(gitconfig.NewDataSource()).Complete(c.Args().Slice())

@@ -2,6 +2,7 @@ package statuseventadapter
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"sort"
 
@@ -17,6 +18,9 @@ import (
 func MapEventToEffect(event events.Event) effects.Effect {
 	switch evt := event.(type) {
 	case status.StateRetrievalSucceeded:
+		if evt.StateAsJson {
+			return toJson(evt.State)
+		}
 		return effects.NewExitOkMsg(toString(evt.State))
 	case status.StateRetrievalFailed:
 		return effects.NewExitErrMsg(evt.Reason)
@@ -43,4 +47,15 @@ func toString(theState state.State) string {
 	}
 
 	return buffer.String()
+}
+
+func toJson(theState state.State) effects.Effect {
+	var buffer bytes.Buffer
+	encoder := json.NewEncoder(&buffer)
+	encoder.SetEscapeHTML(false)
+	err := encoder.Encode(theState)
+	if err != nil {
+		return effects.NewExitErrMsg(err)
+	}
+	return effects.NewExitOkMsg(buffer.String())
 }

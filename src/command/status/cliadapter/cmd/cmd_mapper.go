@@ -17,19 +17,25 @@ func Command() *cli.Command {
 	return &cli.Command{
 		Name:  "status",
 		Usage: "Print the current status",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{Name: "json", Value: false, Usage: "Display the current status as a JSON formatted struct"},
+		},
 		Action: func(c *cli.Context) error {
-			return commandadapter.Run(Policy(), statuseventadapter.MapEventToEffect)
+			stateAsJson := c.Bool("json")
+
+			return commandadapter.Run(Policy(stateAsJson), statuseventadapter.MapEventToEffect)
 		},
 	}
 }
 
 // Policy the status policy constructor
-func Policy() status.Policy {
+func Policy(stateAsJson bool) status.Policy {
 	return status.Policy{
 		Deps: status.Dependencies{
 			ConfigReader:        config.NewGitconfigDataSource(gitconfig.NewDataSource()),
 			StateReader:         state.NewGitConfigDataSource(gitconfig.NewDataSource()),
 			ActivationValidator: activation.NewGitConfigDataSource(gitconfig.NewDataSource()),
+			StateAsJson:         stateAsJson,
 		},
 	}
 }

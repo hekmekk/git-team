@@ -13,7 +13,7 @@ setup() {
 	assert_line 'git-team disabled'
 }
 
-@test 'git-team: (scope: global) status should properly disaplay the enabled status' {
+@test 'git-team: (scope: global) status should properly display the enabled status' {
 	/usr/local/bin/git-team enable 'A <a@x.y>' 'B <b@x.y>' 'C <c@x.y>'
 
 	run /usr/local/bin/git-team status
@@ -23,6 +23,16 @@ setup() {
 	assert_line --index 2 '─ A <a@x.y>'
 	assert_line --index 3 '─ B <b@x.y>'
 	assert_line --index 4 '─ C <c@x.y>'
+
+	/usr/local/bin/git-team disable
+}
+
+@test 'git-team: (scope: global) status should properly display the enabled status in a json format' {
+	/usr/local/bin/git-team enable 'A <a@x.y>' 'B <b@x.y>' 'C <c@x.y>'
+
+	run /usr/local/bin/git-team status --json
+	assert_success
+	assert_line --index 0 '{"status":"enabled","coAuthors":["A <a@x.y>","B <b@x.y>","C <c@x.y>"],"previousHooksPath":""}'
 
 	/usr/local/bin/git-team disable
 }

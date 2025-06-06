@@ -72,7 +72,7 @@ teardown() {
 	assert_line "ls: /home/git-team-acceptance-test/.git-team/commit-templates/global/COMMIT_TEMPLATE: No such file or directory"
 }
 
-@test "git-team: (scope: global) disable should treat a previously disabled git-team idempotently" {
+@test "git-team: (scope: global) disable should treat a previously disabled git-team in an idempotent way" {
 	run /usr/local/bin/git-team disable
 	assert_success
 	assert_line "git-team disabled"

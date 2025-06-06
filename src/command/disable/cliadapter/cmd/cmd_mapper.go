@@ -21,7 +21,7 @@ func Command() *cli.Command {
 		Name:  "disable",
 		Usage: "Use default commit template and remove prepare-commit-msg hook",
 		Action: func(c *cli.Context) error {
-			return commandadapter.Run(policy(), disableeventadapter.MapEventToEffectFactory(statuscmdmapper.Policy()))
+			return commandadapter.Run(policy(), disableeventadapter.MapEventToEffectFactory(statuscmdmapper.Policy(false)))
 		},
 	}
 }

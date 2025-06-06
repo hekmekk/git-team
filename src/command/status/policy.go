@@ -15,6 +15,7 @@ type Dependencies struct {
 	StateReader         state.Reader
 	ConfigReader        config.Reader
 	ActivationValidator activation.Validator
+	StateAsJson         bool
 }
 
 // Policy the policy to apply
@@ -37,10 +38,10 @@ func (policy Policy) Apply() events.Event {
 		return StateRetrievalFailed{Reason: fmt.Errorf("failed to get status with activation-scope=%s: not inside a git repository", activationScope)}
 	}
 
-	state, stateRepositoryQueryErr := deps.StateReader.Query(cfg.ActivationScope)
+	retState, stateRepositoryQueryErr := deps.StateReader.Query(cfg.ActivationScope)
 	if stateRepositoryQueryErr != nil {
 		return StateRetrievalFailed{Reason: fmt.Errorf("failed to query current state: %s", stateRepositoryQueryErr)}
 	}
 
-	return StateRetrievalSucceeded{State: state}
+	return StateRetrievalSucceeded{State: retState, StateAsJson: deps.StateAsJson}
 }
