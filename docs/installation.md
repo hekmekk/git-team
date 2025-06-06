@@ -13,8 +13,15 @@
 ## Install git-team
 ### Golang
 For releases since v1.6.0.
-```shell script
+
+Install the latest stable release.
+```shell
 go install github.com/hekmekk/git-team@latest
+```
+
+Install from the latest commit.
+```shell
+go install github.com/hekmekk/git-team@HEAD
 ```
 
 ### Homebrew
