@@ -30,6 +30,12 @@ teardown() {
 	assert_line 'git-team disabled'
 }
 
+@test 'git-team: (scope: repo-local) status should properly display the disabled status in a json format' {
+	run /usr/local/bin/git-team status --json
+	assert_success
+	assert_line --index 0 '{"status":"disabled","coAuthors":[],"previousHooksPath":""}'
+}
+
 @test 'git-team: (scope: repo-local) status should properly display the enabled status' {
 	/usr/local/bin/git-team enable 'A <a@x.y>' 'B <b@x.y>' 'C <c@x.y>'
 

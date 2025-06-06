@@ -16,7 +16,21 @@ func TestMapEventToEffectStateRetrievalSucceededEnabled(t *testing.T) {
 
 	expectedEffect := effects.NewExitOkMsg(msg)
 
-	effect := MapEventToEffect(status.StateRetrievalSucceeded{State: state})
+	effect := MapEventToEffect(status.StateRetrievalSucceeded{State: state, StateAsJson: false})
+
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
+		t.Fail()
+	}
+}
+
+func TestMapEventToEffectStateRetrievalSucceededEnabledJson(t *testing.T) {
+	msg := `{"status":"enabled","coAuthors":["Mrs. Noujz <noujz@mrs.se>","Mr. Noujz <noujz@mr.se>"],"previousHooksPath":"/previous/hooks/path"}` + "\n"
+	state := state.NewStateEnabled([]string{"Mrs. Noujz <noujz@mrs.se>", "Mr. Noujz <noujz@mr.se>"}, "/previous/hooks/path")
+
+	expectedEffect := effects.NewExitOkMsg(msg)
+
+	effect := MapEventToEffect(status.StateRetrievalSucceeded{State: state, StateAsJson: true})
 
 	if !reflect.DeepEqual(expectedEffect, effect) {
 		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
@@ -30,7 +44,21 @@ func TestMapEventToEffectStateRetrievalSucceededDisabled(t *testing.T) {
 
 	expectedEffect := effects.NewExitOkMsg(msg)
 
-	effect := MapEventToEffect(status.StateRetrievalSucceeded{State: state})
+	effect := MapEventToEffect(status.StateRetrievalSucceeded{State: state, StateAsJson: false})
+
+	if !reflect.DeepEqual(expectedEffect, effect) {
+		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
+		t.Fail()
+	}
+}
+
+func TestMapEventToEffectStateRetrievalSucceededDisabledJson(t *testing.T) {
+	msg := `{"status":"disabled","coAuthors":[],"previousHooksPath":""}` + "\n"
+	state := state.NewStateDisabled()
+
+	expectedEffect := effects.NewExitOkMsg(msg)
+
+	effect := MapEventToEffect(status.StateRetrievalSucceeded{State: state, StateAsJson: true})
 
 	if !reflect.DeepEqual(expectedEffect, effect) {
 		t.Errorf("expected: %s, got: %s", expectedEffect, effect)
