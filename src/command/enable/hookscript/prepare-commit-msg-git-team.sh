@@ -28,7 +28,7 @@ commit_hash=$3
 # template - git commit -t or if commit.template is set
 
 case "${commit_source}" in
-"message" | "merge" | "squash")
+"message" | "merge" | "squash" | "commit")
         if grep "Co-authored-by:" ${template}; then
                 exit 0
         fi

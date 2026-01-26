@@ -29,7 +29,7 @@ teardown() {
 	rm /home/git-team-acceptance-test/.gitconfig
 }
 
-@test "use case: when git-team is disabled, a merge commit should not have co-authors injected" {
+@test "use case: when git-team is disabled, a merge commit should not have any co-authors injected" {
 	echo '# some-repository' > README.md
 	git add README.md
 	git commit -m 'initial commit'
@@ -54,7 +54,7 @@ teardown() {
 	refute_output --partial 'Co-authored-by:'
 }
 
-@test "use case: when git-team is disabled, a squash merge commit should not have co-authors injected" {
+@test "use case: when git-team is disabled, a squash merge commit should not have any co-authors injected" {
 	echo '# some-repository' > README.md
 	git add README.md
 	git commit -m 'initial commit'
@@ -92,6 +92,25 @@ teardown() {
 	assert_line --index 1 "Author: $USER_NAME <$USER_EMAIL>"
 	assert_line --index 2 --regexp '^Date:.+'
 	assert_line --index 3 --regexp '\s+test'
+	assert_line --index 4 'README.md'
+	refute_output --partial 'Co-authored-by:'
+}
+
+# TODO: test anpassen
+@test "use case: when git-team is disabled, an amended commit message should not have any co-authors injected" {
+	echo '# some-repository' > README.md
+	git add README.md
+	git commit -m 'initial commit'
+
+	git commit --amend -m "amended"
+
+	run git show --name-only
+
+	assert_success
+	assert_line --index 0 --regexp '^commit\s\w+'
+	assert_line --index 1 "Author: $USER_NAME <$USER_EMAIL>"
+	assert_line --index 2 --regexp '^Date:.+'
+	assert_line --index 3 --regexp '\s+amended'
 	assert_line --index 4 'README.md'
 	refute_output --partial 'Co-authored-by:'
 }

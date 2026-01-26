@@ -202,7 +202,7 @@ EOF
 	/usr/local/bin/git-team disable
 }
 
-@test "use case: (scope: global) when git-team is enabled, an amended commit message should not have any co-authors injected" {
+@test "use case: (scope: global) when git-team is enabled, an amended commit message should have co-authors injected" {
 	echo '# some-repository' > README.md
 	git add README.md
 	git commit -m 'initial commit'
@@ -218,8 +218,11 @@ EOF
 	assert_line --index 1 "Author: $USER_NAME <$USER_EMAIL>"
 	assert_line --index 2 --regexp '^Date:.+'
 	assert_line --index 3 --regexp '\s+initial commit'
-	assert_line --index 4 --regexp 'README.md'
-	refute_output --partial 'Co-authored-by:'
+	refute_line --index 4 --regexp '\w+'
+	assert_line --index 5 --regexp '\s+Co-authored-by: A <a@x.y>'
+	assert_line --index 6 --regexp '\s+Co-authored-by: B <b@x.y>'
+	assert_line --index 7 --regexp '\s+Co-authored-by: C <c@x.y>'
+	assert_line --index 8 'README.md'
 
 	/usr/local/bin/git-team disable
 }

@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Co-authors are appended for `git commit --amend`
 - The --json flag to the `status` command
 - The `--only-alias|-o` flag to the `[assignments] ls|list` command.
 
