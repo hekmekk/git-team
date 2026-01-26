@@ -33,7 +33,7 @@ jobs:
           go-version: '1.23'
       - run: |
           GOPATH=$(go env GOPATH) make
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v6
         with:
           retention-days: 1
           name: build-target
@@ -79,7 +79,7 @@ jobs:
             target/completion/bash/git-team.bash=/usr/share/bash-completion/completions/git-team \
             target/completion/zsh/git-team.zsh=/usr/share/zsh/site-functions/_git-team \
             target/man/git-team.1.gz=/usr/share/man/man1/git-team.1.gz
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v6
         with:
           retention-days: 1
           name: deb
@@ -131,7 +131,7 @@ jobs:
       - name: Sign rpm package
         run: |
           rpm --define "%_gpg_name 12BB70967049E845" --addsign git-team-${{ env.git_team_version }}-1.x86_64.rpm
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v6
         with:
           retention-days: 1
           name: rpm
