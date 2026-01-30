@@ -14,6 +14,7 @@ COPY src ./src
 COPY main.go .
 
 COPY Makefile .
+COPY verify_build_version.sh .
 RUN make build
 
 # ----------------------------------------------------------------- #
