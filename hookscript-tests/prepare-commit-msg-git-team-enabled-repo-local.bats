@@ -1,12 +1,12 @@
 #!/usr/bin/env bats
 
-load '/bats-libs/bats-support/load.bash'
-load '/bats-libs/bats-assert/load.bash'
-
 REPO_PATH=/tmp/repo/prepare-commit-msg-enabled-repo-local
 REPO_CHECKSUM=$(echo -n $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
 
 setup() {
+	bats_load_library bats-support
+	bats_load_library bats-assert
+
 	touch /tmp/COMMIT_MSG
 	mkdir -p $REPO_PATH
 	cd $REPO_PATH

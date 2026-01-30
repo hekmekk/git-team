@@ -1,12 +1,12 @@
 #!/usr/bin/env bats
 
-load '/bats-libs/bats-support/load.bash'
-load '/bats-libs/bats-assert/load.bash'
-
 REPO_PATH=/tmp/repo/enable-tests
 REPO_CHECKSUM=$(echo -n $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
 
 setup() {
+	bats_load_library bats-support
+	bats_load_library bats-assert
+
 	/usr/local/bin/git-team config activation-scope repo-local
 
 	mkdir -p $REPO_PATH

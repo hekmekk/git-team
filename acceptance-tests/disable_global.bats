@@ -1,9 +1,9 @@
 #!/usr/bin/env bats
 
-load '/bats-libs/bats-support/load.bash'
-load '/bats-libs/bats-assert/load.bash'
-
 setup() {
+	bats_load_library bats-support
+	bats_load_library bats-assert
+
 	git config --global init.defaultBranch main
 
 	/usr/local/bin/git-team config activation-scope global
@@ -49,7 +49,7 @@ teardown() {
 
 	run bash -c "git config --global core.hooksPath"
 	assert_failure 1
-	refute_line --regexp '\w+'
+	refute_output --regexp '\w+'
 }
 
 @test "git-team: (scope: global) disable should unset the commit template" {
@@ -59,7 +59,7 @@ teardown() {
 
 	run bash -c "git config --global commit.template"
 	assert_failure 1
-	refute_line --regexp '\w+'
+	refute_output --regexp '\w+'
 }
 
 @test "git-team: (scope: global) disable should remove the according COMMIT_TEMPLATE" {

@@ -1,9 +1,9 @@
 #!/usr/bin/env bats
 
-load '/bats-libs/bats-support/load.bash'
-load '/bats-libs/bats-assert/load.bash'
-
 setup() {
+	bats_load_library bats-support
+	bats_load_library bats-assert
+
 	/usr/local/bin/git-team enable 'A <a@x.y>' 'B <b@x.y>' 'C <c@x.y>'
 	touch /tmp/COMMIT_MSG
 }

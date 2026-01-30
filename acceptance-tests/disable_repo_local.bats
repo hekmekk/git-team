@@ -1,14 +1,14 @@
 #!/usr/bin/env bats
 
-load '/bats-libs/bats-support/load.bash'
-load '/bats-libs/bats-assert/load.bash'
-
 REPO_PATH=/tmp/repo/disable-tests
 REPO_CHECKSUM=$(echo -n $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
 USER_NAME=git-team-acceptance-test
 USER_EMAIL=acc@git.team
 
 setup() {
+	bats_load_library bats-support
+	bats_load_library bats-assert
+
 	git config --global init.defaultBranch main
 
 	mkdir -p $REPO_PATH
@@ -64,7 +64,7 @@ teardown() {
 
 	run bash -c "git config --local core.hooksPath"
 	assert_failure 1
-	refute_line --regexp '\w+'
+	refute_output --regexp '\w+'
 }
 
 @test "git-team: (scope: repo-local) disable should unset the commit template" {
@@ -73,7 +73,7 @@ teardown() {
 
 	run bash -c "git config --local commit.template"
 	assert_failure 1
-	refute_line --regexp '\w+'
+	refute_output --regexp '\w+'
 }
 
 @test "git-team: (scope: repo-local) disable should remove the according commit-template directory" {

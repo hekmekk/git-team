@@ -1,7 +1,9 @@
 #!/usr/bin/env bats
 
-load '/bats-libs/bats-support/load.bash'
-load '/bats-libs/bats-assert/load.bash'
+setup() {
+	bats_load_library bats-support
+	bats_load_library bats-assert
+}
 
 @test 'git-team: completion should show the available scripts' {
 	run /usr/local/bin/git-team completion

@@ -1,13 +1,13 @@
 #!/usr/bin/env bats
 
-load '/bats-libs/bats-support/load.bash'
-load '/bats-libs/bats-assert/load.bash'
-
 REPO_PATH=/tmp/repo/non-writable-gitconfig
 USER_NAME=git-team-acceptance-test
 USER_EMAIL=acc@git.team
 
 setup() {
+        bats_load_library bats-support
+        bats_load_library bats-assert
+
         git config --global init.defaultBranch main
 
         # lookup git config paths: /usr/bin/env git config --list --show-origin --show-scope
