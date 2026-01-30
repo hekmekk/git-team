@@ -63,7 +63,7 @@ echo "deb [arch=amd64] https://apt-sourc.es/deb/hekmekk/git-team stable main" | 
 sudo apt update && sudo apt install git-team
 ```
 
-#### [ansible playbook](../master/contrib/ansible/roles/git-team/tasks/main.yml)
+#### [ansible playbook](../main/contrib/ansible/roles/git-team/tasks/main.yml)
 ```
 ansible-playbook git-team.yml --ask-become-pass
 ```
@@ -77,7 +77,7 @@ sudo dpkg -i /path/to/downloaded/release.deb
 ```
 
 ### RedHat / CentOS / Fedora
-#### [ansible playbook](../master/contrib/ansible/roles/git-team/tasks/main.yml)
+#### [ansible playbook](../main/contrib/ansible/roles/git-team/tasks/main.yml)
 ```
 ansible-playbook git-team.yml --ask-become-pass
 ```
