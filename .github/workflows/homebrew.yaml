@@ -53,7 +53,7 @@ jobs:
           # alternatively: https://github.com/peter-evans/create-pull-request#reference-example
           gh pr create \
             --assignee "hekmekk" \
-            --base "master" \
+            --base "main" \
             --body "This PR updates the homebrew Formula to build [git-team ${{ env.TAG }}](https://github.com/hekmekk/git-team/releases/tag/${{ env.TAG }})." \
             --head "${{ env.VERSION_BUMPER_BRANCH_NAME }}" \
             --repo "hekmekk/homebrew-git-team" \
