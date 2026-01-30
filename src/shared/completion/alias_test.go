@@ -3,11 +3,31 @@ package completion
 import (
 	"errors"
 	"fmt"
-	mocks "github.com/hekmekk/git-team/v2/mocks/shared/gitconfig/interface"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
+	"github.com/stretchr/testify/require"
 )
+
+type gitConfigReaderMock struct {
+	getRegexp func(gitconfigscope.Scope, string) (map[string]string, error)
+}
+
+func (mock gitConfigReaderMock) Get(scope gitconfigscope.Scope, key string) (string, error) {
+	return "", nil
+}
+
+func (mock gitConfigReaderMock) GetAll(scope gitconfigscope.Scope, key string) ([]string, error) {
+	return []string{}, nil
+}
+
+func (mock gitConfigReaderMock) GetRegexp(scope gitconfigscope.Scope, pattern string) (map[string]string, error) {
+	return mock.getRegexp(scope, pattern)
+}
+
+func (mock gitConfigReaderMock) List(scope gitconfigscope.Scope) (map[string]string, error) {
+	return nil, nil
+}
 
 func TestComplete(t *testing.T) {
 	t.Parallel()
@@ -22,13 +42,15 @@ func TestComplete(t *testing.T) {
 		{[]string{"alias1", "alias2", "alias3"}, []string{}},
 	}
 
-	gitConfigReader := &mocks.Reader{}
-
-	gitConfigReader.On("GetRegexp", mock.Anything, mock.Anything).Return(map[string]string{
-		"team.alias.alias1": "Mr. Noujz <noujz@mr.se>",
-		"team.alias.alias2": "Mrs. Noujz <noujz@mrs.se>",
-		"team.alias.alias3": "Mrs. Very Noujz <very-noujz@mrs.se>",
-	}, nil)
+	gitConfigReader := &gitConfigReaderMock{
+		getRegexp: func(_ gitconfigscope.Scope, pattern string) (map[string]string, error) {
+			return map[string]string{
+				"team.alias.alias1": "Mr. Noujz <noujz@mr.se>",
+				"team.alias.alias2": "Mrs. Noujz <noujz@mrs.se>",
+				"team.alias.alias3": "Mrs. Very Noujz <very-noujz@mrs.se>",
+			}, nil
+		},
+	}
 
 	aliasShellCompletion := NewAliasShellCompletion(gitConfigReader)
 
@@ -47,9 +69,11 @@ func TestComplete(t *testing.T) {
 }
 
 func TestCompleteWhenNoAssignmentsExists(t *testing.T) {
-	gitConfigReader := &mocks.Reader{}
-
-	gitConfigReader.On("GetRegexp", mock.Anything, mock.Anything).Return(map[string]string{}, nil)
+	gitConfigReader := &gitConfigReaderMock{
+		getRegexp: func(_ gitconfigscope.Scope, pattern string) (map[string]string, error) {
+			return map[string]string{}, nil
+		},
+	}
 
 	expectedRemainingAliases := []string{}
 
@@ -61,9 +85,11 @@ func TestCompleteWhenNoAssignmentsExists(t *testing.T) {
 }
 
 func TestCompletewhenLookingUpAssignmentsFails(t *testing.T) {
-	gitConfigReader := &mocks.Reader{}
-
-	gitConfigReader.On("GetRegexp", mock.Anything, mock.Anything).Return(map[string]string{}, errors.New("any kind of error"))
+	gitConfigReader := &gitConfigReaderMock{
+		getRegexp: func(_ gitconfigscope.Scope, pattern string) (map[string]string, error) {
+			return map[string]string{}, errors.New("any kind of error")
+		},
+	}
 
 	expectedRemainingAliases := []string{}
 
