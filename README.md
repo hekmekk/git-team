@@ -3,8 +3,6 @@
 
 [![Legacy Code: O++ S++ I+ C>+ E+++ M+ V+ D++ Ar>A](https://img.shields.io/badge/Legacy%20Code-O%2B%2B%20S%2B%2B%20I%2B%20C%3E%2B%20E%2B%2B%2B%20M%2B%20V%2B%20D%2B%2B%20Ar%3EA-informational)](https://gitlab.com/resident-uhlig/legacy-code)
 
-[**:heart: Donate**](/docs/donate.md#heart-donate)
-
 # git-team
 
 Command line interface for managing and enhancing `git commit` messages with co-authors.
