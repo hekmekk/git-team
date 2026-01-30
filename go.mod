@@ -1,4 +1,4 @@
-module github.com/hekmekk/git-team
+module github.com/hekmekk/git-team/v2
 
 go 1.23
 
