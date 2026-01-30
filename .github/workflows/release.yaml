@@ -9,26 +9,47 @@ on:
     tags:
       - "v*.*.*"
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Provide a tag manully, e.g. v2.0.0"
+        required: true
 
 jobs:
+  select-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      git_team_tag: ${{ steps.select_tag_from_git_or_input.outputs.git_team_tag }}
+    steps:
+      - name: Select tag from git or user input
+        id: select_tag_from_git_or_input
+        run: |
+          echo "git_team_tag=$(echo ${{ github.ref_type == 'tag' && github.ref_name || inputs.tag }})" >> $GITHUB_OUTPUT
+
   extract-version:
     runs-on: ubuntu-latest
+    needs: [ select-tag ]
+    env:
+      git_team_tag: ${{ needs.select-tag.outputs.git_team_tag }}
     outputs:
       git_team_version: ${{ steps.extract_package_version_from_tag.outputs.git_team_version }}
     steps:
       - name: Extract package version from tag
         id: extract_package_version_from_tag
         run: |
-          echo "git_team_version=$(echo ${{ github.ref_name }} | cut -c2-)" >> $GITHUB_OUTPUT
+          echo "git_team_version=$(echo ${{ env.git_team_tag }} | cut -c2-)" >> $GITHUB_OUTPUT
 
   verify:
     uses: ./.github/workflows/verify.yaml
 
   build:
     runs-on: ubuntu-latest
-    needs: verify
+    needs: [ select-tag, verify ]
+    env:
+      git_team_tag: ${{ needs.select-tag.outputs.git_team_tag }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.git_team_tag }}
       - uses: actions/setup-go@v3
         with:
           go-version: '1.23'
@@ -167,10 +188,16 @@ jobs:
           files: |
             git-team_${{ env.git_team_version }}_amd64.deb
             git-team-${{ env.git_team_version }}-1.x86_64.rpm
+
   send-repository-dispatch-event:
     runs-on: ubuntu-latest
-    needs: release
+    needs: [ select-tag, release ]
+    env:
+      git_team_tag: ${{ needs.select-tag.outputs.git_team_tag }}
     steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.git_team_tag }}
       - uses: peter-evans/repository-dispatch@v2
         with:
           event-type: release-created
