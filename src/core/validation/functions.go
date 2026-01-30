@@ -26,5 +26,5 @@ func SanityCheckCoauthor(candidateCoauthor string) error {
 	if hasArrowBrackets && containsAtSign {
 		return nil
 	}
-	return fmt.Errorf(fmt.Sprintf("not a valid coauthor: %s", candidateCoauthor))
+	return fmt.Errorf("not a valid coauthor: %s", candidateCoauthor)
 }
