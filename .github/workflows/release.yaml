@@ -164,6 +164,7 @@ jobs:
     needs: [ extract-version, package-deb, package-rpm ]
     env:
       git_team_version: ${{ needs.extract-version.outputs.git_team_version }}
+      git_team_tag: ${{ needs.select-tag.outputs.git_team_tag }}
     steps:
       - uses: actions/download-artifact@v6
         with:
@@ -182,6 +183,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ env.git_team_tag }}
           body: |
             **sha256 checksum (deb):** `${{ steps.sha256sum_deb.outputs.CHECKSUM }}`
             **sha256 checksum (rpm):** `${{ steps.sha256sum_rpm.outputs.CHECKSUM }}`
