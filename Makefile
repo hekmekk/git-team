@@ -30,16 +30,6 @@ zsh_completion_dir := $(datarootdir)/zsh/site-functions
 
 CURR_DIR := $(shell pwd)
 
-BATS_FILE :=
-ifdef CASE
-	BATS_FILE=$(CASE).bats
-endif
-
-BATS_FILTER :=
-ifdef FILTER
-	BATS_FILTER=--filter $(FILTER)
-endif
-
 all: build man-page completion
 
 update-and-cleanup-deps:
@@ -109,7 +99,7 @@ clean:
 .PHONY: acceptance-tests
 acceptance-tests:
 	docker build -t git-team-acceptance-tests . -f acceptance-tests.Dockerfile
-	docker run --rm -v $(CURR_DIR)/acceptance-tests:/acceptance-tests:ro git-team-acceptance-tests --formatter tap /acceptance-tests/$(BATS_FILE) $(BATS_FILTER)
+	docker run --rm -v $(CURR_DIR)/acceptance-tests:/acceptance-tests:ro git-team-acceptance-tests --formatter tap /acceptance-tests/
 
 .PHONY: hookscript-tests
 hookscript-tests:
