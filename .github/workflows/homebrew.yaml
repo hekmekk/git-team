@@ -24,7 +24,7 @@ jobs:
           app_id: ${{ secrets.HOMEBREW_GIT_TEAM_PR_APP_APP_ID }}
           private_key: ${{ secrets.HOMEBREW_GIT_TEAM_PR_APP_PRIVATE_KEY }}
           installation_id: ${{ secrets.HOMEBREW_GIT_TEAM_PR_APP_INSTALLATION_ID }}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
         with:
           # Note that in order to push to another repository, you need to create a PAT, designated DEPLOY KEY (SSH), or Github App in that repository,
           # whereas for pushing into the own/triggering repository the short lived ${{ secrets.GITHUB_TOKEN }}/${{ github.token }} can be used instead.
