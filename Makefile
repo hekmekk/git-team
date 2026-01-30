@@ -55,6 +55,9 @@ build: deps
 ifndef GOPATH
 	$(error GOPATH is not set)
 endif
+ifndef VERSION
+	$(error VERSION is not set)
+endif
 	mkdir -p $(CURR_DIR)/target/bin
 	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -v -x -ldflags='-s -w' -o $(CURR_DIR)/target/bin ./...
 	@echo "[INFO] Successfully built git-team version v$(VERSION)"
