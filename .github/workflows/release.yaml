@@ -8,48 +8,25 @@ on:
   push:
     tags:
       - "v*.*.*"
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: "Provide a tag manully, e.g. v2.0.0"
-        required: true
 
 jobs:
-  select-tag:
-    runs-on: ubuntu-latest
-    outputs:
-      git_team_tag: ${{ steps.select_tag_from_git_or_input.outputs.git_team_tag }}
-    steps:
-      - name: Select tag from git or user input
-        id: select_tag_from_git_or_input
-        run: |
-          echo "git_team_tag=$(echo ${{ github.ref_type == 'tag' && github.ref_name || inputs.tag }})" >> $GITHUB_OUTPUT
-
   extract-version:
     runs-on: ubuntu-latest
-    needs: [ select-tag ]
-    env:
-      git_team_tag: ${{ needs.select-tag.outputs.git_team_tag }}
     outputs:
       git_team_version: ${{ steps.extract_package_version_from_tag.outputs.git_team_version }}
     steps:
       - name: Extract package version from tag
         id: extract_package_version_from_tag
         run: |
-          echo "git_team_version=$(echo ${{ env.git_team_tag }} | cut -c2-)" >> $GITHUB_OUTPUT
+          echo "git_team_version=$(echo ${{ github.ref_name }} | cut -c2-)" >> $GITHUB_OUTPUT
 
   verify:
     uses: ./.github/workflows/verify.yaml
 
   build:
     runs-on: ubuntu-latest
-    needs: [ select-tag, verify ]
-    env:
-      git_team_tag: ${{ needs.select-tag.outputs.git_team_tag }}
+    needs: [ verify ]
     steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ env.git_team_tag }}
       - uses: actions/setup-go@v3
         with:
           go-version: '1.23'
@@ -164,7 +141,6 @@ jobs:
     needs: [ extract-version, package-deb, package-rpm ]
     env:
       git_team_version: ${{ needs.extract-version.outputs.git_team_version }}
-      git_team_tag: ${{ needs.select-tag.outputs.git_team_tag }}
     steps:
       - uses: actions/download-artifact@v6
         with:
@@ -181,9 +157,9 @@ jobs:
         run: |
           echo "CHECKSUM=$(sha256sum git-team-${{ env.git_team_version }}-1.x86_64.rpm | awk '{ print $1 }')" >> $GITHUB_OUTPUT
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.git_team_tag }}
+          tag_name: ${{ github.ref_name }}
           body: |
             **sha256 checksum (deb):** `${{ steps.sha256sum_deb.outputs.CHECKSUM }}`
             **sha256 checksum (rpm):** `${{ steps.sha256sum_rpm.outputs.CHECKSUM }}`
@@ -193,13 +169,8 @@ jobs:
 
   send-repository-dispatch-event:
     runs-on: ubuntu-latest
-    needs: [ select-tag, release ]
-    env:
-      git_team_tag: ${{ needs.select-tag.outputs.git_team_tag }}
+    needs: [ release ]
     steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ env.git_team_tag }}
       - uses: peter-evans/repository-dispatch@v2
         with:
           event-type: release-created
