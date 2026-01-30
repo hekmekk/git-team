@@ -7,17 +7,17 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"github.com/hekmekk/git-team/src/command/enable"
-	enableeventadapter "github.com/hekmekk/git-team/src/command/enable/cliadapter/event"
-	commitsettingsds "github.com/hekmekk/git-team/src/command/enable/commitsettings/datasource"
-	statuscmdmapper "github.com/hekmekk/git-team/src/command/status/cliadapter/cmd"
-	"github.com/hekmekk/git-team/src/core/validation"
-	activation "github.com/hekmekk/git-team/src/shared/activation/impl"
-	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
-	aliascompletion "github.com/hekmekk/git-team/src/shared/completion"
-	configds "github.com/hekmekk/git-team/src/shared/config/datasource"
-	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
-	state "github.com/hekmekk/git-team/src/shared/state/impl"
+	"github.com/hekmekk/git-team/v2/src/command/enable"
+	enableeventadapter "github.com/hekmekk/git-team/v2/src/command/enable/cliadapter/event"
+	commitsettingsds "github.com/hekmekk/git-team/v2/src/command/enable/commitsettings/datasource"
+	statuscmdmapper "github.com/hekmekk/git-team/v2/src/command/status/cliadapter/cmd"
+	"github.com/hekmekk/git-team/v2/src/core/validation"
+	activation "github.com/hekmekk/git-team/v2/src/shared/activation/impl"
+	commandadapter "github.com/hekmekk/git-team/v2/src/shared/cli/commandadapter"
+	aliascompletion "github.com/hekmekk/git-team/v2/src/shared/completion"
+	configds "github.com/hekmekk/git-team/v2/src/shared/config/datasource"
+	gitconfig "github.com/hekmekk/git-team/v2/src/shared/gitconfig/impl"
+	state "github.com/hekmekk/git-team/v2/src/shared/state/impl"
 )
 
 // Command the enable command

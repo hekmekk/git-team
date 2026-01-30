@@ -1,9 +1,9 @@
 package commandadapter
 
 import (
-	"github.com/hekmekk/git-team/src/core/events"
-	"github.com/hekmekk/git-team/src/core/policy"
-	"github.com/hekmekk/git-team/src/shared/cli/effects"
+	"github.com/hekmekk/git-team/v2/src/core/events"
+	"github.com/hekmekk/git-team/v2/src/core/policy"
+	"github.com/hekmekk/git-team/v2/src/shared/cli/effects"
 )
 
 // Run apply a policy, convert the resulting event to an effect and run that effect

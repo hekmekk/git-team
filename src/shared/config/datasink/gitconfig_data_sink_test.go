@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"testing"
 
-	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
-	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	activationscope "github.com/hekmekk/git-team/v2/src/shared/activation/scope"
+	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
 )
 
 type gitConfigWriterMock struct {

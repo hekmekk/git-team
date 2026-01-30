@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	scope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	scope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
 )
 
 func TestShouldReturnTheValue(t *testing.T) {

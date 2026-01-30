@@ -3,10 +3,10 @@ package listcmdadapter
 import (
 	"github.com/urfave/cli/v2"
 
-	"github.com/hekmekk/git-team/src/command/assignments/list"
-	listeventadapter "github.com/hekmekk/git-team/src/command/assignments/list/cliadapter/event"
-	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
-	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
+	"github.com/hekmekk/git-team/v2/src/command/assignments/list"
+	listeventadapter "github.com/hekmekk/git-team/v2/src/command/assignments/list/cliadapter/event"
+	commandadapter "github.com/hekmekk/git-team/v2/src/shared/cli/commandadapter"
+	gitconfig "github.com/hekmekk/git-team/v2/src/shared/gitconfig/impl"
 )
 
 // Command the ls command

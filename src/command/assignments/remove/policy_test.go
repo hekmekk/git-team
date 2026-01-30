@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
+	gitconfigerror "github.com/hekmekk/git-team/v2/src/shared/gitconfig/error"
 )
 
 func TestRmShouldRemoveTheAssignment(t *testing.T) {

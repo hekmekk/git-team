@@ -3,13 +3,13 @@ package statuscmdadapter
 import (
 	"github.com/urfave/cli/v2"
 
-	"github.com/hekmekk/git-team/src/command/status"
-	statuseventadapter "github.com/hekmekk/git-team/src/command/status/cliadapter/event"
-	activation "github.com/hekmekk/git-team/src/shared/activation/impl"
-	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
-	config "github.com/hekmekk/git-team/src/shared/config/datasource"
-	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
-	state "github.com/hekmekk/git-team/src/shared/state/impl"
+	"github.com/hekmekk/git-team/v2/src/command/status"
+	statuseventadapter "github.com/hekmekk/git-team/v2/src/command/status/cliadapter/event"
+	activation "github.com/hekmekk/git-team/v2/src/shared/activation/impl"
+	commandadapter "github.com/hekmekk/git-team/v2/src/shared/cli/commandadapter"
+	config "github.com/hekmekk/git-team/v2/src/shared/config/datasource"
+	gitconfig "github.com/hekmekk/git-team/v2/src/shared/gitconfig/impl"
+	state "github.com/hekmekk/git-team/v2/src/shared/state/impl"
 )
 
 // Command the status command

@@ -1,7 +1,7 @@
 package policy
 
 import (
-	"github.com/hekmekk/git-team/src/core/events"
+	"github.com/hekmekk/git-team/v2/src/core/events"
 )
 
 // Policy the behavior that is applied when a command is issued

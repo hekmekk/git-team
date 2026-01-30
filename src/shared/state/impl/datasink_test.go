@@ -1,14 +1,14 @@
 package stateimpl
 
 import (
-	mocks "github.com/hekmekk/git-team/mocks/shared/gitconfig/interface"
+	mocks "github.com/hekmekk/git-team/v2/mocks/shared/gitconfig/interface"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"testing"
 
-	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
-	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
-	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	activationscope "github.com/hekmekk/git-team/v2/src/shared/activation/scope"
+	gitconfigerror "github.com/hekmekk/git-team/v2/src/shared/gitconfig/error"
+	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
 )
 
 func TestPersistSucceeds(t *testing.T) {

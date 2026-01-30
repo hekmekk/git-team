@@ -3,10 +3,10 @@ package policy
 import (
 	"fmt"
 
-	configevents "github.com/hekmekk/git-team/src/command/config/events"
-	"github.com/hekmekk/git-team/src/core/events"
-	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
-	config "github.com/hekmekk/git-team/src/shared/config/interface"
+	configevents "github.com/hekmekk/git-team/v2/src/command/config/events"
+	"github.com/hekmekk/git-team/v2/src/core/events"
+	activationscope "github.com/hekmekk/git-team/v2/src/shared/activation/scope"
+	config "github.com/hekmekk/git-team/v2/src/shared/config/interface"
 )
 
 // Request defines which config setting to modify or if the config should just be displayed

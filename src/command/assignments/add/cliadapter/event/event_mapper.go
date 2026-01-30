@@ -5,9 +5,9 @@ import (
 
 	"github.com/fatih/color"
 
-	"github.com/hekmekk/git-team/src/command/assignments/add"
-	"github.com/hekmekk/git-team/src/core/events"
-	"github.com/hekmekk/git-team/src/shared/cli/effects"
+	"github.com/hekmekk/git-team/v2/src/command/assignments/add"
+	"github.com/hekmekk/git-team/v2/src/core/events"
+	"github.com/hekmekk/git-team/v2/src/shared/cli/effects"
 )
 
 // MapEventToEffect convert assignment events to effects for the cli

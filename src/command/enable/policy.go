@@ -8,17 +8,17 @@ import (
 	"os"
 	"path/filepath"
 
-	commitsettings "github.com/hekmekk/git-team/src/command/enable/commitsettings/interface"
-	hookscript "github.com/hekmekk/git-team/src/command/enable/hookscript"
-	utils "github.com/hekmekk/git-team/src/command/enable/utils"
-	events "github.com/hekmekk/git-team/src/core/events"
-	activation "github.com/hekmekk/git-team/src/shared/activation/interface"
-	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
-	config "github.com/hekmekk/git-team/src/shared/config/interface"
-	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
-	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
-	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
-	state "github.com/hekmekk/git-team/src/shared/state/interface"
+	commitsettings "github.com/hekmekk/git-team/v2/src/command/enable/commitsettings/interface"
+	hookscript "github.com/hekmekk/git-team/v2/src/command/enable/hookscript"
+	utils "github.com/hekmekk/git-team/v2/src/command/enable/utils"
+	events "github.com/hekmekk/git-team/v2/src/core/events"
+	activation "github.com/hekmekk/git-team/v2/src/shared/activation/interface"
+	activationscope "github.com/hekmekk/git-team/v2/src/shared/activation/scope"
+	config "github.com/hekmekk/git-team/v2/src/shared/config/interface"
+	giterror "github.com/hekmekk/git-team/v2/src/shared/gitconfig/error"
+	gitconfig "github.com/hekmekk/git-team/v2/src/shared/gitconfig/interface"
+	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
+	state "github.com/hekmekk/git-team/v2/src/shared/state/interface"
 )
 
 // Dependencies the dependencies of the enable Policy module

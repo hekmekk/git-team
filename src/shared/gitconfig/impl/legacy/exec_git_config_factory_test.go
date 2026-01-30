@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	scope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	scope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
 )
 
 func TestShouldExecuteGitConfigWithTheExpectedCommandLineArguments(t *testing.T) {

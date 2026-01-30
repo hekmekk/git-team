@@ -6,8 +6,8 @@ package commandadapter
 import (
 	"fmt"
 
-	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
-	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	gitconfiglegacy "github.com/hekmekk/git-team/v2/src/shared/gitconfig/impl/legacy"
+	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
 )
 
 // ResolveAliases convenience function to resolve multiple aliases and accumulate errors

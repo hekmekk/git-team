@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
 )
 
 func TestShouldReturnTheAssignedCoAuthor(t *testing.T) {

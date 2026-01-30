@@ -2,7 +2,7 @@ package status
 
 import (
 	"fmt"
-	state "github.com/hekmekk/git-team/src/shared/state/entity"
+	state "github.com/hekmekk/git-team/v2/src/shared/state/entity"
 )
 
 // StateRetrievalSucceeded successfully got the current state

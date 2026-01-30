@@ -1,8 +1,8 @@
 package activationvalidatorimpl
 
 import (
-	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
-	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	gitconfig "github.com/hekmekk/git-team/v2/src/shared/gitconfig/interface"
+	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
 )
 
 // GitConfigDataSource use gitconfig to determine activation validation properties

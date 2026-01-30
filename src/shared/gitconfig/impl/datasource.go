@@ -1,8 +1,8 @@
 package gitconfigimpl
 
 import (
-	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
-	scope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	gitconfiglegacy "github.com/hekmekk/git-team/v2/src/shared/gitconfig/impl/legacy"
+	scope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
 )
 
 // DataSource read data directly from gitconfig

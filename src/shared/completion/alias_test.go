@@ -3,7 +3,7 @@ package completion
 import (
 	"errors"
 	"fmt"
-	mocks "github.com/hekmekk/git-team/mocks/shared/gitconfig/interface"
+	mocks "github.com/hekmekk/git-team/v2/mocks/shared/gitconfig/interface"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"testing"

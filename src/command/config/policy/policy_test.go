@@ -6,9 +6,9 @@ import (
 	"reflect"
 	"testing"
 
-	configevents "github.com/hekmekk/git-team/src/command/config/events"
-	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
-	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
+	configevents "github.com/hekmekk/git-team/v2/src/command/config/events"
+	activationscope "github.com/hekmekk/git-team/v2/src/shared/activation/scope"
+	config "github.com/hekmekk/git-team/v2/src/shared/config/entity/config"
 )
 
 type configReaderMock struct {

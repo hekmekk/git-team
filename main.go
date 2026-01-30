@@ -9,17 +9,17 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"github.com/hekmekk/git-team/src/shared/cli/effects"
+	"github.com/hekmekk/git-team/v2/src/shared/cli/effects"
 
-	addcmdadapter "github.com/hekmekk/git-team/src/command/assignments/add/cliadapter/cmd"
-	assignmentscmdadapter "github.com/hekmekk/git-team/src/command/assignments/cliadapter/cmd"
-	listcmdadapter "github.com/hekmekk/git-team/src/command/assignments/list/cliadapter/cmd"
-	removecmdadapter "github.com/hekmekk/git-team/src/command/assignments/remove/cliadapter/cmd"
-	completioncmdadapter "github.com/hekmekk/git-team/src/command/completion/cliadapter/cmd"
-	configcmdadapter "github.com/hekmekk/git-team/src/command/config/cliadapter/cmd"
-	disablecmdadapter "github.com/hekmekk/git-team/src/command/disable/cliadapter/cmd"
-	enablecmdadapter "github.com/hekmekk/git-team/src/command/enable/cliadapter/cmd"
-	statuscmdadapter "github.com/hekmekk/git-team/src/command/status/cliadapter/cmd"
+	addcmdadapter "github.com/hekmekk/git-team/v2/src/command/assignments/add/cliadapter/cmd"
+	assignmentscmdadapter "github.com/hekmekk/git-team/v2/src/command/assignments/cliadapter/cmd"
+	listcmdadapter "github.com/hekmekk/git-team/v2/src/command/assignments/list/cliadapter/cmd"
+	removecmdadapter "github.com/hekmekk/git-team/v2/src/command/assignments/remove/cliadapter/cmd"
+	completioncmdadapter "github.com/hekmekk/git-team/v2/src/command/completion/cliadapter/cmd"
+	configcmdadapter "github.com/hekmekk/git-team/v2/src/command/config/cliadapter/cmd"
+	disablecmdadapter "github.com/hekmekk/git-team/v2/src/command/disable/cliadapter/cmd"
+	enablecmdadapter "github.com/hekmekk/git-team/v2/src/command/enable/cliadapter/cmd"
+	statuscmdadapter "github.com/hekmekk/git-team/v2/src/command/status/cliadapter/cmd"
 )
 
 const (

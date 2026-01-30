@@ -9,13 +9,13 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"github.com/hekmekk/git-team/src/command/assignments/add"
-	addeventadapter "github.com/hekmekk/git-team/src/command/assignments/add/cliadapter/event"
-	"github.com/hekmekk/git-team/src/core/validation"
-	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
-	"github.com/hekmekk/git-team/src/shared/cli/effects"
-	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
-	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	"github.com/hekmekk/git-team/v2/src/command/assignments/add"
+	addeventadapter "github.com/hekmekk/git-team/v2/src/command/assignments/add/cliadapter/event"
+	"github.com/hekmekk/git-team/v2/src/core/validation"
+	commandadapter "github.com/hekmekk/git-team/v2/src/shared/cli/commandadapter"
+	"github.com/hekmekk/git-team/v2/src/shared/cli/effects"
+	gitconfiglegacy "github.com/hekmekk/git-team/v2/src/shared/gitconfig/impl/legacy"
+	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
 )
 
 // Command the add command

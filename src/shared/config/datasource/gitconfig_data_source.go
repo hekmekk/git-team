@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 
-	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
-	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
-	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
-	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
-	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	activationscope "github.com/hekmekk/git-team/v2/src/shared/activation/scope"
+	config "github.com/hekmekk/git-team/v2/src/shared/config/entity/config"
+	giterror "github.com/hekmekk/git-team/v2/src/shared/gitconfig/error"
+	gitconfig "github.com/hekmekk/git-team/v2/src/shared/gitconfig/interface"
+	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
 )
 
 // GitconfigDataSource reads configuration from git config

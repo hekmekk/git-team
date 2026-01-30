@@ -3,11 +3,11 @@ package status
 import (
 	"fmt"
 
-	"github.com/hekmekk/git-team/src/core/events"
-	activation "github.com/hekmekk/git-team/src/shared/activation/interface"
-	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
-	config "github.com/hekmekk/git-team/src/shared/config/interface"
-	state "github.com/hekmekk/git-team/src/shared/state/interface"
+	"github.com/hekmekk/git-team/v2/src/core/events"
+	activation "github.com/hekmekk/git-team/v2/src/shared/activation/interface"
+	activationscope "github.com/hekmekk/git-team/v2/src/shared/activation/scope"
+	config "github.com/hekmekk/git-team/v2/src/shared/config/interface"
+	state "github.com/hekmekk/git-team/v2/src/shared/state/interface"
 )
 
 // Dependencies the dependencies of the status Policy module

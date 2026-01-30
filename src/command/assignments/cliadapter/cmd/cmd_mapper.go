@@ -3,9 +3,9 @@ package assignmentscmdadapter
 import (
 	"github.com/urfave/cli/v2"
 
-	addcmdadapter "github.com/hekmekk/git-team/src/command/assignments/add/cliadapter/cmd"
-	listcmdadapter "github.com/hekmekk/git-team/src/command/assignments/list/cliadapter/cmd"
-	removecmdadapter "github.com/hekmekk/git-team/src/command/assignments/remove/cliadapter/cmd"
+	addcmdadapter "github.com/hekmekk/git-team/v2/src/command/assignments/add/cliadapter/cmd"
+	listcmdadapter "github.com/hekmekk/git-team/v2/src/command/assignments/list/cliadapter/cmd"
+	removecmdadapter "github.com/hekmekk/git-team/v2/src/command/assignments/remove/cliadapter/cmd"
 )
 
 // Command the assignments command

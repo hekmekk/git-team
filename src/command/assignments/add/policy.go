@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hekmekk/git-team/src/core/events"
+	"github.com/hekmekk/git-team/v2/src/core/events"
 )
 
 // AssignmentRequest which coauthor to assign to the alias

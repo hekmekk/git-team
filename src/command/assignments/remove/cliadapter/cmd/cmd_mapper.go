@@ -6,14 +6,14 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"github.com/hekmekk/git-team/src/command/assignments/remove"
-	removeeventadapter "github.com/hekmekk/git-team/src/command/assignments/remove/cliadapter/event"
-	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
-	"github.com/hekmekk/git-team/src/shared/cli/effects"
-	aliascompletion "github.com/hekmekk/git-team/src/shared/completion"
-	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
-	gitconfiglegacy "github.com/hekmekk/git-team/src/shared/gitconfig/impl/legacy"
-	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	"github.com/hekmekk/git-team/v2/src/command/assignments/remove"
+	removeeventadapter "github.com/hekmekk/git-team/v2/src/command/assignments/remove/cliadapter/event"
+	commandadapter "github.com/hekmekk/git-team/v2/src/shared/cli/commandadapter"
+	"github.com/hekmekk/git-team/v2/src/shared/cli/effects"
+	aliascompletion "github.com/hekmekk/git-team/v2/src/shared/completion"
+	gitconfig "github.com/hekmekk/git-team/v2/src/shared/gitconfig/impl"
+	gitconfiglegacy "github.com/hekmekk/git-team/v2/src/shared/gitconfig/impl/legacy"
+	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
 )
 
 // Command the rm command

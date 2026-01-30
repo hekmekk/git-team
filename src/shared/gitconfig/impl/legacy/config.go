@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"strings"
 
-	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
-	scope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	gitconfigerror "github.com/hekmekk/git-team/v2/src/shared/gitconfig/error"
+	scope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
 )
 
 // Get git config --<scope> --get <key>

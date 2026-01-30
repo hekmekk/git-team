@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/hekmekk/git-team/src/core/events"
-	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
+	"github.com/hekmekk/git-team/v2/src/core/events"
+	gitconfigerror "github.com/hekmekk/git-team/v2/src/shared/gitconfig/error"
 )
 
 // DeAllocationRequest remove an alias -> coauthor assignment

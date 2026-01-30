@@ -3,15 +3,15 @@ package disable
 import (
 	"errors"
 	"fmt"
-	state "github.com/hekmekk/git-team/src/shared/state/entity"
+	state "github.com/hekmekk/git-team/v2/src/shared/state/entity"
 	"os"
 	"reflect"
 	"testing"
 
-	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
-	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
-	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
-	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	activationscope "github.com/hekmekk/git-team/v2/src/shared/activation/scope"
+	config "github.com/hekmekk/git-team/v2/src/shared/config/entity/config"
+	gitconfigerror "github.com/hekmekk/git-team/v2/src/shared/gitconfig/error"
+	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
 )
 
 type gitConfigReaderMock struct {

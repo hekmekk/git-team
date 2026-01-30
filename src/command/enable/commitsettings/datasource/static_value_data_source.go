@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hekmekk/git-team/src/command/enable/commitsettings/entity"
+	"github.com/hekmekk/git-team/v2/src/command/enable/commitsettings/entity"
 )
 
 type dependencies struct {

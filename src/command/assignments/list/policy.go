@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hekmekk/git-team/src/core/assignment"
-	"github.com/hekmekk/git-team/src/core/events"
-	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
-	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
-	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	"github.com/hekmekk/git-team/v2/src/core/assignment"
+	"github.com/hekmekk/git-team/v2/src/core/events"
+	giterror "github.com/hekmekk/git-team/v2/src/shared/gitconfig/error"
+	gitconfig "github.com/hekmekk/git-team/v2/src/shared/gitconfig/interface"
+	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
 )
 
 // ListRequest how to show the available assignments

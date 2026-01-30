@@ -1,7 +1,7 @@
 package gitconfiginterface
 
 import (
-	"github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	"github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
 )
 
 // Writer modify git configuration settings

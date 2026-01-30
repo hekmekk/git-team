@@ -2,13 +2,13 @@ package stateimpl
 
 import (
 	"fmt"
-	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
+	gitconfigerror "github.com/hekmekk/git-team/v2/src/shared/gitconfig/error"
 	"reflect"
 	"testing"
 
-	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
-	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
-	state "github.com/hekmekk/git-team/src/shared/state/entity"
+	activationscope "github.com/hekmekk/git-team/v2/src/shared/activation/scope"
+	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
+	state "github.com/hekmekk/git-team/v2/src/shared/state/entity"
 )
 
 type gitConfigReaderMock struct {

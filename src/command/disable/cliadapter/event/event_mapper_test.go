@@ -5,11 +5,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hekmekk/git-team/src/command/disable"
-	status "github.com/hekmekk/git-team/src/command/status"
-	"github.com/hekmekk/git-team/src/core/events"
-	"github.com/hekmekk/git-team/src/shared/cli/effects"
-	state "github.com/hekmekk/git-team/src/shared/state/entity"
+	"github.com/hekmekk/git-team/v2/src/command/disable"
+	status "github.com/hekmekk/git-team/v2/src/command/status"
+	"github.com/hekmekk/git-team/v2/src/core/events"
+	"github.com/hekmekk/git-team/v2/src/shared/cli/effects"
+	state "github.com/hekmekk/git-team/v2/src/shared/state/entity"
 )
 
 type statusPolicyMock struct {

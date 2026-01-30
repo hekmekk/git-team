@@ -3,12 +3,12 @@ package stateimpl
 import (
 	"errors"
 	"fmt"
-	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
+	giterror "github.com/hekmekk/git-team/v2/src/shared/gitconfig/error"
 
-	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
-	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
-	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
-	state "github.com/hekmekk/git-team/src/shared/state/entity"
+	activationscope "github.com/hekmekk/git-team/v2/src/shared/activation/scope"
+	gitconfig "github.com/hekmekk/git-team/v2/src/shared/gitconfig/interface"
+	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
+	state "github.com/hekmekk/git-team/v2/src/shared/state/entity"
 )
 
 // GitConfigDataSource the data source for the state reader

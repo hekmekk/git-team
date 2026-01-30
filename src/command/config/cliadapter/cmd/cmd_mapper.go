@@ -5,12 +5,12 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	configeventadapter "github.com/hekmekk/git-team/src/command/config/cliadapter/event"
-	configpolicy "github.com/hekmekk/git-team/src/command/config/policy"
-	commandadapter "github.com/hekmekk/git-team/src/shared/cli/commandadapter"
-	configdatasink "github.com/hekmekk/git-team/src/shared/config/datasink"
-	configdatasource "github.com/hekmekk/git-team/src/shared/config/datasource"
-	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/impl"
+	configeventadapter "github.com/hekmekk/git-team/v2/src/command/config/cliadapter/event"
+	configpolicy "github.com/hekmekk/git-team/v2/src/command/config/policy"
+	commandadapter "github.com/hekmekk/git-team/v2/src/shared/cli/commandadapter"
+	configdatasink "github.com/hekmekk/git-team/v2/src/shared/config/datasink"
+	configdatasource "github.com/hekmekk/git-team/v2/src/shared/config/datasource"
+	gitconfig "github.com/hekmekk/git-team/v2/src/shared/gitconfig/impl"
 )
 
 // Command the config command

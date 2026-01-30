@@ -3,11 +3,11 @@ package stateimpl
 import (
 	"errors"
 
-	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
-	giterror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
-	gitconfig "github.com/hekmekk/git-team/src/shared/gitconfig/interface"
-	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
-	state "github.com/hekmekk/git-team/src/shared/state/entity"
+	activationscope "github.com/hekmekk/git-team/v2/src/shared/activation/scope"
+	giterror "github.com/hekmekk/git-team/v2/src/shared/gitconfig/error"
+	gitconfig "github.com/hekmekk/git-team/v2/src/shared/gitconfig/interface"
+	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
+	state "github.com/hekmekk/git-team/v2/src/shared/state/entity"
 )
 
 // GitConfigDataSink write data directly to gitconfig

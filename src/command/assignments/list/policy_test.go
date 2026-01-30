@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/hekmekk/git-team/src/core/assignment"
-	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
-	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	"github.com/hekmekk/git-team/v2/src/core/assignment"
+	gitconfigerror "github.com/hekmekk/git-team/v2/src/shared/gitconfig/error"
+	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
 )
 
 type gitConfigReaderMock struct {

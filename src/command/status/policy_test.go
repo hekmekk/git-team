@@ -6,10 +6,10 @@ import (
 	"reflect"
 	"testing"
 
-	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
-	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
-	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
-	state "github.com/hekmekk/git-team/src/shared/state/entity"
+	activationscope "github.com/hekmekk/git-team/v2/src/shared/activation/scope"
+	config "github.com/hekmekk/git-team/v2/src/shared/config/entity/config"
+	gitconfigerror "github.com/hekmekk/git-team/v2/src/shared/gitconfig/error"
+	state "github.com/hekmekk/git-team/v2/src/shared/state/entity"
 )
 
 type configReaderMock struct {

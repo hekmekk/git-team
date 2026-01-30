@@ -3,8 +3,8 @@ package completioncmdadapter
 import (
 	"github.com/urfave/cli/v2"
 
-	"github.com/hekmekk/git-team/src/command/completion/script"
-	"github.com/hekmekk/git-team/src/shared/cli/effects"
+	"github.com/hekmekk/git-team/v2/src/command/completion/script"
+	"github.com/hekmekk/git-team/v2/src/shared/cli/effects"
 )
 
 func Command() *cli.Command {

@@ -1,7 +1,7 @@
 package list
 
 import (
-	"github.com/hekmekk/git-team/src/core/assignment"
+	"github.com/hekmekk/git-team/v2/src/core/assignment"
 )
 
 // RetrievalFailed listing the available assignments failed

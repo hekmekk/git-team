@@ -8,11 +8,11 @@ import (
 	"strings"
 	"testing"
 
-	commitsettings "github.com/hekmekk/git-team/src/command/enable/commitsettings/entity"
-	activationscope "github.com/hekmekk/git-team/src/shared/activation/scope"
-	config "github.com/hekmekk/git-team/src/shared/config/entity/config"
-	gitconfigerror "github.com/hekmekk/git-team/src/shared/gitconfig/error"
-	gitconfigscope "github.com/hekmekk/git-team/src/shared/gitconfig/scope"
+	commitsettings "github.com/hekmekk/git-team/v2/src/command/enable/commitsettings/entity"
+	activationscope "github.com/hekmekk/git-team/v2/src/shared/activation/scope"
+	config "github.com/hekmekk/git-team/v2/src/shared/config/entity/config"
+	gitconfigerror "github.com/hekmekk/git-team/v2/src/shared/gitconfig/error"
+	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
 )
 
 type gitConfigReaderMock struct {

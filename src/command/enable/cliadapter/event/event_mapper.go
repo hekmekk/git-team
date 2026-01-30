@@ -5,11 +5,11 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/hekmekk/git-team/src/command/enable"
-	statuseventadapter "github.com/hekmekk/git-team/src/command/status/cliadapter/event"
-	"github.com/hekmekk/git-team/src/core/events"
-	"github.com/hekmekk/git-team/src/core/policy"
-	"github.com/hekmekk/git-team/src/shared/cli/effects"
+	"github.com/hekmekk/git-team/v2/src/command/enable"
+	statuseventadapter "github.com/hekmekk/git-team/v2/src/command/status/cliadapter/event"
+	"github.com/hekmekk/git-team/v2/src/core/events"
+	"github.com/hekmekk/git-team/v2/src/core/policy"
+	"github.com/hekmekk/git-team/v2/src/shared/cli/effects"
 )
 
 // MapEventToEffectFactory convert enable events to effects for the cli
