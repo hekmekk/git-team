@@ -56,7 +56,7 @@ ifndef GOPATH
 	$(error GOPATH is not set)
 endif
 	mkdir -p $(CURR_DIR)/target/bin
-	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o $(CURR_DIR)/target/bin ./...
+	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -ldflags='-s -w' -o $(CURR_DIR)/target/bin ./...
 	@echo "[INFO] Successfully built git-team version v$(VERSION)"
 
 man-page: deps
