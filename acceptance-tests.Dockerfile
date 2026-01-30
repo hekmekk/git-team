@@ -16,7 +16,7 @@ RUN git clone https://github.com/ztombol/bats-assert /bats-libs/bats-assert
 
 # ----------------------------------------------------------------- #
 
-FROM golang:1.23-alpine AS git-team
+FROM golang:1.24-alpine AS git-team
 
 RUN mkdir /git-team-source
 WORKDIR /git-team-source
@@ -33,7 +33,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go install ./...
 
 # ----------------------------------------------------------------- #
 
-FROM golang:1.23-alpine
+FROM golang:1.24-alpine
 
 RUN apk add --no-cache bash git ncurses
 
