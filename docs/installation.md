@@ -16,12 +16,17 @@ For releases since v1.6.0.
 
 Install the latest stable release.
 ```shell
-go install github.com/hekmekk/git-team@latest
+go install github.com/hekmekk/git-team/v2@latest
 ```
 
 Install from the latest commit.
 ```shell
-go install github.com/hekmekk/git-team@HEAD
+go install github.com/hekmekk/git-team/v2@HEAD
+```
+
+Install a specific version
+```shell
+go install github.com/hekmekk/git-team/v2@v2.0.0
 ```
 
 ### Homebrew
