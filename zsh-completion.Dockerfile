@@ -6,7 +6,7 @@
 # % source git_team_completion.sh
 # % git-team <tab> | git team <tab>
 
-FROM golang:1.24-alpine
+FROM golang:1.24-alpine@sha256:2d40d4fc278dad38be0777d5e2a88a2c6dee51b0b29c97a764fc6c6a11ca893c
 
 ENV RUNNING_IN_DOCKER=true
 ENV USERNAME=git-team-zsh-completion
