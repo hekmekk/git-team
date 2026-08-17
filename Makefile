@@ -103,10 +103,10 @@ clean:
 .PHONY: acceptance-tests
 acceptance-tests:
 	docker build -t git-team-acceptance-tests . -f acceptance-tests.Dockerfile
-	docker run --rm -ti -v $(CURR_DIR)/acceptance-tests:/acceptance-tests:ro git-team-acceptance-tests --formatter tap /acceptance-tests/
+	docker run --rm -v $(CURR_DIR)/acceptance-tests:/acceptance-tests:ro git-team-acceptance-tests --formatter tap /acceptance-tests/
 
 .PHONY: hookscript-tests
 hookscript-tests:
 	docker build -t git-team-hookscript-tests . -f hookscript-tests.Dockerfile
-	docker run --rm -ti -v $(CURR_DIR)/hookscript-tests:/hookscript-tests:ro git-team-hookscript-tests --formatter tap /hookscript-tests/
+	docker run --rm -v $(CURR_DIR)/hookscript-tests:/hookscript-tests:ro git-team-hookscript-tests --formatter tap /hookscript-tests/
 
