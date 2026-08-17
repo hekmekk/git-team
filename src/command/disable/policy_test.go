@@ -3,10 +3,11 @@ package disable
 import (
 	"errors"
 	"fmt"
-	state "github.com/hekmekk/git-team/v2/src/shared/state/entity"
 	"os"
 	"reflect"
 	"testing"
+
+	state "github.com/hekmekk/git-team/v2/src/shared/state/entity"
 
 	activationscope "github.com/hekmekk/git-team/v2/src/shared/activation/scope"
 	config "github.com/hekmekk/git-team/v2/src/shared/config/entity/config"
@@ -186,6 +187,76 @@ func TestDisableSucceeds(t *testing.T) {
 				t.Fail()
 			}
 		})
+	}
+}
+
+func TestDisableShouldNotMakeAnyModificationsIfNotPreviouslyEnabled(t *testing.T) {
+	gitConfigReader := &gitConfigReaderMock{
+		get: func(_ gitconfigscope.Scope, key string) (string, error) {
+			switch key {
+			case "commit.template":
+				return "/path/to/template", nil
+			case "core.hooksPath":
+				return "/path/to/previous/hooks", nil
+			default:
+				return "", fmt.Errorf("wrong key: %s", key)
+			}
+		},
+	}
+
+	gitConfigWriter := &gitConfigWriterMock{
+		unsetAll: func(scope gitconfigscope.Scope, key string) error {
+			switch key {
+			case "commit.template":
+				return errors.New("commit.template must not be modified")
+			case "core.hooksPath":
+				return errors.New("core.hooksPath must not be modified")
+			default:
+				return fmt.Errorf("wrong key: %s", key)
+			}
+		},
+	}
+
+	stateReader := &stateReaderMock{
+		query: func(scope activationscope.Scope) (state.State, error) {
+			return state.NewStateDisabled(), nil
+		},
+	}
+
+	stateWriter := &stateWriterMock{
+		persistDisabled: func(scope activationscope.Scope) error {
+			return errors.New("stateWriter must not be called")
+		},
+	}
+
+	configReader := &configReaderMock{
+		read: func() (config.Config, error) {
+			return config.Config{ActivationScope: activationscope.Global}, nil
+		},
+	}
+
+	deps := Dependencies{
+		GitConfigReader: gitConfigReader,
+		GitConfigWriter: gitConfigWriter,
+		StatFile:        statFile,
+		RemoveFile:      removeFile,
+		StateReader:     stateReader,
+		StateWriter:     stateWriter,
+		ConfigReader:    configReader,
+		ActivationValidator: &activationValidatorMock{
+			isInsideAGitRepository: func() bool {
+				return true
+			},
+		},
+	}
+
+	expectedEvent := Succeeded{}
+
+	event := Policy{deps}.Apply()
+
+	if !reflect.DeepEqual(expectedEvent, event) {
+		t.Errorf("expected: %s, got: %s", expectedEvent, event)
+		t.Fail()
 	}
 }
 

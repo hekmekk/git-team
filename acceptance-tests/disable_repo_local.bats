@@ -85,6 +85,38 @@ teardown() {
 	assert_line "ls: /home/git-team-acceptance-test/.git-team/commit-templates/repo-local/$REPO_CHECKSUM: No such file or directory"
 }
 
+@test "git-team: (scope: repo-local) disable (not previously enabled) should not modify the prepare-commit-msg hook setting" {
+	git config --local core.hooksPath "/path/to/non-git-team-hooks"
+	/usr/local/bin/git-team disable
+
+	run bash -c "git config --local core.hooksPath"
+	assert_success
+	assert_line --index 0 '/path/to/non-git-team-hooks'
+
+	git config --local --unset core.hooksPath | true
+}
+
+@test "git-team: (scope: repo-local) disable (not previously enabled) should not modify the commit template setting" {
+	git config --local commit.template "/path/to/non-git-team-commit-template"
+	/usr/local/bin/git-team disable
+
+	run bash -c "git config --local commit.template"
+	assert_success
+	assert_line --index 0 '/path/to/non-git-team-commit-template'
+
+	git config --local --unset commit.template | true
+}
+
+@test "git-team: (scope: repo-local) disable (not previously enabled) should not remove the according commit-template directory" {
+	mkdir -p /home/git-team-acceptance-test/non-git-team-commit-template-dir/
+	touch /home/git-team-acceptance-test/non-git-team-commit-template-dir/TEMPLATE
+	git config --local commit.template "/home/git-team-acceptance-test/non-git-team-commit-template-dir/TEMPLATE"
+	/usr/local/bin/git-team disable
+
+	run bash -c "ls -la /home/git-team-acceptance-test/non-git-team-commit-template-dir/TEMPLATE"
+	assert_success
+}
+
 @test "git-team: (scope: repo-local) disable should treat a previously disabled git-team in an idempotent way" {
 	run /usr/local/bin/git-team disable
 	assert_success

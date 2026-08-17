@@ -72,6 +72,37 @@ teardown() {
 	assert_line "ls: /home/git-team-acceptance-test/.git-team/commit-templates/global/COMMIT_TEMPLATE: No such file or directory"
 }
 
+@test "git-team: (scope: global) disable (not previously enabled) should not modify the prepare-commit-msg hook setting" {
+	git config --global core.hooksPath "/path/to/non-git-team-hooks"
+	/usr/local/bin/git-team disable
+
+	run bash -c "git config --global core.hooksPath"
+	assert_success
+	assert_line --index 0 '/path/to/non-git-team-hooks'
+
+	git config --global --unset core.hooksPath | true
+}
+
+@test "git-team: (scope: global) disable (not previously enabled) should not modify the commit template setting" {
+	git config --global commit.template "/path/to/non-git-team-commit-template"
+	/usr/local/bin/git-team disable
+
+	run bash -c "git config --global commit.template"
+	assert_success
+	assert_line --index 0 '/path/to/non-git-team-commit-template'
+
+	git config --global --unset commit.template | true
+}
+
+@test "git-team: (scope: global) disable (not previously enabled) should not remove the according commit-template directory" {
+	touch /home/git-team-acceptance-test/non-git-team-commit-template
+	git config --global commit.template "/home/git-team-acceptance-test/non-git-team-commit-template"
+	/usr/local/bin/git-team disable
+
+	run bash -c "ls -la /home/git-team-acceptance-test/non-git-team-commit-template"
+	assert_success
+}
+
 @test "git-team: (scope: global) disable should treat a previously disabled git-team in an idempotent way" {
 	run /usr/local/bin/git-team disable
 	assert_success

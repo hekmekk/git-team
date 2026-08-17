@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- [Issue 25](https://github.com/hekmekk/git-team/issues/25): The `disable` command now returns early without taking any action if not previously enabled, in order to prevent any unjustified modification of previously set `core.hooksPath` or `commit.template` or the file the latter points to.
+
 ## [2.0.0] - 2026-01-30
 ### Changed
 - Co-authors are appended for `git commit --amend`

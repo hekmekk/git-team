@@ -61,6 +61,10 @@ func (policy Policy) Apply() events.Event {
 		return Failed{Reason: fmt.Errorf("failed to read current state: %s", err)}
 	}
 
+	if !appState.IsEnabled() {
+		return Succeeded{}
+	}
+
 	previousHooksPath := appState.PreviousHooksPath
 	if "" == previousHooksPath {
 		if err := gitConfigWriter.UnsetAll(gitConfigScope, "core.hooksPath"); err != nil && !errors.Is(err, giterror.ErrTryingToUnsetAnOptionWhichDoesNotExist) {
