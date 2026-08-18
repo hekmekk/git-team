@@ -19,7 +19,7 @@ RUN make build
 
 # ----------------------------------------------------------------- #
 
-FROM bats/bats:1.13.0@sha256:7163cd5d4f8b1e85dfd43f388c8f481e26e8b40875536dda46ebf37a0cad4eb2
+FROM bats/bats:1.13.0@sha256:6e4b9369468b7f3fd8f402ac6cc8ea7b2e4903eae28d08785f31a0245eb51a44
 
 RUN apk add --no-cache git
 
