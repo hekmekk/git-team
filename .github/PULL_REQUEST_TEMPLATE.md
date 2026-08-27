@@ -5,5 +5,5 @@
 - [ ] Has appropriate unit tests.
 
 ### required only for more thorough changes:
-- [ ] Made sure there is a corresponding ticket in the project's [issue tracker](https://github.com/retel-io/ari-proxy/issues).
-- [ ] Made sure the ticket has been discussed and prioritized by the team.
+- [ ] Made sure there is a corresponding issue
+- [ ] Made sure the issue has been discussed and prioritized
