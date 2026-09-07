@@ -3,8 +3,6 @@ package addeventadapter
 import (
 	"fmt"
 
-	"github.com/fatih/color"
-
 	"github.com/hekmekk/git-team/v2/src/command/assignments/add"
 	"github.com/hekmekk/git-team/v2/src/core/events"
 	"github.com/hekmekk/git-team/v2/src/shared/cli/effects"
@@ -14,7 +12,7 @@ import (
 func MapEventToEffect(event events.Event) effects.Effect {
 	switch evt := event.(type) {
 	case add.AssignmentSucceeded:
-		return effects.NewExitOkMsg(color.CyanString(fmt.Sprintf("Assignment added: '%s' →  '%s'", evt.Alias, evt.Coauthor)))
+		return effects.NewExitOkMsg(fmt.Sprintf("Assignment added: '%s' →  '%s'", evt.Alias, evt.Coauthor))
 	case add.AssignmentFailed:
 		return effects.NewExitErrMsg(evt.Reason)
 	case add.AssignmentAborted:

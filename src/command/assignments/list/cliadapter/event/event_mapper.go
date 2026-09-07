@@ -6,8 +6,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/fatih/color"
-
 	"github.com/hekmekk/git-team/v2/src/command/assignments/list"
 	"github.com/hekmekk/git-team/v2/src/core/assignment"
 	"github.com/hekmekk/git-team/v2/src/core/events"
@@ -53,11 +51,11 @@ func toStringWithCoauthors(assignments []assignment.Assignment) string {
 	var buffer bytes.Buffer
 
 	if len(assignments) == 0 {
-		buffer.WriteString(color.New(color.FgBlue).Add(color.Bold).Sprint("No assignments"))
+		buffer.WriteString("No assignments")
 		return buffer.String()
 	}
 
-	buffer.WriteString(color.New(color.FgBlue).Add(color.Bold).Sprint("Assignments"))
+	buffer.WriteString("Assignments")
 	for _, assignment := range assignments {
 		buffer.WriteString(fmt.Sprintf("\n─ %-[1]*s →  %s", maxAliasLength, assignment.Alias, assignment.Coauthor))
 	}
