@@ -4,8 +4,6 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	activationscope "github.com/hekmekk/git-team/v2/src/shared/activation/scope"
 	gitconfigerror "github.com/hekmekk/git-team/v2/src/shared/gitconfig/error"
 	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
@@ -38,7 +36,10 @@ func TestPersistSucceeds(t *testing.T) {
 
 	err := NewGitConfigDataSink(gitConfigWriter).PersistEnabled(activationscope.Global, []string{"CO-AUTHOR"}, "/previous/hooks/path")
 
-	require.Nil(t, err)
+	if err != nil {
+		t.Error(err)
+		t.Fail()
+	}
 }
 
 func TestPersistSucceedsWhenTryingToRemoveNonExistingActiveCoauthorsFromGitConfig(t *testing.T) {
@@ -52,7 +53,10 @@ func TestPersistSucceedsWhenTryingToRemoveNonExistingActiveCoauthorsFromGitConfi
 
 	err := NewGitConfigDataSink(gitConfigWriter).PersistEnabled(activationscope.Global, []string{"CO-AUTHOR"}, "/previous/hooks/path")
 
-	require.Nil(t, err)
+	if err != nil {
+		t.Error(err)
+		t.Fail()
+	}
 }
 
 func TestPersistFailsDueToAnotherUnsetAllFailure(t *testing.T) {
@@ -66,7 +70,10 @@ func TestPersistFailsDueToAnotherUnsetAllFailure(t *testing.T) {
 
 	err := NewGitConfigDataSink(gitConfigWriter).PersistEnabled(activationscope.Global, []string{"CO-AUTHOR"}, "/previous/hooks/path")
 
-	require.Error(t, err)
+	if err == nil {
+		t.Error("expected an error")
+		t.Fail()
+	}
 }
 
 func TestPersistFailsDueToAddFailure(t *testing.T) {
@@ -80,7 +87,10 @@ func TestPersistFailsDueToAddFailure(t *testing.T) {
 
 	err := NewGitConfigDataSink(gitConfigWriter).PersistEnabled(activationscope.Global, []string{"CO-AUTHOR"}, "/previous/hooks/path")
 
-	require.Error(t, err)
+	if err == nil {
+		t.Error("expected an error")
+		t.Fail()
+	}
 }
 
 func TestPersistFailsDueReplaceAllFailure(t *testing.T) {
@@ -94,7 +104,10 @@ func TestPersistFailsDueReplaceAllFailure(t *testing.T) {
 
 	err := NewGitConfigDataSink(gitConfigWriter).PersistDisabled(activationscope.Global)
 
-	require.Error(t, err)
+	if err == nil {
+		t.Error("expected an error")
+		t.Fail()
+	}
 }
 
 func TestPersistPassesThroughTheCorrectScope(t *testing.T) {
@@ -120,18 +133,27 @@ func TestPersistPassesThroughTheCorrectScope(t *testing.T) {
 					return errors.New("should not have been called")
 				},
 				unsetAll: func(actualScope gitconfigscope.Scope, _ string) error {
-					require.Equal(t, expectedGitConfigScope, actualScope)
+					if expectedGitConfigScope != actualScope {
+						t.Errorf("expected: %s, actual: %s", expectedGitConfigScope, actualScope)
+						t.Fail()
+					}
 					return nil
 				},
 				replaceAll: func(actualScope gitconfigscope.Scope, _ string, _ string) error {
-					require.Equal(t, expectedGitConfigScope, actualScope)
+					if expectedGitConfigScope != actualScope {
+						t.Errorf("expected: %s, actual: %s", expectedGitConfigScope, actualScope)
+						t.Fail()
+					}
 					return nil
 				},
 			}
 
 			err := NewGitConfigDataSink(gitConfigWriter).PersistDisabled(activationScope)
 
-			require.Nil(t, err)
+			if err != nil {
+				t.Error(err)
+				t.Fail()
+			}
 		})
 	}
 

@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -26,7 +25,10 @@ func TestFromString(t *testing.T) {
 			t.Parallel()
 			scope := FromString(candidate)
 
-			require.Equal(t, expectedScope, scope)
+			if expectedScope != scope {
+				t.Errorf("expected: %s, received: %s", expectedScope, scope)
+				t.Fail()
+			}
 		})
 	}
 }
