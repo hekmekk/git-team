@@ -1,45 +1,44 @@
 #!/usr/bin/env bats
 
 setup() {
-	bats_load_library bats-support
-	bats_load_library bats-assert
+  bats_load_library bats-support
+  bats_load_library bats-assert
 
-	/usr/local/bin/git-team config activation-scope global
+  /usr/local/bin/git-team config activation-scope global
 }
 
 @test 'git-team: (scope: global) status should properly display the disabled status' {
-	run /usr/local/bin/git-team status
-	assert_success
-	assert_line 'git-team disabled'
+  run /usr/local/bin/git-team status
+  assert_success
+  assert_line 'git-team disabled'
 }
 
 @test 'git-team: (scope: global) status should properly display the disabled status in a json format' {
-	run /usr/local/bin/git-team status --json
-	assert_success
-	assert_line --index 0 '{"status":"disabled","coAuthors":[]}'
+  run /usr/local/bin/git-team status --json
+  assert_success
+  assert_line --index 0 '{"status":"disabled","coAuthors":[]}'
 }
 
 @test 'git-team: (scope: global) status should properly display the enabled status' {
-	/usr/local/bin/git-team enable 'A <a@x.y>' 'B <b@x.y>' 'C <c@x.y>'
+  /usr/local/bin/git-team enable 'A <a@x.y>' 'B <b@x.y>' 'C <c@x.y>'
 
-	run /usr/local/bin/git-team status
-	assert_success
-	assert_line --index 0 'git-team enabled'
-	assert_line --index 1 'co-authors'
-	assert_line --index 2 '─ A <a@x.y>'
-	assert_line --index 3 '─ B <b@x.y>'
-	assert_line --index 4 '─ C <c@x.y>'
+  run /usr/local/bin/git-team status
+  assert_success
+  assert_line --index 0 'git-team enabled'
+  assert_line --index 1 'co-authors'
+  assert_line --index 2 '─ A <a@x.y>'
+  assert_line --index 3 '─ B <b@x.y>'
+  assert_line --index 4 '─ C <c@x.y>'
 
-	/usr/local/bin/git-team disable
+  /usr/local/bin/git-team disable
 }
 
 @test 'git-team: (scope: global) status should properly display the enabled status in a json format' {
-	/usr/local/bin/git-team enable 'A <a@x.y>' 'B <b@x.y>' 'C <c@x.y>'
+  /usr/local/bin/git-team enable 'A <a@x.y>' 'B <b@x.y>' 'C <c@x.y>'
 
-	run /usr/local/bin/git-team status --json
-	assert_success
-	assert_line --index 0 '{"status":"enabled","coAuthors":["A <a@x.y>","B <b@x.y>","C <c@x.y>"]}'
+  run /usr/local/bin/git-team status --json
+  assert_success
+  assert_line --index 0 '{"status":"enabled","coAuthors":["A <a@x.y>","B <b@x.y>","C <c@x.y>"]}'
 
-	/usr/local/bin/git-team disable
+  /usr/local/bin/git-team disable
 }
-
