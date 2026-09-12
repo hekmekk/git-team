@@ -1,7 +1,6 @@
 #!/usr/bin/env bats
 
 REPO_PATH=/tmp/repo/prepare-commit-msg-enabled-repo-local
-REPO_CHECKSUM=$(echo -n $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
 
 setup() {
 	bats_load_library bats-support
@@ -26,7 +25,7 @@ teardown() {
 }
 
 @test "prepare-commit-msg: git-team enabled: (scope: repo-local) - message" {
-	run bash -c "/usr/local/bin/prepare-commit-msg-git-team /tmp/COMMIT_MSG message && cat /tmp/COMMIT_MSG"
+	run bash -c "~/.git-team/hooks/prepare-commit-msg-git-team.sh /tmp/COMMIT_MSG message && cat /tmp/COMMIT_MSG"
 	assert_success
 	assert_line --index 0 'Co-authored-by: A <a@x.y>'
 	assert_line --index 1 'Co-authored-by: B <b@x.y>'
@@ -34,13 +33,13 @@ teardown() {
 }
 
 @test "prepare-commit-msg: git-team enabled: (scope: repo-local) - none" {
-	run bash -c "/usr/local/bin/prepare-commit-msg-git-team /tmp/COMMIT_MSG && cat /tmp/COMMIT_MSG"
+	run bash -c "~/.git-team/hooks/prepare-commit-msg-git-team.sh /tmp/COMMIT_MSG && cat /tmp/COMMIT_MSG"
 	assert_success
 	refute_output --regexp '\w+'
 }
 
 @test "prepare-commit-msg: git-team enabled: (scope: repo-local) - commit" {
-	run bash -c "/usr/local/bin/prepare-commit-msg-git-team /tmp/COMMIT_MSG commit && cat /tmp/COMMIT_MSG"
+	run bash -c "~/.git-team/hooks/prepare-commit-msg-git-team.sh /tmp/COMMIT_MSG commit && cat /tmp/COMMIT_MSG"
 	assert_success
 	assert_line --index 0 'Co-authored-by: A <a@x.y>'
 	assert_line --index 1 'Co-authored-by: B <b@x.y>'
@@ -48,13 +47,13 @@ teardown() {
 }
 
 @test "prepare-commit-msg: git-team enabled: (scope: repo-local) - template" {
-	run bash -c "/usr/local/bin/prepare-commit-msg-git-team /tmp/COMMIT_MSG template && cat /tmp/COMMIT_MSG"
+	run bash -c "~/.git-team/hooks/prepare-commit-msg-git-team.sh /tmp/COMMIT_MSG template && cat /tmp/COMMIT_MSG"
 	assert_success
 	refute_output --regexp '\w+'
 }
 
 @test "prepare-commit-msg: git-team enabled: (scope: repo-local) - merge" {
-	run bash -c "/usr/local/bin/prepare-commit-msg-git-team /tmp/COMMIT_MSG merge && cat /tmp/COMMIT_MSG"
+	run bash -c "~/.git-team/hooks/prepare-commit-msg-git-team.sh /tmp/COMMIT_MSG merge && cat /tmp/COMMIT_MSG"
 	assert_success
 	assert_line --index 0 'Co-authored-by: A <a@x.y>'
 	assert_line --index 1 'Co-authored-by: B <b@x.y>'
@@ -62,7 +61,7 @@ teardown() {
 }
 
 @test "prepare-commit-msg: git-team enabled: (scope: repo-local) - squash" {
-	run bash -c "/usr/local/bin/prepare-commit-msg-git-team /tmp/COMMIT_MSG squash && cat /tmp/COMMIT_MSG"
+	run bash -c "~/.git-team/hooks/prepare-commit-msg-git-team.sh /tmp/COMMIT_MSG squash && cat /tmp/COMMIT_MSG"
 	assert_success
 	assert_line --index 0 'Co-authored-by: A <a@x.y>'
 	assert_line --index 1 'Co-authored-by: B <b@x.y>'
