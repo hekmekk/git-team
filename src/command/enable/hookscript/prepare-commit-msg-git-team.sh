@@ -4,42 +4,56 @@
 
 activation_scope=$(git config --global team.config.activation-scope)
 
-gitconfig_scope_flag=
+gitconfig_scope_flag=--local
 if [ "${activation_scope}" = "global" ]; then
-        gitconfig_scope_flag=--global
+  gitconfig_scope_flag=--global
 fi
 
 status=$(git config ${gitconfig_scope_flag} team.state.status)
 
+commit_msg_file=$1
+
 if [ "${status}" != "enabled" ]; then
-        exit 0
+  # This branch is reached when git-team is disabled, but 'core.hooksPath' still points here.
+
+  # Inconsistencies between the git-team state and the 'core.hooksPath' and 'commit.template'
+  # git config options arise because the 'activation-scope' git-team config option is stored
+  # as a scoped git config option AND can be changed outside of git repositories, where a
+  # local git config is no longer accessible.
+
+  # Editing the commit message is a necessary workaround to prevent inconsistent behaviour.
+  sed -i '2d' ${commit_msg_file}
+  sed -i '/Co-authored-by:.*/d' ${commit_msg_file}
+  exit 0
 fi
 
-template=$1
 commit_source=$2
-commit_hash=$3
 
 # see: https://git-scm.com/docs/githooks#_prepare_commit_msg
-# message  - git commit -m|-F
-# merge    - git merge (unless ff)
-# squash   - git merge --squash
-# none     - git commit
-# commit   - git commit -c|-C|--amend
-# template - git commit -t or if commit.template is set
+# 'message'  - git commit -m|-F
+# 'merge'    - git merge (unless ff)
+# 'squash'   - git merge --squash
+# ''         - git commit (a plain 'git commit' without any options)
+# 'commit'   - git commit -c|-C|--amend
+# 'template' - git commit -t or if commit.template is set
 
 case "${commit_source}" in
 "message" | "merge" | "squash" | "commit")
-        if grep "Co-authored-by:" ${template}; then
-                exit 0
-        fi
+  if grep "Co-authored-by:" ${commit_msg_file}; then
+    # Defensive guard; do not interfere with previously set co-authors.
+    exit 0
+  fi
 
-        printf "\n\n" >> $template
-        git config ${gitconfig_scope_flag} --get-all team.state.active-coauthors | while read coauthor; do
-                printf "Co-authored-by: $coauthor\n" >> $template
-        done
-        ;;
+  # Defensive guard, even though 'commit.template' should always be set when git-team is enabled.
+  if git config ${gitconfig_scope_flag} commit.template > /dev/null; then
+    cat $(git config ${gitconfig_scope_flag} commit.template) >> ${commit_msg_file}
+    exit 0
+  fi
+  ;;
+"template")
+  # Triggered when running "git commit" with git-team enabled, because 'commit.template' is set and will be used automatically.
+  # Explicitly do nothing here, because the edit prevents the commit from being aborted on editor exit.
+  exit 0
+  ;;
 *)
-        exit 0
 esac
-
-exit 0
