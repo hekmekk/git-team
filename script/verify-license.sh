@@ -2,9 +2,6 @@
 
 error_lines=()
 
-# TODO: verify content
-# full content match or just some heuristic like below
-# wget -q https://www.gnu.org/licenses/gpl-3.0.txt -O -
 if [ ! -f COPYING ]; then
   error_lines+=( "error: missing COPYING file" )
 fi
@@ -12,6 +9,16 @@ fi
 if [ "$(readlink LICENSE)" != "COPYING" ]; then
   error_lines+=( "error: missing LICENSE symlink" )
 fi
+
+tmp_license=$(mktemp)
+
+wget -q https://www.gnu.org/licenses/gpl-3.0.txt -O ${tmp_license}
+
+if ! /usr/bin/diff --brief COPYING ${tmp_license} >/dev/null; then
+  error_lines+=( "error: license content is not correct" )
+fi
+
+rm ${tmp_license}
 
 copyright_notice_pattern="Copyright (C) $(date +'%Y') Rea Sand"
 while IFS= read -r error_line; do
