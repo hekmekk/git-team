@@ -22,10 +22,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"testing"
 
 	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"
-	"github.com/stretchr/testify/require"
 )
 
 type gitConfigReaderMock struct {
@@ -82,7 +82,10 @@ func TestComplete(t *testing.T) {
 
 			remainingAliases := aliasShellCompletion.Complete(selectedAliases)
 
-			require.Equal(t, expectedRemainingAliases, remainingAliases)
+			if !reflect.DeepEqual(expectedRemainingAliases, remainingAliases) {
+				t.Errorf("expected: %s, actual: %s", expectedRemainingAliases, remainingAliases)
+				t.Fail()
+			}
 		})
 	}
 }
@@ -100,7 +103,10 @@ func TestCompleteWhenNoAssignmentsExists(t *testing.T) {
 
 	remainingAliases := aliasShellCompletion.Complete([]string{})
 
-	require.Equal(t, expectedRemainingAliases, remainingAliases)
+	if !reflect.DeepEqual(expectedRemainingAliases, remainingAliases) {
+		t.Errorf("expected: %s, actual: %s", expectedRemainingAliases, remainingAliases)
+		t.Fail()
+	}
 }
 
 func TestCompletewhenLookingUpAssignmentsFails(t *testing.T) {
@@ -116,5 +122,8 @@ func TestCompletewhenLookingUpAssignmentsFails(t *testing.T) {
 
 	remainingAliases := aliasShellCompletion.Complete([]string{})
 
-	require.Equal(t, expectedRemainingAliases, remainingAliases)
+	if !reflect.DeepEqual(expectedRemainingAliases, remainingAliases) {
+		t.Errorf("expected: %s, actual: %s", expectedRemainingAliases, remainingAliases)
+		t.Fail()
+	}
 }

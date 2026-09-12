@@ -22,8 +22,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 import (
 	"fmt"
 
-	"github.com/fatih/color"
-
 	"github.com/hekmekk/git-team/v2/src/command/assignments/remove"
 	"github.com/hekmekk/git-team/v2/src/core/events"
 	"github.com/hekmekk/git-team/v2/src/shared/cli/effects"
@@ -33,7 +31,7 @@ import (
 func MapEventToEffect(event events.Event) effects.Effect {
 	switch evt := event.(type) {
 	case remove.DeAllocationSucceeded:
-		return effects.NewExitOkMsg(color.CyanString(fmt.Sprintf("Assignment removed: '%s'", evt.Alias)))
+		return effects.NewExitOkMsg(fmt.Sprintf("Assignment removed: '%s'", evt.Alias))
 	case remove.DeAllocationFailed:
 		return effects.NewExitErrMsg(evt.Reason)
 	default:

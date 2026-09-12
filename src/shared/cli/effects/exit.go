@@ -23,7 +23,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 )
 
@@ -87,10 +86,10 @@ func NewExitErr() Effect {
 	}
 }
 
-// NewExitErrMsg exit with error code and print a red colored message with error:
+// NewExitErrMsg exit with error code and print a message with error:
 func NewExitErrMsg(err error) Effect {
 	return ExitWithMsg{
 		kind:    Error,
-		message: color.RedString(fmt.Sprintf("error: %s", err)),
+		message: fmt.Sprintf("error: %s", err),
 	}
 }

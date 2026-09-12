@@ -23,7 +23,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/fatih/color"
 	"sort"
 	"strings"
 
@@ -48,17 +47,15 @@ func MapEventToEffect(event events.Event) effects.Effect {
 	}
 }
 
-const msgTemplate string = "git-team %s"
-
 func toString(theState state.State) string {
 	var buffer bytes.Buffer
-	buffer.WriteString(color.CyanString(msgTemplate, theState.Status))
+	buffer.WriteString(fmt.Sprintf("git-team %s", theState.Status))
 	if theState.IsEnabled() {
 		coauthors := theState.Coauthors
 		sort.Strings(coauthors)
 		if len(coauthors) > 0 {
 			buffer.WriteString("\n\n")
-			buffer.WriteString(color.New(color.FgBlue).Add(color.Bold).Sprint("co-authors"))
+			buffer.WriteString("co-authors")
 			for _, coauthor := range coauthors {
 				buffer.WriteString(fmt.Sprintf("\n─ %s", coauthor))
 			}

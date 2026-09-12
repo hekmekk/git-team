@@ -25,8 +25,6 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/fatih/color"
-
 	configevents "github.com/hekmekk/git-team/v2/src/command/config/events"
 	"github.com/hekmekk/git-team/v2/src/core/events"
 	"github.com/hekmekk/git-team/v2/src/shared/cli/effects"
@@ -41,7 +39,7 @@ func MapEventToEffect(event events.Event) effects.Effect {
 	case configevents.RetrievalFailed:
 		return effects.NewExitErrMsg(evt.Reason)
 	case configevents.SettingModificationSucceeded:
-		return effects.NewExitOkMsg(color.CyanString(fmt.Sprintf("Configuration updated: '%s' → '%s'", evt.Key, evt.Value)))
+		return effects.NewExitOkMsg(fmt.Sprintf("Configuration updated: '%s' → '%s'", evt.Key, evt.Value))
 	case configevents.SettingModificationFailed:
 		return effects.NewExitErrMsg(evt.Reason)
 	case configevents.ReadingSingleSettingNotYetImplemented:
@@ -64,7 +62,7 @@ func toString(cfg config.Config) string {
 	sort.Strings(propertyStrings)
 
 	var buffer bytes.Buffer
-	buffer.WriteString(color.New(color.FgBlue).Add(color.Bold).Sprint("config"))
+	buffer.WriteString("config")
 	for _, property := range propertyStrings {
 		buffer.WriteString(fmt.Sprintf("\n─ %s", property))
 	}
