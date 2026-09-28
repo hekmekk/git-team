@@ -1,5 +1,8 @@
 package stateimpl
 
+// Copyright (C) 2026 Rea Sand
+// Licensed under the EUPL
+
 import (
 	"fmt"
 	gitconfigerror "github.com/hekmekk/git-team/v2/src/shared/gitconfig/error"

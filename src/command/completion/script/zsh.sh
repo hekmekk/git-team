@@ -1,4 +1,8 @@
 #compdef git-team
+
+# Copyright (C) 2026 Rea Sand
+# Licensed under the EUPL
+
 function _git-team {
   local -a opts
   local cmd cur

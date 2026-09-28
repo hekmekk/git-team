@@ -2,6 +2,9 @@
 
 #!/bin/sh
 
+# Copyright (C) 2026 Rea Sand
+# Licensed under the EUPL
+
 "$(dirname ${0})/prepare-commit-msg-git-team.sh" "${@}" || exit $?
 
 PREVIOUS_HOOKS_PATH=$(git config --get team.state.previous-hooks-path)

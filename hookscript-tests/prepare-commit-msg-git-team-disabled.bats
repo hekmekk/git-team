@@ -1,5 +1,8 @@
 #!/usr/bin/env bats
 
+# Copyright (C) 2026 Rea Sand
+# Licensed under the EUPL
+
 REPO_PATH=/tmp/repo/prepare-commit-msg-disabled
 
 setup() {

@@ -1,5 +1,8 @@
 package add
 
+// Copyright (C) 2026 Rea Sand
+// Licensed under the EUPL
+
 import (
 	"fmt"
 	"strings"

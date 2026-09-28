@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# Copyright (C) 2026 Rea Sand
+# Licensed under the EUPL
+
 # triggered for git team
 _git_team() {
   if [[ "${COMP_WORDS[0]}" != "source" ]]; then

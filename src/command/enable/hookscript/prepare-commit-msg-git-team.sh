@@ -2,6 +2,9 @@
 
 #!/bin/sh
 
+# Copyright (C) 2026 Rea Sand
+# Licensed under the EUPL
+
 activation_scope=$(git config --global team.config.activation-scope)
 
 gitconfig_scope_flag=--local

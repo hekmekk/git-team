@@ -1,5 +1,8 @@
 package gitconfigimpl
 
+// Copyright (C) 2026 Rea Sand
+// Licensed under the EUPL
+
 import (
 	gitconfiglegacy "github.com/hekmekk/git-team/v2/src/shared/gitconfig/impl/legacy"
 	scope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"

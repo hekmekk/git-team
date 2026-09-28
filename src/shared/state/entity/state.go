@@ -1,5 +1,8 @@
 package stateentity
 
+// Copyright (C) 2026 Rea Sand
+// Licensed under the EUPL
+
 type teamStatus string
 
 const (

@@ -40,9 +40,12 @@ deps:
 	go get -t
 	go mod download
 
+verify-license:
+	./script/verify-license.sh
+
 test: go-test hookscript-tests
 
-verify: test acceptance-tests
+verify: verify-license test acceptance-tests
 
 go-test: deps
 	go test -cover ./src/...

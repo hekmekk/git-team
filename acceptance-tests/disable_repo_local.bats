@@ -1,5 +1,8 @@
 #!/usr/bin/env bats
 
+# Copyright (C) 2026 Rea Sand
+# Licensed under the EUPL
+
 REPO_PATH=/tmp/repo/disable-tests
 REPO_CHECKSUM=$(echo -n $USER:$REPO_PATH | md5sum | awk '{ print $1 }')
 USER_NAME=git-team-acceptance-test

@@ -2,6 +2,9 @@
 
 #!/bin/sh
 
+# Copyright (C) 2026 Rea Sand
+# Licensed under the EUPL
+
 PREVIOUS_HOOKS_PATH=$(git config --get team.state.previous-hooks-path)
 PREVIOUS_GLOBAL_HOOK="${PREVIOUS_HOOKS_PATH}/$(basename ${0})"
 if [ -n "${PREVIOUS_HOOKS_PATH}" ] && [ -x "${PREVIOUS_GLOBAL_HOOK}" ]; then

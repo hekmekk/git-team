@@ -1,5 +1,8 @@
 package datasink
 
+// Copyright (C) 2026 Rea Sand
+// Licensed under the EUPL
+
 import (
 	activationscope "github.com/hekmekk/git-team/v2/src/shared/activation/scope"
 	gitconfig "github.com/hekmekk/git-team/v2/src/shared/gitconfig/interface"

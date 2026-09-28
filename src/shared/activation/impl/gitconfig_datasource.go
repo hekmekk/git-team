@@ -1,5 +1,8 @@
 package activationvalidatorimpl
 
+// Copyright (C) 2026 Rea Sand
+// Licensed under the EUPL
+
 import (
 	gitconfig "github.com/hekmekk/git-team/v2/src/shared/gitconfig/interface"
 	gitconfigscope "github.com/hekmekk/git-team/v2/src/shared/gitconfig/scope"

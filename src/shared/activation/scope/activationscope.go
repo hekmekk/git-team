@@ -1,5 +1,8 @@
 package entity
 
+// Copyright (C) 2026 Rea Sand
+// Licensed under the EUPL
+
 // Scope the scope of git team
 type Scope int
 

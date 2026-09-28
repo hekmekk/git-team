@@ -1,5 +1,8 @@
 package completioncmdadapter
 
+// Copyright (C) 2026 Rea Sand
+// Licensed under the EUPL
+
 import (
 	"github.com/urfave/cli/v2"
 

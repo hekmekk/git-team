@@ -1,5 +1,8 @@
 #!/usr/bin/env bats
 
+# Copyright (C) 2026 Rea Sand
+# Licensed under the EUPL
+
 setup() {
   bats_load_library bats-support
   bats_load_library bats-assert

@@ -1,5 +1,8 @@
 package commandadapter
 
+// Copyright (C) 2026 Rea Sand
+// Licensed under the EUPL
+
 // TODO: this should live somewhere else...
 // TODO: this should depend on the gitconfig interface only as well
 

@@ -1,5 +1,8 @@
 #!/usr/bin/env bats
 
+# Copyright (C) 2026 Rea Sand
+# Licensed under the EUPL
+
 setup() {
   bats_load_library bats-support
   bats_load_library bats-assert
@@ -19,11 +22,11 @@ setup() {
 
   assert_success
   assert_line --index 0 '#!/bin/bash'
-  assert_line --index 2 '_git_team() {'
-  assert_line --index 15 '}'
-  assert_line --index 17 '_git_team_bash_completion() {'
-  assert_line --index 30 '}'
-  assert_line --index 31 'complete -F _git_team_bash_completion git-team'
+  assert_line --index 4 '_git_team() {'
+  assert_line --index 17 '}'
+  assert_line --index 19 '_git_team_bash_completion() {'
+  assert_line --index 32 '}'
+  assert_line --index 33 'complete -F _git_team_bash_completion git-team'
 }
 
 @test 'git-team: completion zsh should print the zsh completion script' {
@@ -31,8 +34,8 @@ setup() {
 
   assert_success
   assert_line --index 0 '#compdef git-team'
-  assert_line --index 1 'function _git-team {'
-  assert_line --index 23 '}'
-  assert_line --index 24 'compdef _git-team git-team'
-  assert_line --index 27 "zstyle ':completion:*:*:git:*' user-commands team:'manage and enhance git commit messages with co-authors'"
+  assert_line --index 3 'function _git-team {'
+  assert_line --index 25 '}'
+  assert_line --index 26 'compdef _git-team git-team'
+  assert_line --index 29 "zstyle ':completion:*:*:git:*' user-commands team:'manage and enhance git commit messages with co-authors'"
 }

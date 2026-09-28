@@ -1,5 +1,8 @@
 package disable
 
+// Copyright (C) 2026 Rea Sand
+// Licensed under the EUPL
+
 // Succeeded successfully disabled git-team
 type Succeeded struct{}
 

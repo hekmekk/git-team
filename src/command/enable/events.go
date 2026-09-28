@@ -1,5 +1,8 @@
 package enable
 
+// Copyright (C) 2026 Rea Sand
+// Licensed under the EUPL
+
 // Aborted aborted because no coauthors have been provided
 type Aborted struct{}
 

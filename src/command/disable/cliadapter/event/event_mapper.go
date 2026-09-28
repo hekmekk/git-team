@@ -1,5 +1,8 @@
 package disableeventadapter
 
+// Copyright (C) 2026 Rea Sand
+// Licensed under the EUPL
+
 import (
 	"github.com/hekmekk/git-team/v2/src/command/disable"
 	statuseventadapter "github.com/hekmekk/git-team/v2/src/command/status/cliadapter/event"

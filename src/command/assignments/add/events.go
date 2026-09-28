@@ -1,5 +1,8 @@
 package add
 
+// Copyright (C) 2026 Rea Sand
+// Licensed under the EUPL
+
 // AssignmentFailed assignment of coauthor to alias failed with Reason
 type AssignmentFailed struct {
 	Reason error
