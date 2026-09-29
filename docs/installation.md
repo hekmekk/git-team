@@ -26,7 +26,7 @@ go install github.com/hekmekk/git-team/v2@HEAD
 
 Install a specific version
 ```shell
-go install github.com/hekmekk/git-team/v2@v2.0.0
+go install github.com/hekmekk/git-team/v2@v2.1.0
 ```
 
 ### Homebrew

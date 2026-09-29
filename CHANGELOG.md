@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [2.1.0] - 2026-09-29
 ### Changed
 - Output is no longer colored.
 
@@ -192,7 +193,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Append co-authors to a `git commit` message by means of a commit message template file
 
-[Unreleased]: https://github.com/hekmekk/git-team/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/hekmekk/git-team/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/hekmekk/git-team/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/hekmekk/git-team/compare/v1.8.1...v2.0.0
 [1.8.1]: https://github.com/hekmekk/git-team/compare/v1.8.0...v1.8.1
 [1.8.0]: https://github.com/hekmekk/git-team/compare/v1.7.1...v1.8.0
