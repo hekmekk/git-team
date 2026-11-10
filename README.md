@@ -8,9 +8,9 @@
 Command line interface for managing and enhancing `git commit` messages with co-authors.
 
 1. [Installation](/docs/installation.md)
-2. [Usage](/README.md#usage)
-3. [Configuration](/README.md#configuration)
-4. [A note on git hooks](/README.md#a-note-on-git-hooks)
+1. [Usage](/README.md#usage)
+1. [Configuration](/README.md#configuration)
+1. [A note on git hooks](/README.md#a-note-on-git-hooks)
 
 ## Usage
 ### Setup some alias -> co-author assignments for convenience
