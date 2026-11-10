@@ -11,7 +11,6 @@ Command line interface for managing and enhancing `git commit` messages with co-
 2. [Usage](/README.md#usage)
 3. [Configuration](/README.md#configuration)
 4. [A note on git hooks](/README.md#a-note-on-git-hooks)
-5. [Similar Projects](/README.md#similar-projects)
 
 ## Usage
 ### Setup some alias -> co-author assignments for convenience
